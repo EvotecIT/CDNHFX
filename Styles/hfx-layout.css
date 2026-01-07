@@ -1,0 +1,54 @@
+/* Card fill height helper */
+.hfx-card-fill{height:100%;display:flex;flex-direction:column}
+.hfx-card-fill .card-body{display:flex;flex-direction:column;flex:1 1 auto}
+
+/* Reduce layout shift from scrollbar appearance */
+html{scrollbar-gutter:stable both-edges}
+
+/* Equal heights for row-cols based layouts - works with Bootstrap row-cols */
+.hfx-row-equalize{display:flex;flex-wrap:wrap}
+.hfx-row-equalize>*{display:flex;align-items:stretch}
+.hfx-row-equalize .card{width:100%;height:100%;display:flex;flex-direction:column}
+.hfx-row-equalize .card .card-body{display:flex;flex-direction:column;flex:1 1 auto}
+.hfx-row-equalize .vstack{height:100%}
+
+/* AutoFit layout (CSS Grid baseline): equal-width tracks; last row stretches via auto-fit */
+.hfx-autofit{display:grid;grid-template-columns:repeat(auto-fit,minmax(var(--hfx-min,18rem),1fr));gap:var(--hfx-gap,1rem);align-items:stretch;grid-auto-rows:1fr;contain:layout;grid-auto-flow:row dense}
+.hfx-autofit>*{min-height:0;min-width:0}
+.hfx-autofit .col{display:flex;flex-direction:column;min-width:0}
+.hfx-autofit .card{width:100%;height:100%;display:flex;flex-direction:column}
+.hfx-autofit .card .card-body{display:flex;flex-direction:column;flex:1 1 auto;min-height:0}
+.hfx-autofit .vstack{height:100%}
+
+/* Prefer a single line on very wide screens (xxl) */
+@media (min-width:1400px){.hfx-autofit.hfx-wide-one{grid-template-columns:repeat(var(--hfx-wide-cols,6),minmax(0,1fr))}}
+
+/* Flex variant for rows that must 50/50 the last line. Add .hfx-flex to the row */
+.hfx-autofit.hfx-flex{display:flex;flex-wrap:wrap;gap:var(--hfx-gap,1rem);align-content:flex-start;align-items:stretch}
+/* Children in Flex engine respect min card width and grow to fill rows evenly */
+.hfx-autofit.hfx-flex>*{min-width:var(--hfx-min,18rem);flex:1 1 var(--hfx-min,18rem);min-height:0}
+@media (min-width:1400px){
+  .hfx-autofit.hfx-flex.hfx-wide-one>*{
+    flex:0 0 calc((100% - (var(--hfx-wide-cols,6) - 1) * var(--hfx-gap,1rem)) / var(--hfx-wide-cols,6));
+  }
+}
+
+/* Retain fixed card width on wrap (auto-fill semantics). Last row may leave right-side gap. */
+.hfx-autofit.hfx-retain{grid-template-columns:repeat(auto-fill,minmax(var(--hfx-min,18rem),var(--hfx-min,18rem)));justify-content:start}
+
+/* Ensure charts fill available space, but cap size in AutoFit rows to prevent oversizing */
+.hfx-row-equalize canvas:not(.hfx-chartjs),.hfx-autofit canvas:not(.hfx-chartjs){max-width:100%;height:auto!important}
+.hfx-autofit canvas:not(.hfx-chartjs){max-height:var(--hfx-chart-maxh,clamp(200px,30vh,420px))!important;width:100%!important;display:block;margin-inline:auto;aspect-ratio:var(--hfx-chart-aspect,1/1)}
+
+/* Center single-canvas card bodies without affecting other content */
+.hfx-autofit .card-body:has(> canvas),
+.hfx-row-equalize .card-body:has(> canvas){display:grid;align-items:center;justify-items:center}
+
+/* Fix for DataGrid: preserve Tabler flow; only constrain height/scroll */
+.hfx-row-equalize .datagrid,.hfx-autofit .datagrid{min-height:0;max-height:var(--hfx-dg-maxh,clamp(220px,35vh,540px));overflow:auto}
+
+/* DataGrid tile/flow layout: arrange items side-by-side and fill rows evenly */
+.datagrid.hfx-dg-tiles{display:flex;flex-wrap:wrap;gap:var(--hfx-dg-gap, .75rem);align-items:stretch}
+.datagrid.hfx-dg-tiles .datagrid-item{flex:1 1 var(--hfx-dg-min, 18rem);min-width:var(--hfx-dg-min, 18rem);min-height:0}
+/* In tile mode, rely on container gap instead of item outer margins to keep spacing even */
+.datagrid.hfx-dg-tiles .datagrid-item{margin-top:0!important;margin-bottom:0!important}

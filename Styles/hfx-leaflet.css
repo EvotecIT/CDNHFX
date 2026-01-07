@@ -1,0 +1,230 @@
+.hfx-leaflet-map .leaflet-container {
+  font-family: var(--tblr-body-font-family, system-ui, -apple-system, Segoe UI, Roboto, sans-serif);
+}
+
+.hfx-leaflet-map .leaflet-bar {
+  box-shadow: rgba(var(--tblr-body-color-rgb, 31, 41, 55), 0.08) 0 2px 6px;
+  border: 1px solid rgba(var(--tblr-body-color-rgb, 31, 41, 55), 0.12);
+  border-radius: var(--tblr-border-radius, 4px);
+  overflow: hidden;
+}
+
+.hfx-leaflet-map .leaflet-bar a {
+  background: rgba(var(--tblr-body-bg-rgb, 249, 250, 251), 0.9);
+  color: var(--tblr-body-color, #1f2937);
+  border-bottom: 1px solid rgba(var(--tblr-body-color-rgb, 31, 41, 55), 0.12);
+}
+
+.hfx-leaflet-map .leaflet-bar a:hover {
+  background: rgba(var(--tblr-body-bg-rgb, 249, 250, 251), 1);
+  color: var(--tblr-body-color, #1f2937);
+}
+
+.hfx-leaflet-map .leaflet-bar a.leaflet-disabled {
+  background: rgba(var(--tblr-body-bg-rgb, 249, 250, 251), 0.6);
+  color: rgba(var(--tblr-body-color-rgb, 31, 41, 55), 0.45);
+}
+
+.hfx-leaflet-map .leaflet-control-attribution {
+  background: rgba(var(--tblr-body-bg-rgb, 249, 250, 251), 0.7);
+  color: var(--tblr-body-color, #1f2937);
+  border-radius: var(--tblr-border-radius, 4px);
+  border: 1px solid rgba(var(--tblr-body-color-rgb, 31, 41, 55), 0.12);
+  box-shadow: rgba(var(--tblr-body-color-rgb, 31, 41, 55), 0.05) 0 2px 6px;
+  padding: 0.1rem 0.4rem;
+}
+
+.hfx-leaflet-map .leaflet-control-attribution a {
+  color: inherit;
+}
+
+.hfx-leaflet-map .leaflet-control-layers {
+  background: rgba(var(--tblr-body-bg-rgb, 249, 250, 251), 0.92);
+  color: var(--tblr-body-color, #1f2937);
+  border-radius: var(--tblr-border-radius, 4px);
+  border: 1px solid rgba(var(--tblr-body-color-rgb, 31, 41, 55), 0.12);
+  box-shadow: rgba(var(--tblr-body-color-rgb, 31, 41, 55), 0.08) 0 6px 18px;
+}
+
+.hfx-leaflet-map .leaflet-control-layers label {
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+
+.hfx-leaflet-map .hfx-leaflet-layer-heading {
+  margin: 0.25rem 0.5rem 0.25rem;
+  padding-top: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: rgba(var(--tblr-body-color-rgb, 31, 41, 55), 0.7);
+  border-top: 1px solid rgba(var(--tblr-body-color-rgb, 31, 41, 55), 0.12);
+}
+
+.hfx-leaflet-map .leaflet-control-layers-separator {
+  border-top: 1px solid rgba(var(--tblr-body-color-rgb, 31, 41, 55), 0.12);
+}
+
+.hfx-leaflet-map .hfx-leaflet-legend {
+  background: rgba(var(--tblr-body-bg-rgb, 249, 250, 251), 0.92);
+  color: var(--tblr-body-color, #1f2937);
+  border-radius: var(--tblr-border-radius, 4px);
+  border: 1px solid rgba(var(--tblr-body-color-rgb, 31, 41, 55), 0.12);
+  box-shadow: rgba(var(--tblr-body-color-rgb, 31, 41, 55), 0.08) 0 6px 18px;
+  padding: 0.5rem 0.625rem;
+}
+
+.hfx-leaflet-map .hfx-leaflet-legend-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  margin-bottom: 0.375rem;
+}
+
+.hfx-leaflet-map .hfx-leaflet-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1.2;
+  margin: 0.125rem 0;
+}
+
+.hfx-leaflet-map .hfx-leaflet-legend-swatch {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 3px;
+  background: var(--tblr-primary, #066fd1);
+  box-shadow: rgba(var(--tblr-body-color-rgb, 31, 41, 55), 0.18) 0 0 0 1px inset;
+}
+
+.hfx-leaflet-map .hfx-leaflet-legend-label {
+  white-space: nowrap;
+}
+
+.hfx-leaflet-map .leaflet-popup-content-wrapper,
+.hfx-leaflet-map .leaflet-popup-tip {
+  background: rgba(var(--tblr-body-bg-rgb, 249, 250, 251), 0.95);
+  color: var(--tblr-body-color, #1f2937);
+  border: 1px solid rgba(var(--tblr-body-color-rgb, 31, 41, 55), 0.12);
+  box-shadow: rgba(var(--tblr-body-color-rgb, 31, 41, 55), 0.08) 0 6px 18px;
+}
+
+.hfx-leaflet-map .leaflet-tooltip {
+  background: rgba(var(--tblr-body-bg-rgb, 249, 250, 251), 0.85);
+  color: var(--tblr-body-color, #1f2937);
+  border: 1px solid rgba(var(--tblr-body-color-rgb, 31, 41, 55), 0.12);
+  box-shadow: rgba(var(--tblr-body-color-rgb, 31, 41, 55), 0.08) 0 2px 10px;
+}
+
+.hfx-leaflet-popup,
+.hfx-leaflet-tooltip {
+  font-family: var(--tblr-body-font-family, system-ui, -apple-system, Segoe UI, Roboto, sans-serif);
+  color: var(--tblr-body-color, #1f2937);
+}
+
+.hfx-leaflet-div-icon {
+  background: transparent !important;
+  border: none !important;
+}
+
+.hfx-leaflet-marker-anchor {
+  transform: translate(-50%, -100%);
+  transform-origin: bottom center;
+  pointer-events: auto;
+}
+
+.hfx-leaflet-marker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-family: var(--tblr-body-font-family, system-ui, -apple-system, Segoe UI, Roboto, sans-serif);
+  font-size: 0.75rem;
+  line-height: 1;
+  pointer-events: auto;
+  user-select: none;
+}
+
+.hfx-leaflet-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--hfx-leaflet-marker-color, var(--tblr-primary, #066fd1));
+  box-shadow: 0 0 0 2px var(--hfx-leaflet-marker-ring, rgba(0, 0, 0, 0.25));
+}
+
+.hfx-leaflet-pin {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--tblr-primary-fg, #fff);
+  background: var(--hfx-leaflet-marker-color, var(--tblr-primary, #066fd1));
+  box-shadow: 0 0 0 2px var(--hfx-leaflet-marker-ring, rgba(0, 0, 0, 0.25)), 0 10px 24px rgba(0, 0, 0, 0.28);
+}
+
+.hfx-leaflet-pin svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2;
+}
+
+.hfx-leaflet-label {
+  padding: 0.125rem 0.375rem;
+  border-radius: 999px;
+  color: var(--tblr-body-color, #1f2937);
+  background: rgba(var(--tblr-body-bg-rgb, 249, 250, 251), 0.8);
+  border: 1px solid rgba(var(--tblr-body-color-rgb, 31, 41, 55), 0.12);
+  box-shadow: rgba(var(--tblr-body-color-rgb, 31, 41, 55), 0.08) 0 2px 6px;
+  white-space: nowrap;
+}
+
+.hfx-leaflet-map .hfx-leaflet-selected {
+  filter: drop-shadow(0 0 10px rgba(var(--tblr-primary-rgb, 6, 111, 209), 0.35));
+}
+
+.hfx-leaflet-map .leaflet-marker-icon.hfx-leaflet-selected .hfx-leaflet-dot {
+  box-shadow: 0 0 0 2px var(--hfx-leaflet-marker-ring, rgba(0, 0, 0, 0.25)), 0 0 0 6px rgba(var(--tblr-primary-rgb, 6, 111, 209), 0.25);
+}
+
+.hfx-leaflet-map .leaflet-marker-icon.hfx-leaflet-selected .hfx-leaflet-label {
+  border-color: rgba(var(--tblr-primary-rgb, 6, 111, 209), 0.35);
+}
+
+.hfx-leaflet-map .leaflet-marker-icon.hfx-leaflet-selected .hfx-leaflet-pin {
+  box-shadow: 0 0 0 2px var(--hfx-leaflet-marker-ring, rgba(0, 0, 0, 0.25)), 0 0 0 6px rgba(var(--tblr-primary-rgb, 6, 111, 209), 0.25), 0 10px 24px rgba(0, 0, 0, 0.28);
+}
+
+/* Leaflet.markercluster (optional) - Tabler-aligned colors */
+.hfx-leaflet-map .marker-cluster-small {
+  background-color: rgba(var(--tblr-success-rgb, 47, 179, 68), 0.35);
+}
+.hfx-leaflet-map .marker-cluster-small div {
+  background-color: rgba(var(--tblr-success-rgb, 47, 179, 68), 0.55);
+}
+.hfx-leaflet-map .marker-cluster-medium {
+  background-color: rgba(var(--tblr-warning-rgb, 245, 159, 0), 0.35);
+}
+.hfx-leaflet-map .marker-cluster-medium div {
+  background-color: rgba(var(--tblr-warning-rgb, 245, 159, 0), 0.55);
+}
+.hfx-leaflet-map .marker-cluster-large {
+  background-color: rgba(var(--tblr-danger-rgb, 214, 57, 57), 0.35);
+}
+.hfx-leaflet-map .marker-cluster-large div {
+  background-color: rgba(var(--tblr-danger-rgb, 214, 57, 57), 0.55);
+}
+
+/* Route styling helpers */
+.hfx-leaflet-map .hfx-leaflet-dash-animate {
+  animation: hfx-leaflet-dash-offset 1.8s linear infinite;
+}
+
+@keyframes hfx-leaflet-dash-offset {
+  to {
+    stroke-dashoffset: -100;
+  }
+}
