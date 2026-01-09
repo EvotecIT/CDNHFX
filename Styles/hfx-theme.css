@@ -236,6 +236,67 @@ body[data-hfx-a11y~="high-contrast"] .mapboxgl-popup-content {
   border: 1px solid var(--tblr-border-color);
 }
 
+/* ---------- Mapbox GL (dark mode overrides) ---------- */
+:root[data-bs-theme="dark"] .mapboxgl-ctrl-group,
+body[data-bs-theme="dark"] .mapboxgl-ctrl-group {
+  background: var(--tblr-bg-surface, #111827);
+  box-shadow: 0 0 0 2px var(--tblr-border-color, rgba(255,255,255,.12));
+}
+
+:root[data-bs-theme="dark"] .mapboxgl-ctrl-group button + button,
+body[data-bs-theme="dark"] .mapboxgl-ctrl-group button + button {
+  border-top: 1px solid var(--tblr-border-color, rgba(255,255,255,.12));
+}
+
+:root[data-bs-theme="dark"] .mapboxgl-ctrl button:not(:disabled):hover,
+body[data-bs-theme="dark"] .mapboxgl-ctrl button:not(:disabled):hover {
+  background-color: color-mix(in srgb, var(--tblr-bg-surface, #111827) 75%, var(--tblr-body-color, #e5e7eb));
+}
+
+:root[data-bs-theme="dark"] .mapboxgl-ctrl-attrib,
+body[data-bs-theme="dark"] .mapboxgl-ctrl-attrib,
+:root[data-bs-theme="dark"] .mapboxgl-ctrl-scale,
+body[data-bs-theme="dark"] .mapboxgl-ctrl-scale,
+:root[data-bs-theme="dark"] .mapboxgl-popup-content,
+body[data-bs-theme="dark"] .mapboxgl-popup-content {
+  background: var(--tblr-bg-surface, #111827);
+  color: var(--tblr-body-color, #e5e7eb);
+  border-color: var(--tblr-border-color, rgba(255,255,255,.12));
+}
+
+:root[data-bs-theme="dark"] .mapboxgl-ctrl-attrib a,
+body[data-bs-theme="dark"] .mapboxgl-ctrl-attrib a {
+  color: inherit;
+}
+
+:root[data-bs-theme="dark"] .mapboxgl-popup-anchor-top .mapboxgl-popup-tip,
+body[data-bs-theme="dark"] .mapboxgl-popup-anchor-top .mapboxgl-popup-tip,
+:root[data-bs-theme="dark"] .mapboxgl-popup-anchor-top-left .mapboxgl-popup-tip,
+body[data-bs-theme="dark"] .mapboxgl-popup-anchor-top-left .mapboxgl-popup-tip,
+:root[data-bs-theme="dark"] .mapboxgl-popup-anchor-top-right .mapboxgl-popup-tip,
+body[data-bs-theme="dark"] .mapboxgl-popup-anchor-top-right .mapboxgl-popup-tip {
+  border-bottom-color: var(--tblr-bg-surface, #111827);
+}
+
+:root[data-bs-theme="dark"] .mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip,
+body[data-bs-theme="dark"] .mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip,
+:root[data-bs-theme="dark"] .mapboxgl-popup-anchor-bottom-left .mapboxgl-popup-tip,
+body[data-bs-theme="dark"] .mapboxgl-popup-anchor-bottom-left .mapboxgl-popup-tip,
+:root[data-bs-theme="dark"] .mapboxgl-popup-anchor-bottom-right .mapboxgl-popup-tip,
+body[data-bs-theme="dark"] .mapboxgl-popup-anchor-bottom-right .mapboxgl-popup-tip {
+  border-top-color: var(--tblr-bg-surface, #111827);
+}
+
+:root[data-bs-theme="dark"] .mapboxgl-popup-anchor-left .mapboxgl-popup-tip,
+body[data-bs-theme="dark"] .mapboxgl-popup-anchor-left .mapboxgl-popup-tip {
+  border-right-color: var(--tblr-bg-surface, #111827);
+}
+
+:root[data-bs-theme="dark"] .mapboxgl-popup-anchor-right .mapboxgl-popup-tip,
+body[data-bs-theme="dark"] .mapboxgl-popup-anchor-right .mapboxgl-popup-tip {
+  border-left-color: var(--tblr-bg-surface, #111827);
+}
+
 /* ---------- Theme selector (dropdown) ---------- */
 .hfx-theme-menu .hfx-theme-check {
   display: none;

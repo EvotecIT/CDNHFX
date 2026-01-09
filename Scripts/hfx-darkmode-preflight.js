@@ -1,3 +1,5 @@
+// HtmlForgeX preflight: runs in <head> before styles to avoid FOUC in ThemeMode.System.
+// Kept tiny and defensive; may be inlined for ordering guarantees in Online/Offline modes.
 (function(){
   try {
     var root = document && document.documentElement ? document.documentElement : null;

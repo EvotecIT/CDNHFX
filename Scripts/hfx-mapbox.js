@@ -104,7 +104,22 @@
       for (var i = 0; i < markers.length; i++) {
         var m = markers[i] || {};
         var color = m.color ? String(m.color) : 'var(--tblr-primary)';
-        out.push(new mapboxgl.Marker({ color: color }).setLngLat([m.lng, m.lat]).addTo(map));
+        var usePulse = !!m.pulse;
+        var useGlow = !!m.glow;
+        if (usePulse || useGlow) {
+          var el = document.createElement('div');
+          el.className = 'hfx-mapbox-marker' + (usePulse ? ' hfx-mapbox-marker-pulse' : ' hfx-mapbox-marker-glow');
+          try { el.style.setProperty('--hfx-mapbox-marker-color', color); } catch (_mc0) { /* ignore */ }
+          try {
+            if (typeof m.sizePx === 'number') el.style.setProperty('--hfx-mapbox-marker-size', String(m.sizePx) + 'px');
+            if (typeof m.pulseSizePx === 'number') el.style.setProperty('--hfx-mapbox-pulse-size', String(m.pulseSizePx) + 'px');
+            if (typeof m.pulseSpeedSeconds === 'number') el.style.setProperty('--hfx-mapbox-pulse-speed', String(m.pulseSpeedSeconds) + 's');
+            if (typeof m.glowSizePx === 'number') el.style.setProperty('--hfx-mapbox-glow-size', String(m.glowSizePx) + 'px');
+          } catch (_ms) { /* ignore */ }
+          out.push(new mapboxgl.Marker({ element: el }).setLngLat([m.lng, m.lat]).addTo(map));
+        } else {
+          out.push(new mapboxgl.Marker({ color: color }).setLngLat([m.lng, m.lat]).addTo(map));
+        }
       }
     } catch (_e) { /* ignore */ }
     return out;

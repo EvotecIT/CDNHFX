@@ -1,6 +1,10 @@
 (function () {
   'use strict';
 
+  try {
+    window.diagramTracker = window.diagramTracker || {};
+  } catch (_e) { /* ignore */ }
+
   function getCssVar(name) {
     try {
       // Prefer :root but fall back to <body> because some themes apply tokens there.

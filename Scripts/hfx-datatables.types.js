@@ -54,6 +54,20 @@
     return isNaN(n) ? NaN : n;
   }
 
+  function parsePercent(raw) {
+    var attr = parseAttrNumber(raw);
+    if (!isNaN(attr)) return attr;
+    var s = stripHtml(raw);
+    if (!s) return NaN;
+    s = s.replace('%', '').trim();
+    if (!s) return NaN;
+    s = s.replace(/[\u00A0\u2009\u202F]/g, ' ');
+    s = s.replace(/[, ](?=\d{3}(\D|$))/g, '');
+    s = s.replace(/^\s+|\s+$/g, '');
+    var n = parseFloat(s.replace(',', '.'));
+    return isNaN(n) ? NaN : n;
+  }
+
   function parseFileSize(raw) {
     var attr = parseAttrNumber(raw);
     if (!isNaN(attr)) return attr;
@@ -100,22 +114,100 @@
     var s = stripHtml(raw);
     if (!s) return NaN;
     if (/^\d{9,}$/.test(s)) return parseFloat(s);
-    var t = Date.parse(s);
+    var t = Date.parse(normalizeDateString(s));
     return isNaN(t) ? NaN : t;
   }
 
+  function normalizeDateString(value) {
+    var v = String(value);
+    if (/^\d{4}-\d{2}-\d{2} /.test(v)) v = v.replace(' ', 'T');
+    if (/ UTC$/.test(v)) v = v.replace(' UTC', 'Z');
+    return v;
+  }
+
   function parseIp(raw) {
+    var key = parseIpKey(raw);
+    return key == null ? '' : key;
+  }
+
+  function parseIpKey(raw) {
     var s = stripHtml(raw);
-    if (!s) return NaN;
-    var parts = s.split('.');
-    if (parts.length !== 4) return NaN;
-    var n = 0;
+    if (!s) return null;
+    s = s.trim();
+    if (!s) return null;
+    if (s[0] === '[' && s[s.length - 1] === ']') {
+      s = s.substring(1, s.length - 1).trim();
+    }
+    var zoneIndex = s.indexOf('%');
+    if (zoneIndex >= 0) s = s.substring(0, zoneIndex);
+    if (s.indexOf(':') >= 0) return parseIpv6Key(s);
+    return parseIpv4Key(s);
+  }
+
+  function parseIpv4Key(value) {
+    var parts = String(value).split('.');
+    if (parts.length !== 4) return null;
+    var padded = '';
     for (var i = 0; i < 4; i++) {
       var p = parseInt(parts[i], 10);
-      if (isNaN(p) || p < 0 || p > 255) return NaN;
-      n = n * 256 + p;
+      if (isNaN(p) || p < 0 || p > 255) return null;
+      var seg = String(p);
+      padded += ('000' + seg).slice(-3);
     }
-    return n;
+    return 'v4:' + padded;
+  }
+
+  function parseIpv6Key(value) {
+    var s = String(value).toLowerCase();
+    if (!s) return null;
+    var doubleIdx = s.indexOf('::');
+    var left = [];
+    var right = [];
+    if (doubleIdx >= 0) {
+      var leftPart = s.substring(0, doubleIdx);
+      var rightPart = s.substring(doubleIdx + 2);
+      left = leftPart ? leftPart.split(':') : [];
+      right = rightPart ? rightPart.split(':') : [];
+    } else {
+      left = s.split(':');
+    }
+
+    var tail = right.length ? right : left;
+    if (tail.length > 0 && tail[tail.length - 1].indexOf('.') >= 0) {
+      var ipv4 = tail[tail.length - 1];
+      var v4parts = ipv4.split('.');
+      if (v4parts.length !== 4) return null;
+      var b0 = parseInt(v4parts[0], 10);
+      var b1 = parseInt(v4parts[1], 10);
+      var b2 = parseInt(v4parts[2], 10);
+      var b3 = parseInt(v4parts[3], 10);
+      if ([b0, b1, b2, b3].some(function (b) { return isNaN(b) || b < 0 || b > 255; })) return null;
+      var hexHi = ((b0 << 8) | b1).toString(16).padStart(4, '0');
+      var hexLo = ((b2 << 8) | b3).toString(16).padStart(4, '0');
+      tail.pop();
+      tail.push(hexHi);
+      tail.push(hexLo);
+    }
+
+    if (doubleIdx >= 0) {
+      var missing = 8 - (left.length + right.length);
+      if (missing < 0) return null;
+      var expanded = [];
+      for (var i = 0; i < left.length; i++) expanded.push(left[i]);
+      for (var j = 0; j < missing; j++) expanded.push('0');
+      for (var k = 0; k < right.length; k++) expanded.push(right[k]);
+      left = expanded;
+    }
+
+    if (left.length !== 8) return null;
+    var parts = [];
+    for (var n = 0; n < left.length; n++) {
+      var part = left[n];
+      if (part === '') part = '0';
+      if (!/^[0-9a-f]{1,4}$/.test(part)) return null;
+      parts.push(('0000' + part).slice(-4));
+    }
+    return 'v6:' + parts.join('');
   }
 
   function detectByAttr(attrs) {
@@ -139,6 +231,14 @@
   }
 
   function registerCoreTypes() {
+    addType('hfx-number', function (d) { return !isNaN(parseNumber(d)); }, function (d) {
+      var v = parseNumber(d);
+      return isNaN(v) ? -Infinity : v;
+    }, 'dt-type-numeric');
+    addType('hfx-percent', function (d) { return !isNaN(parsePercent(d)); }, function (d) {
+      var v = parsePercent(d);
+      return isNaN(v) ? -Infinity : v;
+    }, 'dt-type-numeric');
     addType('hfx-file-size', function (d) { return !isNaN(parseFileSize(d)); }, function (d) {
       var v = parseFileSize(d);
       return isNaN(v) ? -Infinity : v;
@@ -155,9 +255,8 @@
       var v = parseDateTicks(d);
       return isNaN(v) ? -Infinity : v;
     }, 'dt-type-date');
-    addType('hfx-ip', function (d) { return !isNaN(parseIp(d)); }, function (d) {
-      var v = parseIp(d);
-      return isNaN(v) ? -Infinity : v;
+    addType('hfx-ip', function (d) { return parseIpKey(d) != null; }, function (d) {
+      return parseIp(d);
     }, 'dt-type-numeric');
   }
 
@@ -165,8 +264,13 @@
     try {
       registerCoreTypes();
       var attrs = {
+        'number': function (d) { return parseNumber(d); },
+        'numeric': function (d) { return parseNumber(d); },
+        'num': function (d) { return parseNumber(d); },
         'file-size': function (d) { return parseFileSize(d); },
         'filesize': function (d) { return parseFileSize(d); },
+        'percent': function (d) { return parsePercent(d); },
+        'percentage': function (d) { return parsePercent(d); },
         'duration': function (d) { return parseDurationMs(d); },
         'age-minutes': function (d) { return parseAgeMinutes(d); },
         'date-ticks': function (d) { return parseDateTicks(d); },

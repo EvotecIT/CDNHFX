@@ -465,6 +465,39 @@
       if (height) {
         try { el.style.height = String(height); } catch (_h) { /* swallow */ }
       }
+      try {
+        var styleName = (cfg.style || el.getAttribute('data-hfx-leaflet-style') || '').toString().toLowerCase();
+        if (styleName) el.classList.add('hfx-leaflet-style-' + styleName);
+      } catch (_sn) { /* swallow */ }
+      try {
+        if (cfg.sweep) el.classList.add('hfx-leaflet-sweep');
+        if (typeof cfg.sweepSpeedSeconds === 'number') {
+          el.style.setProperty('--hfx-leaflet-sweep-speed', String(cfg.sweepSpeedSeconds) + 's');
+        }
+      } catch (_ss) { /* swallow */ }
+      try {
+        if (cfg.sweep) {
+          var sweep = el.__hfx_leaflet_sweep_overlay;
+          if (!sweep) {
+            sweep = document.createElement('div');
+            sweep.className = 'hfx-leaflet-sweep-overlay';
+            el.appendChild(sweep);
+            el.__hfx_leaflet_sweep_overlay = sweep;
+          }
+          if (cfg.sweepColor) {
+            try { sweep.style.setProperty('--hfx-leaflet-sweep-color', String(cfg.sweepColor)); } catch (_sc) { /* swallow */ }
+          }
+          if (typeof cfg.sweepOpacity === 'number') {
+            try { sweep.style.setProperty('--hfx-leaflet-sweep-opacity', String(cfg.sweepOpacity)); } catch (_so) { /* swallow */ }
+          }
+          if (typeof cfg.sweepArcWidthDeg === 'number') {
+            try { sweep.style.setProperty('--hfx-leaflet-sweep-arc', String(cfg.sweepArcWidthDeg) + 'deg'); } catch (_sa) { /* swallow */ }
+          }
+          if (typeof cfg.sweepSpeedSeconds === 'number') {
+            try { sweep.style.setProperty('--hfx-leaflet-sweep-speed', String(cfg.sweepSpeedSeconds) + 's'); } catch (_ssp) { /* swallow */ }
+          }
+        }
+      } catch (_sw) { /* swallow */ }
 
       var center = cfg.center || [0, 0];
       var zoom = typeof cfg.zoom === 'number' ? cfg.zoom : 2;
@@ -815,9 +848,11 @@
         var layer = null;
 
         var color = m.color || null;
+        var usePulse = normalizeBool(m.pulse, false);
+        var useGlow = normalizeBool(m.glow, false);
 
         // HTML marker overlays via <template> cloning.
-        if (m.templateId && L.divIcon && L.marker) {
+        if (m.templateId && L.divIcon && L.marker && !usePulse && !useGlow) {
           var node = cloneTemplateFirstElement(m.templateId);
           if (node) {
             if (color) { try { node.style.setProperty('--hfx-leaflet-marker-color', String(color)); } catch (_mc) { /* swallow */ } }
@@ -828,6 +863,33 @@
             });
             layer = L.marker([m.lat, m.lng], { icon: icon });
           }
+        }
+
+        if (!layer && (usePulse || useGlow) && L.divIcon && L.marker) {
+          try {
+            var pulseNode = document.createElement('div');
+            pulseNode.className = 'hfx-leaflet-pulse-anchor' + (usePulse ? ' hfx-leaflet-pulse' : (useGlow ? ' hfx-leaflet-glow' : ''));
+            if (color) { try { pulseNode.style.setProperty('--hfx-leaflet-marker-color', String(color)); } catch (_pmc) { /* swallow */ } }
+            if (typeof m.sizePx === 'number') { try { pulseNode.style.setProperty('--hfx-leaflet-marker-size', String(m.sizePx) + 'px'); } catch (_ms) { /* swallow */ } }
+            if (typeof m.pulseSizePx === 'number') { try { pulseNode.style.setProperty('--hfx-leaflet-pulse-size', String(m.pulseSizePx) + 'px'); } catch (_ps) { /* swallow */ } }
+            if (typeof m.pulseSpeedSeconds === 'number') { try { pulseNode.style.setProperty('--hfx-leaflet-pulse-speed', String(m.pulseSpeedSeconds) + 's'); } catch (_sp) { /* swallow */ } }
+            if (typeof m.glowSizePx === 'number') { try { pulseNode.style.setProperty('--hfx-leaflet-glow-size', String(m.glowSizePx) + 'px'); } catch (_gs) { /* swallow */ } }
+            if (usePulse) {
+              var ring = document.createElement('span');
+              ring.className = 'hfx-leaflet-pulse-ring';
+              pulseNode.appendChild(ring);
+            }
+            var dot = document.createElement('span');
+            dot.className = 'hfx-leaflet-pulse-dot';
+            pulseNode.appendChild(dot);
+
+            var pulseIcon = L.divIcon({
+              html: pulseNode,
+              className: 'hfx-leaflet-div-icon',
+              iconSize: [0, 0]
+            });
+            layer = L.marker([m.lat, m.lng], { icon: pulseIcon });
+          } catch (_pe) { /* swallow */ }
         }
 
         var useCircle = normalizeBool(m.circle, !!color);

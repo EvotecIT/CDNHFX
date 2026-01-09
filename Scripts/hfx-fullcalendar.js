@@ -1,6 +1,10 @@
 (function () {
   'use strict';
 
+  try {
+    window.calendarTracker = window.calendarTracker || {};
+  } catch (_e) { /* ignore */ }
+
   function isInitialized(el) {
     try {
       return el && el.getAttribute && el.getAttribute('data-hfx-fullcalendar-init') === '1';
@@ -58,4 +62,3 @@
   window.hfxFullCalendar.init = init;
   window.hfxFullCalendar.initById = initById;
 })();
-

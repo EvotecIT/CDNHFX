@@ -2,6 +2,103 @@
   font-family: var(--tblr-body-font-family, system-ui, -apple-system, Segoe UI, Roboto, sans-serif);
 }
 
+.hfx-leaflet-map {
+  --hfx-leaflet-situation-bg: var(--tblr-bg-surface, #f3f4f6);
+  --hfx-leaflet-situation-grid-strong: rgba(var(--tblr-primary-rgb, 6, 111, 209), 0.08);
+  --hfx-leaflet-situation-grid-soft: rgba(var(--tblr-primary-rgb, 6, 111, 209), 0.04);
+  --hfx-leaflet-situation-grid-opacity: 0.35;
+  --hfx-leaflet-situation-vignette: rgba(0, 0, 0, 0.18);
+  --hfx-leaflet-situation-shadow: inset 0 0 0 1px rgba(var(--tblr-primary-rgb, 6, 111, 209), 0.12), inset 0 0 40px rgba(0, 0, 0, 0.12);
+  --hfx-leaflet-situation-filter: saturate(1.02) brightness(1);
+  --hfx-leaflet-sweep-color: rgba(var(--tblr-primary-rgb, 6, 111, 209), 0.18);
+  --hfx-leaflet-sweep-opacity: 0.55;
+}
+
+:root[data-bs-theme="dark"] .hfx-leaflet-map,
+body[data-bs-theme="dark"] .hfx-leaflet-map {
+  --hfx-leaflet-situation-bg: #0b1412;
+  --hfx-leaflet-situation-grid-strong: rgba(var(--tblr-teal-rgb, 12, 170, 130), 0.18);
+  --hfx-leaflet-situation-grid-soft: rgba(var(--tblr-teal-rgb, 12, 170, 130), 0.08);
+  --hfx-leaflet-situation-grid-opacity: 0.6;
+  --hfx-leaflet-situation-vignette: rgba(0, 0, 0, 0.6);
+  --hfx-leaflet-situation-shadow: inset 0 0 0 1px rgba(var(--tblr-teal-rgb, 12, 170, 130), 0.18), inset 0 0 40px rgba(0, 0, 0, 0.45);
+  --hfx-leaflet-situation-filter: saturate(0.8) brightness(0.85);
+  --hfx-leaflet-sweep-color: rgba(var(--tblr-teal-rgb, 12, 170, 130), 0.22);
+  --hfx-leaflet-sweep-opacity: 0.85;
+}
+
+:root[data-hfx-theme="dark-black"] .hfx-leaflet-map,
+body[data-hfx-theme="dark-black"] .hfx-leaflet-map,
+:root[data-hfx-theme="dark-carbon"] .hfx-leaflet-map,
+body[data-hfx-theme="dark-carbon"] .hfx-leaflet-map {
+  --hfx-leaflet-situation-grid-opacity: 0.75;
+  --hfx-leaflet-situation-vignette: rgba(0, 0, 0, 0.75);
+  --hfx-leaflet-situation-shadow: inset 0 0 0 1px rgba(var(--tblr-teal-rgb, 12, 170, 130), 0.22), inset 0 0 46px rgba(0, 0, 0, 0.65);
+  --hfx-leaflet-sweep-opacity: 0.9;
+}
+
+.hfx-leaflet-map.hfx-leaflet-style-situation {
+  position: relative;
+  background: var(--hfx-leaflet-situation-bg, #0b1412);
+  border-radius: var(--tblr-border-radius, 4px);
+  overflow: hidden;
+  box-shadow: var(--hfx-leaflet-situation-shadow, inset 0 0 0 1px rgba(60, 180, 130, 0.15), inset 0 0 40px rgba(0, 0, 0, 0.45));
+}
+
+.hfx-leaflet-map.hfx-leaflet-sweep {
+  position: relative;
+  overflow: hidden;
+}
+
+.hfx-leaflet-map.hfx-leaflet-style-situation .leaflet-container {
+  position: relative;
+  z-index: 1;
+  filter: var(--hfx-leaflet-situation-filter, saturate(0.75) brightness(0.85));
+}
+
+.hfx-leaflet-map.hfx-leaflet-style-situation::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 450;
+  pointer-events: none;
+  opacity: var(--hfx-leaflet-situation-grid-opacity, 0.6);
+  background-image:
+    linear-gradient(var(--hfx-leaflet-situation-grid-strong, rgba(80, 210, 160, 0.12)) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hfx-leaflet-situation-grid-strong, rgba(80, 210, 160, 0.12)) 1px, transparent 1px),
+    linear-gradient(var(--hfx-leaflet-situation-grid-soft, rgba(80, 210, 160, 0.06)) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hfx-leaflet-situation-grid-soft, rgba(80, 210, 160, 0.06)) 1px, transparent 1px);
+  background-size: 64px 64px, 64px 64px, 16px 16px, 16px 16px;
+}
+
+.hfx-leaflet-sweep-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 460;
+  pointer-events: none;
+  opacity: var(--hfx-leaflet-sweep-opacity, 0.85);
+  background: conic-gradient(from 0deg,
+    rgba(0, 0, 0, 0) 0deg,
+    var(--hfx-leaflet-sweep-color, rgba(90, 255, 190, 0.22)) var(--hfx-leaflet-sweep-arc, 35deg),
+    rgba(0, 0, 0, 0) calc(var(--hfx-leaflet-sweep-arc, 35deg) + 45deg),
+    transparent 360deg);
+  animation: hfx-leaflet-sweep var(--hfx-leaflet-sweep-speed, 9s) linear infinite;
+}
+
+.hfx-leaflet-map.hfx-leaflet-style-situation::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 470;
+  pointer-events: none;
+  background: radial-gradient(circle at center, rgba(0, 0, 0, 0.0) 0%, var(--hfx-leaflet-situation-vignette, rgba(0, 0, 0, 0.35)) 70%, rgba(0, 0, 0, 0.6) 100%);
+}
+
+@keyframes hfx-leaflet-sweep {
+  0% { transform: rotate(0deg); opacity: 0.85; }
+  100% { transform: rotate(360deg); opacity: 0.85; }
+}
+
 .hfx-leaflet-map .leaflet-bar {
   box-shadow: rgba(var(--tblr-body-color-rgb, 31, 41, 55), 0.08) 0 2px 6px;
   border: 1px solid rgba(var(--tblr-body-color-rgb, 31, 41, 55), 0.12);
@@ -144,6 +241,44 @@
   line-height: 1;
   pointer-events: auto;
   user-select: none;
+}
+
+.hfx-leaflet-pulse-anchor {
+  position: relative;
+  width: var(--hfx-leaflet-marker-size, 14px);
+  height: var(--hfx-leaflet-marker-size, 14px);
+  transform: translate(-50%, -50%);
+  transform-origin: center;
+  pointer-events: auto;
+}
+
+.hfx-leaflet-pulse-dot {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: var(--hfx-leaflet-marker-color, var(--tblr-primary, #066fd1));
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.3), 0 0 var(--hfx-leaflet-glow-size, 10px) var(--hfx-leaflet-marker-color, var(--tblr-primary, #066fd1));
+  z-index: 2;
+}
+
+.hfx-leaflet-glow .hfx-leaflet-pulse-dot {
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.3), 0 0 var(--hfx-leaflet-glow-size, 14px) var(--hfx-leaflet-marker-color, var(--tblr-primary, #066fd1));
+}
+
+.hfx-leaflet-pulse-ring {
+  position: absolute;
+  inset: calc(var(--hfx-leaflet-pulse-size, 8px) * -1);
+  border-radius: 999px;
+  border: 2px solid var(--hfx-leaflet-marker-color, var(--tblr-primary, #066fd1));
+  opacity: 0.7;
+  z-index: 1;
+  animation: hfx-leaflet-pulse var(--hfx-leaflet-pulse-speed, 2.6s) ease-out infinite;
+}
+
+@keyframes hfx-leaflet-pulse {
+  0% { transform: scale(0.4); opacity: 0.9; }
+  70% { transform: scale(1.6); opacity: 0.1; }
+  100% { transform: scale(1.6); opacity: 0; }
 }
 
 .hfx-leaflet-dot {
