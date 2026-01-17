@@ -3,6 +3,7 @@
 - jsDelivr (versioned, GitHub tag-based)
 - GitHub Pages (latest, auto-published on push)
 - Any custom CDN that mirrors this repository (e.g., Cloudflare, Akamai)
+ - Custom domain for Pages: https://cdnhfx.evotec.xyz
 
 This repository exists so HtmlForgeX can use CDN capabilities for files that are big but are not hosted elsewhere or for files that are modified from originals.
 
