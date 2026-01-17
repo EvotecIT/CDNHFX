@@ -1,0 +1,95 @@
+.hfx-panel-shell .card {
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.hfx-panel-shell .hfx-panel {
+  position: relative;
+}
+
+.hfx-panel-shell .card-body,
+.hfx-panel-shell .card-header,
+.hfx-panel-shell .tab-content,
+.hfx-panel-shell .tab-pane {
+  overflow: hidden;
+}
+
+.hfx-panel-shell .list-group-item {
+  overflow: hidden;
+}
+
+.hfx-panel-shell .list-group-item > .d-flex {
+  flex-wrap: nowrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.hfx-panel-shell .hfx-list-trailing .badge {
+  font-size: 0.65rem;
+  letter-spacing: 0.02em;
+  padding: 0.25rem 0.5rem;
+}
+
+.hfx-panel-shell .leaflet-container {
+  border-radius: 0.65rem;
+  overflow: hidden;
+}
+
+.hfx-panel-shell .tab-content {
+  padding-top: 0.5rem;
+}
+
+.hfx-panel-shell .card-body h2,
+.hfx-panel-shell .card-body h4 {
+  margin-top: 0;
+  margin-bottom: 0.35rem;
+}
+
+.hfx-panel-shell .card-actions {
+  gap: 0.35rem;
+}
+
+.hfx-panel-shell .card-actions .badge {
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.45rem;
+}
+
+body.hfx-panel-compact [data-hfx-panel='map'],
+body.hfx-panel-compact [data-hfx-panel='feeds'],
+body.hfx-panel-compact [data-hfx-panel='metrics'],
+body.hfx-panel-compact [data-hfx-panel='spotlight'] {
+  display: none;
+}
+
+body.hfx-panel-compact [data-hfx-panel='compact'] {
+  display: block;
+}
+
+body:not(.hfx-panel-compact) [data-hfx-panel='compact'] {
+  display: none;
+}
+
+.page-header .btn-list {
+  align-items: center;
+}
+
+.page-header .btn-list .dropdown {
+  align-self: center;
+}
+
+.hfx-theme-action {
+  display: inline-flex;
+  align-items: center;
+}
+
+.hfx-theme-action .btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hfx-theme-action .dropdown-toggle::after {
+  display: none;
+}

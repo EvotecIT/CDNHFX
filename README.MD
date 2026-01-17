@@ -17,4 +17,5 @@ Non-minified: https://cdn.jsdelivr.net/gh/evotecit/cdnhfx@0.1.0/Scripts/continen
 Auto-Minified: https://cdn.jsdelivr.net/gh/evotecit/cdnhfx@0.1.0/Scripts/dataTables.min.js
 Fonts: https://cdn.jsdelivr.net/gh/evotecit/cdnhfx@0.1.0/Fonts/fontawesome-6/fa-solid-900.woff2
 GitHub Pages (latest): https://evotecit.github.io/CDNHFX/Scripts/dataTables.min.js
+Custom domain (versioned): https://cdnhfx.evotec.xyz/v/0.3.0/Scripts/dataTables.min.js
 git clone https://github.com/EvotecIT/CDNHFX.git

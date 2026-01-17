@@ -1,0 +1,128 @@
+/* HtmlForgeX: Accordion component styles */
+
+/* CSS variables for easy theming/tuning */
+:root {
+  --hfx-acc-header-z: 2000;
+  --hfx-acc-button-z: 2001;
+  --hfx-acc-fixedheader-z: 100;
+  --hfx-acc-dt-wrapper-z: 10;
+  --hfx-acc-dt-processing-z: 20;
+  --hfx-acc-gap: .5rem;
+  --hfx-acc-gap-sm: .375rem;
+  /* Vertical micro-adjustment for the copy icon (tweak if theme fonts shift baseline) */
+  --hfx-acc-copy-offset-y: -1px;
+}
+
+/* Keep headers always clickable above any table content inside bodies */
+.accordion .accordion-item { position: relative; }
+.accordion .accordion-header { position: relative; z-index: var(--hfx-acc-header-z); }
+.accordion .accordion-button.hfx-accordion-button { position: relative; z-index: var(--hfx-acc-button-z); pointer-events: auto; }
+.accordion .accordion-collapse { position: relative; z-index: 1; overflow: hidden; }
+
+/* Ensure DataTables wrappers and overlays remain beneath headers */
+.accordion .dataTables_wrapper, .accordion .dt-container { position: relative; z-index: var(--hfx-acc-dt-wrapper-z); }
+.accordion .dataTables_wrapper .dataTables_processing, .accordion .dt-container .dt-processing { z-index: var(--hfx-acc-dt-processing-z); }
+
+/* FixedHeader plugin should never cover accordion headers */
+.accordion .fixedHeader-floating, .accordion .fixedHeader-locked { z-index: var(--hfx-acc-fixedheader-z); }
+
+/* Remove default Bootstrap caret; we draw our own */
+.accordion .accordion-button.hfx-accordion-button::after { display: none; }
+
+/* Make button a positioning context; flex-align content */
+.accordion .accordion-button.hfx-accordion-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--hfx-acc-gap);
+}
+
+/* Allow selecting/copying header text. Bootstrap sets user-select:none on
+   .accordion-button by default, which prevents copying titles. Opt back in. */
+
+/* Toggle icon participates in flex layout (inside right group) */
+.accordion .accordion-button.hfx-accordion-button .hfx-accordion-toggle {
+  display: inline-flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+/* Base icon style */
+.accordion .accordion-button.hfx-accordion-button .hfx-accordion-toggle .icon {
+  transition: transform .2s ease;
+  display: inline-flex;
+  line-height: 1;
+  transform-origin: 50% 50%;
+}
+
+/* Rotate chevron only for non-plus variants */
+.accordion .accordion-button.hfx-accordion-button:not(.collapsed) .hfx-accordion-toggle:not(.accordion-button-toggle-plus) .icon {
+  transform: rotate(180deg);
+}
+
+/* Plus/minus toggle switching */
+.accordion .accordion-button .hfx-accordion-toggle.accordion-button-toggle-plus .icon-minus { display: none; }
+.accordion .accordion-button.hfx-accordion-button:not(.collapsed) .hfx-accordion-toggle.accordion-button-toggle-plus .icon-plus { display: none; }
+.accordion .accordion-button.hfx-accordion-button:not(.collapsed) .hfx-accordion-toggle.accordion-button-toggle-plus .icon-minus { display: inline-flex; }
+
+/* SVG inside icons should not shift baseline */
+.accordion .accordion-button.hfx-accordion-button .hfx-accordion-toggle .icon svg { display: block; }
+
+/* Right group containing trailing pills and chevron, pushed to far right */
+.accordion .accordion-button.hfx-accordion-button .hfx-accordion-right {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hfx-acc-gap-sm);
+}
+
+/* Trailing pills area (inside the right group), small spacing */
+.accordion .accordion-button.hfx-accordion-button .hfx-accordion-trailing {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hfx-acc-gap-sm);
+}
+
+/* Badges inside the button are non-interactive; keep clicks toggling the accordion */
+.accordion .accordion-button.hfx-accordion-button .hfx-accordion-badges {
+  pointer-events: none;
+}
+
+/* Copy title button */
+.accordion .hfx-copy-title { cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; line-height: 1; }
+.accordion .hfx-copy-title .icon { display: inline-flex; line-height: 1; transform: translateY(var(--hfx-acc-copy-offset-y)); }
+.accordion .hfx-copy-title .icon svg { display: block; }
+.accordion .hfx-copy-title[data-copied="1"] { color: #198754; }
+
+/* Generic safety rails for content inside accordion bodies */
+.accordion .accordion-body {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* Prevent accordion container from causing page-level horizontal scroll */
+.accordion { overflow-x: hidden; }
+
+/* For plain HTML tables (non-DataTables), allow soft wrapping to avoid horizontal overflow */
+.accordion .accordion-body table:not(.dataTable):not(.dt-table) th,
+.accordion .accordion-body table:not(.dataTable):not(.dt-table) td {
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+.accordion .accordion-body table:not(.dataTable):not(.dt-table) { table-layout: fixed; }
+.accordion .accordion-body table { width: 100%; }
+
+/* Neutralize negative margins from grid rows inside accordion bodies to prevent page-level overflow */
+.accordion .accordion-body .row { margin-left: 0; margin-right: 0; }
+
+.accordion .accordion-body img, .accordion .accordion-body svg { max-width: 100%; height: auto; }
+.accordion .accordion-body pre { white-space: pre-wrap; word-break: break-word; }
+
+/* Debug chip */
+.hfx-acc-debug { font-size: .725rem; margin-left: .5rem; pointer-events: none; opacity: .8; }
+.hfx-list-trailing .btn-link { padding: 0; line-height: 1; }
+
+/* Searchable behavior support */
+.accordion .accordion-item.hfx-acc-hidden { display: none; }
+.hfx-acc-no-results { padding: .25rem .25rem 0; }
