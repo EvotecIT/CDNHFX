@@ -1,21 +1,46 @@
-﻿This code is here to support HtmlForgeX project. Files hosted here are served via:
+# CDNHFX - HtmlForgeX CDN Assets
 
-- jsDelivr (versioned, GitHub tag-based)
-- GitHub Pages (latest, auto-published on push)
-- Any custom CDN that mirrors this repository (e.g., Cloudflare, Akamai)
- - Custom domain for Pages: https://cdnhfx.evotec.xyz
+CDNHFX hosts the Scripts/Styles/Images/Fonts used by HtmlForgeX. It is a mirror
+repository that is published to multiple CDNs so HtmlForgeX can serve assets
+reliably worldwide.
 
-This repository exists so HtmlForgeX can use CDN capabilities for files that are big but are not hosted elsewhere or for files that are modified from originals.
+## CDN endpoints
 
-Information about how this works: https://www.jsdelivr.com/features
+- Custom domain (recommended): https://cdnhfx.evotec.xyz
+- GitHub Pages (latest): https://evotecit.github.io/CDNHFX
+- jsDelivr (tagged, immutable): https://cdn.jsdelivr.net/gh/evotecit/cdnhfx@<TAG>/
 
-Project Code: https://www.jsdelivr.com/package/gh/evotecit/cdnhfx
+## Versioning model
 
-Some examples:
+- Latest (unversioned): `/Scripts`, `/Styles`, `/Images`, `/Fonts`
+- Versioned: `/v/<VERSION>/Scripts`, `/v/<VERSION>/Styles`, `/v/<VERSION>/Images`, `/v/<VERSION>/Fonts`
 
-Non-minified: https://cdn.jsdelivr.net/gh/evotecit/cdnhfx@0.1.0/Scripts/continents_mill.js
-Auto-Minified: https://cdn.jsdelivr.net/gh/evotecit/cdnhfx@0.1.0/Scripts/dataTables.min.js
-Fonts: https://cdn.jsdelivr.net/gh/evotecit/cdnhfx@0.1.0/Fonts/fontawesome-6/fa-solid-900.woff2
-GitHub Pages (latest): https://evotecit.github.io/CDNHFX/Scripts/dataTables.min.js
-Custom domain (versioned): https://cdnhfx.evotec.xyz/v/0.3.0/Scripts/dataTables.min.js
-git clone https://github.com/EvotecIT/CDNHFX.git
+HtmlForgeX defaults to versioned URLs using the `HfxVersion` baked into the library.
+
+## Examples
+
+Versioned:
+
+- https://cdnhfx.evotec.xyz/v/0.3.0/Scripts/dataTables.min.js
+- https://cdnhfx.evotec.xyz/v/0.3.0/Styles/hfx-theme.css
+
+Latest:
+
+- https://cdnhfx.evotec.xyz/Scripts/dataTables.min.js
+- https://cdnhfx.evotec.xyz/Styles/hfx-theme.css
+
+jsDelivr:
+
+- https://cdn.jsdelivr.net/gh/evotecit/cdnhfx@0.3.0/Scripts/dataTables.min.js
+- https://cdn.jsdelivr.net/gh/evotecit/cdnhfx@0.3.0/Fonts/fontawesome-6/fa-solid-900.woff2
+
+## Sync model
+
+- Assets are synced from the HtmlForgeX repository (`HtmlForgeX/Resources/**`).
+- GitHub Actions copies assets to both the latest (root) and versioned (`/v/<VERSION>`) paths.
+- Manual export uses `Build/ExportCdn.ps1` from the HtmlForgeX repo when needed.
+
+## Why this repo exists
+
+Some HtmlForgeX assets are large, customized, or not hosted elsewhere. CDNHFX
+keeps a single source of truth and provides consistent URLs for HtmlForgeX.
