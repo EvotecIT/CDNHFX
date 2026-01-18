@@ -1,0 +1,46 @@
+.page-body .vstack {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.page-body .card,
+.page-body .card-body {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.page-body p {
+    margin: 0.35rem 0;
+}
+
+.page-body li {
+    margin: 0.2rem 0;
+}
+
+.page-body .hfx-stack > .row,
+.page-body .hfx-stack > .row-cards,
+.page-body .hfx-stack > .row-deck {
+    margin-bottom: 0 !important;
+}
+
+.card-header .nav.nav-pills {
+    margin-left: .5rem;
+    gap: .375rem;
+}
+
+.card-header .nav .nav-link .badge {
+    margin-left: .375rem;
+}
+
+.card-header .card-actions {
+    margin: 0 0 0 auto;
+    padding-left: .5rem;
+}
+
+.page-header .btn-list {
+    align-items: center;
+}
+
+.page-header .btn-list .dropdown {
+    align-self: center;
+}

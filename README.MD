@@ -21,8 +21,8 @@ HtmlForgeX defaults to versioned URLs using the `HfxVersion` baked into the libr
 
 Versioned:
 
-- https://cdnhfx.evotec.xyz/v/0.3.0/Scripts/dataTables.min.js
-- https://cdnhfx.evotec.xyz/v/0.3.0/Styles/hfx-theme.css
+- https://cdnhfx.evotec.xyz/v/0.3.1/Scripts/dataTables.min.js
+- https://cdnhfx.evotec.xyz/v/0.3.1/Styles/hfx-theme.css
 
 Latest:
 
@@ -31,8 +31,8 @@ Latest:
 
 jsDelivr:
 
-- https://cdn.jsdelivr.net/gh/evotecit/cdnhfx@0.3.0/Scripts/dataTables.min.js
-- https://cdn.jsdelivr.net/gh/evotecit/cdnhfx@0.3.0/Fonts/fontawesome-6/fa-solid-900.woff2
+- https://cdn.jsdelivr.net/gh/evotecit/cdnhfx@0.3.1/Scripts/dataTables.min.js
+- https://cdn.jsdelivr.net/gh/evotecit/cdnhfx@0.3.1/Fonts/fontawesome-6/fa-solid-900.woff2
 
 ## Sync model
 
