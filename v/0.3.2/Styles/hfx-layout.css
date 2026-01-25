@@ -2,8 +2,8 @@
 .hfx-card-fill{height:100%;display:flex;flex-direction:column}
 .hfx-card-fill .card-body{display:flex;flex-direction:column;flex:1 1 auto}
 
-/* Reduce layout shift from scrollbar appearance */
-html{scrollbar-gutter:stable both-edges}
+/* Reduce layout shift from scrollbar appearance without introducing a left gutter */
+html{scrollbar-gutter:stable}
 
 /* Equal heights for row-cols based layouts - works with Bootstrap row-cols */
 .hfx-row-equalize{display:flex;flex-wrap:wrap}
