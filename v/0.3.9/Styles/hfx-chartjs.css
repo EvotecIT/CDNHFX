@@ -1,0 +1,12 @@
+.hfx-chart-container {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+canvas.hfx-chartjs {
+  display: block;
+  max-width: 100%;
+  min-width: 0;
+}
+
