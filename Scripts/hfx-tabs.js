@@ -426,8 +426,9 @@
       }
       var lines = Math.max(1, tops.length);
       var hasWrapped = lines > 1;
+      var overflowSlack = 8;
       try {
-        hasOverflow = !!(header.scrollWidth > (header.clientWidth + 3));
+        hasOverflow = !!(header.scrollWidth > (header.clientWidth + overflowSlack));
       } catch(_e) {
         hasOverflow = hasWrapped;
       }
@@ -541,7 +542,7 @@
     try {
       if (!header || header.__hfxSegmentedWarmupScheduled) return;
       header.__hfxSegmentedWarmupScheduled = 1;
-      [0, 18, 52, 110, 220, 420, 760].forEach(function(delay){
+      [0, 16, 64, 140].forEach(function(delay){
         setTimeout(function(){
           try { queueSegmentedRefresh(header, true, false); } catch(_e){}
         }, delay);

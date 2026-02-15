@@ -1,0 +1,77 @@
+/* HtmlForgeX: DataTables integration helpers and safety rails */
+
+/* CSS variables */
+:root {
+  --hfx-dt-toolbar-gap: .5rem;
+  --hfx-dt-buttons-gap: .375rem;
+  --hfx-alpha-gap: .25rem;
+}
+
+/* Accessibility overrides for selection colors */
+:root[data-hfx-a11y~="high-contrast"],
+body[data-hfx-a11y~="high-contrast"],
+:root[data-hfx-a11y~="color-blind"],
+body[data-hfx-a11y~="color-blind"] {
+  --dt-row-selected: var(--tblr-primary-rgb, 6,111,209);
+  --dt-row-selected-text: 255, 255, 255;
+  --dt-row-selected-link: var(--tblr-body-color-rgb, 31,41,55);
+}
+
+/* Make DT buttons look good and wrap nicely */
+.dt-buttons { display: flex; flex-wrap: wrap; gap: var(--hfx-dt-buttons-gap); margin: .25rem 0; }
+/* Make DT buttons visually match table density (approx Bootstrap .btn-sm) */
+.dt-buttons .btn { line-height: 1.2; font-size: .875rem; padding: .25rem .5rem; }
+
+/* Toolbar row used by DomPreset(ToolbarTop) */
+.dt-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: var(--hfx-dt-toolbar-gap); margin: .25rem 0 .5rem; }
+.dt-toolbar .dt-buttons { display: inline-flex; flex-wrap: wrap; gap: var(--hfx-dt-buttons-gap); }
+
+/* Alphabet filter toolbar container */
+.hfx-alpha-filter { display: inline-flex; flex-wrap: wrap; gap: var(--hfx-alpha-gap); margin-right: .5rem; }
+
+/* Viewport wrapper that safely confines any horizontal overflow */
+.hfx-table-viewport { width: 100%; max-width: 100%; overflow-x: auto; overflow-y: visible; position: relative; -webkit-overflow-scrolling: touch; }
+.hfx-table-viewport > .dataTables_wrapper, .hfx-table-viewport > .dt-container { max-width: 100%; overflow-x: auto; }
+
+/* Keep wrapper constrained to its container and avoid page scroll-x */
+.dataTables_wrapper { max-width: 100%; }
+.dt-container { max-width: 100%; }
+
+/* Accordions can reveal tables that previously computed widths while hidden; ensure they don't blow out the layout */
+.accordion .dataTables_wrapper { width: 100%; max-width: 100%; overflow-x: auto; box-sizing: border-box; }
+.accordion .dt-container { width: 100%; max-width: 100%; overflow-x: auto; box-sizing: border-box; }
+
+/* Ensure DT v2 layout wrappers do not exceed container width */
+.accordion .dt-container .dt-layout-table, .accordion .dt-container .dt-layout-row { max-width: 100%; overflow-x: auto; }
+
+/* Let DataTables/Responsive manage column layout. Keep width:100% but don't force fixed table-layout */
+.accordion .dataTables_wrapper table,
+.accordion .dt-container table,
+.tab-pane .dataTables_wrapper table,
+.tab-pane .dt-container table,
+.hfx-table-viewport table { width: 100% !important; }
+
+/* Keep headers on a single line so DataTables Responsive can decide which columns to hide */
+.accordion .dataTables_wrapper table th, .accordion .dt-container table th { white-space: nowrap; }
+
+/* Keep cells on a single line so Responsive has a reason to hide columns into details */
+.accordion .dataTables_wrapper table td, .accordion .dt-container table td { white-space: nowrap; }
+
+/* Opt-in wrapped columns for long text (overrides the nowrap defaults above) */
+table.dataTable th.hfx-dt-wrap,
+table.dataTable td.hfx-dt-wrap,
+.dt-container table th.hfx-dt-wrap,
+.dt-container table td.hfx-dt-wrap {
+  white-space: normal !important;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* Neutralize Bootstrap row negative margins inside accordion bodies to avoid page-level scroll-x */
+.accordion .dataTables_wrapper .row, .accordion .dt-container .row { margin-left: 0; margin-right: 0; }
+
+/* When DT's scrollX is enabled explicitly, its scroll wrapper should not exceed container width */
+.accordion .dataTables_wrapper .dataTables_scroll, .accordion .dt-container .dt-scroll { max-width: 100%; overflow-x: auto; }
+
+/* Guard against legacy negative margin technique on accordions that can widen the page */
+.accordion[data-hfx-acc-id] { margin-left: 0 !important; margin-right: 0 !important; }
