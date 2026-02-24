@@ -1,0 +1,164 @@
+.hfx-carousel {
+  position: relative;
+}
+
+.hfx-carousel .carousel-control-prev,
+.hfx-carousel .carousel-control-next {
+  z-index: 3;
+  opacity: .92;
+  cursor: pointer;
+  transition: opacity .15s ease-in-out;
+}
+
+.hfx-carousel .carousel-control-prev:hover,
+.hfx-carousel .carousel-control-next:hover {
+  opacity: 1;
+}
+
+.hfx-carousel .carousel-control-prev:focus-visible,
+.hfx-carousel .carousel-control-next:focus-visible {
+  outline: 2px solid var(--tblr-primary);
+  outline-offset: 2px;
+  border-radius: 999px;
+}
+
+.hfx-carousel .carousel-indicators [data-bs-target] {
+  opacity: .55;
+  transition: opacity .15s ease-in-out, transform .15s ease-in-out;
+}
+
+.hfx-carousel .carousel-indicators .active {
+  opacity: 1;
+  transform: scale(1.06);
+}
+
+.hfx-carousel.hfx-carousel-has-indicators .carousel-inner {
+  padding-bottom: 2.1rem;
+}
+
+.hfx-carousel.hfx-carousel-has-indicators .carousel-indicators {
+  bottom: .2rem;
+  margin-bottom: 0;
+}
+
+.hfx-carousel.hfx-carousel-controls-outside {
+  padding-inline: 3rem;
+}
+
+.hfx-carousel.hfx-carousel-controls-outside .carousel-control-prev,
+.hfx-carousel.hfx-carousel-controls-outside .carousel-control-next {
+  width: 2.5rem;
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
+}
+
+.hfx-carousel.hfx-carousel-controls-outside .carousel-control-prev {
+  left: -.1rem;
+}
+
+.hfx-carousel.hfx-carousel-controls-outside .carousel-control-next {
+  right: -.1rem;
+}
+
+.hfx-carousel.hfx-carousel-controls-inset .carousel-control-prev,
+.hfx-carousel.hfx-carousel-controls-inset .carousel-control-next {
+  width: 2.5rem;
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
+}
+
+.hfx-carousel.hfx-carousel-controls-inset .carousel-control-prev {
+  left: .5rem;
+}
+
+.hfx-carousel.hfx-carousel-controls-inset .carousel-control-next {
+  right: .5rem;
+}
+
+.hfx-carousel.hfx-carousel-controls-overlay .carousel-control-prev,
+.hfx-carousel.hfx-carousel-controls-overlay .carousel-control-next {
+  width: 15%;
+}
+
+.hfx-carousel.hfx-carousel-controls-soft .carousel-control-prev,
+.hfx-carousel.hfx-carousel-controls-soft .carousel-control-next {
+  opacity: 1;
+}
+
+.hfx-carousel.hfx-carousel-controls-soft .carousel-control-prev-icon,
+.hfx-carousel.hfx-carousel-controls-soft .carousel-control-next-icon {
+  background-color: color-mix(in srgb, var(--tblr-bg-surface) 92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--tblr-border-color) 75%, transparent);
+  box-shadow: 0 .12rem .5rem rgba(0, 0, 0, .08);
+  border-radius: 999px;
+  width: 2.1rem;
+  height: 2.1rem;
+  background-size: 1.1rem;
+  transition: transform .15s ease-in-out, box-shadow .15s ease-in-out, background-color .15s ease-in-out;
+}
+
+.hfx-carousel.hfx-carousel-controls-soft .carousel-control-prev:hover .carousel-control-prev-icon,
+.hfx-carousel.hfx-carousel-controls-soft .carousel-control-next:hover .carousel-control-next-icon,
+.hfx-carousel.hfx-carousel-controls-soft .carousel-control-prev:focus-visible .carousel-control-prev-icon,
+.hfx-carousel.hfx-carousel-controls-soft .carousel-control-next:focus-visible .carousel-control-next-icon {
+  transform: scale(1.08);
+  box-shadow: 0 .18rem .7rem rgba(0, 0, 0, .14);
+  background-color: color-mix(in srgb, var(--tblr-bg-surface) 100%, transparent);
+}
+
+.hfx-carousel.hfx-carousel-controls-solid .carousel-control-prev,
+.hfx-carousel.hfx-carousel-controls-solid .carousel-control-next {
+  opacity: 1;
+}
+
+.hfx-carousel.hfx-carousel-controls-solid .carousel-control-prev-icon,
+.hfx-carousel.hfx-carousel-controls-solid .carousel-control-next-icon {
+  background-color: var(--tblr-primary);
+  border-radius: 999px;
+  width: 2rem;
+  height: 2rem;
+  background-size: 1.1rem;
+  transition: transform .15s ease-in-out, filter .15s ease-in-out;
+}
+
+.hfx-carousel.hfx-carousel-controls-solid .carousel-control-prev:hover .carousel-control-prev-icon,
+.hfx-carousel.hfx-carousel-controls-solid .carousel-control-next:hover .carousel-control-next-icon,
+.hfx-carousel.hfx-carousel-controls-solid .carousel-control-prev:focus-visible .carousel-control-prev-icon,
+.hfx-carousel.hfx-carousel-controls-solid .carousel-control-next:focus-visible .carousel-control-next-icon {
+  transform: scale(1.08);
+  filter: brightness(1.05);
+}
+
+.hfx-carousel.hfx-carousel-controls-minimal .carousel-control-prev,
+.hfx-carousel.hfx-carousel-controls-minimal .carousel-control-next {
+  opacity: .75;
+}
+
+.hfx-carousel.hfx-carousel-controls-minimal .carousel-control-prev-icon,
+.hfx-carousel.hfx-carousel-controls-minimal .carousel-control-next-icon {
+  width: 1.65rem;
+  height: 1.65rem;
+  background-size: 1.1rem;
+  transition: transform .15s ease-in-out, opacity .15s ease-in-out;
+}
+
+.hfx-carousel.hfx-carousel-controls-minimal .carousel-control-prev:hover .carousel-control-prev-icon,
+.hfx-carousel.hfx-carousel-controls-minimal .carousel-control-next:hover .carousel-control-next-icon,
+.hfx-carousel.hfx-carousel-controls-minimal .carousel-control-prev:focus-visible .carousel-control-prev-icon,
+.hfx-carousel.hfx-carousel-controls-minimal .carousel-control-next:focus-visible .carousel-control-next-icon {
+  transform: scale(1.08);
+}
+
+.hfx-carousel.hfx-carousel-indicators-pill .carousel-indicators [data-bs-target] {
+  width: 1.8rem;
+  height: .35rem;
+  border-radius: 999px;
+}
+
+.hfx-carousel.hfx-carousel-indicators-bars .carousel-indicators [data-bs-target] {
+  width: 2.4rem;
+  height: .22rem;
+  border-radius: .2rem;
+}
