@@ -1,0 +1,46 @@
+/* HtmlForgeX: SmartWizard helper styles */
+
+/* Thin progress line under the nav */
+.sw>.progress{height:6px;border-radius:999px;background:var(--sw-progress-background-color)}
+.sw>.progress>.progress-bar{height:6px;background:var(--sw-progress-color);width:0}
+/* Hide helper progress bar automatically for looks where it clashes */
+.sw .nav.nav-pills + .progress { display:none; }
+
+/* When the vendor theme is 'basic', hide its underline for non-underline looks so Tabs/Chips/DataGrid can shine */
+.sw.sw-theme-basic>.nav.nav-pills .nav-link::after,
+.sw.sw-theme-basic>.nav.hfx-sw-look-dg .nav-link::after,
+.sw.sw-theme-basic>.nav.hfx-sw-look-tabs .nav-link::after { content:none; }
+
+/* Dots theme: use vendor defaults (no HFX overlay) */
+
+/* Material – use vendor defaults (no HFX pill rounding) */
+
+/* Dark – tuned colors; ensure active is visibly highlighted */
+.sw.sw-theme-dark>.nav .nav-link{color:var(--tblr-body-color, #e5e7eb)}
+.sw.sw-theme-dark>.nav .nav-link .num{background:var(--tblr-bg-surface-secondary, var(--tblr-secondary-bg, #1f2937));color:var(--tblr-secondary-color, rgba(229,231,235,.75));box-shadow:0 0 0 6px var(--tblr-body-bg, #111827)}
+.sw.sw-theme-dark>.nav .nav-link.active .num{background:var(--sw-anchor-active-primary-color);color:var(--sw-anchor-active-secondary-color);box-shadow:0 0 0 6px color-mix(in srgb, var(--tblr-body-bg, #111827) 70%, transparent)}
+.sw.sw-theme-dark>.progress{background:var(--tblr-bg-surface-secondary, var(--tblr-secondary-bg, #1f2937))}
+
+/* Accent palettes (maps to CSS variables used by vendor CSS) */
+.hfx-sw-accent-blue  { --sw-anchor-active-primary-color:var(--tblr-primary, #0d6efd); --sw-progress-color:var(--tblr-primary, #0d6efd); --sw-toolbar-btn-background-color:var(--tblr-primary, #0d6efd); }
+.hfx-sw-accent-green { --sw-anchor-active-primary-color:var(--tblr-success, #28a745); --sw-progress-color:var(--tblr-success, #28a745); --sw-toolbar-btn-background-color:var(--tblr-success, #28a745); }
+.hfx-sw-accent-red   { --sw-anchor-active-primary-color:var(--tblr-danger, #e83e8c); --sw-progress-color:var(--tblr-danger, #e83e8c); --sw-toolbar-btn-background-color:var(--tblr-danger, #e83e8c); }
+.hfx-sw-accent-purple{ --sw-anchor-active-primary-color:var(--tblr-purple, #6f42c1); --sw-progress-color:var(--tblr-purple, #6f42c1); --sw-toolbar-btn-background-color:var(--tblr-purple, #6f42c1); }
+.hfx-sw-accent-sea   { --sw-anchor-active-primary-color:var(--tblr-teal, #12b886); --sw-progress-color:var(--tblr-teal, #12b886); --sw-toolbar-btn-background-color:var(--tblr-teal, #12b886); }
+
+/* Optional CSS animations for 'Css' transition mode (subset) */
+.sw .anim-rotate-in    { animation: hfx-sw-rotate-in 300ms ease both; }
+.sw .anim-rotate-out   { animation: hfx-sw-rotate-out 300ms ease both; }
+@keyframes hfx-sw-rotate-in  { from{ transform: rotateY(-90deg); opacity:0;} to{ transform: rotateY(0); opacity:1;} }
+@keyframes hfx-sw-rotate-out { from{ transform: rotateY(0); opacity:1;} to{ transform: rotateY(90deg); opacity:0;} }
+
+/* DataGrid‑inspired chips look */
+.hfx-sw-dg{border:0!important;background:transparent!important}
+.hfx-sw-dg>.nav{gap:.5rem;border:0!important;box-shadow:none!important}
+.hfx-sw-dg>.nav .nav-link{min-height:2.25rem;display:flex;align-items:center;background:var(--sw-anchor-default-primary-color, var(--tblr-bg-surface-secondary, var(--tblr-light-bg-subtle, rgba(0,0,0,.035))));border:1px solid var(--tblr-border-color, rgba(0,0,0,.08));border-radius:var(--tblr-border-radius, .5rem);padding:.45rem .85rem;color:var(--sw-anchor-default-secondary-color, var(--tblr-secondary-color, rgba(31,41,55,.75)));transition:background .15s ease,border-color .15s ease,box-shadow .15s ease}
+.hfx-sw-dg>.nav .nav-link:hover{background:color-mix(in srgb, var(--tblr-bg-surface-secondary, var(--tblr-tertiary-bg, rgba(0,0,0,.055))) 72%, var(--tblr-bg-surface, var(--tblr-body-bg, #fff)));border-color:var(--tblr-border-color, rgba(0,0,0,.08))}
+.hfx-sw-dg>.nav .nav-link.active{background:var(--tblr-bg-surface, var(--tblr-body-bg, #fff));color:var(--tblr-body-color, #1f2937);border-color:var(--sw-progress-color, var(--tblr-primary, #066fd1));box-shadow:none}
+.hfx-sw-dg>.nav .nav-link.active::after{content:"";display:block;height:3px;background:var(--sw-progress-color);border-radius:99px;margin-top:.4rem}
+.hfx-sw-dg>.nav .nav-link .num{background:transparent;color:inherit;box-shadow:none;font-weight:700;margin-right:.35rem}
+
+/* Removed obsolete looks */
