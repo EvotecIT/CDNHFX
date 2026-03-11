@@ -1,0 +1,30 @@
+name: Create Release From Tag
+
+on:
+  push:
+    tags:
+      - '*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create GitHub release if missing
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          if gh release view "${TAG}" --repo "${REPO}" >/dev/null 2>&1; then
+            echo "Release already exists for ${TAG}"
+            exit 0
+          fi
+          gh release create "${TAG}" \
+            --repo "${REPO}" \
+            --title "CDNHFX ${TAG}" \
+            --generate-notes
