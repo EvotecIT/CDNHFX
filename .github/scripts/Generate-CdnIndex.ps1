@@ -261,6 +261,41 @@ function New-PageHtml {
 "@
 }
 
+function New-PublishedFolderPageBody {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $BasePath,
+        [Parameter(Mandatory = $true)]
+        [string] $KindLabel,
+        [Parameter(Mandatory = $true)]
+        [string] $Description
+    )
+
+    @"
+<div class="grid">
+  <article class="card">
+    <h2>$KindLabel</h2>
+    <p>$Description</p>
+    <div class="pill-row">
+      <a class="pill" href="$BasePath/Scripts/dataTables.min.js">Scripts</a>
+      <a class="pill" href="$BasePath/Styles/hfx-default.css">Styles</a>
+      <a class="pill" href="$BasePath/Fonts/">Fonts</a>
+      <a class="pill" href="$BasePath/Images/">Images</a>
+    </div>
+  </article>
+  <article class="card">
+    <h2>Quick Links</h2>
+    <p>These folders are primarily consumed by HtmlForgeX, but having a landing page makes them easier to inspect and validate manually.</p>
+    <div class="pill-row">
+      <a class="pill" href="/">CDNHFX Home</a>
+      <a class="pill" href="/v/">Version Index</a>
+      <a class="pill" href="/preview/">Preview Index</a>
+    </div>
+  </article>
+</div>
+"@
+}
+
 $versions = @(Get-VersionDirectories -Path (Join-Path $RepoRoot "v"))
 $previews = @(Get-PreviewDirectories -Path (Join-Path $RepoRoot "preview"))
 $latestVersion = if ($versions.Count -gt 0) { $versions[0].Name } else { "" }
@@ -339,3 +374,23 @@ New-Item -ItemType Directory -Path (Join-Path $RepoRoot "v") -Force | Out-Null
 New-Item -ItemType Directory -Path (Join-Path $RepoRoot "preview") -Force | Out-Null
 [IO.File]::WriteAllText((Join-Path $RepoRoot "v/index.html"), $versionsHtml, [Text.Encoding]::UTF8)
 [IO.File]::WriteAllText((Join-Path $RepoRoot "preview/index.html"), $previewHtml, [Text.Encoding]::UTF8)
+
+foreach ($dir in $versions) {
+    $name = $dir.Name
+    $page = New-PageHtml `
+        -Title "CDNHFX Version $name" `
+        -Lead "Immutable HtmlForgeX CDN assets for version $name." `
+        -Eyebrow "CDNHFX Release" `
+        -Body (New-PublishedFolderPageBody -BasePath "/v/$name" -KindLabel "Version $name" -Description "This release folder contains the exact Scripts, Styles, Fonts, and Images that shipped with HtmlForgeX CDN version $name.")
+    [IO.File]::WriteAllText((Join-Path $dir.FullName "index.html"), $page, [Text.Encoding]::UTF8)
+}
+
+foreach ($dir in $previews) {
+    $name = $dir.Name
+    $page = New-PageHtml `
+        -Title "CDNHFX Preview $name" `
+        -Lead "Disposable HtmlForgeX preview assets for validation before release." `
+        -Eyebrow "CDNHFX Preview" `
+        -Body (New-PublishedFolderPageBody -BasePath "/preview/$name" -KindLabel "Preview $name" -Description "This preview folder was generated from a specific HtmlForgeX branch or commit for browser-level validation without creating a tagged CDN release.")
+    [IO.File]::WriteAllText((Join-Path $dir.FullName "index.html"), $page, [Text.Encoding]::UTF8)
+}
