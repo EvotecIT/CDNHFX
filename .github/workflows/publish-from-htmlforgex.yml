@@ -1,0 +1,185 @@
+name: Publish From HtmlForgeX
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Publish mode"
+        required: true
+        default: "release"
+        type: choice
+        options:
+          - release
+          - preview
+      htmlforgex_ref:
+        description: "HtmlForgeX git ref to publish (branch, tag, or commit)"
+        required: true
+        default: "master"
+        type: string
+      version:
+        description: "Release version for v/<version> and tag creation"
+        required: false
+        type: string
+      preview_id:
+        description: "Preview id for preview/<preview_id>"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  determine-auth:
+    runs-on: ubuntu-latest
+    outputs:
+      has_read_all: ${{ steps.check.outputs.has_read_all }}
+    steps:
+      - name: Check READ_ALL availability
+        id: check
+        shell: bash
+        env:
+          READ_ALL: ${{ secrets.READ_ALL }}
+        run: |
+          if [ -n "${READ_ALL}" ]; then
+            echo "has_read_all=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_read_all=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  publish:
+    needs: determine-auth
+    if: ${{ needs.determine-auth.outputs.has_read_all == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout CDNHFX
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Checkout HtmlForgeX source
+        uses: actions/checkout@v4
+        with:
+          repository: EvotecIT/HtmlForgeX
+          ref: ${{ inputs.htmlforgex_ref }}
+          token: ${{ secrets.READ_ALL }}
+          path: htmlforgex-source
+
+      - name: Validate inputs
+        shell: pwsh
+        run: |
+          $mode = '${{ inputs.mode }}'
+          $version = '${{ inputs.version }}'.Trim()
+          $previewId = '${{ inputs.preview_id }}'.Trim()
+
+          if ($mode -eq 'release') {
+              if ([string]::IsNullOrWhiteSpace($version)) {
+                  throw "Release mode requires the version input."
+              }
+
+              if ($version -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z\.-]+)?$') {
+                  throw "Release version must be semver-like, e.g. 0.31.6 or 0.31.6-rc.1."
+              }
+          } elseif ($mode -eq 'preview') {
+              if ([string]::IsNullOrWhiteSpace($previewId)) {
+                  throw "Preview mode requires the preview_id input."
+              }
+          } else {
+              throw "Unsupported mode: $mode"
+          }
+
+      - name: Publish assets
+        shell: pwsh
+        run: |
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = 'Stop'
+
+          $mode = '${{ inputs.mode }}'
+          $version = '${{ inputs.version }}'.Trim()
+          $previewId = '${{ inputs.preview_id }}'.Trim()
+          $repoRoot = (Get-Location).Path
+          $sourceRoot = Join-Path $repoRoot 'htmlforgex-source'
+
+          $map = @(
+              @{ Source = 'HtmlForgeX/Resources/Scripts'; Target = 'Scripts' },
+              @{ Source = 'HtmlForgeX/Resources/Styles';  Target = 'Styles'  },
+              @{ Source = 'HtmlForgeX/Resources/Images';  Target = 'Images'  },
+              @{ Source = 'HtmlForgeX/Resources/Fonts';   Target = 'Fonts'   }
+          )
+
+          function Sync-Folder {
+              param(
+                  [Parameter(Mandatory = $true)][string] $SourcePath,
+                  [Parameter(Mandatory = $true)][string] $DestinationPath
+              )
+
+              if (-not (Test-Path $SourcePath)) {
+                  throw "Source folder not found: $SourcePath"
+              }
+
+              if (Test-Path $DestinationPath) {
+                  Remove-Item -LiteralPath $DestinationPath -Recurse -Force
+              }
+
+              New-Item -ItemType Directory -Path $DestinationPath -Force | Out-Null
+              Copy-Item -Path (Join-Path $SourcePath '*') -Destination $DestinationPath -Recurse -Force
+          }
+
+          foreach ($entry in $map) {
+              $source = Join-Path $sourceRoot $entry.Source
+
+              if ($mode -eq 'release') {
+                  Sync-Folder -SourcePath $source -DestinationPath (Join-Path $repoRoot $entry.Target)
+                  Sync-Folder -SourcePath $source -DestinationPath (Join-Path $repoRoot (Join-Path (Join-Path 'v' $version) $entry.Target))
+              } else {
+                  Sync-Folder -SourcePath $source -DestinationPath (Join-Path $repoRoot (Join-Path (Join-Path 'preview' $previewId) $entry.Target))
+              }
+          }
+
+      - name: Commit and push content changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if [ "${{ inputs.mode }}" = "release" ]; then
+            git add Scripts Styles Images Fonts v
+            MESSAGE="Publish HtmlForgeX assets for ${{ inputs.version }} from ${{ inputs.htmlforgex_ref }}"
+          else
+            git add "preview/${{ inputs.preview_id }}"
+            MESSAGE="Publish HtmlForgeX preview ${{ inputs.preview_id }} from ${{ inputs.htmlforgex_ref }}"
+          fi
+
+          if [ -n "$(git status --porcelain)" ]; then
+            git commit -m "${MESSAGE}"
+            git push origin master
+          else
+            echo "No content changes to commit."
+          fi
+
+      - name: Create and push release tag
+        if: ${{ inputs.mode == 'release' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${{ inputs.version }}"
+          if git ls-remote --tags origin "refs/tags/${TAG}" | grep -q "refs/tags/${TAG}$"; then
+            echo "Tag already exists on origin: ${TAG}"
+            exit 0
+          fi
+          if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null; then
+            echo "Tag already exists locally: ${TAG}"
+          else
+            git tag "${TAG}"
+          fi
+          git push origin "${TAG}"
+
+  missing-read-all:
+    needs: determine-auth
+    if: ${{ needs.determine-auth.outputs.has_read_all != 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Warn about missing READ_ALL secret
+        shell: bash
+        run: |
+          echo "::warning::READ_ALL is not configured for CDNHFX Actions, so pull-based publishing from HtmlForgeX was skipped."
