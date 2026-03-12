@@ -296,6 +296,125 @@ function New-PublishedFolderPageBody {
 "@
 }
 
+function Get-ParentWebPath {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $WebPath
+    )
+
+    $trimmed = $WebPath.TrimEnd('/')
+    if ([string]::IsNullOrWhiteSpace($trimmed) -or $trimmed -eq '') {
+        return '/'
+    }
+
+    $lastSlash = $trimmed.LastIndexOf('/')
+    if ($lastSlash -le 0) {
+        return '/'
+    }
+
+    return $trimmed.Substring(0, $lastSlash + 1)
+}
+
+function Get-DirectoryEntries {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $DirectoryPath
+    )
+
+    if (-not (Test-Path $DirectoryPath)) {
+        return @()
+    }
+
+    Get-ChildItem -LiteralPath $DirectoryPath -Force |
+        Where-Object { $_.Name -ne 'index.html' } |
+        Sort-Object @{ Expression = { if ($_.PSIsContainer) { 0 } else { 1 } } }, Name
+}
+
+function New-DirectoryListingBody {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $WebPath,
+        [Parameter(Mandatory = $true)]
+        [string] $Description,
+        [Parameter(Mandatory = $true)]
+        [object[]] $Entries
+    )
+
+    $entryList = New-LinkList -Items $Entries -Renderer {
+        param($entry)
+
+        $name = $entry.Name
+        if ($entry.PSIsContainer) {
+            $href = "$WebPath/$name/"
+            $meta = "Directory"
+        } else {
+            $href = "$WebPath/$name"
+            $extension = [IO.Path]::GetExtension($name).TrimStart('.')
+            if ([string]::IsNullOrWhiteSpace($extension)) {
+                $meta = "File"
+            } else {
+                $meta = "$($extension.ToUpperInvariant()) file"
+            }
+        }
+
+        "<li><strong><a href='$href'>$name</a></strong><span>$meta</span></li>"
+    }
+
+    $parentPath = Get-ParentWebPath -WebPath $WebPath
+
+    @"
+<div class="grid">
+  <article class="card">
+    <h2>Browse Assets</h2>
+    <p>$Description</p>
+    <div class="pill-row">
+      <a class="pill" href="$parentPath">Up One Level</a>
+      <a class="pill" href="/">CDNHFX Home</a>
+      <a class="pill" href="/v/">Version Index</a>
+      <a class="pill" href="/preview/">Preview Index</a>
+    </div>
+  </article>
+</div>
+<section class="card">
+  <h3>Contents</h3>
+  $entryList
+</section>
+"@
+}
+
+function Write-DirectoryIndexesRecursively {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $DirectoryPath,
+        [Parameter(Mandatory = $true)]
+        [string] $WebPath,
+        [Parameter(Mandatory = $true)]
+        [string] $Eyebrow,
+        [Parameter(Mandatory = $true)]
+        [string] $Lead
+    )
+
+    if (-not (Test-Path $DirectoryPath)) {
+        return
+    }
+
+    $entries = @(Get-DirectoryEntries -DirectoryPath $DirectoryPath)
+    $displayPath = $WebPath.TrimEnd('/')
+    if ([string]::IsNullOrWhiteSpace($displayPath)) {
+        $displayPath = '/'
+    }
+
+    $body = New-DirectoryListingBody -WebPath $WebPath.TrimEnd('/') -Description "Browse published assets under <code>$displayPath/</code>." -Entries $entries
+    $page = New-PageHtml -Title "CDNHFX Files $displayPath" -Lead $Lead -Eyebrow $Eyebrow -Body $body
+    [IO.File]::WriteAllText((Join-Path $DirectoryPath "index.html"), $page, [Text.Encoding]::UTF8)
+
+    foreach ($entry in $entries) {
+        if ($entry.PSIsContainer) {
+            Write-DirectoryIndexesRecursively -DirectoryPath $entry.FullName -WebPath "$($WebPath.TrimEnd('/'))/$($entry.Name)" -Eyebrow $Eyebrow -Lead $Lead
+        }
+    }
+}
+
 $versions = @(Get-VersionDirectories -Path (Join-Path $RepoRoot "v"))
 $previews = @(Get-PreviewDirectories -Path (Join-Path $RepoRoot "preview"))
 $latestVersion = if ($versions.Count -gt 0) { $versions[0].Name } else { "" }
@@ -383,6 +502,10 @@ foreach ($dir in $versions) {
         -Eyebrow "CDNHFX Release" `
         -Body (New-PublishedFolderPageBody -BasePath "/v/$name" -KindLabel "Version $name" -Description "This release folder contains the exact Scripts, Styles, Fonts, and Images that shipped with HtmlForgeX CDN version $name.")
     [IO.File]::WriteAllText((Join-Path $dir.FullName "index.html"), $page, [Text.Encoding]::UTF8)
+
+    foreach ($folderName in @('Scripts', 'Styles', 'Fonts', 'Images')) {
+        Write-DirectoryIndexesRecursively -DirectoryPath (Join-Path $dir.FullName $folderName) -WebPath "/v/$name/$folderName" -Eyebrow "CDNHFX Release" -Lead "Published HtmlForgeX release assets for version $name."
+    }
 }
 
 foreach ($dir in $previews) {
@@ -393,4 +516,12 @@ foreach ($dir in $previews) {
         -Eyebrow "CDNHFX Preview" `
         -Body (New-PublishedFolderPageBody -BasePath "/preview/$name" -KindLabel "Preview $name" -Description "This preview folder was generated from a specific HtmlForgeX branch or commit for browser-level validation without creating a tagged CDN release.")
     [IO.File]::WriteAllText((Join-Path $dir.FullName "index.html"), $page, [Text.Encoding]::UTF8)
+
+    foreach ($folderName in @('Scripts', 'Styles', 'Fonts', 'Images')) {
+        Write-DirectoryIndexesRecursively -DirectoryPath (Join-Path $dir.FullName $folderName) -WebPath "/preview/$name/$folderName" -Eyebrow "CDNHFX Preview" -Lead "Published HtmlForgeX preview assets for validation."
+    }
+}
+
+foreach ($folderName in @('Scripts', 'Styles', 'Fonts', 'Images')) {
+    Write-DirectoryIndexesRecursively -DirectoryPath (Join-Path $RepoRoot $folderName) -WebPath "/$folderName" -Eyebrow "CDNHFX Assets" -Lead "Latest HtmlForgeX CDN assets mirrored at the repository root."
 }
