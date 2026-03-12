@@ -26,6 +26,7 @@ on:
         type: string
 
 permissions:
+  actions: write
   contents: write
 
 jobs:
@@ -136,6 +137,7 @@ jobs:
           }
 
       - name: Commit and push content changes
+        id: publish_changes
         shell: bash
         run: |
           set -euo pipefail
@@ -153,8 +155,10 @@ jobs:
           if [ -n "$(git status --porcelain)" ]; then
             git commit -m "${MESSAGE}"
             git push origin master
+            echo "published_changes=true" >> "$GITHUB_OUTPUT"
           else
             echo "No content changes to commit."
+            echo "published_changes=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Create and push release tag
@@ -173,6 +177,18 @@ jobs:
             git tag "${TAG}"
           fi
           git push origin "${TAG}"
+
+      - name: Trigger GitHub Pages publish
+        if: ${{ steps.publish_changes.outputs.published_changes == 'true' }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api \
+            --method POST \
+            repos/${{ github.repository }}/actions/workflows/publish-pages.yml/dispatches \
+            -f ref=master
 
   missing-read-all:
     needs: determine-auth
