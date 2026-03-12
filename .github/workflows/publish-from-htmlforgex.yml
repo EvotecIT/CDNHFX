@@ -136,6 +136,13 @@ jobs:
               }
           }
 
+      - name: Generate CDN indexes
+        shell: pwsh
+        run: |
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = 'Stop'
+          & "$PWD/.github/scripts/Generate-CdnIndex.ps1" -RepoRoot $PWD
+
       - name: Commit and push content changes
         id: publish_changes
         shell: bash
@@ -145,10 +152,10 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           if [ "${{ inputs.mode }}" = "release" ]; then
-            git add Scripts Styles Images Fonts v
+            git add Scripts Styles Images Fonts v preview index.html
             MESSAGE="Publish HtmlForgeX assets for ${{ inputs.version }} from ${{ inputs.htmlforgex_ref }}"
           else
-            git add "preview/${{ inputs.preview_id }}"
+            git add "preview/${{ inputs.preview_id }}" preview/index.html index.html v/index.html
             MESSAGE="Publish HtmlForgeX preview ${{ inputs.preview_id }} from ${{ inputs.htmlforgex_ref }}"
           fi
 
