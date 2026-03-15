@@ -31,7 +31,7 @@ function Get-PreviewDirectories {
     }
 
     Get-ChildItem -Path $Path -Directory |
-        Sort-Object LastWriteTimeUtc -Descending
+        Sort-Object Name -Descending
 }
 
 function ConvertTo-RelativeHref {
