@@ -1,0 +1,22 @@
+:root { --hfx-signature-height: 240px; }
+
+.signature {
+  border: var(--tblr-border-width, 1px) solid var(--tblr-border-color, rgba(0,0,0,.12));
+  border-radius: var(--tblr-border-radius, 6px);
+  background: var(--tblr-bg-surface, var(--tblr-body-bg, #fff));
+  overflow: hidden;
+}
+
+.signature-canvas {
+  display: block;
+  width: 100%;
+  height: var(--hfx-signature-height, 240px);
+  cursor: crosshair;
+  touch-action: none;
+}
+
+/* Ensure clear button is readable on any background */
+.signature .btn.btn-icon {
+  background: rgba(0,0,0,.05);
+}
+
