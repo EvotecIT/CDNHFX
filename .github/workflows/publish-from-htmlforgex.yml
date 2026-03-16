@@ -196,6 +196,23 @@ jobs:
           fi
           git push origin "${TAG}"
 
+      - name: Create GitHub release
+        if: ${{ inputs.mode == 'release' }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG="${{ inputs.version }}"
+          if gh release view "${TAG}" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            echo "Release already exists for ${TAG}"
+            exit 0
+          fi
+          gh release create "${TAG}" \
+            --repo "${{ github.repository }}" \
+            --title "CDNHFX ${TAG}" \
+            --generate-notes
+
       - name: Trigger GitHub Pages publish
         if: ${{ steps.publish_changes.outputs.published_changes == 'true' }}
         shell: bash
