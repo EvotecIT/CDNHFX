@@ -1,0 +1,312 @@
+/* HtmlForgeX: DataTables integration helpers and safety rails */
+
+/* CSS variables */
+:root {
+  --hfx-dt-toolbar-gap: .5rem;
+  --hfx-dt-buttons-gap: .375rem;
+  --hfx-alpha-gap: .25rem;
+}
+
+/* Accessibility overrides for selection colors */
+:root[data-hfx-a11y~="high-contrast"],
+body[data-hfx-a11y~="high-contrast"],
+:root[data-hfx-a11y~="color-blind"],
+body[data-hfx-a11y~="color-blind"] {
+  --dt-row-selected: var(--tblr-primary-rgb, 6,111,209);
+  --dt-row-selected-text: 255, 255, 255;
+  --dt-row-selected-link: var(--tblr-body-color-rgb, 31,41,55);
+}
+
+/* Make DT buttons look good and wrap nicely */
+.dt-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hfx-dt-buttons-gap);
+  margin: .25rem 0;
+}
+
+/* Let DataTables buttons participate in the same vertical rhythm as other controls. */
+.dt-buttons .btn,
+.dt-buttons .dt-button,
+.dt-buttons .buttons-collection {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--hfx-input-min-height);
+  line-height: 1.2;
+  font-size: .875rem;
+  padding: .375rem .75rem;
+  white-space: nowrap;
+}
+
+/* Toolbar row used by DomPreset(ToolbarTop) */
+.dt-toolbar { display: flex; align-items: flex-end; flex-wrap: wrap; gap: var(--hfx-dt-toolbar-gap); margin: .25rem 0 .5rem; }
+.dt-toolbar.hfx-controlbar { align-items: center; }
+.dt-toolbar .dt-buttons { display: inline-flex; flex-wrap: wrap; gap: var(--hfx-dt-buttons-gap); }
+.dt-toolbar.hfx-controlbar .dt-buttons { align-items: center; min-height: var(--hfx-input-min-height); }
+.dt-footer-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .75rem;
+  margin: .5rem 0 0;
+}
+.dt-footer-toolbar .dt-paging {
+  margin-left: auto;
+}
+.dt-footer-toolbar .dt-info {
+  white-space: nowrap;
+}
+.dt-toolbar.hfx-controlbar .dataTables_filter,
+.dt-toolbar.hfx-controlbar .dt-search {
+  display: flex;
+  align-items: center;
+  min-height: var(--hfx-input-min-height);
+  gap: .5rem;
+}
+.dt-toolbar.hfx-controlbar .dt-paging {
+  display: flex;
+  align-items: center;
+  min-height: var(--hfx-input-min-height);
+}
+.dt-toolbar.hfx-controlbar .dt-paging .pagination {
+  margin: 0;
+}
+.dt-toolbar.hfx-controlbar .dataTables_filter label,
+.dt-toolbar.hfx-controlbar .dt-search label {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem;
+  margin: 0;
+}
+.dt-toolbar.hfx-controlbar .dt-search > * {
+  margin: 0;
+}
+.dt-toolbar.hfx-controlbar .dataTables_filter input,
+.dt-toolbar.hfx-controlbar .dt-search input {
+  min-height: var(--hfx-input-min-height);
+  padding: .375rem .75rem;
+  line-height: 1.25;
+  font-size: .875rem;
+}
+
+/* Keep generated DT search/length controls on the same sizing rhythm as Tabler form fields. */
+.dt-container .dt-search,
+.dt-container .dt-length,
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_length {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.dt-toolbar .dt-length,
+.dt-footer-toolbar .dt-length {
+  display: inline-flex;
+  align-items: center;
+  gap: .375rem;
+  min-height: var(--hfx-input-min-height);
+}
+
+.dt-container .dt-search label,
+.dt-container .dt-length label,
+.dataTables_wrapper .dataTables_filter label,
+.dataTables_wrapper .dataTables_length label {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.dt-toolbar .dt-length label,
+.dt-footer-toolbar .dt-length label {
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+  margin: 0;
+  min-height: var(--hfx-input-min-height);
+}
+
+.dt-toolbar .dt-length label:empty,
+.dt-footer-toolbar .dt-length label:empty {
+  display: none;
+}
+
+.dt-container .dt-search input,
+.dt-container .dt-length select,
+.dataTables_wrapper .dataTables_filter input,
+.dataTables_wrapper .dataTables_length select {
+  min-height: var(--hfx-input-min-height);
+  padding: .375rem .75rem;
+  line-height: 1.25;
+  font-size: .875rem;
+}
+
+.dt-toolbar .dt-length select,
+.dt-footer-toolbar .dt-length select,
+.dt-container .dt-length select,
+.dataTables_wrapper .dataTables_length select {
+  width: auto;
+  min-width: 3.5rem;
+  padding-right: 1.875rem;
+  padding-left: .5rem;
+}
+
+.dt-toolbar .dt-length label:not(:empty) select,
+.dt-footer-toolbar .dt-length label:not(:empty) select {
+  border: 0 !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  min-height: calc(var(--hfx-input-min-height) - .5rem);
+  padding: 0 1.4rem 0 .125rem;
+  min-width: 3rem;
+}
+
+.dt-toolbar .dt-length > select,
+.dt-footer-toolbar .dt-length > select {
+  border: 1px solid var(--tblr-border-color, #d9dee3);
+  border-radius: var(--tblr-border-radius, .375rem);
+  background-color: var(--tblr-bg-surface, #fff);
+  box-shadow: none;
+}
+
+.dt-toolbar .dt-length select:focus,
+.dt-footer-toolbar .dt-length select:focus {
+  box-shadow: none;
+}
+
+/* Header/footer filter rows are interactive inputs, not sortable headers. */
+.dt-container table.dataTable thead tr.hfx-header-filter th,
+.dt-container table.dataTable tfoot tr.hfx-footer-filter th,
+.dataTables_wrapper table.dataTable thead tr.hfx-header-filter th,
+.dataTables_wrapper table.dataTable tfoot tr.hfx-footer-filter th {
+  cursor: default;
+}
+
+.dt-container table.dataTable thead tr.hfx-header-filter th::before,
+.dt-container table.dataTable thead tr.hfx-header-filter th::after,
+.dt-container table.dataTable tfoot tr.hfx-footer-filter th::before,
+.dt-container table.dataTable tfoot tr.hfx-footer-filter th::after,
+.dataTables_wrapper table.dataTable thead tr.hfx-header-filter th::before,
+.dataTables_wrapper table.dataTable thead tr.hfx-header-filter th::after,
+.dataTables_wrapper table.dataTable tfoot tr.hfx-footer-filter th::before,
+.dataTables_wrapper table.dataTable tfoot tr.hfx-footer-filter th::after {
+  display: none !important;
+}
+
+.dt-container table.dataTable thead tr.hfx-header-filter input,
+.dt-container table.dataTable tfoot tr.hfx-footer-filter input,
+.dataTables_wrapper table.dataTable thead tr.hfx-header-filter input,
+.dataTables_wrapper table.dataTable tfoot tr.hfx-footer-filter input {
+  width: 100%;
+}
+
+/* Keep paging buttons comfortably spaced so chevrons don't collide with page numbers. */
+.dt-container .dt-paging .pagination,
+.dataTables_wrapper .dataTables_paginate .pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .375rem;
+  margin: 0;
+}
+
+.dt-container .dt-paging .page-item,
+.dataTables_wrapper .dataTables_paginate .page-item {
+  margin: 0;
+}
+
+.dt-container .dt-paging .page-link,
+.dataTables_wrapper .dataTables_paginate .page-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.25rem;
+  min-height: var(--hfx-input-min-height);
+  padding: .375rem .75rem;
+  line-height: 1.1;
+}
+
+/* Alphabet filter toolbar container */
+.hfx-alpha-filter { display: inline-flex; flex-wrap: wrap; gap: var(--hfx-alpha-gap); margin-right: .5rem; }
+
+/* Viewport wrapper that safely confines any horizontal overflow */
+.hfx-table-viewport { width: 100%; max-width: 100%; overflow-x: auto; overflow-y: visible; position: relative; -webkit-overflow-scrolling: touch; }
+.hfx-table-viewport > .dataTables_wrapper, .hfx-table-viewport > .dt-container { max-width: 100%; overflow-x: auto; }
+
+/* Keep wrapper constrained to its container and avoid page scroll-x */
+.dataTables_wrapper { max-width: 100%; }
+.dt-container { max-width: 100%; }
+
+/* Accordions can reveal tables that previously computed widths while hidden; ensure they don't blow out the layout */
+.accordion .dataTables_wrapper { width: 100%; max-width: 100%; overflow-x: auto; box-sizing: border-box; }
+.accordion .dt-container { width: 100%; max-width: 100%; overflow-x: auto; box-sizing: border-box; }
+
+/* Ensure DT v2 layout wrappers do not exceed container width */
+.accordion .dt-container .dt-layout-table, .accordion .dt-container .dt-layout-row { max-width: 100%; overflow-x: auto; }
+
+/* Let DataTables/Responsive manage column layout. Keep width:100% but don't force fixed table-layout */
+.accordion .dataTables_wrapper table,
+.accordion .dt-container table,
+.tab-pane .dataTables_wrapper table,
+.tab-pane .dt-container table,
+.hfx-table-viewport table { width: 100% !important; }
+
+/* Keep headers on a single line so DataTables Responsive can decide which columns to hide */
+.accordion .dataTables_wrapper table th, .accordion .dt-container table th { white-space: nowrap; }
+
+/* Keep cells on a single line so Responsive has a reason to hide columns into details */
+.accordion .dataTables_wrapper table td, .accordion .dt-container table td { white-space: nowrap; }
+
+/* Opt-in wrapped columns for long text (overrides the nowrap defaults above) */
+table.dataTable th.hfx-dt-wrap,
+table.dataTable td.hfx-dt-wrap,
+.dt-container table th.hfx-dt-wrap,
+.dt-container table td.hfx-dt-wrap {
+  white-space: normal !important;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.hfx-dt-cell-ellipsis {
+  display: inline-block;
+  max-width: 420px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: top;
+}
+
+.hfx-dt-cell-wrap {
+  display: inline;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.hfx-dt-cell-link {
+  text-decoration: none;
+}
+
+.hfx-dt-cell-link:hover {
+  text-decoration: underline;
+}
+
+.hfx-dt-cell-badges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: .25rem;
+}
+
+/* Neutralize Bootstrap row negative margins inside accordion bodies to avoid page-level scroll-x */
+.accordion .dataTables_wrapper .row, .accordion .dt-container .row { margin-left: 0; margin-right: 0; }
+
+/* When DT's scrollX is enabled explicitly, its scroll wrapper should not exceed container width */
+.accordion .dataTables_wrapper .dataTables_scroll, .accordion .dt-container .dt-scroll { max-width: 100%; overflow-x: auto; }
+
+/* Guard against legacy negative margin technique on accordions that can widen the page */
+.accordion[data-hfx-acc-id] { margin-left: 0 !important; margin-right: 0 !important; }
