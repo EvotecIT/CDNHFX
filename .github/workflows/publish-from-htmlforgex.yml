@@ -57,12 +57,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout CDNHFX
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Checkout HtmlForgeX source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: EvotecIT/HtmlForgeX
           ref: ${{ inputs.htmlforgex_ref }}
