@@ -1,0 +1,88 @@
+.datagrid-title.hfx-title-accent {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.datagrid-title.hfx-title-accent::before {
+    content: '';
+    width: .5rem;
+    height: .5rem;
+    border-radius: 50%;
+    background: var(--hfx-title-accent, currentColor);
+    flex: 0 0 .5rem;
+}
+
+.hfx-kpi {
+    display: inline-flex;
+    align-items: baseline;
+    gap: .35rem;
+    margin-right: .5rem;
+}
+
+.hfx-kpi .hfx-kpi-label {
+    font-size: .72rem;
+    opacity: .8;
+    margin-right: .35rem;
+}
+
+.hfx-kpi .hfx-kpi-value {
+    font-weight: 700;
+    margin-left: .35rem;
+}
+
+.hfx-progress {
+    height: 4px;
+    width: 100%;
+    border-radius: 4px;
+    background: var(--hfx-progress-track, rgba(0,0,0,.06));
+    overflow: hidden;
+}
+
+.hfx-progress .hfx-progress-bar {
+    height: 100%;
+}
+
+.hfx-sep {
+    display: inline-block;
+    width: auto;
+    flex: 0 0 auto;
+    margin: 0 .35rem;
+    text-align: center;
+    line-height: 1;
+}
+
+.hfx-panel-content {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    flex-wrap: wrap;
+}
+
+.datagrid-title.hfx-title-underline {
+    position: relative;
+    padding-bottom: .125rem;
+}
+
+.datagrid-title.hfx-title-underline::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    height: 2px;
+    width: 1.5rem;
+    background: var(--hfx-title-accent, currentColor);
+    border-radius: 2px;
+}
+
+.datagrid-item.hfx-panel {
+    position: relative;
+}
+
+.hfx-ribbon {
+    position: absolute;
+    top: -.35rem;
+    right: .5rem;
+    font-size: .65rem;
+    z-index: 1;
+}
