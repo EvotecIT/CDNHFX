@@ -1,0 +1,268 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CDNHFX Files /v/0.31.19/Styles</title>
+  <style>
+    :root {
+      --bg: #eef3f7;
+      --panel: rgba(255,255,255,0.82);
+      --panel-strong: #ffffff;
+      --ink: #163046;
+      --muted: #5c7288;
+      --line: rgba(22,48,70,0.12);
+      --accent: #0f8aa8;
+      --accent-strong: #0b6d86;
+      --accent-soft: rgba(15,138,168,0.12);
+      --shadow: 0 24px 60px rgba(17, 43, 62, 0.12);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(15,138,168,0.18), transparent 34%),
+        radial-gradient(circle at top right, rgba(30,100,180,0.12), transparent 26%),
+        linear-gradient(180deg, #f7fafc 0%, var(--bg) 100%);
+      min-height: 100vh;
+    }
+    main {
+      width: min(1120px, calc(100% - 32px));
+      margin: 32px auto 56px;
+    }
+    .hero {
+      background: linear-gradient(135deg, rgba(255,255,255,0.88), rgba(255,255,255,0.76));
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 32px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent-strong);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 18px 0 10px;
+      font-size: clamp(32px, 5vw, 56px);
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+    }
+    .lead {
+      max-width: 760px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.7;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 18px;
+      margin-top: 24px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: 0 16px 34px rgba(18, 39, 58, 0.08);
+      backdrop-filter: blur(10px);
+    }
+    .card h2, .card h3 {
+      margin: 0 0 14px;
+      font-size: 20px;
+      letter-spacing: -0.02em;
+    }
+    .card p {
+      margin: 0 0 14px;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(22,48,70,0.06);
+      color: var(--ink);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .pill:hover {
+      background: var(--accent-soft);
+      color: var(--accent-strong);
+    }
+    a {
+      color: var(--accent-strong);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    code {
+      font-family: Consolas, "SFMono-Regular", monospace;
+      font-size: 0.95em;
+      background: rgba(22,48,70,0.06);
+      padding: 2px 6px;
+      border-radius: 8px;
+    }
+    .link-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 12px;
+    }
+    .link-list li {
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.75);
+      border: 1px solid var(--line);
+    }
+    .link-list strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 16px;
+    }
+    .link-list span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .section-title {
+      margin: 28px 0 14px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .empty {
+      margin: 0;
+      color: var(--muted);
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <div class="eyebrow">CDNHFX Release</div>
+      <h1>CDNHFX Files /v/0.31.19/Styles</h1>
+      <p class="lead">Published HtmlForgeX release assets for version 0.31.19.</p>
+    </section>
+    <div class="grid">
+  <article class="card">
+    <h2>Browse Assets</h2>
+    <p>Browse published assets under <code>/v/0.31.19/Styles/</code>.</p>
+    <div class="pill-row">
+      <a class="pill" href="/v/0.31.19/">Up One Level</a>
+      <a class="pill" href="/">CDNHFX Home</a>
+      <a class="pill" href="/v/">Version Index</a>
+      <a class="pill" href="/preview/">Preview Index</a>
+    </div>
+  </article>
+</div>
+<section class="card">
+  <h3>Contents</h3>
+  <ul class='link-list'>
+<li><strong><a href='/v/0.31.19/Styles/all.min.css'>all.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/bootstrap.min.css'>bootstrap.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/buttons.bootstrap5.min.css'>buttons.bootstrap5.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/dataTables.bootstrap5.min.css'>dataTables.bootstrap5.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/dataTables.dateTime.min.css'>dataTables.dateTime.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/datatables.searchHighlighter.min.css'>datatables.searchHighlighter.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/fixedColumns.bootstrap5.min.css'>fixedColumns.bootstrap5.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/fixedHeader.bootstrap5.min.css'>fixedHeader.bootstrap5.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/font-awesome.5.15.4.all.min.css'>font-awesome.5.15.4.all.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/font-awesome.6.7.2.all.min.css'>font-awesome.6.7.2.all.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/hfx-accordion.css'>hfx-accordion.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/hfx-carousel.css'>hfx-carousel.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/hfx-chartjs.css'>hfx-chartjs.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/hfx-datagrid-enhancements.css'>hfx-datagrid-enhancements.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/hfx-datatables.css'>hfx-datatables.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/hfx-default.css'>hfx-default.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/hfx-dropzone.css'>hfx-dropzone.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/hfx-easyqrcode.css'>hfx-easyqrcode.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/hfx-fancytree.css'>hfx-fancytree.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/hfx-globe.css'>hfx-globe.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/hfx-jsvectormap.css'>hfx-jsvectormap.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/hfx-layout.css'>hfx-layout.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/hfx-leaflet.css'>hfx-leaflet.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/hfx-mapbox-color-blind.json'>hfx-mapbox-color-blind.json</a></strong><span>JSON file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/hfx-mapbox-high-contrast-color-blind.json'>hfx-mapbox-high-contrast-color-blind.json</a></strong><span>JSON file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/hfx-mapbox-high-contrast.json'>hfx-mapbox-high-contrast.json</a></strong><span>JSON file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/hfx-mapbox.css'>hfx-mapbox.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/hfx-panel.css'>hfx-panel.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/hfx-signature-pad.css'>hfx-signature-pad.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/hfx-smartwizard.css'>hfx-smartwizard.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/hfx-sparkline.css'>hfx-sparkline.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/hfx-tabler.css'>hfx-tabler.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/hfx-text-enhancements.css'>hfx-text-enhancements.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/hfx-theme.css'>hfx-theme.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/hfx-visnetwork.css'>hfx-visnetwork.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/jsvectormap.min.css'>jsvectormap.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/leaflet.css'>leaflet.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/leaflet.markercluster.css'>leaflet.markercluster.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/leaflet.markercluster.default.css'>leaflet.markercluster.default.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/mapbox-gl.css'>mapbox-gl.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/prism-dark.min.css'>prism-dark.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/prism-ghcolors.min.css'>prism-ghcolors.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/prism-github.min.css'>prism-github.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/prism-line-numbers.min.css'>prism-line-numbers.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/prism-okaidia.min.css'>prism-okaidia.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/prism-tomorrow-night.min.css'>prism-tomorrow-night.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/prism-tomorrow.min.css'>prism-tomorrow.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/prism-toolbar.min.css'>prism-toolbar.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/prism-vs.min.css'>prism-vs.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/prism.min.css'>prism.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/quill.bubble.css'>quill.bubble.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/quill.snow.css'>quill.snow.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/responsive.bootstrap5.min.css'>responsive.bootstrap5.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/rowGroup.bootstrap5.min.css'>rowGroup.bootstrap5.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/searchBuilder.bootstrap5.min.css'>searchBuilder.bootstrap5.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/searchPanes.bootstrap5.min.css'>searchPanes.bootstrap5.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/sectionScrolling.min.css'>sectionScrolling.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/select.bootstrap5.min.css'>select.bootstrap5.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/smart_tab_all.min.css'>smart_tab_all.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/smart_wizard_all.min.css'>smart_wizard_all.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/smart_wizard.min.css'>smart_wizard.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/smartwizard.min.css'>smartwizard.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/smartwizard.theme.arrows.min.css'>smartwizard.theme.arrows.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/smartwizard.theme.basic.min.css'>smartwizard.theme.basic.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/smartwizard.theme.glow.min.css'>smartwizard.theme.glow.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/smartwizard.theme.pills.min.css'>smartwizard.theme.pills.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/star-rating.min.css'>star-rating.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/tabler-flags.min.css'>tabler-flags.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/tabler-icons.min.css'>tabler-icons.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/tabler-payments.min.css'>tabler-payments.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/tabler-socials.min.css'>tabler-socials.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/tabler-themes.min.css'>tabler-themes.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/tabler.min.css'>tabler.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/tom-select.bootstrap5.min.css'>tom-select.bootstrap5.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/ui.fancytree.min.css'>ui.fancytree.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/vis-network.loadingbar.min.css'>vis-network.loadingbar.min.css</a></strong><span>CSS file</span></li>
+<li><strong><a href='/v/0.31.19/Styles/vis-network.min.css'>vis-network.min.css</a></strong><span>CSS file</span></li>
+</ul>
+</section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,108 @@
+.hfx-mapbox-marker {
+  position: relative;
+  width: var(--hfx-mapbox-marker-size, 14px);
+  height: var(--hfx-mapbox-marker-size, 14px);
+  border-radius: 999px;
+  background: var(--hfx-mapbox-marker-color, var(--tblr-primary, #066fd1));
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.35), 0 0 var(--hfx-mapbox-glow-size, 10px) var(--hfx-mapbox-marker-color, var(--tblr-primary, #066fd1));
+  pointer-events: auto;
+}
+
+.hfx-mapbox-marker-glow {
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.35), 0 0 var(--hfx-mapbox-glow-size, 14px) var(--hfx-mapbox-marker-color, var(--tblr-primary, #066fd1));
+}
+
+.hfx-mapbox-marker-pulse::before {
+  content: "";
+  position: absolute;
+  inset: calc(var(--hfx-mapbox-pulse-size, 8px) * -1);
+  border-radius: 999px;
+  border: 2px solid var(--hfx-mapbox-marker-color, var(--tblr-primary, #066fd1));
+  opacity: 0.7;
+  animation: hfx-mapbox-pulse var(--hfx-mapbox-pulse-speed, 2.6s) ease-out infinite;
+}
+
+.hfx-mapbox {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--tblr-border-radius, 4px);
+  --hfx-mapbox-situation-bg: var(--tblr-bg-surface, #f3f4f6);
+  --hfx-mapbox-grid-strong: rgba(var(--tblr-primary-rgb, 6, 111, 209), 0.08);
+  --hfx-mapbox-grid-soft: rgba(var(--tblr-primary-rgb, 6, 111, 209), 0.04);
+  --hfx-mapbox-grid-opacity: 0.35;
+  --hfx-mapbox-vignette-opacity: 0.25;
+  --hfx-mapbox-situation-shadow: inset 0 0 0 1px rgba(var(--tblr-primary-rgb, 6, 111, 209), 0.12), inset 0 0 40px rgba(0, 0, 0, 0.12);
+}
+
+:root[data-bs-theme="dark"] .hfx-mapbox,
+body[data-bs-theme="dark"] .hfx-mapbox {
+  --hfx-mapbox-situation-bg: #0b1412;
+  --hfx-mapbox-grid-strong: rgba(var(--tblr-teal-rgb, 12, 170, 130), 0.18);
+  --hfx-mapbox-grid-soft: rgba(var(--tblr-teal-rgb, 12, 170, 130), 0.08);
+  --hfx-mapbox-grid-opacity: 0.6;
+  --hfx-mapbox-vignette-opacity: 0.85;
+  --hfx-mapbox-situation-shadow: inset 0 0 0 1px rgba(var(--tblr-teal-rgb, 12, 170, 130), 0.18), inset 0 0 40px rgba(0, 0, 0, 0.45);
+}
+
+:root[data-hfx-theme="dark-black"] .hfx-mapbox,
+body[data-hfx-theme="dark-black"] .hfx-mapbox,
+:root[data-hfx-theme="dark-carbon"] .hfx-mapbox,
+body[data-hfx-theme="dark-carbon"] .hfx-mapbox {
+  --hfx-mapbox-grid-opacity: 0.75;
+  --hfx-mapbox-vignette-opacity: 0.95;
+  --hfx-mapbox-situation-shadow: inset 0 0 0 1px rgba(var(--tblr-teal-rgb, 12, 170, 130), 0.22), inset 0 0 46px rgba(0, 0, 0, 0.65);
+}
+
+.hfx-mapbox .mapboxgl-canvas {
+  position: relative;
+  z-index: 1;
+}
+
+.hfx-mapbox .mapboxgl-control-container {
+  position: relative;
+  z-index: 6;
+}
+
+.hfx-mapbox .mapboxgl-marker {
+  z-index: 7;
+}
+
+.hfx-mapbox .mapboxgl-popup {
+  z-index: 8;
+}
+
+.hfx-mapbox.hfx-mapbox-style-situation {
+  background: var(--hfx-mapbox-situation-bg, #0b1412);
+  box-shadow: var(--hfx-mapbox-situation-shadow, inset 0 0 0 1px rgba(60, 180, 130, 0.15), inset 0 0 40px rgba(0, 0, 0, 0.45));
+}
+
+.hfx-mapbox.hfx-mapbox-style-situation::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  opacity: var(--hfx-mapbox-grid-opacity, 0.6);
+  background-image:
+    linear-gradient(var(--hfx-mapbox-grid-strong, rgba(80, 210, 160, 0.12)) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hfx-mapbox-grid-strong, rgba(80, 210, 160, 0.12)) 1px, transparent 1px),
+    linear-gradient(var(--hfx-mapbox-grid-soft, rgba(80, 210, 160, 0.06)) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hfx-mapbox-grid-soft, rgba(80, 210, 160, 0.06)) 1px, transparent 1px);
+  background-size: 64px 64px, 64px 64px, 16px 16px, 16px 16px;
+}
+
+.hfx-mapbox.hfx-mapbox-style-situation::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  opacity: var(--hfx-mapbox-vignette-opacity, 0.85);
+  background: radial-gradient(circle at center, rgba(0, 0, 0, 0.0) 0%, rgba(0, 0, 0, 0.35) 70%, rgba(0, 0, 0, 0.6) 100%);
+}
+
+@keyframes hfx-mapbox-pulse {
+  0% { transform: scale(0.4); opacity: 0.9; }
+  70% { transform: scale(1.6); opacity: 0.1; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
