@@ -1,0 +1,107 @@
+/* Shared workspace surface tokens for monitoring, studio, file-service, and drilldown shells. */
+:root {
+  --hfx-surface-space-2xs: .25rem;
+  --hfx-surface-space-xs: .4rem;
+  --hfx-surface-space-sm: .6rem;
+  --hfx-surface-space-md: .85rem;
+  --hfx-surface-space-lg: 1.1rem;
+  --hfx-surface-space-xl: 1.45rem;
+  --hfx-surface-radius-sm: .42rem;
+  --hfx-surface-radius-md: .56rem;
+  --hfx-surface-radius-lg: .68rem;
+  --hfx-surface-action-min-block-size: 2rem;
+  --hfx-surface-action-compact-min-block-size: 1.85rem;
+  --hfx-surface-action-rail-gap: var(--hfx-surface-space-xs, .4rem);
+  --hfx-surface-sidebar-inline-size: 15.5rem;
+  --hfx-surface-sidebar-compact-inline-size: 14rem;
+  --hfx-surface-sidebar-collapsed-inline-size: 3.75rem;
+  --hfx-surface-topbar-z: 60;
+  --hfx-surface-overlay-z: 12000;
+  --hfx-surface-action-rail-max-inline-size: 60rem;
+  --hfx-surface-action-rail-item-min-inline-size: 10.25rem;
+  --hfx-surface-nav-item-gap: .58rem;
+  --hfx-surface-nav-item-radius: .55rem;
+  --hfx-surface-nav-icon-inline-size: 1.25rem;
+  --hfx-surface-nav-item-min-block-size: 3rem;
+  --hfx-surface-nav-item-compact-min-block-size: 2.55rem;
+  --hfx-surface-content-max-inline-size: 128rem;
+  --hfx-surface-data-max-block-size: min(72vh, 44rem);
+  --hfx-surface-shadow-card: 0 .75rem 1.85rem rgba(15, 23, 42, .07);
+  --hfx-surface-shadow-shell: 0 1rem 2.5rem rgba(15, 23, 42, .08);
+}
+
+:where(
+  .hfx-monitoring-shell,
+  .hfx-service-config-studio,
+  .hfx-service-config-map,
+  .hfx-service-impact-panel,
+  .hfx-service-diff-summary,
+  .hfx-service-pipeline,
+  .hfx-service-studio-shell,
+  .hfx-file-service-send,
+  .hfx-file-share-options,
+  .hfx-file-secure-message,
+  .hfx-file-share-password-challenge,
+  .hfx-file-scan-evidence-form,
+  .hfx-file-transfer-decision-form,
+  .hfx-file-transfer-list,
+  .hfx-file-transfer-details,
+  .hfx-file-transfer-summary,
+  .hfx-file-bulk-actions,
+  .hfx-file-evidence-history,
+  .hfx-file-transfer-map,
+  .hfx-file-scenario-board,
+  .hfx-file-guided-flow,
+  .hfx-file-capability-strip,
+  .hfx-file-storage-quota,
+  .hfx-file-portal-shell,
+  .hfx-drilldown-workspace
+) {
+  --hfx-surface-gap: var(--hfx-surface-space-md);
+  --hfx-surface-gutter-x: clamp(var(--hfx-surface-space-md), 1.5vw, var(--hfx-surface-space-xl));
+  --hfx-surface-gutter-y: clamp(var(--hfx-surface-space-sm), 1.2vw, var(--hfx-surface-space-lg));
+}
+
+:where(
+  .hfx-monitoring-spacing--compact,
+  .hfx-service-config-studio--compact,
+  .hfx-service-studio-shell--compact,
+  .hfx-file-portal-shell--compact,
+  .hfx-file-proof-compact
+) {
+  --hfx-surface-gap: var(--hfx-surface-space-sm);
+  --hfx-surface-gutter-x: var(--hfx-surface-space-md);
+  --hfx-surface-gutter-y: var(--hfx-surface-space-sm);
+}
+
+@media (max-width: 48rem) {
+  :where(
+    .hfx-monitoring-shell,
+    .hfx-service-config-studio,
+    .hfx-service-studio-shell,
+    .hfx-file-portal-shell,
+    .hfx-drilldown-workspace
+  ) {
+    --hfx-surface-gutter-x: var(--hfx-surface-space-md);
+    --hfx-surface-gutter-y: var(--hfx-surface-space-sm);
+  }
+}
+
+@media (min-width: 100rem) {
+  :where(
+    .hfx-monitoring-shell,
+    .hfx-service-config-studio,
+    .hfx-service-studio-shell,
+    .hfx-file-portal-shell,
+    .hfx-drilldown-workspace
+  ) {
+    --hfx-surface-gutter-x: var(--hfx-surface-space-xl);
+    --hfx-surface-gutter-y: var(--hfx-surface-space-lg);
+  }
+}
+
+@media (min-width: 120rem) {
+  :root {
+    --hfx-surface-content-max-inline-size: 144rem;
+  }
+}
