@@ -1,0 +1,569 @@
+/* Dashboard surface dark chrome. */
+html[data-bs-theme='dark'] body {
+    background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.18), transparent 26rem),
+        radial-gradient(circle at top right, rgba(14, 165, 233, 0.14), transparent 24rem),
+        linear-gradient(180deg, #0b1220 0%, #0f172a 100%);
+}
+
+html[data-bs-theme='dark'] header.navbar {
+    background: rgba(11, 18, 32, 0.86);
+    border-bottom: 1px solid rgba(96, 165, 250, 0.10);
+    box-shadow:
+        0 20px 44px rgba(2, 6, 23, 0.45),
+        inset 0 1px 0 rgba(148, 163, 184, 0.04);
+    backdrop-filter: blur(14px);
+}
+
+html[data-bs-theme='dark'] header.navbar .hfx-header-utilities {
+    align-items: center;
+    gap: 0.35rem;
+}
+
+html[data-bs-theme='dark'] header.navbar .hfx-header-utility-link,
+html[data-bs-theme='dark'] header.navbar .hfx-theme-action__toggle,
+html[data-bs-theme='dark'] header.navbar .hfx-header-user-link,
+html[data-bs-theme='dark'] header.navbar .hfx-header-action .btn {
+    border-radius: 1rem;
+    border: 1px solid rgba(71, 85, 105, 0.34);
+    background:
+        linear-gradient(180deg, rgba(18, 28, 45, 0.92) 0%, rgba(12, 18, 31, 0.96) 100%);
+    box-shadow:
+        0 18px 34px rgba(2, 6, 23, 0.30),
+        inset 0 1px 0 rgba(191, 219, 254, 0.05);
+    color: #d8e3f3;
+    transition:
+        background-color 0.18s ease,
+        box-shadow 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease,
+        transform 0.18s ease;
+}
+
+html[data-bs-theme='dark'] header.navbar .hfx-header-utility-link,
+html[data-bs-theme='dark'] header.navbar .hfx-theme-action__toggle {
+    min-width: 2.9rem;
+    min-height: 2.9rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+html[data-bs-theme='dark'] header.navbar .hfx-header-user-link {
+    padding: 0.45rem 0.65rem 0.45rem 0.45rem !important;
+    gap: 0.2rem;
+}
+
+html[data-bs-theme='dark'] header.navbar .hfx-header-user__avatar {
+    box-shadow:
+        0 14px 26px rgba(2, 6, 23, 0.28),
+        inset 0 1px 0 rgba(191, 219, 254, 0.08);
+    border: 1px solid rgba(96, 165, 250, 0.16);
+}
+
+html[data-bs-theme='dark'] header.navbar .hfx-header-user-name {
+    color: #e8f0fb;
+    font-weight: 600;
+}
+
+html[data-bs-theme='dark'] header.navbar .hfx-header-user-role {
+    color: #8ea4c1 !important;
+}
+
+html[data-bs-theme='dark'] header.navbar .hfx-header-utility-link:hover,
+html[data-bs-theme='dark'] header.navbar .hfx-header-utility-link.show,
+html[data-bs-theme='dark'] header.navbar .hfx-theme-action__toggle:hover,
+html[data-bs-theme='dark'] header.navbar .hfx-theme-action__toggle.show,
+html[data-bs-theme='dark'] header.navbar .hfx-header-user-link:hover,
+html[data-bs-theme='dark'] header.navbar .hfx-header-user-link.show,
+html[data-bs-theme='dark'] header.navbar .hfx-header-action .btn:hover {
+    background:
+        linear-gradient(180deg, rgba(25, 40, 66, 0.96) 0%, rgba(16, 25, 40, 0.98) 100%);
+    border-color: rgba(96, 165, 250, 0.24);
+    color: #f4f8ff;
+    box-shadow:
+        0 20px 38px rgba(2, 6, 23, 0.34),
+        inset 0 1px 0 rgba(191, 219, 254, 0.08);
+    transform: translateY(-1px);
+}
+
+html[data-bs-theme='dark'] header.navbar .hfx-header-notifications__toggle .badge-notification {
+    box-shadow:
+        0 8px 18px rgba(239, 68, 68, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+
+html[data-bs-theme='dark'] .hfx-header-dropdown-menu,
+html[data-bs-theme='dark'] .hfx-theme-menu {
+    border: 1px solid rgba(71, 85, 105, 0.34);
+    border-radius: 1.15rem;
+    padding: 0.5rem;
+    background: rgba(11, 18, 32, 0.92);
+    box-shadow:
+        0 32px 68px rgba(2, 6, 23, 0.42),
+        inset 0 1px 0 rgba(191, 219, 254, 0.04);
+    backdrop-filter: blur(18px);
+}
+
+html[data-bs-theme='dark'] .hfx-theme-menu {
+    min-width: 11rem;
+}
+
+html[data-bs-theme='dark'] .hfx-header-dropdown-menu {
+    margin-top: 0.45rem;
+}
+
+html[data-bs-theme='dark'] .hfx-header-notifications__menu {
+    width: min(24rem, calc(100vw - 2rem));
+}
+
+html[data-bs-theme='dark'] .hfx-header-user__menu {
+    min-width: 12rem;
+}
+
+html[data-bs-theme='dark'] .hfx-header-dropdown-menu.dropdown-menu-arrow::before,
+html[data-bs-theme='dark'] .hfx-theme-menu.dropdown-menu-arrow::before {
+    background: rgba(11, 18, 32, 0.92);
+    border-top: 1px solid rgba(71, 85, 105, 0.34);
+    border-left: 1px solid rgba(71, 85, 105, 0.34);
+}
+
+html[data-bs-theme='dark'] .hfx-header-dropdown-card {
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+html[data-bs-theme='dark'] .hfx-header-dropdown-card__header,
+html[data-bs-theme='dark'] .hfx-header-dropdown-card__footer {
+    border-color: rgba(71, 85, 105, 0.20);
+    background: rgba(18, 28, 45, 0.44);
+    border-radius: 0.95rem;
+}
+
+html[data-bs-theme='dark'] .hfx-header-dropdown-card__body,
+html[data-bs-theme='dark'] .hfx-header-dropdown-card__list {
+    border-radius: 0.95rem;
+}
+
+html[data-bs-theme='dark'] .hfx-header-dropdown-card .list-group-item,
+html[data-bs-theme='dark'] .hfx-theme-menu__item,
+html[data-bs-theme='dark'] .hfx-header-user__menu-item {
+    transition:
+        background-color 0.18s ease,
+        border-color 0.18s ease,
+        transform 0.18s ease;
+}
+
+html[data-bs-theme='dark'] .hfx-theme-menu__item,
+html[data-bs-theme='dark'] .hfx-header-user__menu-item {
+    border-radius: 0.9rem;
+}
+
+html[data-bs-theme='dark'] .hfx-header-dropdown-card .list-group-item:hover {
+    background: rgba(37, 99, 235, 0.12);
+    transform: translateY(-1px);
+}
+
+html[data-bs-theme='dark'] .hfx-theme-menu__item:hover,
+html[data-bs-theme='dark'] .hfx-theme-menu__item:focus,
+html[data-bs-theme='dark'] .hfx-header-user__menu-item:hover,
+html[data-bs-theme='dark'] .hfx-header-user__menu-item:focus {
+    background: rgba(37, 99, 235, 0.16);
+    transform: translateY(-1px);
+}
+
+html[data-bs-theme='dark'] .page-wrapper .card {
+    box-shadow:
+        0 20px 44px rgba(2, 6, 23, 0.34),
+        inset 0 1px 0 rgba(148, 163, 184, 0.03);
+}
+
+html[data-bs-theme='dark'] .hfx-metric-card,
+html[data-bs-theme='dark'] .hfx-gauge-card,
+html[data-bs-theme='dark'] .hfx-stat-tile-card,
+html[data-bs-theme='dark'] .hfx-social-tile-card,
+html[data-bs-theme='dark'] .hfx-tracking-summary-card,
+html[data-bs-theme='dark'] .hfx-analytics-summary-card,
+html[data-bs-theme='dark'] .hfx-activity-feed-card,
+html[data-bs-theme='dark'] .hfx-geo-summary-card,
+html[data-bs-theme='dark'] .hfx-table-summary-card {
+    background:
+        linear-gradient(180deg, rgba(16, 25, 40, 0.98) 0%, rgba(12, 18, 31, 0.98) 100%);
+    border-color: rgba(71, 85, 105, 0.30) !important;
+    box-shadow:
+        0 22px 46px rgba(2, 6, 23, 0.34),
+        inset 0 1px 0 rgba(148, 163, 184, 0.03) !important;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+html[data-bs-theme='dark'] .hfx-metric-card:hover,
+html[data-bs-theme='dark'] .hfx-gauge-card:hover,
+html[data-bs-theme='dark'] .hfx-stat-tile-card:hover,
+html[data-bs-theme='dark'] .hfx-social-tile-card:hover,
+html[data-bs-theme='dark'] .hfx-tracking-summary-card:hover,
+html[data-bs-theme='dark'] .hfx-analytics-summary-card:hover,
+html[data-bs-theme='dark'] .hfx-activity-feed-card:hover,
+html[data-bs-theme='dark'] .hfx-geo-summary-card:hover,
+html[data-bs-theme='dark'] .hfx-table-summary-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(96, 165, 250, 0.26) !important;
+    box-shadow:
+        0 28px 60px rgba(2, 6, 23, 0.42),
+        inset 0 1px 0 rgba(191, 219, 254, 0.05) !important;
+}
+
+html[data-bs-theme='dark'] .hfx-metric-card {
+    background:
+        radial-gradient(circle at top right, rgba(59, 130, 246, 0.16), transparent 13rem),
+        linear-gradient(180deg, rgba(16, 25, 40, 0.98) 0%, rgba(12, 18, 31, 0.98) 100%) !important;
+}
+
+html[data-bs-theme='dark'] .hfx-gauge-card {
+    background:
+        radial-gradient(circle at top center, rgba(14, 165, 233, 0.16), transparent 13rem),
+        linear-gradient(180deg, rgba(16, 25, 40, 0.98) 0%, rgba(12, 18, 31, 0.98) 100%) !important;
+}
+
+html[data-bs-theme='dark'] .hfx-stat-tile-card {
+    background:
+        radial-gradient(circle at top left, rgba(99, 102, 241, 0.14), transparent 10rem),
+        linear-gradient(180deg, rgba(16, 25, 40, 0.98) 0%, rgba(12, 18, 31, 0.98) 100%) !important;
+}
+
+html[data-bs-theme='dark'] .hfx-social-tile-card {
+    background:
+        radial-gradient(circle at top right, rgba(34, 197, 94, 0.14), transparent 10rem),
+        radial-gradient(circle at top left, rgba(59, 130, 246, 0.18), transparent 9rem),
+        linear-gradient(180deg, rgba(16, 25, 40, 0.98) 0%, rgba(12, 18, 31, 0.98) 100%) !important;
+}
+
+html[data-bs-theme='dark'] .hfx-tracking-summary-card {
+    background:
+        radial-gradient(circle at top right, rgba(34, 197, 94, 0.12), transparent 10rem),
+        radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.14), transparent 12rem),
+        linear-gradient(180deg, rgba(16, 25, 40, 0.98) 0%, rgba(12, 18, 31, 0.98) 100%) !important;
+}
+
+html[data-bs-theme='dark'] .hfx-analytics-summary-card,
+html[data-bs-theme='dark'] .hfx-geo-summary-card,
+html[data-bs-theme='dark'] .hfx-table-summary-card {
+    background:
+        radial-gradient(circle at top left, rgba(29, 78, 216, 0.18), transparent 14rem),
+        linear-gradient(180deg, rgba(16, 25, 40, 0.98) 0%, rgba(12, 18, 31, 0.98) 100%) !important;
+}
+
+html[data-bs-theme='dark'] .hfx-activity-feed-card {
+    background:
+        radial-gradient(circle at top right, rgba(59, 130, 246, 0.16), transparent 13rem),
+        radial-gradient(circle at bottom left, rgba(34, 197, 94, 0.12), transparent 12rem),
+        linear-gradient(180deg, rgba(16, 25, 40, 0.98) 0%, rgba(12, 18, 31, 0.98) 100%) !important;
+}
+
+html[data-bs-theme='dark'] .hfx-metric-card .avatar,
+html[data-bs-theme='dark'] .hfx-gauge-card .avatar,
+html[data-bs-theme='dark'] .hfx-stat-tile-card .rounded-4.shadow-sm {
+    box-shadow:
+        0 16px 30px rgba(2, 6, 23, 0.28),
+        inset 0 1px 0 rgba(191, 219, 254, 0.06) !important;
+}
+
+html[data-bs-theme='dark'] .hfx-social-tile-card .social {
+    box-shadow:
+        0 16px 30px rgba(2, 6, 23, 0.28),
+        inset 0 1px 0 rgba(191, 219, 254, 0.06);
+}
+
+html[data-bs-theme='dark'] .hfx-metric-card .card-body,
+html[data-bs-theme='dark'] .hfx-gauge-card .card-body,
+html[data-bs-theme='dark'] .hfx-stat-tile-card .card-body,
+html[data-bs-theme='dark'] .hfx-social-tile-card .card-body {
+    position: relative;
+}
+
+html[data-bs-theme='dark'] .hfx-metric-card .card-body::before,
+html[data-bs-theme='dark'] .hfx-gauge-card .card-body::before,
+html[data-bs-theme='dark'] .hfx-stat-tile-card .card-body::before,
+html[data-bs-theme='dark'] .hfx-social-tile-card .card-body::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at top right, rgba(96, 165, 250, 0.10) 0%, rgba(96, 165, 250, 0) 40%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0) 44%);
+    opacity: 1;
+}
+
+html[data-bs-theme='dark'] .hfx-tracking-summary-card__metric,
+html[data-bs-theme='dark'] .hfx-tracking-summary-card__stage,
+html[data-bs-theme='dark'] .hfx-tracking-summary-card__signal,
+html[data-bs-theme='dark'] .hfx-analytics-summary-card__metric,
+html[data-bs-theme='dark'] .hfx-analytics-summary-card__highlight,
+html[data-bs-theme='dark'] .hfx-activity-feed-card__event,
+html[data-bs-theme='dark'] .hfx-geo-summary-card__metric,
+html[data-bs-theme='dark'] .hfx-geo-summary-card__region,
+html[data-bs-theme='dark'] .hfx-table-summary-card__highlight,
+html[data-bs-theme='dark'] .hfx-summary-strip__item {
+    box-shadow:
+        0 16px 30px rgba(2, 6, 23, 0.28),
+        inset 0 1px 0 rgba(191, 219, 254, 0.05);
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        border-color 0.18s ease;
+}
+
+html[data-bs-theme='dark'] .hfx-tracking-summary-card__metric:hover,
+html[data-bs-theme='dark'] .hfx-tracking-summary-card__stage:hover,
+html[data-bs-theme='dark'] .hfx-tracking-summary-card__signal:hover,
+html[data-bs-theme='dark'] .hfx-geo-summary-card__metric:hover,
+html[data-bs-theme='dark'] .hfx-geo-summary-card__region:hover,
+html[data-bs-theme='dark'] .hfx-table-summary-card__highlight:hover {
+    transform: translateY(-1px);
+    border-color: rgba(96, 165, 250, 0.22) !important;
+    box-shadow:
+        0 20px 36px rgba(2, 6, 23, 0.34),
+        inset 0 1px 0 rgba(191, 219, 254, 0.06);
+}
+
+html[data-bs-theme='dark'] .hfx-tracking-summary-card__stage {
+    background:
+        radial-gradient(circle at top right, rgba(34, 197, 94, 0.10), transparent 12rem),
+        linear-gradient(180deg, rgba(20, 31, 49, 0.94) 0%, rgba(12, 19, 33, 0.96) 100%) !important;
+    border-color: rgba(71, 85, 105, 0.26) !important;
+}
+
+html[data-bs-theme='dark'] .hfx-tracking-summary-card__tracking .tracking {
+    background: rgba(15, 23, 42, 0.42);
+    border-radius: 0.9rem;
+    padding: 0.3rem;
+}
+
+html[data-bs-theme='dark'] .hfx-tracking-summary-card__tracking .tracking-block:not([class*='bg-']) {
+    background: rgba(100, 116, 139, 0.28);
+}
+
+html[data-bs-theme='dark'] .hfx-analytics-summary-card__chart,
+html[data-bs-theme='dark'] .hfx-activity-feed-card__surface,
+html[data-bs-theme='dark'] .hfx-geo-summary-card__map-shell,
+html[data-bs-theme='dark'] .hfx-table-summary-card__surface {
+    background:
+        linear-gradient(180deg, rgba(20, 31, 49, 0.94) 0%, rgba(12, 19, 33, 0.96) 100%) !important;
+    border-color: rgba(71, 85, 105, 0.24) !important;
+    box-shadow:
+        0 18px 38px rgba(2, 6, 23, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
+}
+
+html[data-bs-theme='dark'] .hfx-geo-summary-card__map-frame,
+html[data-bs-theme='dark'] .hfx-table-summary-card .dataTables_wrapper {
+    background:
+        linear-gradient(180deg, rgba(12, 19, 33, 0.34) 0%, rgba(11, 18, 31, 0.18) 100%);
+    border-radius: 1rem;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+html[data-bs-theme='dark'] .hfx-table-summary-card .dataTables_wrapper {
+    border: 1px solid rgba(71, 85, 105, 0.24);
+}
+
+html[data-bs-theme='dark'] .hfx-table-summary-card table.dataTable thead th {
+    background: rgba(18, 28, 45, 0.84);
+    border-bottom-color: rgba(71, 85, 105, 0.26) !important;
+}
+
+html[data-bs-theme='dark'] .hfx-table-summary-card table.dataTable tbody tr {
+    transition: background-color 0.18s ease, transform 0.18s ease;
+}
+
+html[data-bs-theme='dark'] .hfx-table-summary-card table.dataTable tbody tr:hover {
+    background: rgba(37, 99, 235, 0.075);
+}
+
+html[data-bs-theme='dark'] footer.footer.footer-transparent {
+    margin-top: 2rem;
+    padding-top: 1.15rem;
+    padding-bottom: 1.35rem;
+    border-top: 1px solid rgba(71, 85, 105, 0.24);
+    background:
+        linear-gradient(180deg, rgba(11, 18, 31, 0.0) 0%, rgba(11, 18, 31, 0.78) 100%);
+    backdrop-filter: blur(10px);
+}
+
+html[data-bs-theme='dark'] footer.footer.footer-transparent .link-secondary,
+html[data-bs-theme='dark'] footer.footer.footer-transparent .list-inline-item {
+    color: #97a8c0 !important;
+}
+
+html[data-bs-theme='dark'] .hfx-tracking-summary-card .text-secondary {
+    color: #9fb6d4 !important;
+}
+
+html[data-bs-theme='dark'] .hfx-metric-card .text-secondary,
+html[data-bs-theme='dark'] .hfx-gauge-card .text-secondary,
+html[data-bs-theme='dark'] .hfx-stat-tile-card .text-secondary,
+html[data-bs-theme='dark'] .hfx-social-tile-card .text-secondary,
+html[data-bs-theme='dark'] .hfx-analytics-summary-card .text-secondary,
+html[data-bs-theme='dark'] .hfx-activity-feed-card .text-secondary,
+html[data-bs-theme='dark'] .hfx-geo-summary-card .text-secondary,
+html[data-bs-theme='dark'] .hfx-table-summary-card .text-secondary {
+    color: #97a8c0 !important;
+}
+
+html[data-bs-theme='dark'] .hfx-stat-tile-card .fw-semibold,
+html[data-bs-theme='dark'] .hfx-social-tile-card .fw-semibold,
+html[data-bs-theme='dark'] .hfx-social-tile-card .display-6,
+html[data-bs-theme='dark'] .hfx-analytics-summary-card .fw-semibold,
+html[data-bs-theme='dark'] .hfx-activity-feed-card .fw-semibold,
+html[data-bs-theme='dark'] .hfx-geo-summary-card .fw-semibold,
+html[data-bs-theme='dark'] .hfx-table-summary-card .fw-semibold {
+    color: #e8f0fb !important;
+}
+
+html[data-bs-theme='dark'] .hfx-metric-card .card-title,
+html[data-bs-theme='dark'] .hfx-gauge-card .card-title,
+html[data-bs-theme='dark'] .hfx-stat-tile-card .card-title,
+html[data-bs-theme='dark'] .hfx-social-tile-card .card-title,
+html[data-bs-theme='dark'] .hfx-analytics-summary-card .card-title,
+html[data-bs-theme='dark'] .hfx-activity-feed-card .card-title,
+html[data-bs-theme='dark'] .hfx-geo-summary-card .card-title,
+html[data-bs-theme='dark'] .hfx-table-summary-card .card-title {
+    color: #e8f0fb !important;
+    font-size: 1rem;
+    line-height: 1.2;
+}
+
+html[data-bs-theme='dark'] .card .card-title {
+    line-height: 1.2;
+}
+
+html[data-bs-theme='dark'] .hfx-metric-card .text-uppercase,
+html[data-bs-theme='dark'] .hfx-gauge-card .text-uppercase,
+html[data-bs-theme='dark'] .hfx-stat-tile-card .text-uppercase,
+html[data-bs-theme='dark'] .hfx-social-tile-card .text-uppercase {
+    letter-spacing: 0.08em;
+}
+
+html[data-bs-theme='dark'] .page-header {
+    margin-bottom: 1.35rem;
+}
+
+html[data-bs-theme='dark'] .page-header .page-pretitle {
+    letter-spacing: 0.08em;
+}
+
+html[data-bs-theme='dark'] .page-title {
+    letter-spacing: -0.038em;
+    line-height: 1.04;
+}
+
+html[data-bs-theme='dark'] .hfx-metric-card .progress {
+    background: rgba(71, 85, 105, 0.34);
+}
+
+html[data-bs-theme='dark'] .hfx-spotlight-card {
+    background: linear-gradient(135deg, rgba(30, 64, 175, 0.26) 0%, rgba(15, 23, 42, 0.96) 42%, rgba(15, 23, 42, 0.98) 100%) !important;
+    border-color: rgba(96, 165, 250, 0.16) !important;
+    box-shadow: 0 34px 84px rgba(2, 6, 23, 0.46) !important;
+}
+
+html[data-bs-theme='dark'] .hfx-spotlight-card__orb--primary {
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.30) 0%, rgba(59, 130, 246, 0.12) 46%, rgba(15, 23, 42, 0) 76%) !important;
+}
+
+html[data-bs-theme='dark'] .hfx-spotlight-card__orb--secondary {
+    background: radial-gradient(circle, rgba(14, 165, 233, 0.18) 0%, rgba(15, 23, 42, 0) 74%) !important;
+}
+
+html[data-bs-theme='dark'] .hfx-spotlight-card__plate {
+    background: linear-gradient(180deg, rgba(59, 130, 246, 0.30) 0%, rgba(37, 99, 235, 0.16) 100%) !important;
+    border-color: rgba(96, 165, 250, 0.24) !important;
+    box-shadow:
+        0 22px 44px rgba(2, 6, 23, 0.34),
+        inset 0 1px 0 rgba(191, 219, 254, 0.08);
+}
+
+html[data-bs-theme='dark'] .hfx-spotlight-card__callout {
+    background: rgba(15, 23, 42, 0.82) !important;
+    border-color: rgba(96, 165, 250, 0.16) !important;
+    color: #e5eefc !important;
+    box-shadow:
+        0 18px 34px rgba(2, 6, 23, 0.34),
+        inset 0 1px 0 rgba(191, 219, 254, 0.06);
+    backdrop-filter: blur(14px);
+}
+
+html[data-bs-theme='dark'] .hfx-spotlight-card__callout .fw-semibold {
+    color: #9fb6d4 !important;
+}
+
+html[data-bs-theme='dark'] .hfx-spotlight-card__callout .text-secondary {
+    color: #9fb6d4 !important;
+}
+
+html[data-bs-theme='dark'] .hfx-spotlight-card h2,
+html[data-bs-theme='dark'] .hfx-analytics-summary-card h3,
+html[data-bs-theme='dark'] .hfx-activity-feed-card h3,
+html[data-bs-theme='dark'] .hfx-geo-summary-card h3,
+html[data-bs-theme='dark'] .hfx-table-summary-card h3 {
+    letter-spacing: -0.032em;
+}
+
+html[data-bs-theme='dark'] .hfx-spotlight-card p,
+html[data-bs-theme='dark'] .hfx-analytics-summary-card p,
+html[data-bs-theme='dark'] .hfx-activity-feed-card p,
+html[data-bs-theme='dark'] .hfx-geo-summary-card p,
+html[data-bs-theme='dark'] .hfx-table-summary-card p {
+    max-width: 62ch;
+    line-height: 1.58;
+}
+
+html[data-bs-theme='dark'] .hfx-spotlight-card p {
+    max-width: 34rem;
+}
+
+html[data-bs-theme='dark'] .hfx-analytics-summary-card__highlight,
+html[data-bs-theme='dark'] .hfx-activity-feed-card__event,
+html[data-bs-theme='dark'] .hfx-geo-summary-card__region,
+html[data-bs-theme='dark'] .hfx-table-summary-card__highlight {
+    font-size: 0.92rem;
+    line-height: 1.46;
+}
+
+html[data-bs-theme='dark'] .hfx-stat-tile-card .text-uppercase,
+html[data-bs-theme='dark'] .hfx-social-tile-card .text-uppercase,
+html[data-bs-theme='dark'] .hfx-summary-strip__item .text-uppercase,
+html[data-bs-theme='dark'] .hfx-tracking-summary-card__metric .text-uppercase,
+html[data-bs-theme='dark'] .hfx-geo-summary-card__region .text-uppercase,
+html[data-bs-theme='dark'] .hfx-table-summary-card__highlight .text-uppercase {
+    font-size: 0.68rem;
+    letter-spacing: 0.085em;
+}
+
+html[data-bs-theme='dark'] .hfx-stat-tile-card .display-6,
+html[data-bs-theme='dark'] .hfx-social-tile-card .display-6,
+html[data-bs-theme='dark'] .hfx-summary-strip__item .fw-semibold,
+html[data-bs-theme='dark'] .hfx-tracking-summary-card__metric .fw-semibold,
+html[data-bs-theme='dark'] .hfx-geo-summary-card__region .fw-semibold,
+html[data-bs-theme='dark'] .hfx-table-summary-card__highlight .fw-semibold {
+    line-height: 1.14;
+}
+
+html[data-bs-theme='dark'] .hfx-stat-tile-card .text-secondary,
+html[data-bs-theme='dark'] .hfx-social-tile-card .text-secondary,
+html[data-bs-theme='dark'] .hfx-summary-strip__item .text-secondary,
+html[data-bs-theme='dark'] .hfx-tracking-summary-card__metric .text-secondary,
+html[data-bs-theme='dark'] .hfx-geo-summary-card__region .text-secondary,
+html[data-bs-theme='dark'] .hfx-table-summary-card__highlight .text-secondary {
+    font-size: 0.82rem;
+    line-height: 1.42;
+}
+
+html[data-bs-theme='dark'] .hfx-spotlight-card__callout {
+    max-width: 11.5rem;
+}
