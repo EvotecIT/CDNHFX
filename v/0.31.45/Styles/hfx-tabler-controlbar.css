@@ -1,0 +1,629 @@
+/* HtmlForgeX Tabler form shell and controlbar helpers. */
+.hfx-bool-wrap {
+    display: flex;
+    align-items: center;
+    min-height: var(--hfx-input-min-height);
+}
+
+.hfx-field-shell,
+.hfx-field-shell-control {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.hfx-field-shell-inline > .col,
+.hfx-field-shell-inline > [class^="col-"],
+.hfx-field-shell-inline > [class*=" col-"] {
+    min-width: 0;
+}
+
+.hfx-field-shell .input-icon,
+.hfx-field-shell .input-group,
+.hfx-field-shell .form-control,
+.hfx-field-shell .form-select {
+    max-width: 100%;
+}
+
+.hfx-field-shell-bool .hfx-field-shell-control {
+    min-width: 0;
+}
+
+.hfx-field-shell-bool .form-check {
+    margin-bottom: 0;
+}
+
+.hfx-bool-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .55rem .9rem;
+}
+
+.hfx-bool-group-stacked {
+    display: grid;
+    gap: .4rem;
+}
+
+.hfx-bool-group-stacked > .form-check,
+.hfx-bool-group-stacked > .hfx-field-shell,
+.hfx-bool-group-stacked > .mb-3 {
+    margin-bottom: 0 !important;
+}
+
+.hfx-bool-group .form-check-inline {
+    margin-right: 0;
+}
+
+.hfx-bool-group > .hfx-field-shell,
+.hfx-bool-group > .mb-3 {
+    margin-bottom: 0 !important;
+}
+
+.hfx-bool-control {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--hfx-bool-label-gap);
+    min-height: var(--hfx-input-min-height);
+}
+
+.hfx-bool-control.form-check {
+    display: flex;
+    padding-left: 0;
+}
+
+.hfx-bool-control.form-check.form-check-inline {
+    display: inline-flex;
+}
+
+.hfx-bool-control.form-check.form-switch {
+    gap: calc(var(--hfx-bool-label-gap) + .16rem);
+}
+
+.hfx-bool-control .form-check-input {
+    margin: 0;
+    flex: 0 0 auto;
+}
+
+.hfx-bool-control .form-check-label {
+    margin: 0;
+    line-height: 1.35;
+}
+
+.hfx-field-shell-bool .form-hint,
+.hfx-field-shell-bool .invalid-feedback,
+.hfx-field-shell-bool .valid-feedback {
+    margin-top: .35rem;
+}
+
+.hfx-controlbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--hfx-controlbar-gap);
+    width: 100%;
+    min-width: 0;
+}
+
+.hfx-controlbar-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--hfx-controlbar-fields-gap);
+    min-width: 0;
+}
+
+.hfx-controlbar-group-fields {
+    flex: 1 1 42rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--hfx-controlbar-field-min)), 1fr));
+    min-width: 0;
+    max-width: 100%;
+}
+
+.hfx-controlbar-group-toggles {
+    flex: 0 0 auto;
+    align-items: flex-end;
+}
+
+.hfx-controlbar-group-actions {
+    flex: 0 0 auto;
+    margin-left: auto;
+    gap: var(--hfx-controlbar-actions-gap);
+    justify-content: flex-end;
+}
+
+.hfx-controlbar-group-filter {
+    flex: 0 0 auto;
+    margin-left: auto;
+}
+
+.hfx-controlbar-item {
+    flex: 1 1 var(--hfx-controlbar-field-min);
+    min-width: 0;
+    max-width: 100%;
+}
+
+.hfx-controlbar-item-start,
+.hfx-controlbar-item-end {
+    flex: 0 0 auto;
+    align-self: end;
+}
+
+.hfx-controlbar-group-start-items,
+.hfx-controlbar-group-end-items {
+    flex: 0 0 auto;
+    gap: var(--hfx-controlbar-actions-gap);
+}
+
+.hfx-controlbar-item > .mb-3,
+.hfx-controlbar-item > .hfx-field-shell,
+.hfx-controlbar-item > .form-check,
+.hfx-controlbar-item > .hfx-bool-wrap {
+    margin-bottom: 0 !important;
+}
+
+.hfx-controlbar-item-toggle {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: flex-end;
+}
+
+.hfx-controlbar-item-toggle > .form-check,
+.hfx-controlbar-item-toggle .form-check {
+    margin-bottom: 0;
+    min-height: var(--hfx-controlbar-control-height);
+    display: inline-flex;
+    align-items: center;
+}
+
+.hfx-controlbar-item-toggle .hfx-bool-wrap {
+    min-height: var(--hfx-controlbar-control-height);
+}
+
+.hfx-controlbar-item-action {
+    flex: 0 0 auto;
+}
+
+.hfx-action-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--hfx-controlbar-actions-gap);
+    min-width: 0;
+}
+
+.hfx-controlbar .hfx-action-row {
+    margin-top: 0 !important;
+}
+
+.hfx-action-row > .btn,
+.hfx-action-row .btn {
+    min-height: var(--hfx-action-row-control-height);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+.hfx-action-row > .btn:not(.btn-lg),
+.hfx-action-row .btn:not(.btn-lg) {
+    padding: .28rem .65rem;
+    font-size: .85rem;
+    line-height: 1.2;
+}
+
+.hfx-action-row > .btn .icon,
+.hfx-action-row .btn .icon,
+.hfx-action-row > .btn svg,
+.hfx-action-row .btn svg {
+    width: .95rem;
+    height: .95rem;
+}
+
+.btn.hfx-btn-with-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: .6rem;
+}
+
+.btn.hfx-btn-with-icon > span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    line-height: 0;
+}
+
+.btn.hfx-btn-with-icon .icon,
+.btn.hfx-btn-with-icon svg {
+    width: 1rem;
+    height: 1rem;
+    flex: 0 0 auto;
+}
+
+.btn.hfx-btn-with-icon.w-100 {
+    justify-content: flex-start;
+}
+
+.btn.hfx-btn-with-icon-end {
+    justify-content: center;
+}
+
+.hfx-action-row-density-default {
+    --hfx-action-row-gap: var(--hfx-controlbar-actions-gap);
+    --hfx-action-row-control-height-local: var(--hfx-action-row-control-height);
+}
+
+.hfx-action-row-density-compact {
+    --hfx-action-row-gap: .35rem;
+    --hfx-action-row-control-height-local: 1.72rem;
+}
+
+.hfx-action-row-density-dense {
+    --hfx-action-row-gap: .2rem;
+    --hfx-action-row-control-height-local: 1.55rem;
+}
+
+.hfx-action-row-density-compact,
+.hfx-action-row-density-dense {
+    gap: var(--hfx-action-row-gap);
+}
+
+.hfx-action-row-density-compact > .btn:not(.btn-lg),
+.hfx-action-row-density-compact .btn:not(.btn-lg),
+.hfx-action-row-density-dense > .btn:not(.btn-lg),
+.hfx-action-row-density-dense .btn:not(.btn-lg) {
+    min-height: var(--hfx-action-row-control-height-local);
+    padding: .14rem .48rem;
+    font-size: .78rem;
+}
+
+.hfx-action-row-density-dense > .btn:not(.btn-lg),
+.hfx-action-row-density-dense .btn:not(.btn-lg) {
+    padding: .1rem .42rem;
+    font-size: .74rem;
+}
+
+.hfx-controlbar-item-action > .btn,
+.hfx-controlbar-item-action .btn,
+.hfx-controlbar-group-actions > .btn,
+.hfx-controlbar-group-actions .btn,
+.hfx-controlbar-group-start-items > .btn,
+.hfx-controlbar-group-start-items .btn,
+.hfx-controlbar-group-end-items > .btn,
+.hfx-controlbar-group-end-items .btn {
+    white-space: nowrap;
+    min-height: var(--hfx-controlbar-control-height);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hfx-controlbar-density-default {
+    --hfx-controlbar-control-height: var(--hfx-input-min-height);
+}
+
+.hfx-controlbar-density-compact {
+    --hfx-controlbar-gap: .36rem;
+    --hfx-controlbar-fields-gap: .42rem;
+    --hfx-controlbar-actions-gap: .28rem;
+    --hfx-controlbar-field-min: 7.75rem;
+    --hfx-controlbar-control-height: 1.82rem;
+    --hfx-controlbar-label-slot-height: 1.06rem;
+}
+
+.hfx-controlbar-density-compact .form-label {
+    margin-bottom: .24rem;
+    font-size: .7rem;
+}
+
+.hfx-controlbar-density-compact .form-control,
+.hfx-controlbar-density-compact .form-select,
+.hfx-controlbar-density-compact .input-group > .form-control,
+.hfx-controlbar-density-compact .input-group > .form-select,
+.hfx-controlbar-density-compact .input-group > .input-group-text,
+.hfx-controlbar-density-compact .btn {
+    min-height: var(--hfx-controlbar-control-height);
+    padding: .14rem .48rem;
+    font-size: .78rem;
+    line-height: 1.2;
+}
+
+.hfx-controlbar-density-compact .btn .icon,
+.hfx-controlbar-density-compact .btn svg {
+    width: .95rem;
+    height: .95rem;
+}
+
+.hfx-controlbar-density-compact .hfx-bool-group {
+    gap: .3rem .52rem;
+}
+
+.hfx-controlbar-density-compact .hfx-bool-group-stacked {
+    gap: .24rem;
+}
+
+.hfx-controlbar-density-compact .hfx-bool-control {
+    gap: .78rem;
+    min-height: var(--hfx-controlbar-control-height);
+}
+
+.hfx-controlbar-density-compact .hfx-bool-control.form-check.form-switch {
+    gap: .96rem;
+}
+
+.hfx-controlbar-density-dense {
+    --hfx-controlbar-gap: .24rem;
+    --hfx-controlbar-fields-gap: .28rem;
+    --hfx-controlbar-actions-gap: .18rem;
+    --hfx-controlbar-field-min: 6.1rem;
+    --hfx-controlbar-control-height: 1.55rem;
+    --hfx-controlbar-label-slot-height: .88rem;
+}
+
+.hfx-controlbar-density-dense .form-label {
+    margin-bottom: .14rem;
+    font-size: .67rem;
+}
+
+.hfx-controlbar-density-dense .hfx-bool-group {
+    gap: .14rem .28rem;
+}
+
+.hfx-controlbar-density-dense .hfx-bool-group-stacked {
+    gap: .18rem;
+}
+
+.hfx-controlbar-density-dense .hfx-bool-control {
+    gap: .66rem;
+    min-height: var(--hfx-controlbar-control-height);
+}
+
+.hfx-controlbar-density-dense .hfx-bool-control.form-check.form-switch {
+    gap: .78rem;
+}
+
+.hfx-controlbar-density-dense .form-control,
+.hfx-controlbar-density-dense .form-select,
+.hfx-controlbar-density-dense .input-group > .form-control,
+.hfx-controlbar-density-dense .input-group > .form-select,
+.hfx-controlbar-density-dense .input-group > .input-group-text,
+.hfx-controlbar-density-dense .btn {
+    min-height: var(--hfx-controlbar-control-height);
+    padding: .1rem .42rem;
+    font-size: .76rem;
+    line-height: 1.2;
+}
+
+.hfx-controlbar-density-dense .btn .icon,
+.hfx-controlbar-density-dense .btn svg {
+    width: 0.95rem;
+    height: 0.95rem;
+}
+
+.hfx-field-shell .input-group > .btn,
+.hfx-field-shell .input-group > .input-group-text {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hfx-field-shell .input-group > .btn .icon,
+.hfx-field-shell .input-group > .btn svg,
+.hfx-field-shell .input-group > .input-group-text .icon,
+.hfx-field-shell .input-group > .input-group-text svg {
+    display: block;
+    vertical-align: middle;
+}
+
+.hfx-field-shell .input-group > .btn > span,
+.hfx-field-shell .input-group > .input-group-text > span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+}
+
+.hfx-controlbar-rails {
+    display: grid;
+    gap: var(--hfx-controlbar-gap);
+    min-width: 0;
+    max-width: 100%;
+}
+
+.hfx-controlbar-rail {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: "start fields end";
+    align-items: end;
+    gap: var(--hfx-controlbar-gap);
+    min-width: 0;
+    max-width: 100%;
+}
+
+.hfx-controlbar-rail-primary {
+    grid-auto-flow: column;
+}
+
+.hfx-controlbar-rail-secondary {
+    grid-auto-flow: column;
+}
+
+.hfx-controlbar-zoned .hfx-controlbar-zone {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--hfx-controlbar-gap);
+    min-width: 0;
+    max-width: 100%;
+}
+
+.hfx-controlbar-zone-body {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--hfx-controlbar-gap);
+    min-width: 0;
+    max-width: 100%;
+}
+
+.hfx-controlbar-zone-slot {
+    display: none;
+}
+
+.hfx-controlbar-rail .hfx-controlbar-zone-start {
+    grid-area: start;
+    justify-self: start;
+}
+
+.hfx-controlbar-rail .hfx-controlbar-zone-fields {
+    grid-area: fields;
+    min-width: 0;
+}
+
+.hfx-controlbar-rail .hfx-controlbar-zone-end {
+    grid-area: end;
+    margin-left: 0;
+    justify-self: end;
+}
+
+.hfx-controlbar-layout-inline .hfx-controlbar-rail-has-fields .hfx-controlbar-zone-start,
+.hfx-controlbar-layout-inline .hfx-controlbar-rail-has-fields .hfx-controlbar-zone-end {
+    display: grid;
+    grid-template-rows: var(--hfx-controlbar-label-slot-height) minmax(var(--hfx-controlbar-control-height), auto);
+    align-self: stretch;
+    align-items: stretch;
+    gap: 0;
+}
+
+.hfx-controlbar-layout-inline .hfx-controlbar-rail-has-fields .hfx-controlbar-zone-start .hfx-controlbar-zone-slot,
+.hfx-controlbar-layout-inline .hfx-controlbar-rail-has-fields .hfx-controlbar-zone-end .hfx-controlbar-zone-slot {
+    display: block;
+    min-height: var(--hfx-controlbar-label-slot-height);
+}
+
+.hfx-controlbar-layout-inline .hfx-controlbar-rail-has-fields .hfx-controlbar-zone-start .hfx-controlbar-zone-body,
+.hfx-controlbar-layout-inline .hfx-controlbar-rail-has-fields .hfx-controlbar-zone-end .hfx-controlbar-zone-body {
+    grid-row: 2;
+    min-height: var(--hfx-controlbar-control-height);
+    align-items: center;
+}
+
+.hfx-controlbar-layout-inline .hfx-controlbar-rail-has-fields .hfx-controlbar-group-toggles,
+.hfx-controlbar-layout-inline .hfx-controlbar-rail-has-fields .hfx-controlbar-group-actions,
+.hfx-controlbar-layout-inline .hfx-controlbar-rail-has-fields .hfx-controlbar-group-start-items,
+.hfx-controlbar-layout-inline .hfx-controlbar-rail-has-fields .hfx-controlbar-group-end-items {
+    min-height: var(--hfx-controlbar-control-height);
+    align-items: center;
+}
+
+.hfx-controlbar-rail .hfx-controlbar-zone-fields > .hfx-controlbar-group-fields {
+    flex: 1 1 auto;
+}
+
+@media (max-width: 900px) {
+    .hfx-controlbar-rail {
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "start"
+            "fields"
+            "end";
+        align-items: stretch;
+    }
+
+    .hfx-controlbar-layout-inline .hfx-controlbar-rail-has-fields {
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-areas:
+            "fields fields"
+            "start end";
+        align-items: end;
+    }
+
+    .hfx-controlbar-layout-split .hfx-controlbar-rail-secondary {
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-areas: "start end";
+        align-items: end;
+    }
+
+    .hfx-controlbar-zoned .hfx-controlbar-zone,
+    .hfx-controlbar-zone-body,
+    .hfx-controlbar-group-fields,
+    .hfx-controlbar-group-toggles,
+    .hfx-controlbar-group-actions,
+    .hfx-controlbar-group-start-items,
+    .hfx-controlbar-group-end-items {
+        flex-basis: 100%;
+        width: 100%;
+    }
+
+    .hfx-controlbar-rail .hfx-controlbar-zone-start,
+    .hfx-controlbar-rail .hfx-controlbar-zone-fields,
+    .hfx-controlbar-rail .hfx-controlbar-zone-end {
+        width: 100%;
+        justify-self: stretch;
+    }
+
+    .hfx-controlbar-zoned .hfx-controlbar-zone-end,
+    .hfx-controlbar-group-toggles,
+    .hfx-controlbar-group-actions {
+        margin-left: 0;
+        justify-content: flex-start;
+    }
+
+    .hfx-controlbar-layout-inline .hfx-controlbar-rail-has-fields .hfx-controlbar-zone-start,
+    .hfx-controlbar-layout-inline .hfx-controlbar-rail-has-fields .hfx-controlbar-zone-end {
+        display: flex;
+        align-self: auto;
+        gap: var(--hfx-controlbar-gap);
+        width: auto;
+        flex-basis: auto;
+    }
+
+    .hfx-controlbar-layout-split .hfx-controlbar-rail-secondary .hfx-controlbar-zone-start,
+    .hfx-controlbar-layout-split .hfx-controlbar-rail-secondary .hfx-controlbar-zone-end {
+        width: auto;
+        flex-basis: auto;
+        align-self: end;
+    }
+
+    .hfx-controlbar-layout-inline .hfx-controlbar-rail-has-fields .hfx-controlbar-zone-start .hfx-controlbar-zone-slot,
+    .hfx-controlbar-layout-inline .hfx-controlbar-rail-has-fields .hfx-controlbar-zone-end .hfx-controlbar-zone-slot {
+        display: none;
+    }
+
+    .hfx-controlbar-layout-inline .hfx-controlbar-rail-has-fields .hfx-controlbar-zone-start .hfx-controlbar-zone-body,
+    .hfx-controlbar-layout-inline .hfx-controlbar-rail-has-fields .hfx-controlbar-zone-end .hfx-controlbar-zone-body {
+        min-height: 0;
+        width: auto;
+    }
+
+    .hfx-controlbar-group-filter {
+        margin-left: 0;
+    }
+
+    .hfx-controlbar-item {
+        min-width: 100%;
+    }
+
+    .hfx-controlbar-group-fields {
+        grid-template-columns: 1fr;
+        min-width: 0;
+    }
+
+    .hfx-controlbar-zone-end .hfx-controlbar-zone-body,
+    .hfx-controlbar-zone-end .hfx-controlbar-group-actions,
+    .hfx-controlbar-zone-end .hfx-controlbar-group-end-items {
+        justify-content: flex-end;
+    }
+
+    .hfx-controlbar-layout-inline .hfx-controlbar-rail-has-fields .hfx-controlbar-zone-start,
+    .hfx-controlbar-layout-split .hfx-controlbar-rail-secondary .hfx-controlbar-zone-start {
+        justify-self: start;
+    }
+
+    .hfx-controlbar-layout-inline .hfx-controlbar-rail-has-fields .hfx-controlbar-zone-end,
+    .hfx-controlbar-layout-split .hfx-controlbar-rail-secondary .hfx-controlbar-zone-end {
+        justify-self: end;
+    }
+}
