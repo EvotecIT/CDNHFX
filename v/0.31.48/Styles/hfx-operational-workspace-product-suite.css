@@ -1,0 +1,482 @@
+/* Operational product-suite workspace skin */
+.hfx-operational-workspace--product-suite{
+  --hfx-op-accent:#6757f3;
+  --hfx-op-accent-rgb:103,87,243;
+  --hfx-op-accent-strong:#3730a3;
+  --hfx-op-accent-soft:#ede9fe;
+  --hfx-op-accent-softer:#f4f2ff;
+  --hfx-op-accent-active:#fff;
+  --hfx-op-text:#202433;
+  --hfx-op-heading:#111827;
+  --hfx-op-muted:#858b98;
+  --hfx-op-panel:#f7f7f8;
+  --hfx-op-panel-alt:#eeeeef;
+  --hfx-op-sidebar-bg:#e7e8ea;
+  --hfx-op-scrollbar-track:transparent;
+  --hfx-op-scrollbar-thumb:rgba(17,24,39,.18);
+  --hfx-op-scrollbar-thumb-hover:rgba(17,24,39,.28);
+  --hfx-op-scrollbar-thumb-active:rgba(17,24,39,.36);
+  --hfx-op-scrollbar-border:transparent;
+  --hfx-op-dashboard-card-bg:#fff;
+  --hfx-op-dashboard-card-border:rgba(17,24,39,.10);
+  --hfx-op-dashboard-card-shadow:0 6px 16px rgba(17,24,39,.055);
+  --hfx-op-dashboard-surface:#f3f4f5;
+  --hfx-op-dashboard-text:#111827;
+  --hfx-op-dashboard-muted:#7b808a;
+  --hfx-op-dashboard-link:#2563eb;
+  --hfx-surface-card-bg:var(--hfx-op-dashboard-card-bg);
+  --hfx-surface-cap-bg:var(--hfx-op-dashboard-surface);
+  --hfx-surface-border:var(--hfx-op-dashboard-card-border);
+  --hfx-card-surface-start:var(--hfx-op-dashboard-card-bg);
+  --hfx-card-surface-end:var(--hfx-op-dashboard-card-bg);
+  --hfx-card-panel-surface:var(--hfx-op-dashboard-surface);
+  --hfx-card-panel-soft:rgba(var(--hfx-op-accent-rgb),.08);
+  grid-template-columns:minmax(18.75rem,20rem) minmax(0,1fr);
+  border:1px solid rgba(17,24,39,.10);
+  border-radius:1rem;
+  overflow:hidden;
+  color:var(--hfx-op-text);
+  background:var(--hfx-op-panel);
+  box-shadow:0 12px 26px rgba(17,24,39,.075)
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__sidebar{
+  gap:1.2rem;
+  padding:2rem 1.45rem;
+  border-right-color:rgba(17,24,39,.10);
+  background:var(--hfx-op-sidebar-bg)
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__brand{
+  gap:.85rem;
+  padding-bottom:1.45rem;
+  border-bottom:1px solid rgba(17,24,39,.08);
+  font-size:1.55rem;
+  letter-spacing:0
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__brand-mark{
+  width:2.8rem;
+  height:2.8rem;
+  border-radius:.65rem;
+  color:#fff;
+  background:linear-gradient(160deg,#7c5cff 0%,#4f65f5 100%);
+  box-shadow:0 5px 10px rgba(79,101,245,.22),inset 0 1px 0 rgba(255,255,255,.28)
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__selector{
+  min-height:4.9rem;
+  padding:.8rem .9rem;
+  border-color:rgba(17,24,39,.12);
+  border-radius:.85rem;
+  background:#fff;
+  box-shadow:0 5px 12px rgba(17,24,39,.07)
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__selector-mark{
+  width:3rem;
+  height:3rem;
+  border-radius:.7rem;
+  background:linear-gradient(180deg,#9a83ff 0%,#7a68ee 100%);
+  box-shadow:0 5px 11px rgba(103,87,243,.20),inset 0 1px 0 rgba(255,255,255,.30);
+  font-size:1.25rem
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__selector-eyebrow{
+  color:#9aa0aa;
+  font-size:.95rem
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__selector-name{
+  color:#565a64;
+  font-size:1.15rem;
+  line-height:1.15
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__selector-chevron{
+  color:#8b93a3
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__search{
+  min-height:3.25rem;
+  padding:.65rem .8rem;
+  border-color:rgba(17,24,39,.06);
+  border-radius:.8rem;
+  background:#dedfe1;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.34)
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__search-icon{
+  color:#6f747d
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__search input{
+  color:#4d515b;
+  font-size:1.15rem;
+  font-weight:500
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__search-shortcut{
+  display:inline-flex;
+  min-width:3.05rem;
+  padding:.2rem .45rem;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 auto;
+  border:1px solid rgba(17,24,39,.08);
+  background:#fff;
+  box-shadow:0 5px 10px rgba(17,24,39,.05);
+  font-size:.78rem;
+  line-height:1;
+  white-space:nowrap
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__nav-title{
+  display:flex;
+  align-items:center;
+  gap:.75rem;
+  margin:.7rem 0 .7rem;
+  color:#9aa0aa;
+  font-size:1.05rem;
+  font-weight:600;
+  text-transform:none
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__nav-title::after{
+  content:"";
+  height:1px;
+  flex:1 1 auto;
+  background:rgba(17,24,39,.09)
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__nav{
+  gap:.35rem
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__nav-item{
+  min-height:3.15rem;
+  padding:.75rem .85rem;
+  border:1px solid transparent;
+  border-radius:.7rem;
+  color:#5f636c;
+  font-size:1.18rem;
+  font-weight:650
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__nav-item svg{
+  width:1.25rem;
+  height:1.25rem;
+  color:#777b84
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__nav-item:hover,
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__nav-item:focus-visible{
+  color:#202433;
+  border-color:rgba(17,24,39,.08);
+  background:#f4f4f5;
+  box-shadow:0 4px 10px rgba(17,24,39,.045)
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__nav-item.is-active{
+  color:#202433;
+  border-color:rgba(17,24,39,.10);
+  background:#fff;
+  box-shadow:0 4px 10px rgba(17,24,39,.065)
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__nav-item.is-active svg{
+  color:#111827
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__nav-section[data-hfx-operational-nav-section="project"]{
+  margin-top:.35rem
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__nav-section[data-hfx-operational-nav-section="project"] .hfx-operational-workspace__nav{
+  gap:.85rem
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__nav-section[data-hfx-operational-nav-section="project"] .hfx-operational-workspace__nav-item{
+  position:relative;
+  min-height:3.25rem;
+  gap:.85rem;
+  padding:.25rem 4rem .25rem .35rem;
+  border:0;
+  background:transparent;
+  box-shadow:none
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__nav-section[data-hfx-operational-nav-section="project"] .hfx-operational-workspace__nav-item svg{
+  width:2.7rem;
+  height:2.7rem;
+  padding:.45rem;
+  border-radius:.55rem;
+  color:#fff;
+  background:#6757f3;
+  box-shadow:0 5px 10px rgba(17,24,39,.11)
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__nav-section[data-hfx-operational-nav-section="project"] .hfx-operational-workspace__nav-item:nth-child(1) svg{background:linear-gradient(160deg,#ff5b2f 0%,#ff7a1a 100%)}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__nav-section[data-hfx-operational-nav-section="project"] .hfx-operational-workspace__nav-item:nth-child(2) svg{background:linear-gradient(160deg,#22d3c5 0%,#14b8a6 100%)}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__nav-section[data-hfx-operational-nav-section="project"] .hfx-operational-workspace__nav-item:nth-child(3) svg{background:linear-gradient(160deg,#60a5fa 0%,#3b82f6 100%)}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__nav-section[data-hfx-operational-nav-section="project"] .hfx-operational-workspace__nav-item:nth-child(4) svg{background:linear-gradient(160deg,#a78bfa 0%,#7c5cff 100%)}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__nav-section[data-hfx-operational-nav-section="project"] .hfx-operational-workspace__nav-item::after{
+  content:"";
+  position:absolute;
+  right:.35rem;
+  top:50%;
+  width:2.3rem;
+  height:2.3rem;
+  transform:translateY(-50%);
+  border:1px solid rgba(17,24,39,.10);
+  border-radius:.55rem;
+  background:
+    linear-gradient(to top,#9ca3af 0 32%,transparent 32%) 38% 68%/4px 1.15rem no-repeat,
+    linear-gradient(to top,#d1d5db 0 58%,transparent 58%) 52% 68%/4px 1.15rem no-repeat,
+    linear-gradient(to top,#e5e7eb 0 78%,transparent 78%) 66% 68%/4px 1.15rem no-repeat,
+    #fff;
+  box-shadow:0 4px 9px rgba(17,24,39,.08)
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__nav-section[data-hfx-operational-nav-section="project"] .hfx-operational-workspace__nav-item:nth-child(1)::after{
+  background:
+    linear-gradient(to top,#34d399 0 35%,transparent 35%) 38% 68%/4px 1.15rem no-repeat,
+    linear-gradient(to top,#bbf7d0 0 62%,transparent 62%) 52% 68%/4px 1.15rem no-repeat,
+    linear-gradient(to top,#d1d5db 0 82%,transparent 82%) 66% 68%/4px 1.15rem no-repeat,
+    #fff
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__nav-section[data-hfx-operational-nav-section="project"] .hfx-operational-workspace__nav-item:nth-child(2)::after{
+  background:
+    linear-gradient(to top,#38bdf8 0 42%,transparent 42%) 38% 68%/4px 1.15rem no-repeat,
+    linear-gradient(to top,#ef4444 0 70%,transparent 70%) 52% 68%/4px 1.15rem no-repeat,
+    linear-gradient(to top,#d1d5db 0 86%,transparent 86%) 66% 68%/4px 1.15rem no-repeat,
+    #fff
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__nav-section[data-hfx-operational-nav-section="project"] .hfx-operational-workspace__nav-item:nth-child(3)::after{
+  background:
+    linear-gradient(to top,#60a5fa 0 30%,transparent 30%) 38% 68%/4px 1.15rem no-repeat,
+    linear-gradient(to top,#a7f3d0 0 56%,transparent 56%) 52% 68%/4px 1.15rem no-repeat,
+    linear-gradient(to top,#d1d5db 0 82%,transparent 82%) 66% 68%/4px 1.15rem no-repeat,
+    #fff
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__nav-section[data-hfx-operational-nav-section="project"] .hfx-operational-workspace__nav-item:nth-child(4)::after{
+  background:
+    linear-gradient(to top,#fbbf24 0 38%,transparent 38%) 38% 68%/4px 1.15rem no-repeat,
+    linear-gradient(to top,#f59e0b 0 64%,transparent 64%) 52% 68%/4px 1.15rem no-repeat,
+    linear-gradient(to top,#d1d5db 0 84%,transparent 84%) 66% 68%/4px 1.15rem no-repeat,
+    #fff
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__nav-section[data-hfx-operational-nav-section="project"] .hfx-operational-workspace__nav-item:hover{
+  color:#202433;
+  background:rgba(255,255,255,.46)
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__user{
+  order:20;
+  padding:1rem;
+  border:1px solid rgba(17,24,39,.10);
+  border-radius:.85rem;
+  background:#f4f4f5;
+  box-shadow:0 5px 12px rgba(17,24,39,.045)
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__user strong{
+  color:#202433
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__main{
+  padding:1.8rem;
+  background:#f7f7f8
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__header{
+  min-height:4.15rem;
+  margin:-1.8rem -1.8rem 1.4rem;
+  padding:.85rem 1.45rem;
+  border-bottom:1px solid rgba(17,24,39,.08);
+  background:#fff
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__header>div:first-child{
+  min-width:18rem;
+  display:flex;
+  align-items:center;
+  gap:.8rem;
+  padding:.65rem .95rem;
+  border:1px solid rgba(17,24,39,.10);
+  border-radius:.9rem;
+  background:#f7f7f8;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7)
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__header>div:first-child::before{
+  content:"";
+  width:3rem;
+  height:1.35rem;
+  flex:0 0 auto;
+  background:
+    linear-gradient(135deg,transparent 42%,#8b93a3 43% 57%,transparent 58%) .15rem .33rem/.56rem .56rem no-repeat,
+    linear-gradient(45deg,transparent 42%,#8b93a3 43% 57%,transparent 58%) .15rem .64rem/.56rem .56rem no-repeat,
+    linear-gradient(45deg,transparent 42%,#6f7682 43% 57%,transparent 58%) 1.45rem .33rem/.56rem .56rem no-repeat,
+    linear-gradient(135deg,transparent 42%,#6f7682 43% 57%,transparent 58%) 1.45rem .64rem/.56rem .56rem no-repeat
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__header>div:first-child::after{
+  content:"";
+  width:1px;
+  height:1.6rem;
+  order:0;
+  background:rgba(17,24,39,.12)
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__title{
+  order:2;
+  font-size:1.35rem;
+  font-weight:750;
+  color:#202433
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__count{
+  display:none
+}
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__subtitle{
+  color:#7b808a !important
+}
+.hfx-operational-workspace--product-suite .hfx-dashboard-grid,
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__pages>.vstack,
+.hfx-operational-workspace--product-suite .hfx-operational-workspace__main>.vstack{
+  --bs-gutter-x:1.05rem;
+  --bs-gutter-y:1.05rem
+}
+.hfx-operational-workspace--product-suite .hfx-workspace-row{
+  flex-wrap:nowrap;
+  overflow:hidden
+}
+.hfx-operational-workspace--product-suite .hfx-workspace-row>.col-12:first-child{
+  flex:0 0 min(66%,39rem);
+  max-width:min(66%,39rem)
+}
+.hfx-operational-workspace--product-suite .hfx-workspace-row>.col-12:nth-child(2){
+  flex:0 0 19rem;
+  max-width:19rem
+}
+.hfx-operational-workspace--product-suite .hfx-metric-card,
+.hfx-operational-workspace--product-suite .hfx-analytics-summary-card,
+.hfx-operational-workspace--product-suite .hfx-progress-list-card,
+.hfx-operational-workspace--product-suite .hfx-workspace-tabs-card,
+.hfx-operational-workspace--product-suite .hfx-table-summary-card,
+.hfx-operational-workspace--product-suite .hfx-record-inspector-card,
+.hfx-operational-workspace--product-suite .hfx-timeline-summary-card,
+.hfx-operational-workspace--product-suite .hfx-review-feed-card,
+.hfx-operational-workspace--product-suite .hfx-presence-list-card,
+.hfx-operational-workspace--product-suite .hfx-data-grid-card,
+.hfx-operational-workspace--product-suite .hfx-gauge-card,
+.hfx-operational-workspace--product-suite .hfx-target-metric-card,
+.hfx-operational-workspace--product-suite .hfx-task-overview-card,
+.hfx-operational-workspace--product-suite .hfx-timeline-planner-card{
+  border-color:var(--hfx-op-dashboard-card-border) !important;
+  border-radius:1rem !important;
+  background:var(--hfx-op-dashboard-card-bg) !important;
+  color:var(--hfx-op-dashboard-text) !important;
+  box-shadow:var(--hfx-op-dashboard-card-shadow) !important;
+  transform:none !important
+}
+.hfx-operational-workspace--product-suite .hfx-metric-card:hover,
+.hfx-operational-workspace--product-suite .hfx-progress-list-card:hover,
+.hfx-operational-workspace--product-suite .hfx-target-metric-card:hover,
+.hfx-operational-workspace--product-suite .hfx-task-overview-card:hover,
+.hfx-operational-workspace--product-suite .hfx-timeline-planner-card:hover{
+  border-color:rgba(var(--hfx-op-accent-rgb),.22) !important;
+  box-shadow:0 18px 38px rgba(17,24,39,.09) !important
+}
+.hfx-operational-workspace--product-suite .card-body,
+.hfx-operational-workspace--product-suite .card-header,
+.hfx-operational-workspace--product-suite .tab-content,
+.hfx-operational-workspace--product-suite .dataTables_wrapper,
+.hfx-operational-workspace--product-suite .datagrid{
+  background:transparent !important;
+  color:var(--hfx-op-dashboard-text) !important
+}
+.hfx-operational-workspace--product-suite .text-secondary,
+.hfx-operational-workspace--product-suite .hfx-analytics-summary-card p,
+.hfx-operational-workspace--product-suite .hfx-record-inspector-card p,
+.hfx-operational-workspace--product-suite .hfx-timeline-summary-card p,
+.hfx-operational-workspace--product-suite .hfx-review-feed-card p,
+.hfx-operational-workspace--product-suite .hfx-presence-list-card p,
+.hfx-operational-workspace--product-suite .hfx-progress-list-card__note,
+.hfx-operational-workspace--product-suite .dataTables_info{
+  color:var(--hfx-op-dashboard-muted) !important
+}
+.hfx-operational-workspace--product-suite .display-6,
+.hfx-operational-workspace--product-suite .card-title,
+.hfx-operational-workspace--product-suite h3,
+.hfx-operational-workspace--product-suite table.dataTable tbody td,
+.hfx-operational-workspace--product-suite .hfx-progress-list-card__label,
+.hfx-operational-workspace--product-suite .hfx-progress-list-card__value{
+  color:var(--hfx-op-dashboard-text) !important
+}
+.hfx-operational-workspace--product-suite .hfx-analytics-summary-card__metric,
+.hfx-operational-workspace--product-suite .hfx-analytics-summary-card__highlight,
+.hfx-operational-workspace--product-suite .hfx-analytics-summary-card__chart,
+.hfx-operational-workspace--product-suite .hfx-summary-strip__item,
+.hfx-operational-workspace--product-suite .hfx-status-matrix__item,
+.hfx-operational-workspace--product-suite .hfx-table-summary-card__highlight,
+.hfx-operational-workspace--product-suite .hfx-table-summary-card__surface,
+.hfx-operational-workspace--product-suite .hfx-record-inspector-card__surface,
+.hfx-operational-workspace--product-suite .hfx-record-inspector-card .rounded-4,
+.hfx-operational-workspace--product-suite .hfx-timeline-summary-card .rounded-4,
+.hfx-operational-workspace--product-suite .hfx-review-feed-card .rounded-4,
+.hfx-operational-workspace--product-suite .hfx-presence-list-card__metric,
+.hfx-operational-workspace--product-suite .hfx-presence-list-card__highlight,
+.hfx-operational-workspace--product-suite .hfx-presence-list-card__surface,
+.hfx-operational-workspace--product-suite .hfx-presence-list-card__person,
+.hfx-operational-workspace--product-suite .hfx-workspace-tabs-card .card-body>.rounded-4,
+.hfx-operational-workspace--product-suite .hfx-data-grid-card .rounded-4,
+.hfx-operational-workspace--product-suite .hfx-progress-list-card__item{
+  border-color:var(--hfx-op-dashboard-card-border) !important;
+  background:var(--hfx-op-dashboard-surface) !important;
+  box-shadow:none !important
+}
+.hfx-operational-workspace--product-suite .hfx-target-metric-card{
+  --hfx-target-metric-padding:1.45rem;
+  --hfx-target-metric-radius:.85rem;
+  --hfx-target-metric-progress-height:1.85rem;
+  --hfx-target-metric-icon-size:2.7rem;
+  --hfx-target-metric-action-size:2.5rem
+}
+.hfx-operational-workspace--product-suite .hfx-task-overview-card{
+  --hfx-task-overview-padding:1.45rem;
+  --hfx-task-overview-gap:1.05rem
+}
+.hfx-operational-workspace--product-suite .hfx-task-overview-card__header{
+  padding:1.15rem var(--hfx-task-overview-padding) 1.25rem
+}
+.hfx-operational-workspace--product-suite .hfx-task-overview-card__icon,
+.hfx-operational-workspace--product-suite .hfx-task-overview-card__menu{
+  width:3rem;
+  height:3rem;
+  border-radius:.75rem
+}
+.hfx-operational-workspace--product-suite .hfx-task-overview-card__title{
+  font-size:1.2rem
+}
+.hfx-operational-workspace--product-suite .hfx-task-overview-card__subtitle{
+  font-size:1rem
+}
+.hfx-operational-workspace--product-suite .hfx-task-overview-card__summary strong,
+.hfx-operational-workspace--product-suite .hfx-task-overview-card__summary span{
+  font-size:1.45rem
+}
+.hfx-operational-workspace--product-suite .hfx-task-overview-card__bar{
+  height:1.55rem;
+  border-radius:.4rem
+}
+.hfx-operational-workspace--product-suite .hfx-task-overview-card__rows{
+  gap:.85rem
+}
+.hfx-operational-workspace--product-suite .hfx-task-overview-card__row-label{
+  font-size:1.05rem
+}
+.hfx-operational-workspace--product-suite .hfx-timeline-planner-card{
+  --hfx-timeline-planner-padding:1.4rem;
+  --hfx-timeline-planner-stage-height:26rem;
+  --hfx-timeline-planner-row-gap:.85rem;
+  --hfx-timeline-planner-row-padding:1.1rem;
+  --hfx-timeline-planner-lane-width:10rem;
+  --hfx-timeline-planner-lane-height:5.85rem;
+  --hfx-timeline-planner-radius:.9rem
+}
+.hfx-operational-workspace--product-suite .hfx-timeline-planner-card__stage{
+  background:
+    linear-gradient(90deg,rgba(17,24,39,.09) 1px,transparent 1px),
+    linear-gradient(180deg,rgba(17,24,39,.07) 1px,transparent 1px),
+    #fbfbfc
+}
+.hfx-operational-workspace--product-suite .hfx-timeline-planner-card__task{
+  min-height:3.35rem;
+  border-width:2px;
+  border-left-width:4px;
+  border-radius:.85rem;
+  background:#fff;
+  font-size:1.05rem;
+  box-shadow:none
+}
+.hfx-operational-workspace--product-suite .hfx-timeline-planner-card__avatar{
+  width:1.75rem;
+  height:1.75rem
+}
+@media (max-width:1199.98px){
+  .hfx-operational-workspace--product-suite .hfx-workspace-row{
+    flex-wrap:wrap
+  }
+  .hfx-operational-workspace--product-suite .hfx-workspace-row>.col-12:first-child,
+  .hfx-operational-workspace--product-suite .hfx-workspace-row>.col-12:nth-child(2){
+    flex:0 0 100%;
+    max-width:100%
+  }
+}
