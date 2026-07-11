@@ -1,0 +1,275 @@
+ul.fancytree-container {
+    border: 1px solid color-mix(in srgb, var(--tblr-border-color, rgba(15,23,42,.1)) 82%, transparent);
+    border-radius: calc(var(--hfx-surface-radius-sm, .75rem) + .15rem);
+    background:
+        linear-gradient(180deg, rgba(255,255,255,.78), rgba(248,251,255,.66));
+    font-family: inherit;
+    padding: .7rem .75rem;
+    white-space: normal;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.58),
+        0 14px 32px rgba(148,163,184,.12);
+}
+
+ul.fancytree-container ul {
+    padding-left: 1.15rem;
+}
+
+ul.fancytree-container li {
+    margin: .2rem 0;
+}
+
+ul.fancytree-container li,
+ul.fancytree-container li.fancytree-lastsib,
+ul.fancytree-container.fancytree-rtl.fancytree-connectors li {
+    background-image: none !important;
+}
+
+#fancytree-drop-marker,
+span.fancytree-drag-helper-img,
+span.fancytree-empty,
+span.fancytree-expander,
+span.fancytree-icon,
+span.fancytree-vline {
+    background-image: none !important;
+}
+
+span.fancytree-node {
+    display: block;
+    min-height: 2rem;
+}
+
+span.fancytree-expander,
+span.fancytree-checkbox,
+span.fancytree-icon {
+    position: relative;
+}
+
+span.fancytree-expander {
+    width: 1rem;
+    height: 1rem;
+    margin-top: .4rem;
+    margin-right: .1rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--tblr-body-color, #1f2937) 6%, transparent);
+}
+
+span.fancytree-checkbox {
+    width: 1rem;
+    height: 1rem;
+    margin-top: .36rem;
+    margin-left: .18rem;
+    margin-right: .34rem;
+    border-radius: .3rem;
+    border: 1px solid color-mix(in srgb, var(--tblr-primary, #066fd1) 24%, rgba(15,23,42,.16));
+    background: linear-gradient(180deg,
+        color-mix(in srgb, white 92%, var(--tblr-primary, #066fd1) 8%),
+        color-mix(in srgb, white 84%, var(--tblr-primary, #066fd1) 16%));
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.7),
+        0 6px 12px color-mix(in srgb, var(--tblr-primary, #066fd1) 10%, transparent);
+}
+
+span.fancytree-checkbox::before {
+    content: "";
+    position: absolute;
+    opacity: 0;
+    transition: opacity .16s ease, transform .16s ease, background-color .16s ease, border-color .16s ease;
+}
+
+.fancytree-selected span.fancytree-checkbox {
+    border-color: color-mix(in srgb, var(--tblr-primary, #066fd1) 44%, transparent);
+    background: linear-gradient(180deg,
+        color-mix(in srgb, var(--tblr-primary, #066fd1) 24%, white),
+        color-mix(in srgb, var(--tblr-primary, #066fd1) 14%, white));
+}
+
+.fancytree-selected span.fancytree-checkbox::before {
+    left: .31rem;
+    top: .1rem;
+    width: .26rem;
+    height: .5rem;
+    border-right: .16rem solid var(--tblr-primary, #066fd1);
+    border-bottom: .16rem solid var(--tblr-primary, #066fd1);
+    transform: rotate(45deg);
+    opacity: 1;
+}
+
+.fancytree-partsel span.fancytree-checkbox {
+    border-color: color-mix(in srgb, var(--tblr-warning, #f59e0b) 42%, transparent);
+    background: linear-gradient(180deg,
+        color-mix(in srgb, var(--tblr-warning, #f59e0b) 24%, white),
+        color-mix(in srgb, var(--tblr-warning, #f59e0b) 12%, white));
+}
+
+.fancytree-partsel span.fancytree-checkbox::before {
+    left: .2rem;
+    top: .39rem;
+    width: .46rem;
+    height: .12rem;
+    border-radius: 999px;
+    background: var(--tblr-warning, #f59e0b);
+    opacity: 1;
+}
+
+span.fancytree-checkbox.fancytree-radio {
+    border-radius: 999px;
+}
+
+span.fancytree-checkbox.fancytree-radio::before {
+    left: .25rem;
+    top: .25rem;
+    width: .34rem;
+    height: .34rem;
+    border-radius: 999px;
+    background: var(--tblr-primary, #066fd1);
+}
+
+.fancytree-selected span.fancytree-checkbox.fancytree-radio::before,
+.fancytree-partsel span.fancytree-checkbox.fancytree-radio::before {
+    opacity: 1;
+}
+
+.fancytree-unselectable span.fancytree-checkbox {
+    opacity: .5;
+}
+
+.fancytree-exp-c span.fancytree-expander::before,
+.fancytree-exp-cl span.fancytree-expander::before,
+.fancytree-exp-cd span.fancytree-expander::before,
+.fancytree-exp-cdl span.fancytree-expander::before {
+    content: "";
+    position: absolute;
+    left: .32rem;
+    top: .19rem;
+    width: 0;
+    height: 0;
+    border-top: .26rem solid transparent;
+    border-bottom: .26rem solid transparent;
+    border-left: .38rem solid var(--tblr-secondary-color, rgba(31, 41, 55, .72));
+}
+
+.fancytree-exp-e span.fancytree-expander::before,
+.fancytree-exp-el span.fancytree-expander::before,
+.fancytree-exp-ed span.fancytree-expander::before,
+.fancytree-exp-edl span.fancytree-expander::before {
+    content: "";
+    position: absolute;
+    left: .16rem;
+    top: .38rem;
+    width: 0;
+    height: 0;
+    border-left: .34rem solid transparent;
+    border-right: .34rem solid transparent;
+    border-top: .4rem solid var(--tblr-secondary-color, rgba(31, 41, 55, .72));
+}
+
+span.fancytree-icon {
+    width: .8rem;
+    height: .8rem;
+    margin-top: .38rem;
+    margin-left: .2rem;
+    margin-right: .38rem;
+    border-radius: .28rem;
+    background: linear-gradient(180deg,
+        color-mix(in srgb, var(--tblr-primary, #066fd1) 52%, white),
+        color-mix(in srgb, var(--tblr-primary, #066fd1) 66%, white)) !important;
+    box-shadow:
+        inset 0 0 0 1px color-mix(in srgb, var(--tblr-primary, #066fd1) 18%, transparent),
+        0 6px 12px color-mix(in srgb, var(--tblr-primary, #066fd1) 14%, transparent);
+}
+
+.fancytree-has-children span.fancytree-icon {
+    border-radius: .34rem;
+    background: linear-gradient(180deg,
+        color-mix(in srgb, var(--tblr-warning, #f59e0b) 76%, white),
+        color-mix(in srgb, var(--tblr-warning, #f59e0b) 54%, white)) !important;
+}
+
+span.fancytree-title {
+    display: inline-block;
+    max-width: calc(100% - 2.8rem);
+    white-space: normal;
+    line-height: 1.4;
+    vertical-align: top;
+    border: 1px solid transparent;
+    border-radius: .8rem;
+    padding: .28rem .72rem;
+    margin-left: .14rem;
+    background: color-mix(in srgb, white 74%, transparent);
+    transition: background-color .16s ease, border-color .16s ease, color .16s ease, box-shadow .16s ease, transform .16s ease;
+}
+
+.fancytree-has-children > span.fancytree-title {
+    font-weight: 600;
+    background: linear-gradient(180deg,
+        color-mix(in srgb, var(--tblr-primary, #066fd1) 10%, white),
+        color-mix(in srgb, var(--tblr-primary, #066fd1) 4%, white));
+    border-color: color-mix(in srgb, var(--tblr-primary, #066fd1) 14%, transparent);
+}
+
+span.fancytree-node:hover span.fancytree-title {
+    background: color-mix(in srgb, var(--tblr-primary, #066fd1) 10%, white);
+    border-color: color-mix(in srgb, var(--tblr-primary, #066fd1) 22%, transparent);
+    transform: translateX(1px);
+}
+
+span.fancytree-active span.fancytree-title,
+span.fancytree-selected span.fancytree-title {
+    background: linear-gradient(180deg,
+        color-mix(in srgb, var(--tblr-primary, #066fd1) 16%, white),
+        color-mix(in srgb, var(--tblr-primary, #066fd1) 8%, white));
+    border-color: color-mix(in srgb, var(--tblr-primary, #066fd1) 26%, transparent);
+    box-shadow:
+        inset 0 0 0 1px color-mix(in srgb, var(--tblr-primary, #066fd1) 16%, transparent),
+        0 10px 18px color-mix(in srgb, var(--tblr-primary, #066fd1) 10%, transparent);
+}
+
+[data-bs-theme="dark"] span.fancytree-expander {
+    background: color-mix(in srgb, var(--tblr-body-color, #e5e7eb) 8%, transparent);
+}
+
+[data-bs-theme="dark"] ul.fancytree-container {
+    background:
+        linear-gradient(180deg, rgba(15,23,42,.72), rgba(18,28,47,.78));
+    border-color: rgba(148,163,184,.22);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.04),
+        0 20px 38px rgba(2,6,23,.32);
+}
+
+[data-bs-theme="dark"] span.fancytree-title {
+    background: color-mix(in srgb, rgba(15,23,42,.92) 82%, transparent);
+}
+
+[data-bs-theme="dark"] .fancytree-has-children > span.fancytree-title {
+    background: linear-gradient(180deg,
+        color-mix(in srgb, var(--tblr-primary, #60a5fa) 16%, rgba(15,23,42,.94)),
+        color-mix(in srgb, var(--tblr-primary, #60a5fa) 8%, rgba(15,23,42,.9)));
+    border-color: rgba(96,165,250,.18);
+}
+
+[data-bs-theme="dark"] span.fancytree-node:hover span.fancytree-title {
+    background: color-mix(in srgb, var(--tblr-primary, #60a5fa) 14%, rgba(15,23,42,.94));
+}
+
+[data-bs-theme="dark"] span.fancytree-active span.fancytree-title,
+[data-bs-theme="dark"] span.fancytree-selected span.fancytree-title {
+    background: linear-gradient(180deg,
+        color-mix(in srgb, var(--tblr-primary, #60a5fa) 22%, rgba(15,23,42,.94)),
+        color-mix(in srgb, var(--tblr-primary, #60a5fa) 14%, rgba(15,23,42,.9)));
+}
+
+[data-bs-theme="dark"] .fancytree-exp-c span.fancytree-expander::before,
+[data-bs-theme="dark"] .fancytree-exp-cl span.fancytree-expander::before,
+[data-bs-theme="dark"] .fancytree-exp-cd span.fancytree-expander::before,
+[data-bs-theme="dark"] .fancytree-exp-cdl span.fancytree-expander::before {
+    border-left-color: var(--tblr-secondary-color, rgba(229, 231, 235, .75));
+}
+
+[data-bs-theme="dark"] .fancytree-exp-e span.fancytree-expander::before,
+[data-bs-theme="dark"] .fancytree-exp-el span.fancytree-expander::before,
+[data-bs-theme="dark"] .fancytree-exp-ed span.fancytree-expander::before,
+[data-bs-theme="dark"] .fancytree-exp-edl span.fancytree-expander::before {
+    border-top-color: var(--tblr-secondary-color, rgba(229, 231, 235, .75));
+}
