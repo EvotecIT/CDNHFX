@@ -1,0 +1,56 @@
+/* Card fill height helper */
+.hfx-card-fill{height:100%;display:flex;flex-direction:column}
+.hfx-card-fill .card-body{display:flex;flex-direction:column;flex:1 1 auto}
+
+/* Avoid root scrollbar reservation; Chromium can paint it as a false left gutter. */
+html,body{margin:0!important;padding:0!important;margin-inline-start:0!important;padding-inline-start:0!important;scrollbar-gutter:auto!important}
+
+/* Equal heights for row-cols based layouts - works with Bootstrap row-cols */
+.hfx-row-equalize{display:flex;flex-wrap:wrap}
+.hfx-row-equalize>*{display:flex;align-items:stretch}
+.hfx-row-equalize .card{width:100%;height:100%;display:flex;flex-direction:column}
+.hfx-row-equalize .card .card-body{display:flex;flex-direction:column;flex:1 1 auto}
+.hfx-row-equalize .vstack{height:100%}
+
+/* Viewport-aware sizing for rows that should feel more deliberate on wide operator shells */
+.hfx-row-viewport-fit>*{min-height:0}
+.hfx-row-viewport-fit .card{width:100%;display:flex;flex-direction:column}
+.hfx-row-viewport-fit .card .card-body{display:flex;flex-direction:column;flex:1 1 auto;min-height:0}
+.hfx-row-viewport-fit .vstack{height:100%}
+@media (min-width:576px){.hfx-row-viewport-fit--sm>*{min-height:var(--hfx-row-minh,clamp(24rem,calc(100vh - 18rem),42rem))}}
+@media (min-width:768px){.hfx-row-viewport-fit--md>*{min-height:var(--hfx-row-minh,clamp(24rem,calc(100vh - 18rem),42rem))}}
+@media (min-width:992px){.hfx-row-viewport-fit--lg>*{min-height:var(--hfx-row-minh,clamp(24rem,calc(100vh - 18rem),42rem))}}
+@media (min-width:1200px){.hfx-row-viewport-fit--xl>*{min-height:var(--hfx-row-minh,clamp(24rem,calc(100vh - 18rem),42rem))}}
+@media (min-width:1400px){.hfx-row-viewport-fit--xxl>*{min-height:var(--hfx-row-minh,clamp(24rem,calc(100vh - 18rem),42rem))}}
+
+/* AutoFit layout (CSS Grid baseline): equal-width tracks; last row stretches via auto-fit */
+.hfx-autofit{display:grid;grid-template-columns:repeat(auto-fit,minmax(var(--hfx-min,18rem),1fr));gap:var(--hfx-gap,1rem);align-items:stretch;grid-auto-rows:1fr;contain:layout;grid-auto-flow:row dense}
+.hfx-autofit>*{min-height:0;min-width:0}
+.hfx-autofit .col{display:flex;flex-direction:column;min-width:0}
+.hfx-autofit .card{width:100%;height:100%;display:flex;flex-direction:column}
+.hfx-autofit .card .card-body{display:flex;flex-direction:column;flex:1 1 auto;min-height:0}
+.hfx-autofit .vstack{height:100%}
+
+/* Prefer a single line on very wide screens (xxl) */
+@media (min-width:1400px){.hfx-autofit.hfx-wide-one{grid-template-columns:repeat(var(--hfx-wide-cols,6),minmax(0,1fr))}}
+
+/* Flex variant for rows that must 50/50 the last line. Add .hfx-flex to the row */
+.hfx-autofit.hfx-flex{display:flex;flex-wrap:wrap;gap:var(--hfx-gap,1rem);align-content:flex-start;align-items:stretch}
+/* Children in Flex engine respect min card width and grow to fill rows evenly */
+.hfx-autofit.hfx-flex>*{min-width:var(--hfx-min,18rem);flex:1 1 var(--hfx-min,18rem);min-height:0}
+@media (min-width:1400px){
+  .hfx-autofit.hfx-flex.hfx-wide-one>*{
+    flex:0 0 calc((100% - (var(--hfx-wide-cols,6) - 1) * var(--hfx-gap,1rem)) / var(--hfx-wide-cols,6));
+  }
+}
+
+/* Retain fixed card width on wrap (auto-fill semantics). Last row may leave right-side gap. */
+.hfx-autofit.hfx-retain{grid-template-columns:repeat(auto-fill,minmax(var(--hfx-min,18rem),var(--hfx-min,18rem)));justify-content:start}
+
+/* Ensure charts fill available space, but cap size in AutoFit rows to prevent oversizing */
+.hfx-row-equalize canvas:not(.hfx-chartjs),.hfx-autofit canvas:not(.hfx-chartjs){max-width:100%;height:auto!important}
+.hfx-autofit canvas:not(.hfx-chartjs){max-height:var(--hfx-chart-maxh,clamp(200px,30vh,420px))!important;width:100%!important;display:block;margin-inline:auto;aspect-ratio:var(--hfx-chart-aspect,1/1)}
+
+/* Center single-canvas card bodies without affecting other content */
+.hfx-autofit .card-body:has(> canvas),
+.hfx-row-equalize .card-body:has(> canvas){display:grid;align-items:center;justify-items:center}
