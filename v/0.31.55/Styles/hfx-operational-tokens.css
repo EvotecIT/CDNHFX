@@ -1,0 +1,90 @@
+/* Operational component tokens: shared defaults for standalone lists and workspace shells */
+:where(.hfx-operational-workspace,.hfx-operational-list){
+
+  --hfx-op-accent:#18b981;
+  --hfx-op-accent-rgb:24,185,129;
+  --hfx-op-accent-strong:#087450;
+  --hfx-op-accent-soft:#e4f8ef;
+  --hfx-op-accent-softer:#eef9f4;
+  --hfx-op-accent-active:#ddf4ea;
+  --hfx-op-text:#0f3d32;
+  --hfx-op-heading:#073b2f;
+  --hfx-op-muted:#64748b;
+  --hfx-op-panel:#fff;
+  --hfx-op-panel-alt:#f8fafc;
+  --hfx-op-sidebar-bg:linear-gradient(180deg,#f8fafc 0%,#f3f7f6 100%);
+  --hfx-op-scrollbar-size:.48rem;
+  --hfx-op-scrollbar-track:rgba(226,232,240,.48);
+  --hfx-op-scrollbar-thumb:rgba(var(--hfx-op-accent-rgb),.14);
+  --hfx-op-scrollbar-thumb-hover:rgba(var(--hfx-op-accent-rgb),.30);
+  --hfx-op-scrollbar-thumb-active:rgba(var(--hfx-op-accent-rgb),.42);
+  --hfx-op-scrollbar-border:rgba(255,255,255,.72);
+  --hfx-surface-accent-rgb:var(--hfx-op-accent-rgb);
+  --hfx-card-title-color:var(--hfx-op-heading);
+  --hfx-card-body-color:var(--hfx-op-muted);
+  --hfx-card-surface-start:var(--hfx-op-panel);
+  --hfx-card-surface-end:var(--hfx-op-panel);
+  --hfx-card-panel-surface:var(--hfx-op-panel-alt);
+  --hfx-card-panel-soft:var(--hfx-op-accent-softer);
+  --hfx-surface-card-bg:var(--hfx-op-panel);
+  --hfx-surface-cap-bg:var(--hfx-op-panel-alt);
+  --hfx-surface-border:rgba(148,163,184,.20);
+  --bs-body-bg:var(--hfx-op-panel);
+  --bs-body-color:var(--hfx-op-text);
+  --bs-emphasis-color:var(--hfx-op-heading);
+  --bs-secondary-color:var(--hfx-op-muted);
+  --bs-tertiary-bg:var(--hfx-op-panel-alt);
+  --bs-border-color:rgba(148,163,184,.20);
+  --bs-table-bg:var(--hfx-op-panel);
+  --bs-table-color:var(--hfx-op-text);
+  --bs-table-striped-bg:var(--hfx-op-panel-alt);
+  --bs-table-hover-bg:var(--hfx-op-accent-softer);
+  --tblr-primary:var(--hfx-op-accent);
+  --tblr-primary-rgb:var(--hfx-op-accent-rgb);
+  --hfx-tracking-green:var(--hfx-op-accent);
+}
+
+:root[data-bs-theme="dark"] :where(.hfx-operational-workspace,.hfx-operational-list),
+body[data-bs-theme="dark"] :where(.hfx-operational-workspace,.hfx-operational-list),
+:root[data-hfx-theme^="dark"] :where(.hfx-operational-workspace,.hfx-operational-list),
+body[data-hfx-theme^="dark"] :where(.hfx-operational-workspace,.hfx-operational-list){
+  --hfx-op-accent:#9d8cff;
+  --hfx-op-accent-rgb:157,140,255;
+  --hfx-op-accent-strong:#d9d4ff;
+  --hfx-op-accent-soft:rgba(157,140,255,.15);
+  --hfx-op-accent-softer:rgba(157,140,255,.12);
+  --hfx-op-accent-active:rgba(157,140,255,.18);
+  --hfx-op-text:#f8fafc;
+  --hfx-op-heading:#f8fafc;
+  --hfx-op-muted:#aab4c6;
+  --hfx-op-panel:#090b14;
+  --hfx-op-panel-alt:#111827;
+  --hfx-op-sidebar-bg:linear-gradient(180deg,#0f1423 0%,#0b1020 100%);
+  --hfx-op-scrollbar-track:rgba(15,23,42,.46);
+  --hfx-op-scrollbar-thumb:rgba(157,140,255,.28);
+  --hfx-op-scrollbar-thumb-hover:rgba(157,140,255,.44);
+  --hfx-op-scrollbar-thumb-active:rgba(157,140,255,.58);
+  --hfx-op-scrollbar-border:rgba(15,23,42,.72);
+  --hfx-card-title-color:var(--hfx-op-heading);
+  --hfx-card-body-color:var(--hfx-op-muted);
+  --hfx-card-surface-start:#101522;
+  --hfx-card-surface-end:#090b14;
+  --hfx-card-panel-surface:#111827;
+  --hfx-card-panel-soft:#121827;
+  --hfx-surface-card-bg:#101522;
+  --hfx-surface-cap-bg:#0b1020;
+  --hfx-surface-border:rgba(148,163,184,.16);
+  --bs-body-bg:var(--hfx-op-panel);
+  --bs-body-color:var(--hfx-op-text);
+  --bs-emphasis-color:var(--hfx-op-heading);
+  --bs-secondary-color:var(--hfx-op-muted);
+  --bs-tertiary-bg:var(--hfx-op-panel-alt);
+  --bs-border-color:rgba(148,163,184,.16);
+  --bs-table-bg:#101522;
+  --bs-table-color:var(--hfx-op-text);
+  --bs-table-striped-bg:#0b1020;
+  --bs-table-hover-bg:rgba(157,140,255,.12);
+  --tblr-primary:var(--hfx-op-accent);
+  --tblr-primary-rgb:var(--hfx-op-accent-rgb);
+  --hfx-tracking-green:#2dd4bf;
+}
