@@ -1,0 +1,225 @@
+/* Timeline planner cards: schedule lanes with a readable horizontal time axis */
+.hfx-timeline-planner-card{
+  --hfx-timeline-planner-accent:#3b82f6;
+  --hfx-timeline-planner-bg:linear-gradient(180deg,var(--hfx-card-surface-start,var(--hfx-op-dashboard-card-bg,#fff)) 0%,var(--hfx-card-surface-end,var(--hfx-op-dashboard-card-bg,#fff)) 100%);
+  --hfx-timeline-planner-border:var(--tblr-border-color,var(--hfx-op-dashboard-card-border,rgba(148,163,184,.20)));
+  --hfx-timeline-planner-surface:var(--hfx-card-panel-surface,var(--hfx-op-dashboard-surface,#f8fafc));
+  --hfx-timeline-planner-surface-soft:var(--hfx-card-panel-soft,rgba(255,255,255,.92));
+  --hfx-timeline-planner-text:var(--hfx-card-title-color,var(--hfx-op-dashboard-text,var(--tblr-emphasis-color)));
+  --hfx-timeline-planner-muted:var(--hfx-card-body-color,var(--hfx-op-dashboard-muted,var(--tblr-secondary-color)));
+  --hfx-timeline-planner-padding:1.25rem;
+  --hfx-timeline-planner-gap:1rem;
+  --hfx-timeline-planner-inner-gap:.75rem;
+  --hfx-timeline-planner-header-space:1.1rem;
+  --hfx-timeline-planner-stage-height:18rem;
+  --hfx-timeline-planner-row-gap:.7rem;
+  --hfx-timeline-planner-row-padding:1rem;
+  --hfx-timeline-planner-lane-width:7.5rem;
+  --hfx-timeline-planner-lane-height:4.75rem;
+  --hfx-timeline-planner-task-padding:.7rem .85rem;
+  --hfx-timeline-planner-icon-size:2.55rem;
+  --hfx-timeline-planner-action-size:2.45rem;
+  --hfx-timeline-planner-radius:.75rem;
+  overflow:hidden;
+  border-color:var(--hfx-timeline-planner-border);
+  background:var(--hfx-timeline-planner-bg);
+  box-shadow:var(--hfx-op-dashboard-card-shadow,0 10px 28px rgba(15,23,42,.055))
+}
+.hfx-timeline-planner-card .card-body{
+  min-width:0;
+  padding:var(--hfx-timeline-planner-padding)
+}
+.hfx-timeline-planner-card__header,
+.hfx-timeline-planner-card__title-wrap,
+.hfx-timeline-planner-card__task,
+.hfx-timeline-planner-card__people{
+  display:flex;
+  align-items:center
+}
+.hfx-timeline-planner-card__header{
+  justify-content:space-between;
+  gap:var(--hfx-timeline-planner-gap);
+  margin-bottom:var(--hfx-timeline-planner-header-space)
+}
+.hfx-timeline-planner-card__title-wrap{
+  min-width:0;
+  gap:var(--hfx-timeline-planner-inner-gap)
+}
+.hfx-timeline-planner-card__icon{
+  width:var(--hfx-timeline-planner-icon-size);
+  height:var(--hfx-timeline-planner-icon-size);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 auto;
+  border:1px solid rgba(59,130,246,.22);
+  border:1px solid color-mix(in srgb,var(--hfx-timeline-planner-accent),transparent 74%);
+  border-radius:.7rem;
+  color:var(--hfx-timeline-planner-accent);
+  background:rgba(59,130,246,.10);
+  background:color-mix(in srgb,var(--hfx-timeline-planner-accent),var(--hfx-timeline-planner-surface) 88%)
+}
+.hfx-timeline-planner-card__copy{min-width:0}
+.hfx-timeline-planner-card__title{
+  margin:0;
+  color:var(--hfx-timeline-planner-text);
+  font-size:1.1rem;
+  line-height:1.2;
+  font-weight:700;
+  letter-spacing:0
+}
+.hfx-timeline-planner-card__subtitle{
+  margin:.15rem 0 0;
+  color:var(--hfx-timeline-planner-muted);
+  font-size:.9rem
+}
+.hfx-timeline-planner-card__menu{
+  width:var(--hfx-timeline-planner-action-size);
+  height:var(--hfx-timeline-planner-action-size);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 auto;
+  border:1px solid var(--hfx-timeline-planner-border);
+  border-radius:.7rem;
+  background:var(--hfx-timeline-planner-bg);
+  color:var(--hfx-timeline-planner-muted);
+  box-shadow:0 8px 18px rgba(15,23,42,.04)
+}
+.hfx-timeline-planner-card__stage{
+  min-height:var(--hfx-timeline-planner-stage-height);
+  overflow:auto;
+  border:1px solid var(--hfx-timeline-planner-border);
+  border-radius:var(--hfx-timeline-planner-radius);
+  background:
+    linear-gradient(90deg,rgba(148,163,184,.18) 1px,transparent 1px),
+    linear-gradient(180deg,rgba(148,163,184,.12) 1px,transparent 1px),
+    var(--hfx-timeline-planner-surface);
+  background-size:calc(100% / var(--hfx-timeline-planner-columns,6)) 100%,100% var(--hfx-timeline-planner-lane-height),auto
+}
+.hfx-timeline-planner-card__axis,
+.hfx-timeline-planner-card__row{
+  min-width:calc(var(--hfx-timeline-planner-columns,6) * var(--hfx-timeline-planner-lane-width));
+  display:grid;
+  grid-template-columns:repeat(var(--hfx-timeline-planner-columns,6),minmax(var(--hfx-timeline-planner-lane-width),1fr))
+}
+.hfx-timeline-planner-card__axis{
+  position:sticky;
+  top:0;
+  z-index:2;
+  background:var(--hfx-timeline-planner-surface);
+  background:color-mix(in srgb,var(--hfx-timeline-planner-surface),var(--hfx-card-surface-end,#fff) 42%);
+  border-bottom:1px solid var(--hfx-timeline-planner-border)
+}
+.hfx-timeline-planner-card__axis span{
+  padding:.75rem 1rem;
+  color:var(--hfx-timeline-planner-muted);
+  font-weight:650;
+  white-space:nowrap
+}
+.hfx-timeline-planner-card__rows{
+  display:grid;
+  gap:var(--hfx-timeline-planner-row-gap);
+  padding:var(--hfx-timeline-planner-row-padding)
+}
+.hfx-timeline-planner-card__row{
+  min-height:3.35rem;
+  align-items:center
+}
+.hfx-timeline-planner-card__task{
+  --hfx-timeline-task-color:#3b82f6;
+  min-width:0;
+  gap:.6rem;
+  align-self:center;
+  padding:var(--hfx-timeline-planner-task-padding);
+  border:1px solid rgba(59,130,246,.32);
+  border:1px solid color-mix(in srgb,var(--hfx-timeline-task-color),transparent 48%);
+  border-left:4px solid var(--hfx-timeline-task-color);
+  border-radius:.65rem;
+  color:var(--hfx-timeline-task-color);
+  background:var(--hfx-timeline-planner-surface-soft);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--hfx-timeline-task-color),var(--hfx-timeline-planner-surface-soft) 92%) 0%,var(--hfx-timeline-planner-surface-soft) 100%);
+  box-shadow:0 8px 18px rgba(15,23,42,.04)
+}
+.hfx-timeline-planner-card__task-icon{
+  width:1.45rem;
+  height:1.45rem;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 auto;
+  border-radius:.45rem;
+  color:#fff;
+  background:var(--hfx-timeline-task-color)
+}
+.hfx-timeline-planner-card__task-label{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-weight:650
+}
+.hfx-timeline-planner-card__task-note{
+  margin-left:auto;
+  flex:0 0 auto;
+  color:var(--hfx-timeline-planner-muted);
+  font-size:.82rem
+}
+.hfx-timeline-planner-card__people{
+  margin-left:auto;
+  flex:0 0 auto;
+  flex-direction:row-reverse
+}
+.hfx-timeline-planner-card__avatar{
+  width:1.55rem;
+  height:1.55rem;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  margin-left:-.35rem;
+  border:2px solid var(--hfx-timeline-planner-surface);
+  border-radius:999px;
+  color:var(--hfx-timeline-planner-text);
+  background:var(--hfx-timeline-planner-surface);
+  font-size:.68rem;
+  font-weight:700
+}
+.hfx-timeline-planner-card__empty{
+  min-height:5.5rem;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px dashed var(--hfx-timeline-planner-border);
+  border-radius:.65rem;
+  color:var(--hfx-timeline-planner-muted);
+  background:var(--hfx-timeline-planner-surface-soft);
+  font-weight:600
+}
+.hfx-timeline-planner-card--compact{
+  --hfx-timeline-planner-padding:1rem;
+  --hfx-timeline-planner-stage-height:15rem;
+  --hfx-timeline-planner-row-padding:.8rem;
+  --hfx-timeline-planner-row-gap:.55rem
+}
+html[data-hfx-surface-density=compact] .hfx-timeline-planner-card,
+body[data-hfx-surface-density=compact] .hfx-timeline-planner-card{
+  --hfx-timeline-planner-padding:1rem;
+  --hfx-timeline-planner-gap:.8rem;
+  --hfx-timeline-planner-inner-gap:.65rem;
+  --hfx-timeline-planner-header-space:.9rem;
+  --hfx-timeline-planner-stage-height:15rem;
+  --hfx-timeline-planner-row-padding:.8rem;
+  --hfx-timeline-planner-row-gap:.55rem;
+  --hfx-timeline-planner-lane-height:4.2rem
+}
+html[data-hfx-surface-density=spacious] .hfx-timeline-planner-card,
+body[data-hfx-surface-density=spacious] .hfx-timeline-planner-card{
+  --hfx-timeline-planner-padding:1.5rem;
+  --hfx-timeline-planner-gap:1.2rem;
+  --hfx-timeline-planner-inner-gap:.9rem;
+  --hfx-timeline-planner-header-space:1.35rem;
+  --hfx-timeline-planner-stage-height:20rem;
+  --hfx-timeline-planner-row-padding:1.2rem;
+  --hfx-timeline-planner-row-gap:.85rem;
+  --hfx-timeline-planner-lane-height:5.25rem
+}
