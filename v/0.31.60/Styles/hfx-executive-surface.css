@@ -1,0 +1,116 @@
+/* Executive top-navigation surface styles. */
+html[data-bs-theme='light'] {
+    background:
+        radial-gradient(circle at top left, rgba(15, 118, 110, 0.10), transparent 26rem),
+        radial-gradient(circle at top right, rgba(245, 158, 11, 0.10), transparent 28rem),
+        linear-gradient(180deg, #f7fafc 0%, #eef4fb 100%);
+}
+
+html[data-bs-theme='light'] .layout-horizontal header.navbar.sticky-top {
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    box-shadow:
+        0 24px 44px rgba(15, 23, 42, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+html[data-bs-theme='light'] .layout-horizontal .page-header {
+    padding-top: 1.1rem;
+    padding-bottom: 0.5rem;
+}
+
+html[data-bs-theme='light'] .layout-horizontal .page-title,
+html[data-bs-theme='light'] .layout-horizontal h2 {
+    letter-spacing: -0.03em;
+}
+
+html[data-bs-theme='light'] .layout-horizontal .card {
+    box-shadow:
+        0 18px 36px rgba(15, 23, 42, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.58);
+}
+
+html[data-bs-theme='light'] .layout-horizontal .hfx-insight-summary-card,
+html[data-bs-theme='light'] .layout-horizontal .hfx-narrative-summary-card,
+html[data-bs-theme='light'] .layout-horizontal .hfx-action-summary-card,
+html[data-bs-theme='light'] .layout-horizontal .hfx-people-review-card,
+html[data-bs-theme='light'] .layout-horizontal .hfx-workspace-tabs-card,
+html[data-bs-theme='light'] .layout-horizontal .hfx-workflow-summary-card {
+    box-shadow:
+        0 24px 48px rgba(15, 23, 42, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+html[data-bs-theme='light'] .layout-horizontal .navbar-nav .nav-link.active,
+html[data-bs-theme='light'] .layout-horizontal .navbar-nav .dropdown-toggle.active,
+html[data-bs-theme='light'] .layout-horizontal .navbar-nav .dropdown-toggle.show {
+    background:
+        linear-gradient(180deg, rgba(15, 118, 110, 0.16) 0%, rgba(6, 111, 209, 0.10) 100%);
+    box-shadow:
+        inset 0 0 0 1px rgba(15, 118, 110, 0.10),
+        0 10px 24px rgba(15, 118, 110, 0.12);
+}
+
+html[data-bs-theme='light'] .layout-horizontal .page-wrapper .card-title,
+html[data-bs-theme='light'] .layout-horizontal .page-wrapper h3 {
+    letter-spacing: -0.02em;
+}
+
+html[data-bs-theme='dark'] {
+    background:
+        radial-gradient(circle at top left, rgba(14, 165, 233, 0.08), transparent 24rem),
+        radial-gradient(circle at top right, rgba(249, 115, 22, 0.07), transparent 24rem),
+        linear-gradient(180deg, #091220 0%, #0d1728 100%);
+}
+
+html[data-hfx-theme='dark-carbon'] {
+    background:
+        radial-gradient(circle at top left, rgba(8, 145, 178, 0.05), transparent 24rem),
+        radial-gradient(circle at top right, rgba(249, 115, 22, 0.05), transparent 24rem),
+        linear-gradient(180deg, #05080f 0%, #0a1018 100%);
+}
+
+html[data-bs-theme='dark'] .layout-horizontal header.navbar.sticky-top,
+html[data-hfx-theme='dark-carbon'] .layout-horizontal header.navbar.sticky-top {
+    border-color: rgba(59, 130, 246, 0.10);
+    box-shadow:
+        0 20px 44px rgba(2, 8, 23, 0.34),
+        inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+html[data-bs-theme='dark'] .layout-horizontal .card,
+html[data-hfx-theme='dark-carbon'] .layout-horizontal .card {
+    box-shadow:
+        0 18px 34px rgba(2, 8, 23, 0.20),
+        inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+html[data-bs-theme='dark'] .layout-horizontal .hfx-insight-summary-card,
+html[data-bs-theme='dark'] .layout-horizontal .hfx-narrative-summary-card,
+html[data-bs-theme='dark'] .layout-horizontal .hfx-action-summary-card,
+html[data-bs-theme='dark'] .layout-horizontal .hfx-people-review-card,
+html[data-bs-theme='dark'] .layout-horizontal .hfx-workspace-tabs-card,
+html[data-bs-theme='dark'] .layout-horizontal .hfx-workflow-summary-card,
+html[data-hfx-theme='dark-carbon'] .layout-horizontal .hfx-insight-summary-card,
+html[data-hfx-theme='dark-carbon'] .layout-horizontal .hfx-narrative-summary-card,
+html[data-hfx-theme='dark-carbon'] .layout-horizontal .hfx-action-summary-card,
+html[data-hfx-theme='dark-carbon'] .layout-horizontal .hfx-people-review-card,
+html[data-hfx-theme='dark-carbon'] .layout-horizontal .hfx-workspace-tabs-card,
+html[data-hfx-theme='dark-carbon'] .layout-horizontal .hfx-workflow-summary-card {
+    box-shadow:
+        0 24px 50px rgba(2, 8, 23, 0.26),
+        inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+html[data-bs-theme='dark'] .layout-horizontal .navbar-nav .nav-link.active,
+html[data-bs-theme='dark'] .layout-horizontal .navbar-nav .dropdown-toggle.active,
+html[data-bs-theme='dark'] .layout-horizontal .navbar-nav .dropdown-toggle.show,
+html[data-hfx-theme='dark-carbon'] .layout-horizontal .navbar-nav .nav-link.active,
+html[data-hfx-theme='dark-carbon'] .layout-horizontal .navbar-nav .dropdown-toggle.active,
+html[data-hfx-theme='dark-carbon'] .layout-horizontal .navbar-nav .dropdown-toggle.show {
+    background:
+        linear-gradient(180deg, rgba(14, 165, 233, 0.16) 0%, rgba(37, 99, 235, 0.10) 100%);
+    box-shadow:
+        inset 0 0 0 1px rgba(59, 130, 246, 0.12),
+        0 12px 24px rgba(8, 47, 73, 0.22);
+}

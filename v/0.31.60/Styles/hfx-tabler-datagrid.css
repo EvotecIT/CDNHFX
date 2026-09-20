@@ -1,0 +1,12 @@
+/* Tabler DataGrid layout bridge styles. */
+.hfx-dg-natural .datagrid-title{ text-transform: none; }
+
+/* Preserve Tabler flow inside HtmlForgeX equal-height and auto-fit rows. */
+.hfx-row-equalize .datagrid,.hfx-autofit .datagrid{min-height:0;max-height:var(--hfx-dg-maxh,clamp(220px,35vh,540px));overflow:auto}
+
+/* DataGrid tile/flow layout: arrange items side-by-side and fill rows evenly. */
+.datagrid.hfx-dg-tiles{display:flex;flex-wrap:wrap;gap:var(--hfx-dg-gap, .75rem);align-items:stretch}
+.datagrid.hfx-dg-tiles .datagrid-item{flex:1 1 var(--hfx-dg-min, 18rem);min-width:var(--hfx-dg-min, 18rem);min-height:0}
+
+/* In tile mode, rely on container gap instead of item outer margins to keep spacing even. */
+.datagrid.hfx-dg-tiles .datagrid-item{margin-top:0!important;margin-bottom:0!important}
