@@ -1,0 +1,300 @@
+/* Operational workspace embedded-component adapters */
+.hfx-operational-workspace--framed .hfx-metric-card,
+.hfx-operational-workspace--framed .hfx-analytics-summary-card,
+.hfx-operational-workspace--framed .hfx-progress-list-card,
+.hfx-operational-workspace--framed .hfx-workspace-tabs-card,
+.hfx-operational-workspace--framed .hfx-table-summary-card,
+.hfx-operational-workspace--framed .hfx-record-inspector-card,
+.hfx-operational-workspace--framed .hfx-timeline-summary-card,
+.hfx-operational-workspace--framed .hfx-review-feed-card,
+.hfx-operational-workspace--framed .hfx-presence-list-card,
+.hfx-operational-workspace--framed .hfx-data-grid-card,
+.hfx-operational-workspace--framed .hfx-gauge-card,
+.hfx-operational-workspace--frosted .hfx-metric-card,
+.hfx-operational-workspace--frosted .hfx-analytics-summary-card,
+.hfx-operational-workspace--frosted .hfx-progress-list-card,
+.hfx-operational-workspace--frosted .hfx-workspace-tabs-card,
+.hfx-operational-workspace--frosted .hfx-table-summary-card,
+.hfx-operational-workspace--frosted .hfx-record-inspector-card,
+.hfx-operational-workspace--frosted .hfx-timeline-summary-card,
+.hfx-operational-workspace--frosted .hfx-review-feed-card,
+.hfx-operational-workspace--frosted .hfx-presence-list-card,
+.hfx-operational-workspace--frosted .hfx-data-grid-card,
+.hfx-operational-workspace--frosted .hfx-gauge-card,
+.hfx-operational-workspace--dark .hfx-metric-card,
+.hfx-operational-workspace--dark .hfx-analytics-summary-card,
+.hfx-operational-workspace--dark .hfx-progress-list-card,
+.hfx-operational-workspace--dark .hfx-workspace-tabs-card,
+.hfx-operational-workspace--dark .hfx-table-summary-card,
+.hfx-operational-workspace--dark .hfx-record-inspector-card,
+.hfx-operational-workspace--dark .hfx-timeline-summary-card,
+.hfx-operational-workspace--dark .hfx-review-feed-card,
+.hfx-operational-workspace--dark .hfx-presence-list-card,
+.hfx-operational-workspace--dark .hfx-data-grid-card,
+.hfx-operational-workspace--dark .hfx-gauge-card,
+.hfx-operational-workspace--mixed .hfx-metric-card,
+.hfx-operational-workspace--mixed .hfx-analytics-summary-card,
+.hfx-operational-workspace--mixed .hfx-progress-list-card,
+.hfx-operational-workspace--mixed .hfx-workspace-tabs-card,
+.hfx-operational-workspace--mixed .hfx-table-summary-card,
+.hfx-operational-workspace--mixed .hfx-record-inspector-card,
+.hfx-operational-workspace--mixed .hfx-timeline-summary-card,
+.hfx-operational-workspace--mixed .hfx-review-feed-card,
+.hfx-operational-workspace--mixed .hfx-presence-list-card,
+.hfx-operational-workspace--mixed .hfx-data-grid-card,
+.hfx-operational-workspace--mixed .hfx-gauge-card{
+  border-color:var(--hfx-op-dashboard-card-border) !important;
+  background:var(--hfx-op-dashboard-card-bg) !important;
+  box-shadow:var(--hfx-op-dashboard-card-shadow) !important;
+  color:var(--hfx-op-dashboard-text) !important
+}
+.hfx-operational-workspace--framed .card-body,
+.hfx-operational-workspace--framed .card-header,
+.hfx-operational-workspace--framed .tab-content,
+.hfx-operational-workspace--framed .dataTables_wrapper,
+.hfx-operational-workspace--framed .datagrid,
+.hfx-operational-workspace--frosted .card-body,
+.hfx-operational-workspace--frosted .card-header,
+.hfx-operational-workspace--frosted .tab-content,
+.hfx-operational-workspace--frosted .dataTables_wrapper,
+.hfx-operational-workspace--frosted .datagrid,
+.hfx-operational-workspace--dark .card-body,
+.hfx-operational-workspace--dark .card-header,
+.hfx-operational-workspace--dark .tab-content,
+.hfx-operational-workspace--dark .dataTables_wrapper,
+.hfx-operational-workspace--dark .datagrid,
+.hfx-operational-workspace--mixed .card-body,
+.hfx-operational-workspace--mixed .card-header,
+.hfx-operational-workspace--mixed .tab-content,
+.hfx-operational-workspace--mixed .dataTables_wrapper,
+.hfx-operational-workspace--mixed .datagrid{
+  background:transparent !important;
+  color:var(--hfx-op-dashboard-text) !important
+}
+.hfx-operational-workspace--framed .text-secondary,
+.hfx-operational-workspace--framed .hfx-analytics-summary-card p,
+.hfx-operational-workspace--framed .hfx-record-inspector-card p,
+.hfx-operational-workspace--framed .hfx-timeline-summary-card p,
+.hfx-operational-workspace--framed .hfx-review-feed-card p,
+.hfx-operational-workspace--framed .hfx-presence-list-card p,
+.hfx-operational-workspace--framed .hfx-progress-list-card__note,
+.hfx-operational-workspace--framed .dataTables_info,
+.hfx-operational-workspace--frosted .text-secondary,
+.hfx-operational-workspace--frosted .hfx-analytics-summary-card p,
+.hfx-operational-workspace--frosted .hfx-record-inspector-card p,
+.hfx-operational-workspace--frosted .hfx-timeline-summary-card p,
+.hfx-operational-workspace--frosted .hfx-review-feed-card p,
+.hfx-operational-workspace--frosted .hfx-presence-list-card p,
+.hfx-operational-workspace--frosted .hfx-progress-list-card__note,
+.hfx-operational-workspace--frosted .dataTables_info,
+.hfx-operational-workspace--dark .text-secondary,
+.hfx-operational-workspace--dark .hfx-analytics-summary-card p,
+.hfx-operational-workspace--dark .hfx-record-inspector-card p,
+.hfx-operational-workspace--dark .hfx-timeline-summary-card p,
+.hfx-operational-workspace--dark .hfx-review-feed-card p,
+.hfx-operational-workspace--dark .hfx-presence-list-card p,
+.hfx-operational-workspace--dark .hfx-progress-list-card__note,
+.hfx-operational-workspace--dark .dataTables_info,
+.hfx-operational-workspace--mixed .text-secondary,
+.hfx-operational-workspace--mixed .hfx-analytics-summary-card p,
+.hfx-operational-workspace--mixed .hfx-record-inspector-card p,
+.hfx-operational-workspace--mixed .hfx-timeline-summary-card p,
+.hfx-operational-workspace--mixed .hfx-review-feed-card p,
+.hfx-operational-workspace--mixed .hfx-presence-list-card p,
+.hfx-operational-workspace--mixed .hfx-progress-list-card__note,
+.hfx-operational-workspace--mixed .dataTables_info{
+  color:var(--hfx-op-dashboard-muted) !important
+}
+.hfx-operational-workspace--framed .display-6,
+.hfx-operational-workspace--framed .card-title,
+.hfx-operational-workspace--framed h3,
+.hfx-operational-workspace--framed table.dataTable tbody td,
+.hfx-operational-workspace--frosted .display-6,
+.hfx-operational-workspace--frosted .card-title,
+.hfx-operational-workspace--frosted h3,
+.hfx-operational-workspace--frosted table.dataTable tbody td,
+.hfx-operational-workspace--dark .display-6,
+.hfx-operational-workspace--dark .card-title,
+.hfx-operational-workspace--dark h3,
+.hfx-operational-workspace--dark table.dataTable tbody td,
+.hfx-operational-workspace--mixed .display-6,
+.hfx-operational-workspace--mixed .card-title,
+.hfx-operational-workspace--mixed h3,
+.hfx-operational-workspace--mixed table.dataTable tbody td{
+  color:var(--hfx-op-dashboard-text) !important
+}
+.hfx-operational-workspace--framed .hfx-analytics-summary-card__metric,
+.hfx-operational-workspace--framed .hfx-analytics-summary-card__highlight,
+.hfx-operational-workspace--framed .hfx-analytics-summary-card__chart,
+.hfx-operational-workspace--framed .hfx-summary-strip__item,
+.hfx-operational-workspace--framed .hfx-status-matrix__item,
+.hfx-operational-workspace--framed .hfx-table-summary-card__highlight,
+.hfx-operational-workspace--framed .hfx-table-summary-card__surface,
+.hfx-operational-workspace--framed .hfx-record-inspector-card__surface,
+.hfx-operational-workspace--framed .hfx-record-inspector-card .rounded-4,
+.hfx-operational-workspace--framed .hfx-timeline-summary-card .rounded-4,
+.hfx-operational-workspace--framed .hfx-review-feed-card .rounded-4,
+.hfx-operational-workspace--framed .hfx-presence-list-card__metric,
+.hfx-operational-workspace--framed .hfx-presence-list-card__highlight,
+.hfx-operational-workspace--framed .hfx-presence-list-card__surface,
+.hfx-operational-workspace--framed .hfx-presence-list-card__person,
+.hfx-operational-workspace--framed .hfx-workspace-tabs-card .card-body>.rounded-4,
+.hfx-operational-workspace--framed .hfx-data-grid-card .rounded-4,
+.hfx-operational-workspace--framed .hfx-progress-list-card__item,
+.hfx-operational-workspace--frosted .hfx-analytics-summary-card__metric,
+.hfx-operational-workspace--frosted .hfx-analytics-summary-card__highlight,
+.hfx-operational-workspace--frosted .hfx-analytics-summary-card__chart,
+.hfx-operational-workspace--frosted .hfx-summary-strip__item,
+.hfx-operational-workspace--frosted .hfx-status-matrix__item,
+.hfx-operational-workspace--frosted .hfx-table-summary-card__highlight,
+.hfx-operational-workspace--frosted .hfx-table-summary-card__surface,
+.hfx-operational-workspace--frosted .hfx-record-inspector-card__surface,
+.hfx-operational-workspace--frosted .hfx-record-inspector-card .rounded-4,
+.hfx-operational-workspace--frosted .hfx-timeline-summary-card .rounded-4,
+.hfx-operational-workspace--frosted .hfx-review-feed-card .rounded-4,
+.hfx-operational-workspace--frosted .hfx-presence-list-card__metric,
+.hfx-operational-workspace--frosted .hfx-presence-list-card__highlight,
+.hfx-operational-workspace--frosted .hfx-presence-list-card__surface,
+.hfx-operational-workspace--frosted .hfx-presence-list-card__person,
+.hfx-operational-workspace--frosted .hfx-workspace-tabs-card .card-body>.rounded-4,
+.hfx-operational-workspace--frosted .hfx-data-grid-card .rounded-4,
+.hfx-operational-workspace--frosted .hfx-progress-list-card__item,
+.hfx-operational-workspace--dark .hfx-analytics-summary-card__metric,
+.hfx-operational-workspace--dark .hfx-analytics-summary-card__highlight,
+.hfx-operational-workspace--dark .hfx-analytics-summary-card__chart,
+.hfx-operational-workspace--dark .hfx-summary-strip__item,
+.hfx-operational-workspace--dark .hfx-status-matrix__item,
+.hfx-operational-workspace--dark .hfx-table-summary-card__highlight,
+.hfx-operational-workspace--dark .hfx-table-summary-card__surface,
+.hfx-operational-workspace--dark .hfx-record-inspector-card__surface,
+.hfx-operational-workspace--dark .hfx-record-inspector-card .rounded-4,
+.hfx-operational-workspace--dark .hfx-timeline-summary-card .rounded-4,
+.hfx-operational-workspace--dark .hfx-review-feed-card .rounded-4,
+.hfx-operational-workspace--dark .hfx-presence-list-card__metric,
+.hfx-operational-workspace--dark .hfx-presence-list-card__highlight,
+.hfx-operational-workspace--dark .hfx-presence-list-card__surface,
+.hfx-operational-workspace--dark .hfx-presence-list-card__person,
+.hfx-operational-workspace--dark .hfx-workspace-tabs-card .card-body>.rounded-4,
+.hfx-operational-workspace--dark .hfx-data-grid-card .rounded-4,
+.hfx-operational-workspace--dark .hfx-progress-list-card__item,
+.hfx-operational-workspace--mixed .hfx-analytics-summary-card__metric,
+.hfx-operational-workspace--mixed .hfx-analytics-summary-card__highlight,
+.hfx-operational-workspace--mixed .hfx-analytics-summary-card__chart,
+.hfx-operational-workspace--mixed .hfx-summary-strip__item,
+.hfx-operational-workspace--mixed .hfx-status-matrix__item,
+.hfx-operational-workspace--mixed .hfx-table-summary-card__highlight,
+.hfx-operational-workspace--mixed .hfx-table-summary-card__surface,
+.hfx-operational-workspace--mixed .hfx-record-inspector-card__surface,
+.hfx-operational-workspace--mixed .hfx-record-inspector-card .rounded-4,
+.hfx-operational-workspace--mixed .hfx-timeline-summary-card .rounded-4,
+.hfx-operational-workspace--mixed .hfx-review-feed-card .rounded-4,
+.hfx-operational-workspace--mixed .hfx-presence-list-card__metric,
+.hfx-operational-workspace--mixed .hfx-presence-list-card__highlight,
+.hfx-operational-workspace--mixed .hfx-presence-list-card__surface,
+.hfx-operational-workspace--mixed .hfx-presence-list-card__person,
+.hfx-operational-workspace--mixed .hfx-workspace-tabs-card .card-body>.rounded-4,
+.hfx-operational-workspace--mixed .hfx-data-grid-card .rounded-4,
+.hfx-operational-workspace--mixed .hfx-progress-list-card__item{
+  border-color:var(--hfx-op-dashboard-card-border) !important;
+  background:var(--hfx-op-dashboard-surface) !important;
+  box-shadow:none !important
+}
+.hfx-operational-workspace--framed .datagrid-title,
+.hfx-operational-workspace--framed .hfx-progress-list-card__label,
+.hfx-operational-workspace--framed .hfx-progress-list-card__value,
+.hfx-operational-workspace--frosted .datagrid-title,
+.hfx-operational-workspace--frosted .hfx-progress-list-card__label,
+.hfx-operational-workspace--frosted .hfx-progress-list-card__value,
+.hfx-operational-workspace--dark .datagrid-title,
+.hfx-operational-workspace--dark .hfx-progress-list-card__label,
+.hfx-operational-workspace--dark .hfx-progress-list-card__value,
+.hfx-operational-workspace--mixed .datagrid-title,
+.hfx-operational-workspace--mixed .hfx-progress-list-card__label,
+.hfx-operational-workspace--mixed .hfx-progress-list-card__value{
+  color:var(--hfx-op-dashboard-text) !important
+}
+.hfx-operational-workspace--framed .datagrid-content,
+.hfx-operational-workspace--frosted .datagrid-content,
+.hfx-operational-workspace--dark .datagrid-content,
+.hfx-operational-workspace--mixed .datagrid-content{
+  color:var(--hfx-op-dashboard-link) !important
+}
+.hfx-operational-workspace--framed table.dataTable thead th,
+.hfx-operational-workspace--frosted table.dataTable thead th,
+.hfx-operational-workspace--dark table.dataTable thead th,
+.hfx-operational-workspace--mixed table.dataTable thead th{
+  background:var(--hfx-op-dashboard-surface) !important;
+  color:var(--hfx-op-dashboard-muted) !important
+}
+.hfx-operational-workspace--framed table.dataTable tbody tr,
+.hfx-operational-workspace--frosted table.dataTable tbody tr,
+.hfx-operational-workspace--dark table.dataTable tbody tr,
+.hfx-operational-workspace--mixed table.dataTable tbody tr{
+  background:var(--hfx-op-dashboard-card-bg) !important
+}
+
+/* Operational list dark-context adapters owned by workspace skins */
+.hfx-operational-workspace--dark .hfx-operational-list__search,
+.hfx-operational-workspace--dark .hfx-operational-list__filter,
+.hfx-operational-workspace--dark .hfx-operational-list__tab{
+  background:#121827;
+  color:#aab4c6
+}
+.hfx-operational-workspace--dark .hfx-operational-list__search input{
+  color:#f8fafc
+}
+.hfx-operational-workspace--dark .hfx-operational-list__filter:hover,
+.hfx-operational-workspace--dark .hfx-operational-list__filter:focus-visible,
+.hfx-operational-workspace--dark .hfx-operational-list__filter.is-open,
+.hfx-operational-workspace--dark .hfx-operational-list__filter.is-active{
+  background:rgba(157,140,255,.12);
+  color:#f8fafc
+}
+.hfx-operational-workspace--dark .hfx-operational-list__filter-menu{
+  border-color:rgba(148,163,184,.18);
+  background:#101522;
+  box-shadow:0 22px 46px rgba(0,0,0,.28);
+  color:#f8fafc
+}
+.hfx-operational-workspace--dark .hfx-operational-list__item{
+  border-color:rgba(148,163,184,.16);
+  background:#101522;
+  box-shadow:0 18px 46px rgba(0,0,0,.22)
+}
+.hfx-operational-workspace--dark .hfx-operational-list__id,
+.hfx-operational-workspace--dark .hfx-operational-list__value,
+.hfx-operational-workspace--dark .hfx-operational-list__detail-title{
+  color:#f8fafc
+}
+.hfx-operational-workspace--dark .hfx-operational-list__detail{
+  background:linear-gradient(90deg,#111827 0%,#101522 100%)
+}
+.hfx-operational-workspace--dark .hfx-operational-list__action{
+  border-color:rgba(157,140,255,.28);
+  background:#121827;
+  color:#d9d4ff
+}
+.hfx-operational-workspace--dark .hfx-operational-list__action:hover,
+.hfx-operational-workspace--dark .hfx-operational-list__action:focus-visible{
+  border-color:rgba(157,140,255,.48);
+  background:rgba(157,140,255,.12)
+}
+.hfx-operational-workspace--dark .hfx-operational-list__visual{
+  background:linear-gradient(180deg,#182032 0%,#111827 100%);
+  color:#9d8cff
+}
+.hfx-operational-workspace--dark .hfx-operational-list__inspection{
+  border-top-color:rgba(148,163,184,.16);
+  background:linear-gradient(180deg,rgba(157,140,255,.08),rgba(15,23,42,.72))
+}
+.hfx-operational-workspace--dark .hfx-operational-list__inspection-status{
+  background:#111827
+}
+.hfx-operational-workspace--dark .hfx-operational-list__inspection-facts div{
+  border-color:rgba(148,163,184,.14);
+  background:rgba(15,23,42,.55)
+}
+.hfx-operational-workspace--dark .hfx-operational-list__inspection-step{
+  border-color:rgba(148,163,184,.14);
+  background:rgba(15,23,42,.55)
+}
