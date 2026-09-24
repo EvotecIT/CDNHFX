@@ -1,0 +1,80 @@
+/* Navigation layout demo surface styles. */
+.page.layout-fluid,
+.page.layout-boxed,
+.page.layout-horizontal,
+.page.layout-vertical,
+.page.layout-vertical-right,
+.page.layout-vertical-transparent,
+.page.layout-fluid-vertical,
+.page.layout-combo,
+.page.layout-condensed,
+.page.layout-navbar-dark,
+.page.layout-navbar-overlap,
+.page.layout-navbar-sticky,
+.page.layout-rtl {
+    min-height: 100vh;
+}
+
+.page.layout-fluid {
+    background: #f0f8ff;
+}
+
+.page.layout-boxed {
+    background-color: #f5f5f5;
+    background-image: radial-gradient(circle, #ddd 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+.page.layout-horizontal {
+    background: #fffaf0;
+}
+
+.page.layout-vertical {
+    background: #f0fff0;
+}
+
+.page.layout-vertical-right {
+    background: #fff0f5;
+}
+
+.page.layout-vertical-transparent {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.page.layout-fluid-vertical {
+    background: #f5fffa;
+}
+
+.page.layout-combo {
+    background: #fffff0;
+}
+
+.page.layout-condensed {
+    background: #fafafa;
+}
+
+.page.layout-navbar-dark {
+    background: #f8f9fa;
+}
+
+.page.layout-navbar-overlap {
+    background: #e3f2fd;
+}
+
+.page.layout-navbar-sticky {
+    background: #fff3e0;
+}
+
+.page.layout-rtl {
+    background: #fce4ec;
+    direction: rtl;
+}
+
+.page.layout-vertical-right .page-wrapper {
+    margin-right: 15rem !important;
+}
+
+.page.layout-vertical-right .navbar-vertical {
+    right: 0;
+    left: auto;
+}
