@@ -1,0 +1,28 @@
+.hfx-sparkline-wrap {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 0.5rem;
+}
+
+.hfx-sparkline {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: var(--hfx-sparkline-gap, 2px);
+    height: var(--hfx-sparkline-height, 22px);
+    white-space: nowrap;
+}
+
+.hfx-sparkline-bar {
+    display: inline-block;
+    width: var(--hfx-sparkline-bar-width, 6px);
+    min-height: 2px;
+    border-radius: 1px;
+    background-color: var(--hfx-sparkline-color, #2fb344);
+}
+
+.hfx-sparkline-latest {
+    font-size: 0.75rem;
+    color: var(--tblr-muted, #6c757d);
+    white-space: nowrap;
+    margin-top: 0.25rem;
+}
