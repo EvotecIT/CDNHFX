@@ -1,0 +1,74 @@
+.hfx-monitoring-live {
+  z-index: 1090;
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  min-height: 2.25rem;
+  padding: .45rem .7rem;
+  border: 1px solid color-mix(in srgb, var(--hfx-monitoring-border, #dce6f2) 78%, transparent);
+  border-radius: var(--hfx-monitoring-radius-sm, .45rem);
+  background: color-mix(in srgb, var(--hfx-monitoring-surface, #fff) 94%, transparent);
+  color: var(--hfx-monitoring-text, #10213f);
+  box-shadow: var(--hfx-monitoring-shadow, 0 .75rem 1.75rem rgba(15, 23, 42, .14));
+  font: 600 .8rem/1.2 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  backdrop-filter: blur(8px);
+}
+
+.hfx-monitoring-live--bottom-right,
+.hfx-monitoring-live--bottom-left {
+  position: fixed;
+  bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+.hfx-monitoring-live--bottom-right {
+  right: max(1rem, env(safe-area-inset-right));
+}
+
+.hfx-monitoring-live--bottom-left {
+  left: max(1rem, env(safe-area-inset-left));
+}
+
+.hfx-monitoring-live--inline {
+  position: relative;
+}
+
+.hfx-monitoring-live__dot {
+  width: .55rem;
+  height: .55rem;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: var(--hfx-monitoring-muted, #64748b);
+}
+
+.hfx-monitoring-live[data-hfx-monitoring-live-state="connected"] .hfx-monitoring-live__dot,
+.hfx-monitoring-live[data-hfx-monitoring-live-state="updated"] .hfx-monitoring-live__dot {
+  background: var(--hfx-monitoring-success, #16a34a);
+  box-shadow: 0 0 0 .22rem color-mix(in srgb, var(--hfx-monitoring-success, #16a34a) 14%, transparent);
+}
+
+.hfx-monitoring-live[data-hfx-monitoring-live-state="waiting"] .hfx-monitoring-live__dot,
+.hfx-monitoring-live[data-hfx-monitoring-live-state="unsupported"] .hfx-monitoring-live__dot {
+  background: var(--hfx-monitoring-warning, #f59e0b);
+  box-shadow: 0 0 0 .22rem color-mix(in srgb, var(--hfx-monitoring-warning, #f59e0b) 14%, transparent);
+}
+
+.hfx-monitoring-live[data-hfx-monitoring-live-state="disconnected"] .hfx-monitoring-live__dot,
+.hfx-monitoring-live[data-hfx-monitoring-live-state="invalid-source"] .hfx-monitoring-live__dot,
+.hfx-monitoring-live[data-hfx-monitoring-live-state="invalid-event"] .hfx-monitoring-live__dot,
+.hfx-monitoring-live[data-hfx-monitoring-live-state="invalid-data"] .hfx-monitoring-live__dot {
+  background: var(--hfx-monitoring-critical, #ef4444);
+  box-shadow: 0 0 0 .22rem color-mix(in srgb, var(--hfx-monitoring-critical, #ef4444) 14%, transparent);
+}
+
+@media (forced-colors: active) {
+  .hfx-monitoring-live {
+    border-color: CanvasText;
+    background: Canvas;
+    color: CanvasText;
+    forced-color-adjust: auto;
+  }
+
+  .hfx-monitoring-live__dot {
+    border: 1px solid CanvasText;
+  }
+}
