@@ -1,0 +1,134 @@
+/* HtmlForgeX opt-in design token palette (DocumentPalette.DesignTokens, decision D15).
+   Loaded only when a document sets Palette = DesignTokens; <html> then carries data-hfx-palette="tokens".
+   Tabler and Bootstrap base colours (primary, page and card backgrounds, text, borders, links) follow the Evotec
+   design tokens from hfx-tokens.css. The values are references, so light, dark, high contrast and forced colours come
+   from the token scopes. The rule is repeated on every element with a theme attribute, so explicit light and dark
+   islands resolve their own tokens, including Tabler's body-synced dark mode, which would otherwise repaint a light
+   island dark (the problem closed PR #285 fixed with hard-coded values). The :root qualifier lifts the colour variables
+   above the dark-* theme variants; their decorative layers (gradients, textures) are not touched. The colour-blind
+   accessibility mode keeps its own primary (see the primary rule below). */
+html[data-hfx-palette="tokens"]:root,
+html[data-hfx-palette="tokens"]:root :is([data-bs-theme], [data-hfx-theme], [data-hfx-tokens]) {
+  --tblr-primary-fg: var(--hfx-color-surface-card);
+  --tblr-primary-lt: var(--hfx-color-accent-soft);
+  --tblr-primary-darken: color-mix(in srgb, var(--hfx-color-accent-base) 85%, var(--hfx-color-text-primary));
+  --tblr-primary-text-emphasis: var(--hfx-color-accent-base);
+  --tblr-primary-bg-subtle: var(--hfx-color-accent-soft);
+  --tblr-primary-border-subtle: color-mix(in srgb, var(--hfx-color-accent-base) 35%, var(--hfx-color-surface-card));
+
+  --tblr-body-bg: var(--hfx-color-surface-page);
+  --tblr-body-bg-rgb: var(--hfx-color-surface-page-rgb);
+  --tblr-body-color: var(--hfx-color-text-primary);
+  --tblr-body-color-rgb: var(--hfx-color-text-primary-rgb);
+  --tblr-emphasis-color: var(--hfx-color-text-primary);
+  --tblr-emphasis-color-rgb: var(--hfx-color-text-primary-rgb);
+  --tblr-secondary-color: var(--hfx-color-text-secondary);
+  --tblr-secondary-color-rgb: var(--hfx-color-text-secondary-rgb);
+  --tblr-muted: var(--hfx-color-text-muted);
+  --tblr-secondary-bg: var(--hfx-color-surface-card-alt);
+  --tblr-secondary-bg-rgb: var(--hfx-color-surface-card-alt-rgb);
+  --tblr-tertiary-bg: var(--hfx-color-surface-card-alt);
+  --tblr-tertiary-bg-rgb: var(--hfx-color-surface-card-alt-rgb);
+  --tblr-tertiary-color: var(--hfx-color-text-muted);
+  --tblr-tertiary-color-rgb: var(--hfx-color-text-secondary-rgb);
+  --tblr-active-bg: rgba(var(--hfx-color-accent-base-rgb), .08);
+  --tblr-highlight-bg: var(--hfx-color-severity-medium-tint);
+  --tblr-highlight-color: var(--hfx-color-text-primary);
+  --tblr-bg-surface-inverted: var(--hfx-color-chrome-background);
+  --tblr-text-inverted: var(--hfx-color-chrome-text);
+  --tblr-code-color: var(--hfx-color-text-secondary);
+  --tblr-bg-surface: var(--hfx-color-surface-card);
+  --tblr-bg-surface-primary: var(--hfx-color-surface-card);
+  --tblr-bg-surface-secondary: var(--hfx-color-surface-card-alt);
+  --tblr-bg-surface-tertiary: var(--hfx-color-surface-card-alt);
+  --tblr-bg-forms: var(--hfx-color-surface-card);
+  --tblr-border-color: var(--hfx-color-surface-line);
+  --tblr-border-color-translucent: color-mix(in srgb, var(--hfx-color-surface-line) 70%, transparent);
+  --tblr-link-hover-color: var(--tblr-primary-darken);
+
+  /* Bootstrap-only documents (no Tabler) read the --bs-* names. */
+  /* Bootstrap's body colour paints components (tables, DataTables menus); the page itself uses --tblr-body-bg below. */
+  --bs-body-bg: var(--hfx-color-surface-card);
+  --bs-body-bg-rgb: var(--hfx-color-surface-card-rgb);
+  --bs-body-color: var(--hfx-color-text-primary);
+  --bs-body-color-rgb: var(--hfx-color-text-primary-rgb);
+  --bs-emphasis-color: var(--hfx-color-text-primary);
+  --bs-secondary-color: var(--hfx-color-text-secondary);
+  --bs-secondary-color-rgb: var(--hfx-color-text-secondary-rgb);
+  --bs-secondary-bg: var(--hfx-color-surface-card-alt);
+  --bs-tertiary-bg: var(--hfx-color-surface-card-alt);
+  --bs-border-color: var(--hfx-color-surface-line);
+  --bs-border-color-translucent: color-mix(in srgb, var(--hfx-color-surface-line) 70%, transparent);
+  --bs-link-hover-color: var(--tblr-primary-darken);
+}
+
+/* The primary and link colours. The colour-blind accessibility mode chose its own primary to stay apart from its
+   success colour, so these follow the tokens only without it. */
+html[data-hfx-palette="tokens"]:not([data-hfx-a11y~="color-blind"]):root,
+html[data-hfx-palette="tokens"]:not([data-hfx-a11y~="color-blind"]):root :is([data-bs-theme], [data-hfx-theme], [data-hfx-tokens]) {
+  --tblr-primary: var(--hfx-color-accent-base);
+  --tblr-primary-rgb: var(--hfx-color-accent-base-rgb);
+  --tblr-link-color: var(--hfx-color-accent-base);
+  --tblr-link-color-rgb: var(--hfx-color-accent-base-rgb);
+  --tblr-link-hover-color-rgb: var(--hfx-color-accent-base-rgb);
+  --dt-row-selected: var(--hfx-color-accent-base-rgb);
+  --dt-row-selected-text: var(--hfx-color-surface-card-rgb);
+  --bs-primary: var(--hfx-color-accent-base);
+  --bs-primary-rgb: var(--hfx-color-accent-base-rgb);
+  --bs-link-color: var(--hfx-color-accent-base);
+  --bs-link-color-rgb: var(--hfx-color-accent-base-rgb);
+}
+html[data-hfx-palette="tokens"]:root [data-bs-theme="light"] {
+  color-scheme: light;
+}
+
+html[data-hfx-palette="tokens"]:root [data-bs-theme="dark"] {
+  color-scheme: dark;
+}
+
+/* Inside cards, Bootstrap-based components (tables, DataTables) paint the card surface, not the page. */
+html[data-hfx-palette="tokens"]:root .card {
+  --bs-body-bg: var(--hfx-color-surface-card);
+  --bs-body-bg-rgb: var(--hfx-color-surface-card-rgb);
+}
+
+/* The page paints the token page background and text. */
+html[data-hfx-palette="tokens"] body {
+  background-color: var(--tblr-body-bg);
+  color: var(--tblr-body-color);
+}
+
+/* Controls that Tabler draws with a white foreground on the primary use the token foreground instead, so they stay
+   readable on the light teal of the dark theme. */
+html[data-hfx-palette="tokens"]:root .pagination {
+  --tblr-pagination-active-color: var(--tblr-primary-fg);
+}
+
+html[data-hfx-palette="tokens"]:root :is(.progress, .progress-stacked) {
+  --tblr-progress-bar-color: var(--tblr-primary-fg);
+}
+
+html[data-hfx-palette="tokens"]:root .text-bg-primary {
+  color: var(--tblr-primary-fg) !important;
+}
+
+html[data-hfx-palette="tokens"]:root :is(.form-control, .form-select, .form-check-input):focus {
+  border-color: color-mix(in srgb, var(--tblr-primary) 55%, var(--tblr-bg-forms));
+}
+
+/* Check marks are SVG images and cannot read tokens; in dark themes they use the dark card surface (#16181c,
+   surface.card) so they contrast with the light primary. */
+html[data-hfx-palette="tokens"]:root :is([data-bs-theme="dark"], [data-hfx-theme^="dark"], [data-hfx-tokens="dark"]) .form-check-input:checked[type=checkbox],
+html[data-hfx-palette="tokens"]:root:is([data-bs-theme="dark"], [data-hfx-theme^="dark"]) .form-check-input:checked[type=checkbox] {
+  --tblr-form-check-bg-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'%3e%3cpath fill='none' stroke='%2316181c' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 8.5l2.5 2.5l5.5 -5.5'/%3e%3c/svg%3e");
+}
+
+html[data-hfx-palette="tokens"]:root :is([data-bs-theme="dark"], [data-hfx-theme^="dark"], [data-hfx-tokens="dark"]) .form-check-input:checked[type=radio],
+html[data-hfx-palette="tokens"]:root:is([data-bs-theme="dark"], [data-hfx-theme^="dark"]) .form-check-input:checked[type=radio] {
+  --tblr-form-check-bg-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3ccircle r='3' fill='%2316181c' cx='8' cy='8' /%3e%3c/svg%3e");
+}
+
+html[data-hfx-palette="tokens"]:root :is([data-bs-theme="dark"], [data-hfx-theme^="dark"], [data-hfx-tokens="dark"]) .form-check-input[type=checkbox]:indeterminate,
+html[data-hfx-palette="tokens"]:root:is([data-bs-theme="dark"], [data-hfx-theme^="dark"]) .form-check-input[type=checkbox]:indeterminate {
+  --tblr-form-check-bg-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%2316181c' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10h8'/%3e%3c/svg%3e");
+}
