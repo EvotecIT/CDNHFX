@@ -979,6 +979,12 @@ body[data-hfx-a11y~="color-blind"] :is([data-bs-theme], [data-hfx-theme], .hfx-m
   border-top: 1px solid var(--hfx-monitoring-border-soft);
 }
 
+.hfx-monitoring-record-explorer [data-hfx-monitoring-record-link] {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
 .hfx-monitoring-record-detail,
 .hfx-monitoring-key-value {
   min-width: 0;

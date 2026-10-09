@@ -68,6 +68,13 @@
         return;
       }
 
+      var recordLink = target && target.closest ? target.closest('[data-hfx-monitoring-record-link]') : null;
+      if (recordLink && root.contains(recordLink)) {
+        event.preventDefault();
+        activateRecordLink(recordLink, { focusDrawer: event.detail === 0 });
+        return;
+      }
+
       var explorerRow = target && target.closest ? target.closest('[data-hfx-monitoring-record-row]') : null;
       if (explorerRow && root.contains(explorerRow) && !shouldIgnoreRowActivation(target)) {
         activateRecordRow(explorerRow);

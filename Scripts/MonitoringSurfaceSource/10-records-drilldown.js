@@ -348,7 +348,17 @@
       var label = document.createElement('span');
       label.textContent = detail.Label || detail.label || '';
       var value = document.createElement('strong');
-      value.textContent = detail.Value || detail.value || '';
+      var recordKey = detail.RelatedRecordKey || detail.relatedRecordKey;
+      if (recordKey) {
+        var link = document.createElement('button');
+        link.type = 'button';
+        link.className = 'btn btn-link p-0 text-start';
+        link.setAttribute('data-hfx-monitoring-record-link', recordKey);
+        link.textContent = detail.Value || detail.value || '';
+        value.appendChild(link);
+      } else {
+        value.textContent = detail.Value || detail.value || '';
+      }
       item.appendChild(label);
       item.appendChild(value);
       grid.appendChild(item);
