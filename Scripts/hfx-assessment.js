@@ -1,4 +1,5 @@
-// HtmlForgeX assessment report behaviour: section navigation, deep links, check lists, findings and matrix filters.
+// HtmlForgeX assessment report behaviour: check lists, findings, scopes, distributions and matrix filters.
+// Pages, navigation, the picker and the drawer belong to the report runtime (hfx-report.js).
 (function () {
   if (window.__hfxAssessmentInit) return;
   window.__hfxAssessmentInit = true;
@@ -8,115 +9,15 @@
   function norm(s) { return (s || '').toString().toLowerCase(); }
   function debounce(fn, ms) { var t; return function () { var a = arguments, c = this; clearTimeout(t); t = setTimeout(function () { fn.apply(c, a); }, ms); }; }
 
-  function refreshVisible(root) {
-    try { if (window.htmlForgeXFlushWhenVisible) window.htmlForgeXFlushWhenVisible(root); } catch (_) { }
-    try { if (window.htmlForgeXRefreshVisible) window.htmlForgeXRefreshVisible(root); } catch (_) { }
-    try {
-      if (window.jQuery && window.jQuery.fn && window.jQuery.fn.dataTable) {
-        window.jQuery(root).find('table.dataTable').each(function () {
-          try { window.jQuery(this).DataTable().columns.adjust(); } catch (_) { }
-        });
-      }
-    } catch (_) { }
-  }
-
-  // ---------------------------------------------------------------- sections
-  function reportOf(el) { return closest(el, '[data-hfx-asr]') || document.querySelector('[data-hfx-asr]'); }
-
-  function showSection(report, key, opts) {
-    if (!report || !key) return false;
-    var panel = null;
-    qsa(report, '[data-hfx-asr-section]').forEach(function (p) {
-      if (p.getAttribute('data-hfx-asr-section') === key) panel = p;
-    });
-    if (!panel) return false;
-    qsa(report, '[data-hfx-asr-section]').forEach(function (p) {
-      if (p === panel) p.removeAttribute('hidden'); else p.setAttribute('hidden', 'hidden');
-    });
-    qsa(report, '.hfx-asr-nav-list > [data-hfx-asr-target]').forEach(function (t) {
-      var on = t.getAttribute('data-hfx-asr-target') === key;
-      t.setAttribute('aria-selected', on ? 'true' : 'false');
-      t.setAttribute('tabindex', on ? '0' : '-1');
-      if (on) scrollNavItemIntoView(t);
-    });
-    // Collapsed navigation groups: mark the group item current and show which entry is open.
-    qsa(report, '[data-hfx-asr-group]').forEach(function (g) {
-      var match = null;
-      qsa(g, '[data-hfx-asr-target]').forEach(function (o) {
-        var on = o.getAttribute('data-hfx-asr-target') === key;
-        if (on) { match = o; o.setAttribute('aria-current', 'true'); } else o.removeAttribute('aria-current');
-      });
-      var trigger = g.querySelector('.hfx-asr-group-trigger');
-      if (trigger) {
-        trigger.setAttribute('aria-selected', match ? 'true' : 'false');
-        trigger.setAttribute('tabindex', match ? '0' : '-1');
-      }
-      var current = g.querySelector('[data-hfx-asr-group-current]');
-      if (current) {
-        var label = match && match.querySelector('.hfx-as-picker-opt-label');
-        current.textContent = label ? label.textContent : '';
-        if (match) current.removeAttribute('hidden'); else current.setAttribute('hidden', 'hidden');
-      }
-      if (match && trigger) scrollNavItemIntoView(trigger);
-    });
-    if (!opts || opts.updateHash !== false) {
-      try { history.replaceState(null, '', '#' + key); } catch (_) { }
-    }
-    if (!opts || opts.scroll !== false) {
-      try { window.scrollTo({ top: 0 }); } catch (_) { window.scrollTo(0, 0); }
-    }
-    setTimeout(function () { refreshVisible(panel); }, 0);
-    return true;
-  }
-
-  function scrollNavItemIntoView(item) {
-    var list = closest(item, '.hfx-asr-nav-list');
-    if (!list) return;
-    if (list.scrollWidth > list.clientWidth) {
-      var left = item.getBoundingClientRect().left - list.getBoundingClientRect().left + list.scrollLeft;
-      if (left < list.scrollLeft || left + item.offsetWidth > list.scrollLeft + list.clientWidth) {
-        list.scrollLeft = Math.max(0, left - 24);
-      }
-    }
-    updateNavOverflow(list);
-  }
-
-  // Scroll hints on the navigation strip when it is wider than the bar (narrow screens, many sections).
-  function updateNavOverflow(list) {
-    var nav = closest(list, '.hfx-asr-nav');
-    if (!nav) return;
-    var max = list.scrollWidth - list.clientWidth;
-    nav.setAttribute('data-overflow-start', list.scrollLeft > 2 ? '1' : '0');
-    nav.setAttribute('data-overflow-end', max - list.scrollLeft > 2 ? '1' : '0');
-  }
-
-  function sectionKeyOf(el) {
-    var p = closest(el, '[data-hfx-asr-section]');
-    return p ? p.getAttribute('data-hfx-asr-section') : null;
-  }
+  // The report runtime is loaded before this script; every use still tolerates its absence.
+  function runtime() { return window.hfxReport || null; }
+  function refreshVisible(root) { var rt = runtime(); if (rt) rt.refreshVisible(root); }
+  function reportOf(el) { var rt = runtime(); return rt ? rt.shellOf(el) : null; }
+  function showSection(report, key, opts) { var rt = runtime(); return rt ? rt.showPageIn(report, key, opts) : false; }
+  function sectionKeyOf(el) { var rt = runtime(); return rt ? rt.pageKeyOf(el) : null; }
+  function closeDrawer(focusBack) { var rt = runtime(); return rt ? rt.drawer.close(focusBack) : null; }
 
   // --------------------------------------------------------------- reveal
-  function showBootstrapPanes(el) {
-    // Walk outward and activate any Bootstrap tab panes that contain the element.
-    var panes = [];
-    var n = el;
-    while (n && n !== document.body) {
-      if (n.classList && n.classList.contains('tab-pane')) panes.unshift(n);
-      n = n.parentElement;
-    }
-    panes.forEach(function (pane) {
-      if (pane.classList.contains('active')) return;
-      var id = pane.id;
-      if (!id) return;
-      var trigger = document.querySelector('[data-bs-target="#' + id + '"], [href="#' + id + '"][data-bs-toggle]');
-      if (!trigger) return;
-      try {
-        if (window.bootstrap && window.bootstrap.Tab) { window.bootstrap.Tab.getOrCreateInstance(trigger).show(); return; }
-      } catch (_) { }
-      try { trigger.click(); } catch (_) { }
-    });
-  }
-
   function templateContainsId(content, id) {
     if (qsa(content, '[id]').some(function (el) { return el.id === id; })) return true;
     return qsa(content, 'template[data-hfx-as-deferred]').some(function (tpl) {
@@ -149,16 +50,12 @@
     return target;
   }
 
-  function revealTarget(id, opts) {
-    if (!id) return false;
+  // Shows a target this script owns: the check that holds it is opened, its scope and view are selected and hidden
+  // rows are revealed. Returns false when no element has the id, so the runtime can treat it as a page key.
+  function revealFound(id, opts) {
     var target = findTarget(id);
-    if (!target) {
-      var report = document.querySelector('[data-hfx-asr]');
-      return report ? showSection(report, id, opts) : false;
-    }
-    if (target.hasAttribute('data-hfx-asr-section')) {
-      return showSection(reportOf(target), target.getAttribute('data-hfx-asr-section'), opts);
-    }
+    if (!target) return false;
+    if (target.hasAttribute('data-hfx-shell-page')) return false;
     var key = sectionKeyOf(target);
     if (key) showSection(reportOf(target), key, { updateHash: false, scroll: false });
     showViewsFor(target);
@@ -186,20 +83,36 @@
         if (btn) toggleExtra(btn, true);
       }
     }
-    for (var ancestor = target; ancestor; ancestor = ancestor.parentElement) {
-      if (ancestor.tagName === 'DETAILS') ancestor.open = true;
-    }
-    showBootstrapPanes(target);
-    try { history.replaceState(null, '', '#' + id); } catch (_) { }
-    setTimeout(function () {
-      try { target.scrollIntoView({ block: 'start', behavior: (opts && opts.instant) ? 'auto' : 'smooth' }); } catch (_) { target.scrollIntoView(); }
-      if (check) {
+    var rt = runtime();
+    if (rt) rt.revealElement(target, (opts && opts.hash) || id, opts);
+    else { try { target.scrollIntoView({ block: 'start' }); } catch (_) { } }
+    if (check) {
+      setTimeout(function () {
         check.classList.remove('is-flash');
         void check.offsetWidth;
         check.classList.add('is-flash');
-      }
-    }, 30);
+      }, 30);
+    }
     return true;
+  }
+
+  function revealTarget(id, opts) {
+    if (!id) return false;
+    var rt = runtime();
+    if (hook()) return rt.reveal(id, opts);
+    return revealFound(id, opts) || (rt ? rt.reveal(id, opts) : false);
+  }
+
+  // Registers this script with the report runtime once it is available, whichever script the page loads first.
+  var hooked = false;
+  function hook() {
+    var rt = runtime();
+    if (rt && !hooked) {
+      rt.addRevealer(revealFound);
+      rt.onBeforePrint(materializeAll);
+      hooked = true;
+    }
+    return hooked;
   }
 
   // ----------------------------------------------------------------- views
@@ -229,10 +142,8 @@
   }
 
   // ---------------------------------------------------------------- drawer
-  // Results reached through links open in a side drawer: the check's content moves into the drawer while it is open
-  // and back into the check when it closes, so the reader keeps their place and nothing is duplicated.
-  var drawer = null; // { wrap, check, body, links, index, returnFocus }
-
+  // Results reached through links open in the report drawer: the check's content moves into the drawer while it is
+  // open and back into the check when it closes, so the reader keeps their place and nothing is duplicated.
   function linkTargetCheck(link, materializeTarget) {
     var id = link && link.getAttribute('data-hfx-as-link');
     var el = id ? (materializeTarget ? findTarget(id) : document.getElementById(id)) : null;
@@ -261,87 +172,60 @@
     return links.length ? links : [link];
   }
 
-  function restoreDrawerContent() {
-    if (!drawer || !drawer.check) return;
-    var target = drawer.wrap.querySelector('[data-hfx-asr-drawer-body]');
-    while (target.firstChild) drawer.body.appendChild(target.firstChild);
-    var restoredBody = drawer.body;
-    setTimeout(function () { if (!closest(restoredBody, '[hidden]')) refreshVisible(restoredBody); }, 0);
-    drawer.check = null;
-  }
-
-  function fillDrawer(check) {
-    var wrap = drawer.wrap;
-    restoreDrawerContent();
+  function drawerOptions(check, links, index, returnFocus) {
     var body = check.querySelector(':scope > .hfx-as-check-body');
     materialize(body);
-    var target = wrap.querySelector('[data-hfx-asr-drawer-body]');
-    while (body.firstChild) target.appendChild(body.firstChild);
-    drawer.check = check;
-    drawer.body = body;
     var titleEl = check.querySelector('.hfx-as-check-title > span');
     var eyebrowParts = [];
     var category = check.querySelector('.hfx-as-check-eyebrow > span:first-child');
     if (category) eyebrowParts.push(category.textContent);
     var scope = check.getAttribute('data-hfx-as-scope');
     if (scope) eyebrowParts.push(scope);
-    wrap.querySelector('[data-hfx-asr-drawer-eyebrow]').textContent = eyebrowParts.join(' \u00b7 ');
-    wrap.querySelector('[data-hfx-asr-drawer-title]').textContent = titleEl ? titleEl.textContent : '';
-    var status = wrap.querySelector('[data-hfx-asr-drawer-status]');
-    status.innerHTML = '';
     var chip = check.querySelector('.hfx-as-check-status .hfx-as-chip');
-    if (chip) status.appendChild(chip.cloneNode(true));
-    var nav = wrap.querySelector('[data-hfx-asr-drawer-nav]');
-    if (drawer.links.length > 1) {
-      nav.removeAttribute('hidden');
-      wrap.querySelector('[data-hfx-asr-drawer-pos]').textContent = (drawer.index + 1) + ' / ' + drawer.links.length;
-      qsa(nav, '[data-hfx-asr-drawer-step]').forEach(function (b) {
-        var next = drawer.index + parseInt(b.getAttribute('data-hfx-asr-drawer-step'), 10);
-        b.disabled = next < 0 || next >= drawer.links.length;
-      });
-    } else {
-      nav.setAttribute('hidden', 'hidden');
-    }
-    target.scrollTop = 0;
-    setTimeout(function () { refreshVisible(target); }, 0);
+    return {
+      shell: check,
+      source: body,
+      eyebrow: eyebrowParts.join(' \u00b7 '),
+      title: titleEl ? titleEl.textContent : '',
+      status: chip ? chip.cloneNode(true) : null,
+      index: index,
+      count: links.length,
+      returnFocus: returnFocus,
+      onStep: function (next) {
+        var nextCheck = linkTargetCheck(links[next], true);
+        return nextCheck ? drawerOptions(nextCheck, links, next, returnFocus) : null;
+      },
+      onContext: function () { if (check.id) revealTarget(check.id); }
+    };
   }
 
-  function openDrawer(check, link) {
+  function openDrawer(check, link, linkSet, returnFocus) {
+    var rt = runtime();
     var report = reportOf(check);
-    var wrap = report && report.querySelector('[data-hfx-asr-drawer-wrap]');
-    if (!wrap) return false;
-    if (drawer && drawer.wrap !== wrap) closeDrawer(false);
-    var links = drawerSet(link);
+    // Reports can turn the result drawer off; links then reveal the result in its list.
+    if (!rt || !report || !report.querySelector('[data-hfx-shell-drawer-wrap]')) return false;
+    var links = linkSet || drawerSet(link);
     var index = Math.max(0, links.findIndex(function (item) { return linkTargetCheck(item) === check; }));
-    if (!drawer || drawer.wrap !== wrap) drawer = { wrap: wrap, check: null, body: null, links: links, index: index, returnFocus: link };
-    else { drawer.links = links; drawer.index = index; if (wrap.hasAttribute('hidden')) drawer.returnFocus = link; }
-    fillDrawer(check);
-    if (wrap.hasAttribute('hidden')) {
-      wrap.removeAttribute('hidden');
-      document.documentElement.classList.add('hfx-asr-drawer-open');
-      try { wrap.querySelector('[data-hfx-asr-drawer]').focus({ preventScroll: true }); } catch (_) { }
-    }
+    return rt.drawer.open(drawerOptions(check, links, index, returnFocus || link));
+  }
+
+  // Opens a result by element id with an explicit previous/next list (for example the rows of a filtered explorer).
+  // Targets outside a check are revealed instead. Returns false when no element has the id.
+  function openTargets(ids, index, returnFocus) {
+    var links = (ids || []).map(function (id) {
+      var a = document.createElement('a');
+      a.setAttribute('href', '#' + id);
+      a.setAttribute('data-hfx-as-link', id);
+      return a;
+    });
+    var link = links[index];
+    if (!link) return false;
+    var check = linkTargetCheck(link, true);
+    if (check && openDrawer(check, link, links, returnFocus)) return true;
+    if (!findTarget(ids[index])) return false;
+    closeDrawer(false);
+    revealTarget(ids[index]);
     return true;
-  }
-
-  function stepDrawer(delta) {
-    if (!drawer) return;
-    var next = drawer.index + delta;
-    if (next < 0 || next >= drawer.links.length) return;
-    var check = linkTargetCheck(drawer.links[next], true);
-    if (!check) return;
-    drawer.index = next;
-    fillDrawer(check);
-  }
-
-  function closeDrawer(focusBack) {
-    if (!drawer || drawer.wrap.hasAttribute('hidden')) return null;
-    var check = drawer.check;
-    restoreDrawerContent();
-    drawer.wrap.setAttribute('hidden', 'hidden');
-    document.documentElement.classList.remove('hfx-asr-drawer-open');
-    if (focusBack !== false && drawer.returnFocus) { try { drawer.returnFocus.focus({ preventScroll: true }); } catch (_) { } }
-    return check;
   }
 
   // ---------------------------------------------------------------- checks
@@ -452,7 +336,7 @@
       b.setAttribute('aria-pressed', on ? 'true' : 'false');
       if (b.hasAttribute('data-hfx-as-picker-opt')) { if (on) { b.setAttribute('aria-current', 'true'); chosen = b; } else b.removeAttribute('aria-current'); }
     });
-    if (chosen) syncPicker(closest(chosen, '[data-hfx-as-picker]'), chosen);
+    if (chosen && runtime()) runtime().picker.sync(closest(chosen, '[data-hfx-as-picker]'), chosen);
     applyChecks(list);
     // Open checks of a scope that was hidden at load keep their content deferred until the scope is shown.
     qsa(list, ':scope > .hfx-as-check-list > .hfx-as-check.is-open:not([hidden]) > .hfx-as-check-body').forEach(materialize);
@@ -507,7 +391,7 @@
     var anchor = closest(list, '.hfx-as-panel') || list;
     var top = anchor.getBoundingClientRect().top;
     if (top < 0) {
-      var bar = document.querySelector('.hfx-asr-bar.is-sticky');
+      var bar = document.querySelector('.hfx-shell-bar.is-sticky');
       var offset = bar ? bar.getBoundingClientRect().height + 12 : 12;
       window.scrollTo({ top: window.scrollY + top - offset, behavior: 'instant' });
     }
@@ -558,100 +442,6 @@
     });
     var none = root.querySelector('.hfx-as-dist-none');
     if (none) { if (visible === 0) none.removeAttribute('hidden'); else none.setAttribute('hidden', 'hidden'); }
-  }
-
-  // ---------------------------------------------------------------- picker
-  // Drop-down used for collapsed navigation groups and long scope lists. The panel is fixed-positioned so the
-  // scrolling navigation strip or toolbars do not clip it.
-  var openPicker = null;
-
-  function placePicker(picker) {
-    var btn = picker.querySelector('[data-hfx-as-picker-toggle]');
-    var panel = picker.querySelector('.hfx-as-picker-panel');
-    if (!btn || !panel) return;
-    var r = btn.getBoundingClientRect();
-    var vw = window.innerWidth || document.documentElement.clientWidth;
-    var vh = window.innerHeight || document.documentElement.clientHeight;
-    var width = Math.min(Math.max(r.width, 320), vw - 16);
-    var left = Math.min(Math.max(8, r.left), vw - width - 8);
-    var below = vh - r.bottom - 18;
-    var above = r.top - 18;
-    panel.style.width = width + 'px';
-    panel.style.left = left + 'px';
-    // Open upwards when the trigger sits low in the viewport and there is more room above.
-    if (below < 260 && above > below) {
-      panel.style.maxHeight = Math.min(above, 520) + 'px';
-      panel.style.top = Math.max(8, r.top - 6 - panel.offsetHeight) + 'px';
-    } else {
-      panel.style.maxHeight = Math.max(160, Math.min(below, 560)) + 'px';
-      panel.style.top = (r.bottom + 6) + 'px';
-    }
-  }
-
-  function setPickerOpen(picker, open, focusTrigger) {
-    if (!picker) return;
-    var btn = picker.querySelector('[data-hfx-as-picker-toggle]');
-    var panel = picker.querySelector('.hfx-as-picker-panel');
-    if (!btn || !panel) return;
-    if (open) {
-      if (openPicker && openPicker !== picker) setPickerOpen(openPicker, false);
-      panel.removeAttribute('hidden');
-      btn.setAttribute('aria-expanded', 'true');
-      picker.classList.add('is-open');
-      placePicker(picker);
-      openPicker = picker;
-      var input = panel.querySelector('[data-hfx-as-picker-search]');
-      var current = panel.querySelector('[aria-current="true"]');
-      try { (input || current || panel.querySelector('[data-hfx-as-picker-opt]')).focus({ preventScroll: true }); } catch (_) { }
-      // Scroll only the option list; scrollIntoView would also scroll the page and close the picker.
-      var list = panel.querySelector('.hfx-as-picker-list');
-      if (current && list) {
-        var top = current.getBoundingClientRect().top - list.getBoundingClientRect().top + list.scrollTop;
-        if (top + current.offsetHeight > list.scrollTop + list.clientHeight) list.scrollTop = Math.max(0, top - 8);
-      }
-    } else {
-      panel.setAttribute('hidden', 'hidden');
-      btn.setAttribute('aria-expanded', 'false');
-      picker.classList.remove('is-open');
-      if (openPicker === picker) openPicker = null;
-      if (focusTrigger) { try { btn.focus(); } catch (_) { } }
-    }
-  }
-
-  function syncPicker(picker, option) {
-    if (!picker || !option || !picker.hasAttribute('data-hfx-as-picker-sync')) return;
-    var label = picker.querySelector('[data-hfx-as-picker-label]');
-    var srcLabel = option.querySelector('.hfx-as-picker-opt-label');
-    if (label && srcLabel) label.textContent = srcLabel.textContent;
-    var count = picker.querySelector('[data-hfx-as-picker-count]');
-    var srcCount = option.querySelector('.hfx-as-picker-opt-count');
-    if (count) count.textContent = srcCount ? srcCount.textContent : '';
-    var dot = picker.querySelector('[data-hfx-as-picker-dot]');
-    var srcDot = option.querySelector('.hfx-as-dot');
-    if (dot && srcDot) dot.setAttribute('data-sev', srcDot.getAttribute('data-sev') || 'good');
-  }
-
-  function filterPicker(input) {
-    var picker = closest(input, '[data-hfx-as-picker]');
-    if (!picker) return;
-    var terms = norm(input.value).split(/\s+/).filter(Boolean);
-    var visible = 0;
-    qsa(picker, '[data-hfx-as-picker-opt]').forEach(function (o) {
-      var hay = o.getAttribute('data-search') || '';
-      var ok = terms.every(function (t) { return hay.indexOf(t) >= 0; });
-      var li = o.parentNode;
-      if (ok) { li.removeAttribute('hidden'); visible++; } else li.setAttribute('hidden', 'hidden');
-    });
-    var none = picker.querySelector('.hfx-as-picker-none');
-    if (none) { if (visible === 0) none.removeAttribute('hidden'); else none.setAttribute('hidden', 'hidden'); }
-  }
-
-  function movePickerFocus(picker, from, delta) {
-    var options = qsa(picker, '[data-hfx-as-picker-opt]').filter(function (o) { return !o.parentNode.hasAttribute('hidden'); });
-    if (options.length === 0) return;
-    var i = options.indexOf(from);
-    var next = i < 0 ? (delta > 0 ? 0 : options.length - 1) : Math.min(options.length - 1, Math.max(0, i + delta));
-    try { options[next].focus(); } catch (_) { }
   }
 
   // ---------------------------------------------------------------- matrix
@@ -776,38 +566,10 @@
   // ---------------------------------------------------------------- events
   document.addEventListener('click', function (e) {
     var t = e.target;
-    var toggle = closest(t, '[data-hfx-as-picker-toggle]');
-    if (toggle) {
-      var pk = closest(toggle, '[data-hfx-as-picker]');
-      setPickerOpen(pk, !pk.classList.contains('is-open'));
-      return;
-    }
-    var option = closest(t, '[data-hfx-as-picker-opt]');
-    if (option) {
-      var owner = closest(option, '[data-hfx-as-picker]');
-      syncPicker(owner, option);
-      setPickerOpen(owner, false);
-    } else if (openPicker && !closest(t, '[data-hfx-as-picker]')) {
-      setPickerOpen(openPicker, false);
-    }
-    if (closest(t, '[data-hfx-asr-drawer-close]')) { closeDrawer(); return; }
-    var stepDrawerBtn = closest(t, '[data-hfx-asr-drawer-step]');
-    if (stepDrawerBtn) { stepDrawer(parseInt(stepDrawerBtn.getAttribute('data-hfx-asr-drawer-step'), 10)); return; }
-    if (closest(t, '[data-hfx-asr-drawer-context]')) {
-      var shown = closeDrawer(false);
-      if (shown && shown.id) revealTarget(shown.id);
-      return;
-    }
-    var nav = closest(t, '[data-hfx-asr-target]');
-    if (nav) {
-      e.preventDefault();
-      closeDrawer(false);
-      showSection(reportOf(nav), nav.getAttribute('data-hfx-asr-target'));
-      return;
-    }
     var link = closest(t, '[data-hfx-as-link]');
     if (link) {
-      if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return;
+      // The report runtime has already followed a link to a page kept in another file.
+      if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return;
       e.preventDefault();
       var targetCheck = linkTargetCheck(link, true);
       if (targetCheck && openDrawer(targetCheck, link)) return;
@@ -889,44 +651,6 @@
   });
 
   document.addEventListener('keydown', function (e) {
-    if (drawer && !drawer.wrap.hasAttribute('hidden')) {
-      if (e.key === 'Escape' && !closest(e.target, '[data-hfx-as-picker]')) { e.preventDefault(); closeDrawer(); return; }
-      if (e.key === 'Tab') {
-        var dialog = drawer.wrap.querySelector('[data-hfx-asr-drawer]');
-        var focusable = qsa(dialog, 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')
-          .filter(function (el) { return !el.closest('[hidden]') && el.getAttribute('aria-disabled') !== 'true' && !el.classList.contains('disabled') && el.getClientRects().length > 0; });
-        if (!focusable.length) { e.preventDefault(); dialog.focus(); return; }
-        var first = focusable[0], last = focusable[focusable.length - 1];
-        if (e.shiftKey && (document.activeElement === first || document.activeElement === dialog || !dialog.contains(document.activeElement))) {
-          e.preventDefault(); last.focus(); return;
-        }
-        if (!e.shiftKey && (document.activeElement === last || document.activeElement === dialog || !dialog.contains(document.activeElement))) {
-          e.preventDefault(); first.focus(); return;
-        }
-      }
-      var typing = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName || '');
-      if (!typing && (e.key === 'ArrowLeft' || e.key === 'ArrowRight') && closest(e.target, '[data-hfx-asr-drawer]') && !closest(e.target, '[data-hfx-as-picker]')) {
-        e.preventDefault();
-        stepDrawer(e.key === 'ArrowRight' ? 1 : -1);
-        return;
-      }
-    }
-    var picker = closest(e.target, '[data-hfx-as-picker]');
-    if (picker && picker.classList.contains('is-open')) {
-      if (e.key === 'Escape') { e.preventDefault(); setPickerOpen(picker, false, true); return; }
-      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-        e.preventDefault();
-        movePickerFocus(picker, closest(e.target, '[data-hfx-as-picker-opt]'), e.key === 'ArrowDown' ? 1 : -1);
-        return;
-      }
-      if (e.key === 'Enter' && e.target.hasAttribute('data-hfx-as-picker-search')) {
-        e.preventDefault();
-        var first = qsa(picker, '[data-hfx-as-picker-opt]').filter(function (o) { return !o.parentNode.hasAttribute('hidden'); })[0];
-        if (first) first.click();
-        return;
-      }
-    }
-    if (e.key === 'Escape' && openPicker) { setPickerOpen(openPicker, false, true); return; }
     // Alternative views use one tab stop; arrows and Home/End move between them.
     var view = closest(e.target, '.hfx-as-views-bar [data-hfx-as-view]');
     if (view && (e.key === 'ArrowRight' || e.key === 'ArrowLeft' || e.key === 'Home' || e.key === 'End')) {
@@ -939,17 +663,6 @@
       setView(viewSet, viewItems[nextView].getAttribute('data-hfx-as-view'));
       return;
     }
-    // Arrow keys move between top-level navigation items; section tabs switch as they receive focus.
-    var item = closest(e.target, '.hfx-asr-nav-item');
-    var list = item && closest(item, '.hfx-asr-nav-list');
-    if (!list || (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft' && e.key !== 'Home' && e.key !== 'End')) return;
-    var items = qsa(list, ':scope > .hfx-asr-nav-item, :scope > .hfx-asr-navgroup > .hfx-asr-nav-item');
-    var i = items.indexOf(item);
-    var next = e.key === 'Home' ? 0 : e.key === 'End' ? items.length - 1 : (i + (e.key === 'ArrowRight' ? 1 : -1) + items.length) % items.length;
-    e.preventDefault();
-    items[next].focus();
-    var key = items[next].getAttribute('data-hfx-asr-target');
-    if (key) showSection(reportOf(items[next]), key);
   });
 
   var onSearch = debounce(function (input) {
@@ -966,82 +679,29 @@
   function onSearchEvent(e) {
     var t = e.target;
     if (!t || !t.hasAttribute) return;
-    if (t.hasAttribute('data-hfx-as-picker-search')) { filterPicker(t); return; }
     if (t.hasAttribute('data-hfx-as-checks-search') || t.hasAttribute('data-hfx-as-matrix-search')
       || t.hasAttribute('data-hfx-as-scopes-search') || t.hasAttribute('data-hfx-as-dist-search')) onSearch(t);
   }
   document.addEventListener('input', onSearchEvent, true);
   document.addEventListener('search', onSearchEvent, true);
 
-  function handleHash(instant) {
-    var h = '';
-    try { h = decodeURIComponent((location.hash || '').replace(/^#/, '')); } catch (_) { h = (location.hash || '').replace(/^#/, ''); }
-    if (!h) return;
-    revealTarget(h, { instant: instant, scroll: true });
-  }
-  window.addEventListener('hashchange', function () { closeDrawer(false); handleHash(false); });
-
-  // A fixed-position picker follows its trigger while the page scrolls and closes once the trigger leaves the view.
-  window.addEventListener('scroll', function (e) {
-    if (!openPicker || closest(e.target, '.hfx-as-picker-panel')) return;
-    var btn = openPicker.querySelector('[data-hfx-as-picker-toggle]');
-    var r = btn ? btn.getBoundingClientRect() : null;
-    var vh = window.innerHeight || document.documentElement.clientHeight;
-    if (!r || r.bottom < 0 || r.top > vh) setPickerOpen(openPicker, false); else placePicker(openPicker);
-  }, true);
-  window.addEventListener('resize', function () {
-    if (openPicker) setPickerOpen(openPicker, false);
-    qsa(document, '.hfx-asr-nav-list').forEach(updateNavOverflow);
-  });
-
-  function initNav() {
-    qsa(document, '.hfx-asr-nav-list').forEach(function (list) {
-      list.addEventListener('scroll', function () { updateNavOverflow(list); }, { passive: true });
-      // Let a vertical mouse wheel scroll an overflowing navigation strip sideways.
-      list.addEventListener('wheel', function (e) {
-        if (list.scrollWidth <= list.clientWidth || Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
-        list.scrollLeft += e.deltaY;
-        e.preventDefault();
-      }, { passive: false });
-      var current = list.querySelector('.hfx-asr-nav-item[aria-selected="true"]');
-      if (current) scrollNavItemIntoView(current); else updateNavOverflow(list);
-    });
-  }
-
+  var loadedLate = document.readyState !== 'loading';
   function init() {
+    // A runtime that loaded after this script has already read the address without knowing about checks.
+    if (!hooked && hook()) loadedLate = true;
     qsa(document, '[data-hfx-as-checks]').forEach(applyChecks);
     qsa(document, '[data-hfx-as-matrix]').forEach(applyMatrix);
     qsa(document, '[data-hfx-as-scopes]').forEach(applyScopes);
     qsa(document, '[data-hfx-as-dist]').forEach(applyDist);
-    initNav();
-    handleHash(true);
+    // The runtime reads the address when the page loads. A script added afterwards reveals its own targets itself.
+    if (loadedLate && location.hash) {
+      var h = location.hash.replace(/^#/, '');
+      try { h = decodeURIComponent(h); } catch (_) { }
+      revealFound(h, { instant: true });
+    }
   }
+  hook();
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 
-  // Native details hide their contents even when print CSS expands the surrounding report.
-  var printClosedDetails = null;
-  function preparePrint() {
-    closeDrawer(false);
-    materializeAll();
-    if (printClosedDetails !== null) return;
-    printClosedDetails = qsa(document, '.hfx-asr details:not([open])');
-    printClosedDetails.forEach(function (details) { details.open = true; });
-  }
-  function restorePrint() {
-    if (printClosedDetails === null) return;
-    printClosedDetails.forEach(function (details) { details.open = false; });
-    printClosedDetails = null;
-  }
-  window.addEventListener('beforeprint', preparePrint);
-  window.addEventListener('afterprint', restorePrint);
-  try {
-    var printQuery = window.matchMedia && window.matchMedia('print');
-    if (printQuery) {
-      var onPrintChange = function (q) { if (q.matches) preparePrint(); else restorePrint(); };
-      if (printQuery.addEventListener) printQuery.addEventListener('change', onPrintChange);
-      else if (printQuery.addListener) printQuery.addListener(onPrintChange);
-    }
-  } catch (_) { }
-
-  window.hfxAssessment = { materializeAll: materializeAll, reveal: revealTarget, showSection: function (key) { return showSection(document.querySelector('[data-hfx-asr]'), key); } };
+  window.hfxAssessment = { materializeAll: materializeAll, reveal: revealTarget, openTargets: openTargets, showSection: function (key) { return showSection(document.querySelector('[data-hfx-shell]'), key); } };
 })();

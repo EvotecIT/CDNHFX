@@ -3699,26 +3699,6 @@ body[data-hfx-a11y="high-contrast color-blind"] .hfx-theme-menu [data-hfx-a11y-i
   --fc-today-bg-color: color-mix(in srgb, var(--tblr-primary, #066fd1) 18%, transparent);
 }
 
-/* ---------- FancyTree ---------- */
-ul.fancytree-container {
-  border-radius: var(--tblr-border-radius, 6px);
-  background-color: var(--tblr-bg-surface, var(--tblr-body-bg, #fff));
-  border: 1px solid var(--tblr-border-color, rgba(0,0,0,.1));
-  color: var(--tblr-body-color, #212529);
-}
-
-[data-bs-theme="dark"] ul.fancytree-container { color: var(--tblr-body-color, #e5e7eb); }
-ul.fancytree-container span.fancytree-title { color: inherit; }
-[data-bs-theme="dark"] span.fancytree-active span.fancytree-title,
-[data-bs-theme="dark"] span.fancytree-selected span.fancytree-title {
-  background: color-mix(in srgb, var(--tblr-primary, #066fd1) 18%, transparent);
-  border-color: color-mix(in srgb, var(--tblr-primary, #066fd1) 30%, transparent);
-}
-
-[data-bs-theme="dark"] span.fancytree-node:hover span.fancytree-title {
-  background: color-mix(in srgb, var(--tblr-primary, #066fd1) 10%, transparent);
-}
-
 /* ---------- VisNetwork ---------- */
 .diagram {
   border-radius: var(--tblr-border-radius, 6px);

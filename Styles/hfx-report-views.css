@@ -1,0 +1,541 @@
+/* HtmlForgeX report views: the view archetypes every report shares (key figures, queue, facts, coverage,
+   distribution, matrices, change timeline, entity header). They live in the report surface scope (.hfx-as) and read
+   only its --as-* variables, which alias the Evotec design tokens, so light, dark, high contrast and forced colours
+   come from the token scopes.
+   Colour rule: counts and status are neutral. --sev (set by data-outcome with data-severity, or data-state) colours
+   findings only. Not evaluated and not observable are hatched, could not evaluate and unknown are dashed. */
+
+/* Filtering hides on screen only: print always shows every item. */
+@media screen {
+  .hfx-as .hfx-rv-filtered { display: none !important; }
+}
+.hfx-as .hfx-rv-link { color: var(--as-accent); text-decoration: none; }
+.hfx-as .hfx-rv-link:hover { text-decoration: underline; }
+/* Positioned, so text for screen readers inside a scrolling table is clipped with it instead of widening the page. */
+.hfx-rv-scroll { position: relative; overflow-x: auto; min-width: 0; }
+
+/* ---------- table used inside views ---------- */
+.hfx-as .hfx-rv-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.hfx-as .hfx-rv-table caption {
+  caption-side: top; text-align: left; padding: 0 0 6px; font: 600 11px/1.3 var(--as-font); letter-spacing: .08em;
+  text-transform: uppercase; color: var(--as-ink-3);
+}
+.hfx-as .hfx-rv-table th, .hfx-as .hfx-rv-table td {
+  padding: 8px 12px 8px 0; border-top: 1px solid var(--as-line); text-align: left; vertical-align: top; font-weight: 400;
+}
+.hfx-as .hfx-rv-table thead th { border-top: 0; padding-top: 0; font-size: 12px; color: var(--as-ink-3); white-space: nowrap; }
+.hfx-as .hfx-rv-table tbody th { font-weight: 600; color: var(--as-ink); }
+.hfx-as .hfx-rv-table small { display: block; margin-top: 2px; font-size: 12px; font-weight: 400; color: var(--as-ink-3); overflow-wrap: anywhere; }
+.hfx-as .hfx-rv-table .is-number { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; padding-right: 0; }
+
+/* ---------- key figures ---------- */
+/* A view that is a list resets the list margins without outranking the spacing its container gives its children. */
+:where(.hfx-as.hfx-rv-kpis, .hfx-as.hfx-rv-dist) { margin-top: 0; }
+.hfx-as.hfx-rv-kpis {
+  list-style: none; margin-bottom: 0; margin-inline: 0; padding: 0; display: grid; gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 148px), 1fr));
+}
+.hfx-rv-kpi {
+  position: relative; container-type: inline-size; min-width: 0;
+  display: flex; flex-direction: column; gap: 3px;
+  padding: 13px 16px 12px; background: var(--as-surface); border: 1px solid var(--as-line); border-radius: var(--as-radius);
+}
+.hfx-as .hfx-rv-kpi > * { margin: 0; min-width: 0; }
+.hfx-rv-kpi:is([data-outcome], [data-state]) { border-inline-start: 3px solid var(--sev); padding-inline-start: 14px; }
+/* Healthy is quiet: "up" and a plain pass are the normal case, so their tile keeps its plain edge and problems stand out. */
+.hfx-rv-kpi:is([data-outcome="pass"]:not([data-severity="info"]), [data-state="up"]) { border-inline-start-color: var(--as-line); }
+/* A figure that is not available is set back; its chip carries the hatched or dashed treatment. */
+.hfx-rv-kpi.is-unavailable { background: var(--as-surface-2); }
+.hfx-rv-kpi-label { font-size: 12.5px; line-height: 1.35; color: var(--as-ink-2); overflow-wrap: anywhere; }
+.hfx-as .hfx-rv-kpi-label a { color: inherit; font-weight: inherit; text-decoration: none; }
+/* The whole tile is the link target, with one tab stop. */
+.hfx-rv-kpi-label a::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.hfx-rv-kpi.is-link:hover { border-color: var(--as-line-strong); }
+.hfx-as .hfx-rv-kpi.is-link:hover .hfx-rv-kpi-label a { color: var(--as-accent); }
+.hfx-rv-kpi-label a:focus-visible { outline: none; }
+.hfx-rv-kpi-label a:focus-visible::after { outline: 2px solid var(--as-focus); outline-offset: 2px; }
+.hfx-rv-kpi-value { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 6px; }
+.hfx-rv-kpi-number {
+  font: 600 clamp(20px, 15cqi, 28px)/1.15 var(--as-font-display); letter-spacing: -.02em; color: var(--as-ink);
+  font-variant-numeric: tabular-nums; overflow-wrap: anywhere;
+}
+.hfx-rv-kpi.is-unavailable .hfx-rv-kpi-number { color: var(--as-ink-3); }
+.hfx-rv-kpi-unit { font-size: 12.5px; color: var(--as-ink-3); }
+.hfx-as .hfx-rv-kpi > .hfx-rv-spark { margin: 4px 0 2px; max-width: 100%; }
+/* A tile that is wide enough puts the sparkline next to the figure. */
+@container (min-width: 250px) {
+  .hfx-as .hfx-rv-kpi > .hfx-rv-spark { position: absolute; top: 30px; right: 16px; margin: 0; }
+  .hfx-as .hfx-rv-kpi:has(> .hfx-rv-spark) > :is(.hfx-rv-kpi-label, .hfx-rv-kpi-value) { padding-inline-end: 116px; }
+}
+.hfx-as .hfx-rv-spark { display: block; overflow: visible; color: var(--as-ink-3); fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.hfx-as .hfx-rv-spark circle { fill: currentColor; stroke: none; }
+.hfx-as .hfx-rv-spark .hfx-rv-spark-last { fill: var(--as-ink); }
+.hfx-rv-kpi-status { padding-top: 2px; }
+.hfx-rv-kpi-delta { font-size: 12px; line-height: 1.45; color: var(--as-ink-2); }
+.hfx-rv-kpi-delta .hfx-as-icon { display: inline-flex; vertical-align: -2px; margin-right: 4px; color: var(--as-ink-3); }
+.hfx-rv-kpi-meaning { color: var(--as-ink-3); }
+.hfx-rv-kpi-meaning::before { content: "\00a0\00b7\00a0"; }
+.hfx-rv-kpi-detail { font-size: 12px; line-height: 1.4; color: var(--as-ink-3); overflow-wrap: anywhere; }
+
+/* ---------- queue ---------- */
+.hfx-as.hfx-rv-queue { min-width: 0; container-type: inline-size; }
+/* The rank is a fixed track sized for three digits (--rv-rank), right-aligned, in every variant: the first track adds the
+   item's 10px padding and 3px tone edge (subgrid), so "100" never runs into the title. */
+.hfx-as.hfx-rv-queue { --rv-rank: 24px; --rv-rank-track: calc(var(--rv-rank) + 13px); }
+.hfx-as .hfx-rv-queue-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: var(--rv-rank-track) minmax(0, 1fr) auto auto; column-gap: 12px; }
+.hfx-rv-queue-item {
+  grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; row-gap: 2px; align-items: center;
+  padding: 9px 4px 9px 10px; border-top: 1px solid var(--as-line); border-inline-start: 3px solid var(--sev, var(--as-line-strong));
+}
+.hfx-rv-queue-item:is([data-outcome="pass"]:not([data-severity="info"]), [data-state="up"]) { border-inline-start-color: var(--as-line-strong); }
+.hfx-rv-queue-list > .hfx-rv-queue-item:first-child { border-top: 0; }
+.hfx-rv-queue-more > .hfx-rv-queue-list > .hfx-rv-queue-item:first-child { border-top: 1px solid var(--as-line); }
+.hfx-rv-queue-item > * { margin: 0; min-width: 0; }
+.hfx-rv-queue-rank { font: 500 11.5px/1 var(--as-mono); color: var(--as-ink-3); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; min-width: 0; }
+/* Healthy and neutral states are plain muted text; chips are for states that need attention. */
+.hfx-as .hfx-rv-queue-status.is-quiet { font-size: 12.5px; font-weight: 400; color: var(--as-ink-3); white-space: nowrap; }
+/* A queue that sizes itself to its panel: rows past the fitted count wait off screen (print shows them). */
+@media screen { .hfx-as .hfx-rv-queue-item.is-fit-extra { display: none; } }
+.hfx-as .hfx-rv-queue-title {
+  margin: 0; font: 600 13.5px/1.35 var(--as-font); color: var(--as-ink);
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; overflow-wrap: anywhere;
+}
+.hfx-as .hfx-rv-queue-title a { color: inherit; text-decoration: none; }
+.hfx-as .hfx-rv-queue-title a:hover { color: var(--as-accent); text-decoration: underline; }
+.hfx-as .hfx-rv-queue-meta { margin: 2px 0 0; display: flex; flex-wrap: wrap; gap: 0 6px; font-size: 12px; line-height: 1.45; color: var(--as-ink-3); }
+.hfx-rv-queue-meta > span + span::before { content: "\00b7\00a0"; }
+.hfx-rv-queue-scope { color: var(--as-ink-2); }
+.hfx-as .hfx-rv-queue-metric { margin: 0; text-align: right; line-height: 1.2; white-space: nowrap; }
+.hfx-rv-queue-metric b { display: block; font: 600 14px/1.2 var(--as-font-display); color: var(--as-ink); font-variant-numeric: tabular-nums; }
+.hfx-rv-queue-metric span { font-size: 11.5px; color: var(--as-ink-3); }
+.hfx-rv-queue-more > summary {
+  cursor: pointer; padding: 9px 12px; border-top: 1px solid var(--as-line); font-size: 12.5px; font-weight: 600; color: var(--as-accent);
+}
+.hfx-rv-queue-more[open] > summary { color: var(--as-ink-3); }
+.hfx-rv-queue-item > .hfx-rv-queue-status { grid-column: 4; justify-self: start; }
+.hfx-rv-queue-item > .hfx-rv-queue-metric { grid-column: 3; }
+.hfx-as .hfx-rv-queue-foot { margin: 0; padding: 10px 12px; border-top: 1px solid var(--as-line); font-size: 12.5px; font-weight: 600; }
+
+/* ---------- empty state ---------- */
+/* Neutral: an empty view is not a finding. "Not collected" takes the dashed outline of unknown, so missing data cannot
+   pass for a clean result; "all clear" stays quiet, never green. */
+.hfx-as.hfx-rv-empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+  min-height: 180px; gap: 12px; padding: 16px 18px; border: 1px solid var(--as-line);
+  border-radius: var(--as-radius-sm); background: var(--as-surface-2); color: var(--as-ink-2);
+}
+.hfx-as.hfx-rv-empty[data-kind="not-collected"] { border-style: dashed; border-color: var(--as-line-strong); background: transparent; }
+.hfx-as.hfx-rv-empty > .hfx-as-icon { flex: none; color: var(--as-ink-3); margin-top: 1px; }
+.hfx-as .hfx-rv-empty-text { min-width: 0; max-width: 100%; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.hfx-as .hfx-rv-empty-text p { margin: 0; overflow-wrap: anywhere; }
+.hfx-as .hfx-rv-empty-message { font-weight: 600; color: var(--as-ink); }
+.hfx-as .hfx-rv-empty-reason { font-size: 13px; color: var(--as-ink-2); }
+.hfx-as .hfx-rv-empty-action { font-size: 13px; font-weight: 600; margin-top: 2px; }
+.hfx-as .hfx-rv-empty-action .hfx-as-fchip { max-width: 100%; height: auto; min-height: 30px; padding-block: 6px; white-space: normal; text-decoration: none; }
+@container (max-width: 520px) {
+  .hfx-as .hfx-rv-queue-list { grid-template-columns: var(--rv-rank-track) minmax(0, 1fr) auto; }
+  .hfx-rv-queue-item > .hfx-rv-queue-status { grid-column: 2 / -1; margin-top: 4px; }
+  .hfx-rv-queue-item { padding-inline-end: 12px; }
+}
+
+/* ---------- facts and catalog ---------- */
+.hfx-as.hfx-rv-facts, .hfx-as .hfx-rv-facts { min-width: 0; }
+.hfx-as .hfx-rv-facts-list { margin: 0; }
+.hfx-rv-facts.is-grid .hfx-rv-facts-list {
+  display: grid; gap: 0 24px; grid-template-columns: repeat(var(--rv-fact-columns, auto-fit), minmax(min(100%, 168px), 1fr));
+}
+.hfx-rv-fact { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 8px 0; border-top: 1px solid var(--as-line); }
+.hfx-as .hfx-rv-fact dt { font-size: 12px; font-weight: 400; line-height: 1.35; color: var(--as-ink-3); }
+.hfx-as .hfx-rv-fact dd { margin: 0; min-width: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; line-height: 1.4; color: var(--as-ink); }
+.hfx-rv-fact-value { font-weight: 500; overflow-wrap: anywhere; min-width: 0; }
+/* An instant may wrap inside a narrow fact or a queue item instead of pushing the layout wider. */
+.hfx-as :is(.hfx-rv-fact, .hfx-rv-queue-meta, .hfx-rv-change-time) .hfx-as-time { white-space: normal; }
+.hfx-as a.hfx-rv-fact-value { color: var(--as-accent); text-decoration: none; }
+.hfx-as a.hfx-rv-fact-value:hover { text-decoration: underline; }
+.hfx-rv-fact-none { color: var(--as-ink-3); font-weight: 400; }
+.hfx-rv-fact-note { display: block; margin-top: 2px; font-size: 12px; font-weight: 400; color: var(--as-ink-3); }
+.hfx-rv-facts.is-rows .hfx-rv-fact { display: grid; grid-template-columns: minmax(132px, 34%) minmax(0, 1fr); gap: 2px 20px; align-items: baseline; }
+.hfx-as .hfx-rv-facts.is-rows .hfx-rv-fact dt { font-size: 13px; font-weight: 500; color: var(--as-ink-2); overflow-wrap: anywhere; }
+.hfx-as .hfx-rv-facts-title {
+  margin: 18px 0 6px; font: 600 11px/1.3 var(--as-font); letter-spacing: .08em; text-transform: uppercase; color: var(--as-ink-3);
+}
+.hfx-rv-facts-group:first-child > .hfx-rv-facts-title, .hfx-as-toolbar + .hfx-rv-facts-group > .hfx-rv-facts-title { margin-top: 0; }
+.hfx-rv-facts > .hfx-as-toolbar { margin-bottom: 10px; }
+@media (max-width: 520px) {
+  .hfx-rv-facts.is-rows .hfx-rv-fact { grid-template-columns: minmax(0, 1fr); }
+  /* A fixed column count gives way on a phone. */
+  .hfx-rv-facts.is-grid .hfx-rv-facts-list { grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr)); }
+}
+
+/* ---------- coverage and provenance ---------- */
+.hfx-as.hfx-rv-coverage { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.hfx-as .hfx-rv-cov-figure { margin: 0 0 8px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 8px; color: var(--as-ink-2); font-size: 13px; }
+.hfx-rv-cov-figure b { font: 600 28px/1.15 var(--as-font-display); letter-spacing: -.02em; color: var(--as-ink); font-variant-numeric: tabular-nums; }
+.hfx-rv-cov-of { color: var(--as-ink-3); }
+.hfx-rv-cov-bar { display: flex; gap: 2px; height: 12px; border-radius: 6px; overflow: hidden; }
+.hfx-rv-cov-bar.is-empty { background: var(--as-surface-3); }
+.hfx-rv-cov-bar i { display: block; min-width: 4px; height: 100%; }
+.hfx-rv-cov-bar i, .hfx-rv-cov-mark { box-sizing: border-box; color: var(--as-neutral); border-radius: 2px; }
+:is(.hfx-rv-cov-bar i, .hfx-rv-cov-mark)[data-part="evaluated"] { background: var(--as-neutral); }
+:is(.hfx-rv-cov-bar i, .hfx-rv-cov-mark)[data-part="not-evaluated"] { background: var(--as-hatch); border: 1px solid currentColor; }
+:is(.hfx-rv-cov-bar i, .hfx-rv-cov-mark)[data-part="could-not-evaluate"] { background: transparent; border: var(--as-dash) currentColor; }
+:is(.hfx-rv-cov-bar i, .hfx-rv-cov-mark)[data-part="not-observable"] { background: var(--as-hatch); border: var(--as-dash) currentColor; }
+.hfx-as .hfx-rv-cov-legend { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 12.5px; color: var(--as-ink-2); }
+.hfx-rv-cov-legend li { display: inline-flex; align-items: center; gap: 6px; }
+.hfx-rv-cov-legend b { font-weight: 600; color: var(--as-ink); font-variant-numeric: tabular-nums; }
+.hfx-rv-cov-mark { display: inline-block; width: 12px; height: 12px; flex: none; }
+.hfx-as .hfx-rv-cov-name { font-weight: 600; }
+.hfx-as a.hfx-rv-cov-name { color: var(--as-accent); text-decoration: none; }
+.hfx-as a.hfx-rv-cov-name:hover { text-decoration: underline; }
+
+/* ---------- distribution ---------- */
+.hfx-as.hfx-rv-dist {
+  list-style: none; margin-bottom: 0; margin-inline: 0; padding: 0; min-width: 0; container-type: inline-size;
+  display: grid; grid-template-columns: fit-content(260px) minmax(56px, 1fr) auto auto; gap: 10px 12px; align-items: center; font-size: 13px;
+}
+.hfx-rv-dist-row { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: center; min-width: 0; }
+.hfx-rv-dist-label { min-width: 0; max-width: min(260px, 42cqi); display: flex; flex-wrap: wrap; align-items: center; gap: 2px 6px; color: var(--as-ink); }
+/* The name keeps its own line; a note or a status chip goes under it. */
+.hfx-rv-dist-label > :first-child { flex: 1 1 100%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hfx-rv-dist-label small { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: var(--as-ink-3); }
+.hfx-rv-dist-label .hfx-as-chip { flex: none; min-height: 18px; padding: 0 7px; font-size: 11px; }
+/* Bars are flat: no rounded caps to overlap. Segments of one bar sit 1px apart in the order the host added them. */
+.hfx-rv-dist-track { display: block; height: 10px; border-radius: 2px; background: var(--as-surface-3); overflow: hidden; }
+.hfx-rv-dist-track > i { display: block; height: 100%; min-width: 2px; border-radius: 0; background: var(--sev, var(--as-neutral)); }
+.hfx-rv-dist-bar { display: flex; gap: 1px; height: 100%; min-width: 2px; }
+.hfx-rv-dist-bar > i { display: block; flex: 1 1 0; min-width: 2px; height: 100%; border-radius: 0; background: var(--sev, var(--as-neutral)); }
+/* Healthy is quiet: segments in the quiet tones take the calm pass fill (--hfx-dist-quiet), not the status colour. */
+.hfx-rv-dist-bar > i.is-quiet { background: var(--as-dist-quiet); }
+/* A distribution sized to its panel (Settings(s => s.Rows(min, max))): rows keep their natural spacing and stay at the
+   top; categories past the fitted count wait off screen (print shows them) and the footer says how many show. */
+.hfx-as.hfx-rv-dist-fit { min-width: 0; display: flex; flex-direction: column; }
+.hfx-rv-dist-fit > .hfx-rv-dist { margin-bottom: 12px; }
+.hfx-rv-dist-fit > .hfx-rv-list-footer { padding: 9px 0 0; }
+@media screen { .hfx-as .hfx-rv-dist-row.is-fit-extra { display: none; } }
+/* Segmented bars read like a chart: the track is quiet and labels sit outside the bar, right-aligned against it. */
+.hfx-rv-dist.is-segmented .hfx-rv-dist-track { background: transparent; height: 12px; }
+.hfx-rv-dist.is-segmented .hfx-rv-dist-label { justify-content: flex-end; text-align: end; }
+.hfx-rv-dist.is-segmented .hfx-rv-dist-label > :first-child { text-align: end; }
+.hfx-rv-dist-row.is-other .hfx-rv-dist-label { color: var(--as-ink-3); }
+.hfx-rv-dist-row.is-other .hfx-rv-dist-track > i { background: var(--as-hatch); color: var(--as-neutral); border: 1px solid currentColor; box-sizing: border-box; }
+.hfx-rv-dist-value { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--as-ink); }
+.hfx-rv-dist-share { text-align: right; min-width: 4ch; font-size: 12px; font-variant-numeric: tabular-nums; color: var(--as-ink-3); white-space: nowrap; }
+.hfx-rv-dist-gap { grid-column: 2 / -1; }
+
+/* ---------- status marks (matrices, legends) ---------- */
+/* One mark per cell. Size repeats what colour says: a failed mark grows with its severity, a passed one is a small
+   dot, a coverage gap is a hatched or dashed box. An element without a status is a short neutral dash. */
+.hfx-as .hfx-rv-mark {
+  display: inline-block; vertical-align: middle; box-sizing: border-box; flex: none;
+  width: 6px; height: 2px; border-radius: 1px; background: var(--as-line-strong);
+}
+.hfx-as .hfx-rv-mark:is([data-outcome], [data-state]) { width: 10px; height: 10px; border-radius: 3px; background: var(--sev); }
+.hfx-as .hfx-rv-mark:is([data-outcome="pass"], [data-state="up"]) { width: 6px; height: 6px; border-radius: 50%; }
+.hfx-as .hfx-rv-mark[data-outcome="pass"][data-severity="info"] { width: 8px; height: 8px; background: transparent; border: 2px solid var(--sev); }
+.hfx-as .hfx-rv-mark:is([data-outcome="fail"][data-severity="low"], [data-state="recovering"]) { width: 8px; height: 8px; border-radius: 2px; }
+.hfx-as .hfx-rv-mark:is([data-outcome="fail"][data-severity="high"]) { width: 12px; height: 12px; }
+.hfx-as .hfx-rv-mark:is([data-outcome="fail"][data-severity="critical"], [data-state="down"]) { width: 14px; height: 14px; }
+.hfx-as .hfx-rv-mark[data-state="maintenance"] { border-radius: 50%; background: transparent; border: 3px solid var(--sev); }
+.hfx-as .hfx-rv-mark:is([data-outcome="not-evaluated"], [data-state="not-observable"]) {
+  width: 12px; height: 12px; color: var(--sev); background: var(--as-hatch); border: 1px solid var(--sev);
+}
+.hfx-as .hfx-rv-mark:is([data-outcome="could-not-evaluate"], [data-state="unknown"]) {
+  width: 12px; height: 12px; background: transparent; border: var(--as-dash) var(--sev);
+}
+.hfx-as .hfx-rv-mark.is-link { width: 8px; height: 8px; border-radius: 50%; background: var(--as-neutral); }
+.hfx-as .hfx-rv-mark[data-ramp] { width: 14px; height: 14px; border-radius: 3px; }
+.hfx-as .hfx-rv-mark[data-ramp="1"] { background: var(--as-ramp-1); }
+.hfx-as .hfx-rv-mark[data-ramp="2"] { background: var(--as-ramp-2); }
+.hfx-as .hfx-rv-mark[data-ramp="3"] { background: var(--as-ramp-3); }
+.hfx-as .hfx-rv-mark[data-ramp="4"] { background: var(--as-ramp-4); }
+.hfx-as .hfx-rv-mark[data-ramp="5"] { background: var(--as-ramp-5); }
+
+.hfx-as .hfx-rv-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12px; color: var(--as-ink-2); }
+.hfx-rv-legend li { display: inline-flex; align-items: center; gap: 6px; min-height: 16px; }
+.hfx-rv-legend-ramp { gap: 3px; }
+.hfx-rv-legend-ramp > span:not(.hfx-rv-mark) { margin: 0 3px; }
+
+/* ---------- matrix grid (status, consistency, relationships) ---------- */
+.hfx-as.hfx-rv-matrix, .hfx-as.hfx-rv-consistency, .hfx-as.hfx-rv-relations { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.hfx-rv-matrix-scroll {
+  position: relative; overflow: auto; max-height: var(--rv-matrix-height, 520px); min-width: 0; width: fit-content; max-width: 100%;
+  border: 1px solid var(--as-line); border-radius: var(--as-radius-sm); background: var(--as-surface);
+}
+.hfx-as .hfx-rv-matrix-grid { border-collapse: separate; border-spacing: 0; width: max-content; font-size: 12.5px; }
+.hfx-as .hfx-rv-matrix-grid :is(th, td) { height: 30px; padding: 0; border-bottom: 1px solid var(--as-line); background: var(--as-surface); color: var(--as-ink); }
+.hfx-as .hfx-rv-matrix-grid tbody tr:last-child :is(th, td) { border-bottom: 0; }
+.hfx-as .hfx-rv-matrix-grid thead th {
+  position: sticky; top: 0; z-index: 2; vertical-align: bottom; background: var(--as-surface-2);
+  border-bottom: 1px solid var(--as-line-strong); font-weight: 500; color: var(--as-ink-2);
+}
+.hfx-as .hfx-rv-matrix-grid .hfx-rv-matrix-col { width: 34px; min-width: 34px; padding: 8px 0 7px; text-align: center; }
+.hfx-rv-matrix-col > span {
+  display: inline-block; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap;
+  max-height: 132px; overflow: hidden; text-overflow: ellipsis; line-height: 1.2;
+}
+.hfx-as .hfx-rv-matrix-grid .hfx-rv-matrix-corner {
+  inset-inline-start: 0; z-index: 3; min-width: 150px; padding: 8px 12px; text-align: start; border-inline-end: 1px solid var(--as-line);
+}
+.hfx-as .hfx-rv-matrix-grid tbody .hfx-rv-matrix-name {
+  position: sticky; inset-inline-start: 0; z-index: 1; max-width: min(280px, 46vw); padding: 0 12px; text-align: start; font-weight: 500;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-inline-end: 1px solid var(--as-line);
+}
+/* The live grid draws only the rows near the viewport, so its name column has a width set from the data. */
+.hfx-as .hfx-rv-matrix-grid[role="grid"] :is(.hfx-rv-matrix-corner, tbody .hfx-rv-matrix-name) {
+  width: min(var(--rv-matrix-name, 200px), 46vw); min-width: min(var(--rv-matrix-name, 200px), 46vw); max-width: min(var(--rv-matrix-name, 200px), 46vw);
+}
+.hfx-rv-matrix-name a { color: inherit; text-decoration: none; }
+.hfx-rv-matrix-name a:hover { color: var(--as-accent); text-decoration: underline; }
+.hfx-rv-matrix-name small { margin-left: 8px; font-size: 11.5px; font-weight: 400; color: var(--as-ink-3); }
+.hfx-as .hfx-rv-matrix-grid .hfx-rv-cell { min-width: 34px; text-align: center; white-space: nowrap; }
+.hfx-rv-cell-text { margin-left: 3px; font-size: 10.5px; font-variant-numeric: tabular-nums; color: var(--as-ink-2); vertical-align: middle; }
+.hfx-as .hfx-rv-matrix-grid tbody tr:hover > :is(th, td) { background: color-mix(in srgb, var(--as-accent) 7%, var(--as-surface)); }
+.hfx-as .hfx-rv-matrix-grid :is(th, td):focus-visible { outline: 2px solid var(--as-focus); outline-offset: -2px; border-radius: 0; }
+.hfx-as .hfx-rv-matrix-grid .hfx-rv-matrix-group > :is(th, td) { background: var(--as-surface-2); }
+.hfx-as .hfx-rv-matrix-grid .hfx-rv-matrix-group > th { font-weight: 600; cursor: pointer; }
+.hfx-rv-matrix-chevron { display: inline-block; width: 14px; margin-right: 4px; color: var(--as-ink-3); }
+.hfx-rv-matrix-group > th[aria-expanded="true"] .hfx-rv-matrix-chevron { transform: rotate(90deg); }
+.hfx-as .hfx-rv-matrix-grid .hfx-rv-matrix-spacer > td { height: auto; padding: 0; border: 0; background: none; }
+.hfx-rv-matrix-toolbar { margin: 0; }
+/* The filter and the toggle work through script; without it they are not shown. */
+.hfx-rv-matrix:not(.is-live) > .hfx-rv-matrix-toolbar { display: none; }
+/* With script the live grid replaces the static tables on screen; print and readers without script get the static ones. */
+@media screen {
+  .hfx-rv-matrix-host.is-enhanced > .hfx-rv-matrix-static { display: none; }
+}
+.hfx-rv-matrix-static > * + * { margin-top: 14px; }
+.hfx-rv-matrix-findings { display: flex; flex-wrap: wrap; gap: 4px 6px; }
+.hfx-as .hfx-rv-matrix-more { margin: 8px 0 0; font-size: 12.5px; color: var(--as-ink-3); }
+
+/* ---------- consistency ---------- */
+.hfx-rv-consistency-summary { font-size: 12.5px; color: var(--as-ink-3); }
+.hfx-as .hfx-rv-consistency-grid :is(th, td) { height: auto; padding: 7px 12px; text-align: start; vertical-align: top; }
+.hfx-as .hfx-rv-consistency-grid thead th { vertical-align: bottom; white-space: nowrap; }
+.hfx-as .hfx-rv-consistency-grid tbody .hfx-rv-matrix-name { padding: 7px 12px; white-space: normal; max-width: min(260px, 40vw); overflow-wrap: anywhere; }
+/* The deviations layout is an ordinary full-width table: its last column wraps the list of entities. */
+.hfx-rv-consistency > .hfx-rv-matrix-scroll.is-wide { width: auto; }
+.hfx-as .hfx-rv-consistency-grid.is-deviations { width: 100%; }
+.hfx-as .hfx-rv-consistency-grid.is-deviations .hfx-rv-consistency-deviations { width: 60%; }
+.hfx-rv-consistency-grid .hfx-rv-matrix-name small { display: block; margin: 2px 0 0; }
+.hfx-rv-consistency-value { font-family: var(--as-mono); font-size: 12px; overflow-wrap: anywhere; }
+.hfx-as .hfx-rv-consistency-grid .hfx-rv-consistency-ref { max-width: 220px; color: var(--as-ink-2); }
+.hfx-rv-consistency-result small { display: block; margin-top: 2px; font-size: 11.5px; color: var(--as-ink-3); }
+.hfx-rv-consistency-same { font-size: 12px; color: var(--as-ink-3); }
+.hfx-as .hfx-as-chip.hfx-rv-consistency-differs { color: var(--as-ink); font-weight: 600; border-color: var(--as-line-strong); }
+.hfx-as .hfx-rv-consistency-grid .hfx-rv-consistency-cell { min-width: 84px; max-width: 200px; }
+.hfx-rv-consistency-cell.is-same { text-align: center; }
+.hfx-rv-consistency-equal { color: var(--as-ink-3); }
+/* A differing value is emphasised by weight and an edge; the edge takes a severity colour only when the setting has one. */
+.hfx-as .hfx-rv-consistency-grid .hfx-rv-consistency-cell.is-different {
+  border-inline-start: 3px solid var(--sev, var(--as-ink-2)); background: color-mix(in srgb, var(--sev, var(--as-ink-3)) 9%, var(--as-surface));
+}
+.hfx-rv-consistency-cell.is-different .hfx-rv-consistency-value { font-weight: 600; color: var(--as-ink); }
+.hfx-as .hfx-rv-consistency-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 6px; }
+.hfx-rv-consistency-item {
+  display: inline-flex; align-items: baseline; gap: 6px; max-width: 100%; padding: 2px 8px; border-radius: var(--as-radius-sm);
+  border: 1px solid var(--as-line); border-inline-start: 3px solid var(--sev, var(--as-ink-2)); background: var(--as-surface-2);
+}
+.hfx-rv-consistency-who { font-size: 12px; font-weight: 600; white-space: nowrap; }
+.hfx-as a.hfx-rv-consistency-who { color: var(--as-accent); text-decoration: none; }
+.hfx-rv-consistency-more { margin-top: 4px; }
+.hfx-rv-consistency-more > summary { cursor: pointer; font-size: 12px; font-weight: 600; color: var(--as-accent); }
+.hfx-rv-consistency-more > .hfx-rv-consistency-list { margin-top: 4px; }
+.hfx-as .hfx-rv-consistency-match { margin: 4px 0 0; font-size: 12px; color: var(--as-ink-3); }
+@media screen {
+  .hfx-rv-consistency.is-differences-only tr[data-consistent="1"] { display: none; }
+}
+
+/* ---------- relationships ---------- */
+.hfx-rv-relation { display: inline-flex; align-items: center; justify-content: center; min-width: 100%; min-height: 29px; padding: 0 5px; text-decoration: none; }
+.hfx-as a.hfx-rv-relation:hover { background: color-mix(in srgb, var(--as-accent) 14%, transparent); }
+.hfx-as .hfx-rv-relations-grid .hfx-rv-cell.is-self { background: var(--as-surface-3); }
+
+/* ---------- change timeline and before/after ---------- */
+.hfx-as.hfx-rv-changes { min-width: 0; container-type: inline-size; }
+.hfx-as .hfx-rv-changes-list { list-style: none; margin: 0; padding: 0; }
+.hfx-rv-change {
+  display: grid; grid-template-columns: minmax(118px, max-content) 22px minmax(0, 1fr); column-gap: 10px; align-items: start;
+  padding: 9px 0; border-top: 1px solid var(--as-line);
+}
+.hfx-rv-changes-list > .hfx-rv-change:first-child { border-top: 0; }
+.hfx-rv-changes-more > .hfx-rv-changes-list > .hfx-rv-change:first-child { border-top: 1px solid var(--as-line); }
+.hfx-rv-change-time { padding-top: 1px; font-size: 12px; line-height: 1.5; color: var(--as-ink-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+/* The kind of change is a sign in a neutral disc; an entry that carries a finding tints the disc with its severity. */
+.hfx-rv-change-mark {
+  display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%;
+  font: 700 13px/1 var(--as-mono); color: var(--sev-ink, var(--as-ink-2));
+  background: color-mix(in srgb, var(--sev, var(--as-ink-3)) 14%, var(--as-surface)); border: 1px solid color-mix(in srgb, var(--sev, var(--as-ink-3)) 34%, transparent);
+}
+.hfx-rv-change-body { min-width: 0; }
+.hfx-as .hfx-rv-change-title { margin: 0; font: 600 13.5px/1.4 var(--as-font); color: var(--as-ink); overflow-wrap: anywhere; }
+.hfx-rv-change-kind { margin-inline-end: 6px; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--as-ink-3); }
+.hfx-as .hfx-rv-change-meta { margin: 2px 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; font-size: 12px; line-height: 1.5; color: var(--as-ink-3); }
+.hfx-rv-change-subject { color: var(--as-ink-2); font-weight: 500; overflow-wrap: anywhere; }
+.hfx-as a.hfx-rv-change-subject { color: var(--as-accent); text-decoration: none; }
+.hfx-as a.hfx-rv-change-subject:hover { text-decoration: underline; }
+.hfx-as .hfx-rv-change-detail { margin: 4px 0 0; font-size: 12.5px; line-height: 1.45; color: var(--as-ink-2); overflow-wrap: anywhere; }
+.hfx-rv-change-diff { margin-top: 6px; }
+.hfx-rv-change-diff > summary, .hfx-rv-changes-more > summary { cursor: pointer; font-size: 12.5px; font-weight: 600; color: var(--as-accent); }
+.hfx-rv-changes-more > summary { padding: 9px 0; border-top: 1px solid var(--as-line); }
+.hfx-rv-change-diff > .hfx-rv-diff { margin-top: 8px; }
+@container (max-width: 520px) {
+  .hfx-rv-change { grid-template-columns: 22px minmax(0, 1fr); }
+  .hfx-rv-change-time { grid-column: 2; grid-row: 1; white-space: normal; }
+  .hfx-rv-change-mark { grid-column: 1; grid-row: 1 / span 2; }
+  .hfx-rv-change-body { grid-column: 2; }
+}
+
+/* Feed: day headings, kind chips next to the text filter, short values inline as before → after. */
+.hfx-rv-changes > .hfx-as-toolbar { margin-bottom: 10px; flex-wrap: wrap; }
+.hfx-as .hfx-rv-kinds { display: flex; flex-wrap: wrap; gap: 6px; }
+.hfx-as .hfx-rv-kind { white-space: nowrap; }
+.hfx-as .hfx-rv-kind-count { font-size: 11px; font-variant-numeric: tabular-nums; color: var(--as-ink-3); }
+.hfx-rv-changes-day + .hfx-rv-changes-day { margin-top: 14px; }
+.hfx-as .hfx-rv-changes-day-title {
+  display: flex; align-items: baseline; gap: 8px; margin: 0 0 2px; padding-bottom: 6px; border-bottom: 1px solid var(--as-line-strong, var(--as-line));
+  font: 600 13px/1.4 var(--as-font); color: var(--as-ink);
+}
+.hfx-rv-changes-day-count { font-size: 12px; font-weight: 500; color: var(--as-ink-3); font-variant-numeric: tabular-nums; }
+.hfx-rv-changes-day > .hfx-rv-changes-list > .hfx-rv-change:first-child { border-top: 0; }
+.hfx-rv-change-category { font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--as-ink-3); }
+.hfx-as .hfx-rv-change-values { margin: 4px 0 0; display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; line-height: 1.5; }
+.hfx-rv-change-value { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 6px; min-width: 0; }
+.hfx-rv-change-value-name { color: var(--as-ink-3); }
+.hfx-rv-change-value-name::after { content: ":"; }
+.hfx-rv-change-value del.hfx-rv-diff-value { color: var(--as-ink-2); text-decoration: line-through; text-decoration-color: var(--as-ink-3); overflow-wrap: anywhere; }
+.hfx-rv-change-value ins.hfx-rv-diff-value { color: var(--as-ink); text-decoration: none; padding: 0 4px; border-radius: 3px; background: var(--as-accent-soft); overflow-wrap: anywhere; }
+.hfx-rv-change-arrow { color: var(--as-ink-3); }
+.hfx-as.hfx-rv-diff, .hfx-as .hfx-rv-diff { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.hfx-as .hfx-rv-diff-table { width: 100%; border-collapse: collapse; font-size: 12.5px; table-layout: fixed; }
+.hfx-as .hfx-rv-diff-table :is(th, td) { padding: 6px 10px; border: 1px solid var(--as-line); text-align: start; vertical-align: top; overflow-wrap: anywhere; }
+.hfx-as .hfx-rv-diff-table thead th { font-size: 11.5px; font-weight: 500; color: var(--as-ink-3); background: var(--as-surface-2); }
+.hfx-as .hfx-rv-diff-table thead th:first-child { width: 28%; }
+.hfx-as .hfx-rv-diff-table tbody th { font-weight: 600; color: var(--as-ink); }
+.hfx-as :is(.hfx-rv-diff-value, .hfx-rv-diff-line) { font-family: var(--as-mono); font-size: 12px; text-decoration: none; }
+/* Removed: set back, dashed edge. Added: accent tint, solid edge. Neither is a severity. */
+.hfx-as .hfx-rv-diff-table td.is-before.is-changed { color: var(--as-ink-2); background: var(--as-surface-3); border-inline-start: 3px dashed var(--as-ink-3); }
+.hfx-as .hfx-rv-diff-table td.is-after.is-changed { color: var(--as-ink); background: var(--as-accent-soft); border-inline-start: 3px solid var(--as-accent); }
+.hfx-as .hfx-rv-diff-table tr.is-same td { color: var(--as-ink-3); }
+.hfx-as .hfx-rv-diff-name { margin: 0 0 4px; font-size: 12.5px; font-weight: 600; color: var(--as-ink); }
+.hfx-rv-diff-text > .hfx-rv-scroll { border: 1px solid var(--as-line); border-radius: var(--as-radius-sm); background: var(--as-surface); max-height: 360px; overflow: auto; }
+.hfx-as .hfx-rv-diff-lines { list-style: none; margin: 0; padding: 4px 0; min-width: max-content; }
+/* Lines of a script or a configuration read left to right whatever the direction of the page. */
+.hfx-rv-diff-lines > li { display: flex; gap: 8px; padding-inline-end: 10px; line-height: 1.55; white-space: pre; border-inline-start: 3px solid transparent; }
+.hfx-rv-diff-line { direction: ltr; unicode-bidi: isolate; }
+.hfx-rv-diff-sign { flex: none; width: 22px; text-align: center; font: 700 12px/1.55 var(--as-mono); color: var(--as-ink-3); user-select: none; }
+.hfx-rv-diff-lines > li[data-change="removed"] { background: var(--as-surface-3); border-inline-start: 3px dashed var(--as-ink-3); color: var(--as-ink-2); }
+.hfx-rv-diff-lines > li[data-change="added"] { background: var(--as-accent-soft); border-inline-start-color: var(--as-accent); color: var(--as-ink); }
+.hfx-rv-diff-lines > li[data-change="added"] .hfx-rv-diff-sign { color: var(--as-accent); }
+.hfx-rv-diff-lines > .hfx-rv-diff-fold { padding-block: 2px; padding-inline: 33px 10px; font-size: 11.5px; font-style: italic; color: var(--as-ink-3); white-space: normal; }
+
+/* ---------- entity header ---------- */
+.hfx-as.hfx-rv-entity { display: flex; gap: 14px; align-items: flex-start; min-width: 0; padding-inline-start: 0; }
+.hfx-as.hfx-rv-entity:is([data-outcome], [data-state]) { padding-inline-start: 14px; border-inline-start: 3px solid var(--sev); }
+.hfx-as.hfx-rv-entity:is([data-outcome="pass"]:not([data-severity="info"]), [data-state="up"]) { border-inline-start-color: var(--as-line-strong); }
+.hfx-rv-entity-icon { flex: none; width: 40px; height: 40px; border-radius: var(--as-radius-sm); background: var(--as-surface-3); color: var(--as-ink-2); }
+.hfx-rv-entity-main { min-width: 0; flex: 1; }
+.hfx-rv-entity-main > .hfx-as-eyebrow { margin: 0 0 4px; }
+.hfx-rv-entity-heading { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.hfx-as .hfx-rv-entity-title { margin: 0; font: 600 22px/1.25 var(--as-font-display); letter-spacing: -.015em; color: var(--as-ink); overflow-wrap: anywhere; }
+.hfx-as .hfx-rv-entity-key { margin: 3px 0 0; font-size: 12.5px; color: var(--as-ink-2); overflow-wrap: anywhere; }
+.hfx-as .hfx-rv-entity-description { margin: 8px 0 0; max-width: 72ch; font-size: 13.5px; line-height: 1.5; color: var(--as-ink-2); }
+.hfx-as .hfx-rv-entity-facts { margin: 12px 0 0; display: flex; flex-wrap: wrap; gap: 8px 28px; }
+.hfx-rv-entity-facts > div { min-width: 0; }
+.hfx-as .hfx-rv-entity-facts dt { font-size: 11.5px; font-weight: 400; color: var(--as-ink-3); }
+.hfx-as .hfx-rv-entity-facts dd { margin: 0; font-size: 13px; font-weight: 500; color: var(--as-ink); overflow-wrap: anywhere; }
+.hfx-as .hfx-rv-entity-links { margin: 12px 0 0; display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 12.5px; font-weight: 600; }
+
+/* ---------- chart host ---------- */
+/* A chart whose colours are token colours and blends of them is one SVG whose colours are the token properties
+   (.hfx-rv-chart-themed): it follows the theme like the rest of the page. Any other chart is drawn twice, in the
+   literal colours of the light and of the dark tokens; the
+   rendering that matches the theme is shown, and a scope pinned to the light tokens inside a dark page shows the light one. */
+.hfx-as.hfx-rv-chart { margin: 0; min-width: 0; }
+.hfx-as .hfx-rv-chart-caption, .hfx-as.hfx-rv-chart > .hfx-rv-chart-caption { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; margin: 0 0 8px; }
+.hfx-rv-chart-title { font: 600 13.5px/1.35 var(--as-font); color: var(--as-ink); }
+.hfx-rv-chart-subtitle { font-size: 12px; color: var(--as-ink-3); }
+.hfx-rv-chart-plot > div > svg { min-width: var(--rv-chart-min, 480px); }
+/* The nearest theme scope decides, through inheritance, exactly as it decides the token values: the selectors are
+   the ones of hfx-tokens.css, so a light scope inside a dark page (or the reverse, at any depth) gets its rendering. */
+:where(:root, [data-bs-theme="light"], [data-hfx-theme="light"], [data-hfx-tokens="light"]) { --rv-chart-light: block; --rv-chart-dark: none; }
+:where([data-bs-theme="dark"], [data-hfx-theme^="dark"], [data-hfx-tokens="dark"]) { --rv-chart-light: none; --rv-chart-dark: block; }
+.hfx-rv-chart-light { display: var(--rv-chart-light, block); }
+.hfx-rv-chart-dark { display: var(--rv-chart-dark, none); }
+.hfx-as .hfx-rv-chart-note { margin: 6px 0 0; font-size: 12px; line-height: 1.45; color: var(--as-ink-3); }
+/* A chart drawn in one zone says so while the report shows local time; with UTC chosen, or without the report's
+   time switch, the rest of the page is in the same zone and the note would say nothing. */
+.hfx-as .hfx-rv-chart-zone { display: none; }
+:root[data-hfx-time-zone="local"] .hfx-as .hfx-rv-chart-zone { display: block; }
+.hfx-rv-chart-data { margin-top: 8px; }
+.hfx-rv-chart-data > summary { cursor: pointer; font-size: 12.5px; font-weight: 600; color: var(--as-accent); }
+.hfx-rv-chart-data > .hfx-rv-scroll { margin-top: 8px; max-height: 320px; overflow: auto; }
+.hfx-as.hfx-rv-chart-multiples { min-width: 0; }
+.hfx-rv-chart-grid { display: grid; gap: 18px 20px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); }
+
+/* ---------- forced colours ---------- */
+/* Marks and bars are drawn with backgrounds, which forced colours would remove: they keep their own colours. */
+@media (forced-colors: active) {
+  .hfx-as .hfx-rv-mark, .hfx-rv-dist-track, .hfx-rv-dist-track i, .hfx-rv-cov-bar i, .hfx-rv-cov-mark, .hfx-as .hfx-rv-spark { forced-color-adjust: none; }
+  /* A chart that pins its status colours (ReportChartSettings.PinStatusColorsInForcedColors, off by default): ChartForgeX
+     keeps its status marks out of forced colours, but the tokens map every status property to a system colour and custom
+     properties ignore forced-color-adjust, so the status properties a chart writes are reset here and each status mark
+     falls back to its literal token colour. */
+  .hfx-rv-chart-pinned .hfx-rv-chart-themed {
+    --hfx-color-status-positive: initial; --hfx-color-status-warning: initial; --hfx-color-status-negative: initial; --hfx-color-status-disabled: initial;
+    --hfx-color-severity-critical-fill: initial; --hfx-color-severity-critical-ink: initial; --hfx-color-severity-high-fill: initial; --hfx-color-severity-high-ink: initial;
+    --hfx-color-severity-medium-fill: initial; --hfx-color-severity-medium-ink: initial; --hfx-color-severity-low-fill: initial; --hfx-color-severity-low-ink: initial;
+    --hfx-color-severity-info-fill: initial; --hfx-color-severity-info-ink: initial; --hfx-color-outcome-pass-fill: initial; --hfx-color-outcome-pass-ink: initial;
+    --hfx-color-outcome-neutral-fill: initial; --hfx-color-outcome-neutral-ink: initial; --hfx-color-state-maintenance-fill: initial; --hfx-color-state-maintenance-ink: initial;
+  }
+}
+
+/* ---------- print ---------- */
+@media print {
+  .hfx-rv-matrix-host.is-enhanced > .hfx-rv-matrix-scroll:first-child, .hfx-rv-matrix-toolbar, .hfx-rv-consistency > .hfx-as-toolbar { display: none; }
+  .hfx-rv-matrix-scroll { max-height: none; overflow: visible; border: 0; }
+  .hfx-as .hfx-rv-matrix-grid :is(thead th, tbody .hfx-rv-matrix-name, .hfx-rv-matrix-corner) { position: static; }
+  .hfx-as .hfx-rv-matrix-grid { width: 100%; }
+  .hfx-rv-matrix-grid tr, .hfx-rv-consistency-item { break-inside: avoid; }
+  /* The script opens these for print; where no script ran, the summary stays so the reader knows something is folded. */
+  :is(.hfx-rv-consistency-more, .hfx-rv-changes-more, .hfx-rv-change-diff)[open] > summary { display: none; }
+  .hfx-rv-change, .hfx-rv-diff-table tr { break-inside: avoid; }
+  .hfx-rv-diff-text > .hfx-rv-scroll { max-height: none; overflow: visible; }
+  .hfx-as .hfx-rv-diff-lines { min-width: 0; }
+  .hfx-rv-diff-lines > li { white-space: pre-wrap; overflow-wrap: anywhere; }
+  .hfx-rv-diff-table td, .hfx-rv-diff-lines > li, .hfx-rv-change-mark { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  /* Paper is light: print the light rendering whatever the screen theme is. */
+  .hfx-rv-chart-light { display: block !important; }
+  .hfx-rv-chart-dark { display: none !important; }
+  /* A chart drawn once takes its colours from the token properties, with the light colours as fallbacks. Paper is light:
+     the report switches to the light tokens while it prints, and where it cannot (no script, no shell, a dark scope in
+     the page) these resets make every chart property invalid, so each colour falls back to its light value. */
+  .hfx-rv-chart-themed {
+    --hfx-color-status-positive: initial; --hfx-color-status-warning: initial; --hfx-color-status-negative: initial; --hfx-color-status-disabled: initial;
+    --hfx-color-surface-page: initial; --hfx-color-surface-card: initial; --hfx-color-surface-card-alt: initial; --hfx-color-surface-line: initial;
+    --hfx-color-text-primary: initial; --hfx-color-text-secondary: initial; --hfx-color-series-1: initial; --hfx-color-series-2: initial;
+    --hfx-color-series-3: initial; --hfx-color-series-4: initial; --hfx-color-series-5: initial; --hfx-color-series-6: initial;
+    --hfx-color-severity-critical-fill: initial; --hfx-color-severity-critical-ink: initial; --hfx-color-severity-high-fill: initial; --hfx-color-severity-high-ink: initial;
+    --hfx-color-severity-medium-fill: initial; --hfx-color-severity-medium-ink: initial; --hfx-color-severity-low-fill: initial; --hfx-color-severity-low-ink: initial;
+    --hfx-color-severity-info-fill: initial; --hfx-color-severity-info-ink: initial; --hfx-color-outcome-pass-fill: initial; --hfx-color-outcome-pass-ink: initial;
+    --hfx-color-outcome-neutral-fill: initial; --hfx-color-outcome-neutral-ink: initial; --hfx-color-state-maintenance-fill: initial; --hfx-color-state-maintenance-ink: initial;
+    --hfx-color-accent-base: initial; --hfx-color-chrome-accent: initial; --hfx-ramp-sequential-1: initial; --hfx-ramp-sequential-2: initial;
+    --hfx-ramp-sequential-3: initial; --hfx-ramp-sequential-4: initial; --hfx-ramp-sequential-5: initial; --hfx-ramp-diverging-negative-1: initial;
+    --hfx-ramp-diverging-negative-2: initial; --hfx-ramp-diverging-negative-3: initial; --hfx-ramp-diverging-neutral: initial; --hfx-ramp-diverging-positive-1: initial;
+    --hfx-ramp-diverging-positive-2: initial; --hfx-ramp-diverging-positive-3: initial;
+  }
+  .hfx-rv-chart-plot > div > svg { min-width: 0; }
+  /* The data table of a chart prints in full once it is open, not the part that fitted its scrolling frame. */
+  .hfx-rv-chart-data > .hfx-rv-scroll { max-height: none; overflow: visible; }
+  .hfx-as.hfx-rv-chart { break-inside: avoid; }
+  .hfx-as .hfx-rv-mark, .hfx-rv-consistency-cell.is-different, .hfx-rv-consistency-item { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .hfx-rv-kpi, .hfx-rv-queue-item, .hfx-rv-fact, .hfx-rv-dist-row, .hfx-rv-table tr { break-inside: avoid; }
+  .hfx-rv-facts > .hfx-as-toolbar { display: none; }
+  .hfx-rv-changes > .hfx-as-toolbar { display: none; }
+  .hfx-rv-changes-day { break-inside: auto; }
+  .hfx-as .hfx-rv-changes-day-title { break-after: avoid; }
+  .hfx-rv-queue-more[open] > summary { display: none; }
+  .hfx-rv-scroll { overflow: visible; }
+  .hfx-as .hfx-rv-queue-title { display: block; -webkit-line-clamp: none; line-clamp: none; }
+  .hfx-rv-dist-label > :first-child, .hfx-rv-dist-label small { white-space: normal; overflow: visible; }
+  .hfx-rv-cov-bar i, .hfx-rv-cov-mark, .hfx-rv-dist-track, .hfx-rv-dist-track i, .hfx-rv-dist-bar i { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

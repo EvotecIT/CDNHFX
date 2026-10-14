@@ -84,6 +84,8 @@
     var rel = formatRelative(diff, relStyle);
     var mode = el.getAttribute('data-hfx-rt-mode') || 'relative';
     var tz = el.getAttribute('data-hfx-rt-abs-tz') || 'local';
+    // A report shell lets the reader choose UTC for every timestamp on the page.
+    if (tz === 'local' && document.documentElement.getAttribute('data-hfx-time-zone') === 'utc') tz = 'utc';
     var fmt = el.getAttribute('data-hfx-rt-abs-format') || 'default';
     var locale = el.getAttribute('data-hfx-rt-locale') || null;
     var offsetRaw = el.getAttribute('data-hfx-rt-abs-offset-min');
@@ -123,6 +125,8 @@
       setInterval(updateAll, min * 1000);
     }
   }
+
+  window.addEventListener('hfx:timezonechange', updateAll);
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);

@@ -3,6 +3,8 @@
   --hfx-dashboard-showcase-bg:
     radial-gradient(circle at 15% 0%,rgba(214,168,93,.22),transparent 32%),
     linear-gradient(135deg,#6f685e 0%,#2d302c 45%,#121212 100%);
+  --hfx-dashboard-showcase-title:#f8fafc;
+  --hfx-dashboard-showcase-subtitle:#f1eee8;
   --hfx-dashboard-showcase-height:min(76vh,46rem)
 }
 .hfx-dashboard-showcase--spark .hfx-dashboard-showcase__viewport{

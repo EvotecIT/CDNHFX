@@ -2,6 +2,11 @@
 .hfx-dashboard-showcase{
   --hfx-dashboard-showcase-height:min(72vh,52rem);
   --hfx-dashboard-showcase-bg:linear-gradient(180deg, rgba(244,247,252,.96) 0%, rgba(229,233,242,.96) 100%);
+  /* The frame is a surface of its own: it stays light on a dark page, so its heading takes the colours of the frame,
+     not of the page theme. Presets that darken the frame set these with their background. */
+  --hfx-dashboard-showcase-title:#374151;
+  --hfx-dashboard-showcase-subtitle:#565f6d;
+  --hfx-dashboard-showcase-address:#565f6d;
   display:flex;
   flex-direction:column;
   gap:1rem;
@@ -18,12 +23,12 @@
   font-size:1.25rem;
   line-height:1.2;
   font-weight:700;
-  color:var(--tblr-emphasis-color)
+  color:var(--hfx-dashboard-showcase-title)
 }
 .hfx-dashboard-showcase__subtitle{
   margin:.35rem 0 0;
   max-width:70ch;
-  color:var(--tblr-secondary);
+  color:var(--hfx-dashboard-showcase-subtitle);
   line-height:1.5
 }
 .hfx-dashboard-showcase__viewport{
@@ -65,7 +70,7 @@
   border-radius:.55rem;
   padding:.35rem .75rem;
   background:rgba(15,23,42,.06);
-  color:var(--tblr-secondary);
+  color:var(--hfx-dashboard-showcase-address);
   text-align:center;
   font-size:.78rem
 }
@@ -83,11 +88,12 @@
 }
 .hfx-dashboard-showcase--dark-app{
   --hfx-dashboard-showcase-bg:linear-gradient(180deg,#252b36 0%,#202631 100%);
+  --hfx-dashboard-showcase-title:#f8fafc;
+  --hfx-dashboard-showcase-subtitle:#aab4c6;
+  --hfx-dashboard-showcase-address:#cbd5e1;
   border-color:rgba(148,163,184,.16);
   color:#eef2ff
 }
-.hfx-dashboard-showcase--dark-app .hfx-dashboard-showcase__title{color:#f8fafc}
-.hfx-dashboard-showcase--dark-app .hfx-dashboard-showcase__subtitle{color:#aab4c6}
 .hfx-dashboard-showcase--dark-app .hfx-dashboard-showcase__viewport{
   border-color:rgba(148,163,184,.14);
   background:#070914;
@@ -98,8 +104,7 @@
   background:linear-gradient(180deg,rgba(13,17,28,.96) 0%,rgba(8,11,20,.96) 100%)
 }
 .hfx-dashboard-showcase--dark-app .hfx-dashboard-showcase__address{
-  background:rgba(255,255,255,.06);
-  color:#cbd5e1
+  background:rgba(255,255,255,.06)
 }
 .hfx-dashboard-showcase--dark-app .hfx-dashboard-showcase__stage{background:#070914}
 .hfx-dashboard-showcase--split .hfx-dashboard-showcase__viewport{
