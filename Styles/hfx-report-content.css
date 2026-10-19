@@ -240,11 +240,7 @@
 .hfx-as .hfx-as-entity-link:hover { text-decoration: underline; }
 
 /* ---------- responsive ---------- */
-@media (max-width: 1280px) {
-  .hfx-as-split[data-ratio="aside"] { grid-template-columns: minmax(0, 1fr); }
-}
 @media (max-width: 991.98px) {
-  .hfx-as-split[data-ratio="wide"], .hfx-as-split[data-ratio="equal"] { grid-template-columns: minmax(0, 1fr); }
   .hfx-shell-bar-inner { flex-wrap: wrap; gap: 0 14px; padding: 0 16px; }
   .hfx-shell-brand { min-height: 52px; flex: 1 1 auto; }
   .hfx-shell-tools { min-height: 52px; }

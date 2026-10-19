@@ -49,6 +49,9 @@
   .hfx-shell-print-meta > [hidden] { display: none; }
   .hfx-shell-print-meta b { color: var(--p-ink); font-weight: 700; }
   .hfx-shell-print-anchor { display: block; height: 0; }
+  /* The logo of the top bar heads the first printed page (its paper variant when the report gives one). */
+  .hfx-shell .hfx-shell-print-logo { display: block; margin: 0 0 8px; break-after: avoid; }
+  .hfx-shell .hfx-shell-print-logo > .hfx-shell-logo-img { display: block; height: 9mm; width: auto; max-width: 60mm; object-fit: contain; }
 
   /* Title block: the scope header when a page opens with one, otherwise the shell's print heading. 20 pt and a 1.5 pt
      rule on the first page, 16 pt and 1 pt after. */
@@ -76,6 +79,9 @@
   .hfx-as .hfx-as-panel-titles { gap: 2px 8px; }
   .hfx-as .hfx-as-panel-title { font: 700 12.5pt/1.25 var(--p-font); color: var(--p-ink); letter-spacing: 0; }
   .hfx-as .hfx-as-panel-subtitle, .hfx-as .hfx-as-panel-note { font: 400 8.5pt/1.3 var(--p-font); color: var(--p-muted); white-space: normal; }
+  /* A description set beside the title keeps at least 24em there; with less room it wraps under the title instead of
+     becoming a narrow right-hand column. */
+  .hfx-as :is(.hfx-as-panel-subtitle, .hfx-as-panel-note) { flex: 0 1 auto; min-width: min(100%, 24em); }
   :is(.hfx-as-panel, .hfx-as-panel.is-compact) > :is(.hfx-as-panel-body, .hfx-as-panel-body:not(.is-flush)) { padding: 6px 0 0; }
   .hfx-rv-tabpanel :is(.hfx-as-panel, .hfx-as-panel.is-compact) > .hfx-as-panel-head { border-bottom: .5pt solid var(--p-line); }
   .hfx-rv-tabpanel .hfx-as .hfx-as-panel-titles { flex: 1; justify-content: space-between; }
@@ -120,11 +126,14 @@
   .hfx-as .hfx-rv-queue-rank { font-size: 8pt; color: var(--p-muted); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
   .hfx-as .hfx-rv-queue-title { margin: 0; font: 700 10pt/1.3 var(--p-font); color: var(--p-ink); white-space: normal; }
   .hfx-as .hfx-rv-queue-meta { display: block; margin: 0; font-size: 8.5pt; color: var(--p-ink-2); }
-  .hfx-as .hfx-rv-queue-meta > * + *::before { content: " · "; }
+  .hfx-as .hfx-rv-queue-meta > :not(:last-child)::after { content: "\00a0\00b7\00a0\200b"; }
   .hfx-as .hfx-rv-queue-metric, .hfx-as .hfx-rv-queue-metric b { margin: 0; font: 400 8.5pt/1.3 var(--p-font); color: var(--p-ink-2); }
   .hfx-as .hfx-rv-queue-foot, .hfx-as .hfx-rv-list-footer a { display: none; }
   .hfx-as :is(.hfx-rv-list-footer, .hfx-rv-queue-print) { display: block; margin: 0; padding: 4px 0 0; border: 0; background: none; font-size: 8.5pt; color: var(--p-ink-2); }
   .hfx-as .hfx-rv-list-footer > * + * { margin-left: .3em; }
+  /* Paper counts the rows it prints: a footer that knows both numbers shows the printed one. */
+  .hfx-as .hfx-rv-screen-count { display: none; }
+  .hfx-as .hfx-rv-print-count { display: inline; }
   .hfx-rv-print-only { display: inline; }
   /* Keep the attention row's name and group together before its findings in the PDF reading order. */
   .hfx-as .hfx-rv-matrix-attention th small { display: inline; margin-left: .5em; }
@@ -147,12 +156,30 @@
   .hfx-shell thead { display: table-header-group; }
   .hfx-shell tr { break-inside: avoid; }
   .hfx-as :is(table.hfx-dx-print-table, .hfx-rv-table) { width: 100%; font: 9pt/1.35 var(--p-font); color: var(--p-ink); background: none; }
-  .hfx-as :is(table.hfx-dx-print-table, .hfx-rv-table) th { padding: 4px 6px; border: 0; border-bottom: 1pt solid var(--p-ink); background: none; font: 700 8pt/1.3 var(--p-font); color: var(--p-ink-2); text-align: left; white-space: nowrap; text-transform: none; letter-spacing: 0; }
-  .hfx-as :is(table.hfx-dx-print-table, .hfx-rv-table) td { padding: 3.5px 6px; border: 0; border-bottom: .5pt solid var(--p-line-soft); background: none; vertical-align: top; }
+  .hfx-as :is(table.hfx-dx-print-table, .hfx-rv-table) th { padding: 4px 6px; border: 0; border-bottom: 1pt solid var(--p-ink); background: none; font: 700 8pt/1.3 var(--p-font); color: var(--p-ink-2); text-align: left; white-space: normal; overflow-wrap: break-word; hyphens: manual; text-transform: none; letter-spacing: 0; }
+  .hfx-as :is(table.hfx-dx-print-table, .hfx-rv-table) td { padding: 3.5px 6px; border: 0; border-bottom: .5pt solid var(--p-line-soft); background: none; vertical-align: top; overflow-wrap: break-word; }
+  /* A cell holding a long token (a hash, a distinguished name, a path) may break it anywhere, so it never widens the
+     table past the page; words in other cells keep whole. */
+  .hfx-as table.hfx-dx-print-table :is(td, .hfx-dx-print-value).is-token { overflow-wrap: anywhere; }
+  /* Tables fit the page width: headers wrap and long tokens (hashes, distinguished names, paths) break where they must,
+     so a wide view never makes the browser lay out, and shrink, every sheet of the PDF. */
+  .hfx-as :is(table.hfx-dx-print-table, .hfx-rv-table) { max-width: 100%; }
+  /* Columns past an explorer's print limit (DataExplorerSettings.PrintColumns) and optional columns print under their
+     row as name and value; a record and its detail line stay on one sheet. */
+  .hfx-as table.hfx-dx-print-table > tbody.hfx-dx-print-record { break-inside: avoid; }
+  .hfx-as table.hfx-dx-print-table > tbody.hfx-dx-print-record > tr:first-child:not(:last-child) > td { border-bottom: 0; padding-bottom: 1px; }
+  .hfx-as table.hfx-dx-print-table .hfx-dx-print-detail > td { padding-top: 0; font-size: 8pt; line-height: 1.35; color: var(--p-ink-2); }
+  .hfx-as .hfx-dx-print-field { display: inline; }
+  .hfx-as .hfx-dx-print-field:not(:last-child)::after { content: "\00a0\00b7\00a0\200b"; color: var(--p-muted); }
+  .hfx-as .hfx-dx-print-name { color: var(--p-muted); }
+.hfx-as .hfx-dx-print-quiet { color: var(--p-ink-2); }
+  .hfx-as .hfx-dx-print-name::after { content: "\00a0"; }
+  .hfx-as .hfx-dx-print-value .hfx-as-chip { display: inline-flex; }
   .hfx-as :is(table.hfx-dx-print-table, .hfx-rv-table) :is(.is-num, .is-number) { text-align: right; }
   .hfx-cx table { width: 100% !important; font: 9pt/1.35 var(--p-font) !important; }
   .hfx-cx th { padding: 4px 6px !important; border-bottom: 1pt solid var(--p-ink) !important; background: none !important; font: 700 8pt/1.3 var(--p-font) !important; color: var(--p-ink-2) !important; }
   .hfx-cx td { padding: 3.5px 6px !important; border-bottom: .5pt solid var(--p-line-soft) !important; }
+  .hfx-cx :is(th, td:not([style*="pre-wrap"])) { white-space: normal !important; overflow-wrap: break-word !important; }
   .hfx-cx, .hfx-cx-frame { border: 0 !important; box-shadow: none !important; }
   .hfx-as :is(.hfx-rv-matrix-grid, .hfx-as-matrix-table) th { background: none; }
 

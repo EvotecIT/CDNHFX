@@ -24,10 +24,19 @@ body:has(.hfx-shell) { background: var(--hfx-color-surface-page); }
   display: flex; align-items: center; gap: 20px;
 }
 .hfx-shell-brand { display: flex; align-items: center; gap: 14px; min-width: 0; flex: none; }
+/* ReportShell.Logo: an image before the product name at its own height (24px by default); the dark-theme variant takes
+   its place while the report is dark. The bar does not print; the logo heads the first printed page instead. */
+:where(:root, [data-bs-theme="light"], [data-hfx-theme="light"], [data-hfx-tokens="light"]) { --hfx-shell-logo-light: block; --hfx-shell-logo-dark: none; }
+:where([data-bs-theme="dark"], [data-hfx-theme^="dark"], [data-hfx-tokens="dark"]) { --hfx-shell-logo-light: none; --hfx-shell-logo-dark: block; }
+.hfx-shell-logo { display: inline-flex; align-items: center; flex: none; min-width: 0; }
+.hfx-shell-logo-img { display: block; height: var(--hfx-shell-logo-height, 24px); width: auto; max-width: 180px; object-fit: contain; }
+.hfx-shell-logo-img.is-light { display: var(--hfx-shell-logo-light, block); }
+.hfx-shell-logo-img.is-dark { display: var(--hfx-shell-logo-dark, none); }
+.hfx-shell-print-logo { display: none; }
 .hfx-shell-brand-name { font: 700 18px/1 var(--as-font-display); letter-spacing: -.01em; color: var(--as-chrome-ink); white-space: nowrap; }
 .hfx-shell-brand-accent { color: var(--as-chrome-accent); }
 .hfx-shell-brand-title { display: flex; flex-direction: column; min-width: 0; padding-left: 14px; border-left: 1px solid rgba(255, 255, 255, .16); }
-.hfx-shell-brand:not(.has-name) .hfx-shell-brand-title { padding-left: 0; border-left: 0; }
+.hfx-shell-brand:not(.has-name):not(.has-logo) .hfx-shell-brand-title { padding-left: 0; border-left: 0; }
 .hfx-shell-title { font-size: 13px; font-weight: 600; color: var(--as-chrome-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .hfx-shell-subtitle { font-size: 12px; color: var(--as-chrome-ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .hfx-shell-nav { flex: 1 1 auto; min-width: 0; align-self: stretch; display: flex; }

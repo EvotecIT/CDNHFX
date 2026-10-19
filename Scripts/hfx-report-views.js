@@ -57,6 +57,9 @@
     if (none) none.hidden = shown > 0;
     var count = root.querySelector('[data-hfx-rv-filter-count]');
     var filtered = words.length > 0 || !!category;
+    // A timeline sized to its panel shows every rendered match while it is filtered.
+    root.classList.toggle('is-filtering', filtered);
+    if (root.hasAttribute('data-hfx-rv-fit-min') && window.hfxReportLayout) window.hfxReportLayout.layout(document);
     if (count) count.textContent = filtered ? format(count.getAttribute('data-hfx-rv-filter-count'), shown, items.length) : '';
     // Matches folded under "show more" would otherwise stay out of sight.
     if (filtered) qsa(root, 'details.hfx-rv-changes-more').forEach(function (more) { more.open = true; });

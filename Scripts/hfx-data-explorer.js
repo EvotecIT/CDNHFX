@@ -37,26 +37,45 @@
   }
   // Explorer rows that name a page element open it through the assessment report when one is on the page.
   var MAX_ROW_TARGETS = 500;
-  function openPageTarget(ids, index, from) {
+  // An assessment report opens its checks first (also ones kept in a closed chapter); a target that is a report entity
+  // ("type/key", the address the report gives an entity, which no element of the page carries as its id) opens in the
+  // report's drawer, stepping through the neighbouring rows' entities.
+  function openPageTarget(ids, index, from, returnFocus) {
     var api = window.hfxAssessment;
-    if (api && typeof api.openTargets === 'function') return api.openTargets(ids, index, from);
+    if (api && typeof api.openTargets === 'function' && api.openTargets(ids, index, from)) return true;
     var report = window.hfxReport;
+    if (report && typeof report.openEntities === 'function' && typeof report.isEntityId === 'function' && report.isEntityId(ids[index])) {
+      var entities = ids.filter(function (id) { return report.isEntityId(id); });
+      if (report.openEntities(entities, entities.indexOf(ids[index]), returnFocus || from)) return true;
+    }
+    if (api && typeof api.openTargets === 'function') return false;
     if (report && typeof report.reveal === 'function' && document.getElementById(ids[index])) return report.reveal(ids[index]);
     var el = document.getElementById(ids[index]);
     if (!el) return false;
     el.scrollIntoView({ block: 'start' });
     return true;
   }
-  function linkNode(value) {
+  // A link to an address. Without a label the text is the address's last path segment; with one (a link-text column)
+  // the label is the text. An address that is a report entity opens the entity's panel in the report's drawer, as an
+  // entity link does, instead of handing the bare fragment to the browser.
+  function linkNode(value, label) {
     var href = safeHref(value);
-    if (!href) return document.createTextNode(String(value || ''));
+    var named = label !== undefined && label !== null && String(label) !== '';
+    if (!href) return document.createTextNode(String(named ? label : value || ''));
     var a = document.createElement('a');
     var shown = String(value).trim();
     a.href = href;
     a.className = 'hfx-dx-link';
-    a.textContent = shown.split(/[\\/]/).pop() || shown;
+    a.textContent = named ? String(label) : shown.split(/[\\/]/).pop() || shown;
     a.title = shown;
-    a.addEventListener('click', function (e) { e.stopPropagation(); });
+    var report = window.hfxReport;
+    var entity = report && typeof report.entityFromHref === 'function' ? report.entityFromHref(shown) : null;
+    if (entity) attr(a, 'data-hfx-dx-entity', entity);
+    a.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (!entity || e.defaultPrevented || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+      if (report.openEntities([entity], 0, a)) e.preventDefault();
+    });
     return a;
   }
   function num(n) { try { return Number(n).toLocaleString(); } catch (_) { return String(n); } }
@@ -76,7 +95,12 @@
   var normOp = I.normOp, OP_TOKENS = I.OP_TOKENS, runQuery = I.runQuery, headerOf = I.headerOf, toCsv = I.toCsv;
 
   // ---------------------------------------------------------------- filters
-  var OP_LABELS = { eq: 'is', ne: 'is not', 'in': 'is any of', nin: 'is none of', contains: 'contains', ncontains: 'does not contain', lt: '<', le: '≤', gt: '>', ge: '≥', empty: 'is empty', nempty: 'is not empty', next: 'in the next N days', last: 'in the last N days', past: 'is in the past', future: 'is in the future', older: 'older than N days' };
+  // English words; a report writes its own as labels.operators (DataExplorerLabels.FilterWords, ReportFilterLabels).
+  var OP_LABELS = { eq: 'is', ne: 'is not', 'in': 'is any of', nin: 'is none of', contains: 'contains', ncontains: 'does not contain', token: 'contains', startsWith: 'starts with', lt: '<', le: '≤', gt: '>', ge: '≥', empty: 'is empty', nempty: 'is not empty', next: 'in the next {days} days', last: 'in the last {days} days', past: 'is in the past', future: 'is in the future', older: 'older than {days} days' };
+  function opWord(labels, op) {
+    var words = labels && labels.operators, word = words && typeof words[op] === 'string' ? words[op] : OP_LABELS[op];
+    return word == null ? op : word;
+  }
 
   function opsFor(col) {
     if (col.kind === 't') return ['lt', 'le', 'gt', 'ge', 'next', 'last', 'older', 'past', 'future', 'empty', 'nempty'];
@@ -86,15 +110,32 @@
   }
   function needsValue(op) { return ['empty', 'nempty', 'past', 'future'].indexOf(op) < 0; }
 
-  function describeFilter(ds, f) {
+  // Yes/no values in the report's words (labels.yes and labels.no, ReportFilterLabels.Yes/No). Only what the reader sees
+  // changes: filters, exports and the search keep matching the stored values (Yes, No, true, false…).
+  var TRUE_TEXTS = ['true', 'yes', '1', 'y'], FALSE_TEXTS = ['false', 'no', '0', 'n'];
+  function booleanWord(labels, text) {
+    var lower = String(text == null ? '' : text).trim().toLowerCase();
+    if (TRUE_TEXTS.indexOf(lower) >= 0) return (labels && labels.yes) || 'Yes';
+    if (FALSE_TEXTS.indexOf(lower) >= 0) return (labels && labels.no) || 'No';
+    return text;
+  }
+  function valueText(labels, col, value, mode) {
+    if (col.kind === 'b' && value !== null && value !== undefined) return value ? (labels && labels.yes) || 'Yes' : (labels && labels.no) || 'No';
+    return col.textOf(value, mode);
+  }
+
+  function describeFilter(ds, f, labels) {
     var col = ds.column(f.column);
     var op = normOp(f.op);
     var values = f.values || [];
-    var label = col ? col.label : f.column;
-    if (!needsValue(op)) return label + ' ' + OP_LABELS[op];
-    if (op === 'next' || op === 'last' || op === 'older') return label + ' ' + OP_LABELS[op].replace('N', values[0] || '?');
-    return label + ' ' + OP_LABELS[op] + ' ' + values.join(', ');
+    if (col && col.kind === 'b') values = values.map(function (v) { return booleanWord(labels, v); });
+    var label = col ? col.label : f.column, word = opWord(labels, op);
+    if (!needsValue(op)) return label + ' ' + word;
+    if (op === 'next' || op === 'last' || op === 'older') return label + ' ' + word.replace('{days}', values[0] || '?');
+    if (op === 'token') return label + ' ' + word + ' ' + (values[0] || '');
+    return label + ' ' + word + ' ' + values.join(', ');
   }
+  function removeFilterLabel(labels, text) { return (labels && labels.removeFilter || 'Remove filter: {filter}').replace('{filter}', text); }
 
   // --------------------------------------------------------------- explorer
   var instances = {};
@@ -191,6 +232,7 @@
       self.applyView(initial, true, !!self.pending);
       if (self.pending) { var p = self.pending; self.pending = null; self.apply(p); }
       self.loaded = true;
+      self.root.dispatchEvent(new CustomEvent('hfx-dx:ready', { bubbles: true, detail: { id: self.id } }));
       return self.remote ? self.queryLoading : null;
     }
     function failed(err) {
@@ -268,9 +310,11 @@
 
   // The query the grid shows: the filters of the view and the reader, the quick filter selections (without the one
   // of skipQuick), the search and the sort.
-  Explorer.prototype.querySpec = function (skipQuick) {
+  Explorer.prototype.querySpec = function (skipQuick, skipExternal) {
     var st = this.state;
     var filters = st.filters.map(function (f) { return { column: f.column, op: f.op, values: f.values }; });
+    // Filters other components apply through linked views (setExternalFilter) narrow the rows too, outside saved views.
+    if (!skipExternal) this.externalFilters().forEach(function (f) { filters.push({ column: f.column, op: 'in', values: f.values }); });
     Object.keys(st.quick).forEach(function (colId) {
       if (colId === skipQuick) return;
       var set = st.quick[colId];
@@ -349,7 +393,7 @@
     if (!this.viewport) return;
     attr(this.viewport, 'aria-busy', busy ? 'true' : 'false');
     this.root.classList.toggle('is-busy', !!busy);
-    if (busy) this.count.textContent = this.labels.updating || '…';
+    if (busy) { this.count.textContent = this.labels.updating || '…'; this.count.setAttribute('data-short', '…'); }
   };
 
   // One explorer submits its rows and optional counts in order, leaving room in the host's caller gate.
@@ -520,6 +564,35 @@
     return Object.keys(pages).some(function (k) { return pages[k] === 'failed'; });
   };
 
+  // FitToViewport: the grid reaches down to the bottom of the window when it starts in the first screen of the page, and
+  // takes the window's height less the explorer's own toolbar further down, within the configured bounds. The rule for
+  // the first screen is the one the report layout uses to fit its lists (hfx-report-layout.js): 20 px above the window's
+  // bottom. A hidden explorer keeps its height until it is shown.
+  var FIT_GAP = 20;
+  Explorer.prototype.fitViewport = function () {
+    var fit = this.cfg.fitViewport, body = this.root && this.root.querySelector('[data-hfx-dx-body]');
+    if (!fit || !body) return false;
+    // The explorer's own toolbar changes height after the first measure (quick views and filter chips arrive, a host grid
+    // takes the search into its toolbar): the grid is fitted again where it then starts.
+    if (!this.fitObserver && typeof ResizeObserver !== 'undefined') {
+      var self = this, toolbar = this.root.querySelector('[data-hfx-dx-toolbar]');
+      try {
+        this.fitObserver = new ResizeObserver(function () { requestAnimationFrame(function () { if (!self.destroyed) self.fitViewport(); }); });
+        if (toolbar) this.fitObserver.observe(toolbar);
+      } catch (_) { this.fitObserver = null; }
+    }
+    if (!body.getClientRects().length) return false;
+    var scroll = window.pageYOffset || 0, top = body.getBoundingClientRect().top + scroll;
+    var chrome = top - (this.root.getBoundingClientRect().top + scroll);
+    var room = top < window.innerHeight ? window.innerHeight - top - FIT_GAP : window.innerHeight - chrome - 2 * FIT_GAP;
+    var height = Math.round(Math.max(fit.min, Math.min(fit.max, room)));
+    if (height === this.cfg.height) return false;
+    this.cfg.height = height;
+    body.style.setProperty('--dx-height', height + 'px');
+    if (this.renderer) this.renderer.repaint();
+    else if (this.viewport) this.renderRows(false);
+    return true;
+  };
   // The height of the grid follows the number of rows without moving the reader.
   Explorer.prototype.resize = function () {
     if (this.renderer) { this.updateCount(); this.renderer.repaint(); return; }
@@ -582,7 +655,7 @@
   Explorer.prototype.definition = function (forSavedView) {
     var st = this.state, ds = this.ds;
     // Saved UI views keep local operands editable; exported definitions use the same portable query as the endpoint.
-    var spec = this.querySpec();
+    var spec = this.querySpec(undefined, true);
     if (this.renderer && this.renderer.definition) spec = this.renderer.definition(spec);
     var def = I.wireQuery(spec, forSavedView ? null : ds);
     def.name = (this.cfg.definitionName ? this.cfg.definitionName + '-' : '') + (st.view || 'custom');
@@ -651,6 +724,8 @@
     if (status) status.hidden = true;
     var renderer = this.cfg.viewportRenderer && viewportRenderers[this.cfg.viewportRenderer];
     if (this.cfg.viewportRenderer && !renderer) throw new Error('HtmlForgeX: the configured viewport renderer is not registered.');
+    // A grid fitted to the window takes its height before the viewport is drawn at it.
+    this.fitViewport();
     if (renderer) { this.renderer = renderer(this, body); this.viewport = this.renderer.element; }
     else {
     var viewport = el('div', 'hfx-dx-viewport');
@@ -704,6 +779,7 @@
     if (this.exportAbort) this.exportAbort.abort();
     if (this.visibilityObserver) this.visibilityObserver.disconnect();
     if (this.resizeObserver) this.resizeObserver.disconnect();
+    if (this.fitObserver) this.fitObserver.disconnect();
     if (this.raf) cancelAnimationFrame(this.raf);
     if (this.outsideClick) document.removeEventListener('click', this.outsideClick);
     if (this.unlayerMenus) this.unlayerMenus();
@@ -727,16 +803,47 @@
       var open = panel.hidden;
       self.closeMenus();
       if (open) {
-        panel.textContent = ''; render(panel); panel.hidden = false; btn.setAttribute('aria-expanded', 'true'); self.openMenu = wrap;
+        panel.textContent = ''; render(panel);
+        // A menu that opens as a phone sheet (data-hfx-dx-sheet) leads with a back action to the menu it came from.
+        if (wrap.hasAttribute('data-hfx-dx-sheet')) {
+          var head = el('div', 'hfx-dx-sheet-head'), back = el('button', 'hfx-dx-sheet-back');
+          attr(back, 'type', 'button');
+          attr(back.appendChild(el('span', 'hfx-dx-sheet-back-mark', '\u2039')), 'aria-hidden', 'true');
+          back.appendChild(el('span', null, self.labels.back || 'Back'));
+          back.addEventListener('click', function (e) { e.stopPropagation(); self.closeMenus(); btn.focus(); });
+          head.appendChild(back); head.appendChild(el('h3', 'hfx-dx-sheet-title', text));
+          panel.insertBefore(head, panel.firstChild);
+        }
+        panel.hidden = false; btn.setAttribute('aria-expanded', 'true'); self.openMenu = wrap;
+        // CanopyX menus close while an explorer menu is open (canopyx:closemenus); a menu that holds this one (the grid's
+        // more menu on a phone) stays open, as CanopyX and the listener below keep the menus around the source.
+        dispatchCloseMenus(wrap);
         // A renderer that hosts the menus in a clipping container asks for them in the top layer (hfx-data-explorer.menus.js).
         if (self.layerMenu) self.layerMenu(btn, panel);
-        var f = panel.querySelector('input, select, button'); if (f) f.focus();
+        var f = panel.querySelector('input, select, button:not(.hfx-dx-sheet-back)') || panel.querySelector('button'); if (f) f.focus();
       }
     });
-    panel.addEventListener('keydown', function (e) { if (e.key === 'Escape') { self.closeMenus(); btn.focus(); } });
+    // Escape closes this panel only: a menu that holds the button (a grid's more menu on a phone) stays open.
+    panel.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); self.closeMenus(); btn.focus(); } });
     wrap.appendChild(btn); wrap.appendChild(panel);
     return wrap;
   };
+
+  // Menus of CanopyX and of the explorers close each other: an opening menu says so with canopyx:closemenus, its own
+  // element as detail.source. An explorer menu that holds the source, or sits inside it (Export in the grid's more menu
+  // on a phone), stays open.
+  function dispatchCloseMenus(source) {
+    try { document.dispatchEvent(new CustomEvent('canopyx:closemenus', { detail: { source: source } })); } catch (_) { }
+  }
+  if (typeof document !== 'undefined') document.addEventListener('canopyx:closemenus', function (e) {
+    var source = e.detail && e.detail.source;
+    Object.keys(instances).forEach(function (id) {
+      var inst = instances[id], open = inst.openMenu;
+      if (!open || inst.destroyed || source === open) return;
+      if (source && source.nodeType === 1 && (open.contains(source) || source.contains(open))) return;
+      inst.closeMenus();
+    });
+  });
 
   Explorer.prototype.closeMenus = function () {
     if (this.unlayerMenus) this.unlayerMenus();
@@ -759,7 +866,7 @@
       b.addEventListener('click', function () { self.applyView(v, false); });
       bar.appendChild(b);
       if (item.saved) {
-        var x = el('button', 'hfx-dx-view-remove', '×'); attr(x, 'type', 'button'); attr(x, 'aria-label', 'Remove ' + v.title);
+        var x = el('button', 'hfx-dx-view-remove', '×'); attr(x, 'type', 'button'); attr(x, 'aria-label', fmt(self.labels.removeView || 'Remove {view}', { view: v.title }));
         x.addEventListener('click', function () {
           self.saved = self.saved.filter(function (s) { return s.id !== v.id; });
           storageSet(self.storageKey, self.saved);
@@ -787,7 +894,7 @@
         var b = el('button', 'hfx-dx-qchip');
         attr(b, 'type', 'button'); attr(b, 'aria-pressed', on ? 'true' : 'false');
         var tone = col.tone(col.parse(d.value)); if (tone) toneAttrs(b, tone);
-        b.appendChild(el('span', 'hfx-dx-qchip-label', d.value));
+        b.appendChild(el('span', 'hfx-dx-qchip-label', col.kind === 'b' ? booleanWord(self.labels, d.value) : d.value));
         b.appendChild(el('span', 'hfx-dx-qchip-count', num(d.count)));
         b.addEventListener('click', function () {
           var set = self.state.quick[col.id] || (self.state.quick[col.id] = dict());
@@ -814,11 +921,25 @@
     var self = this, bar = this.chipBar, ds = this.ds;
     bar.textContent = '';
     var any = false;
+    // A filter another component applied comes first, named after it; removing it tells that component (hfx-dx:externalfilter).
+    this.externalFilters().forEach(function (f) {
+      any = true;
+      var chip = el('span', 'hfx-dx-fchip is-linked'), text = (f.label ? f.label + ': ' : '') + f.values.slice(0, 3).join(', ') + (f.values.length > 3 ? ' +' + (f.values.length - 3) : '');
+      chip.appendChild(el('span', null, text));
+      var x = el('button', 'hfx-dx-fchip-remove', '×'); attr(x, 'type', 'button'); attr(x, 'aria-label', removeFilterLabel(self.labels, text));
+      x.addEventListener('click', function () {
+        self.setExternalFilter(f.source, null);
+        self.root.dispatchEvent(new CustomEvent('hfx-dx:externalfilter', { bubbles: true, detail: { source: f.source, reason: 'user' } }));
+      });
+      chip.appendChild(x);
+      bar.appendChild(chip);
+    });
     this.state.filters.forEach(function (f, i) {
       any = true;
       var chip = el('span', 'hfx-dx-fchip' + (f.fromView ? ' is-view' : ''));
-      chip.appendChild(el('span', null, describeFilter(ds, f)));
-      var x = el('button', 'hfx-dx-fchip-remove', '×'); attr(x, 'type', 'button'); attr(x, 'aria-label', 'Remove filter ' + describeFilter(ds, f));
+      var text = describeFilter(ds, f, self.labels);
+      chip.appendChild(el('span', null, text));
+      var x = el('button', 'hfx-dx-fchip-remove', '×'); attr(x, 'type', 'button'); attr(x, 'aria-label', removeFilterLabel(self.labels, text));
       x.addEventListener('click', function () { self.state.filters.splice(i, 1); self.refresh(true); });
       chip.appendChild(x);
       bar.appendChild(chip);
@@ -826,8 +947,38 @@
     bar.hidden = !any;
   };
 
+  // ---------------------------------------------------------------- linked views
+  // Another component on the page narrows the rows with filters of its own (HtmlForgeX linked views): one entry per source,
+  // { column, values, label }, joined with the reader's filters, shown as a chip and left out of saved views.
+  Explorer.prototype.externalFilters = function () {
+    var out = [], ext = this.external || dict();
+    Object.keys(ext).forEach(function (source) { out.push({ source: source, column: ext[source].column, values: ext[source].values, label: ext[source].label }); });
+    return out;
+  };
+  Explorer.prototype.setExternalFilter = function (source, filter) {
+    var ext = this.external || (this.external = dict());
+    if (filter && filter.column && filter.values && filter.values.length) ext[source] = { column: filter.column, values: filter.values.map(String), label: filter.label || '' };
+    else if (ext[source]) delete ext[source];
+    else return;
+    if (this.ds) this.refresh(false);
+  };
+  // The reader's own equality and list filters, by column: what this explorer tells the components it drives.
+  Explorer.prototype.linkValues = function () {
+    var out = dict(), spec = this.querySpec(undefined, true);
+    spec.filters.forEach(function (f) {
+      var op = normOp(f.op);
+      if (op !== 'eq' && op !== 'in') return;
+      out[f.column] = (out[f.column] || []).concat(f.values || []);
+    });
+    return out;
+  };
+
   Explorer.prototype.updateCount = function () {
-    this.count.textContent = fmt(this.labels.count, { shown: num(this.size()), total: num(this.totalRows()) });
+    var shown = this.size(), total = this.totalRows();
+    this.count.textContent = fmt(this.labels.count, { shown: num(shown), total: num(total) });
+    // The short form a narrow toolbar shows: the rows shown, and the total when filters narrow them. The full sentence
+    // stays the element's text, for assistive technology and anything that reads it.
+    this.count.setAttribute('data-short', shown === total ? num(shown) : num(shown) + ' / ' + num(total));
   };
 
   // Rows in the dataset before any filter. A remote dataset says so in the page; live data may have grown since.
@@ -868,7 +1019,7 @@
     var rows = this.remote ? (this.pages[0] === 'loaded' ? Math.min(this.total, this.pageSize) : 0) : this.ds.rows;
     var step = Math.max(1, Math.floor(rows / SAMPLE_ROWS)), sizes = [], chip = false;
     for (var r = 0; r < rows && sizes.length < SAMPLE_ROWS; r += step) {
-      var v = col.raw(r), text = col.textOf(v, 'display');
+      var v = col.raw(r), text = valueText(this.labels, col, v, 'display');
       if (!text) continue;
       sizes.push(textWidth(text, font));
       if (!chip && col.tone(v)) chip = true;
@@ -983,20 +1134,43 @@
     }
   };
 
+  // Whether a column tone falls in the quiet tones of the column (ReportDatasetColumn.QuietTones) or the explorer
+  // (DataExplorerSettings.QuietTones): success is a plain pass and up, info an informational pass and maintenance. Quiet
+  // values are plain muted text instead of a chip, as in report lists. Values without a tone are plain text anyway.
+  Explorer.prototype.isQuiet = function (c, tone) {
+    var tokens = c.quiet || this.cfg.quietTones;
+    if (!tokens || !tokens.length) return false;
+    var kind = typeof tone === 'string' ? (tone === 'good' ? 'success' : tone === 'info' ? 'info' : null)
+      : tone.state ? (tone.state === 'up' ? 'success' : tone.state === 'maintenance' ? 'info' : null)
+      : tone.outcome === 'pass' ? (tone.severity === 'info' ? 'info' : 'success') : null;
+    return !!kind && tokens.indexOf(kind) >= 0;
+  };
+
+  // The link of a link cell: its address, or for a link-text column the address in the row's target column with the
+  // cell's text as the label.
+  Explorer.prototype.linkOf = function (r, c, text) {
+    if (!c.linkTarget) return linkNode(text);
+    var target = this.ds.column(c.linkTarget);
+    var address = target ? target.text(r, 'export') : '';
+    return address ? linkNode(address, text) : document.createTextNode(text);
+  };
+
   // Cell formatting is shared by viewport renderers, the query runtime remains its owner.
   Explorer.prototype.fillCell = function (cell, r, c) {
       var v = c.raw(r); cell.textContent = '';
       if (c.kind === 'n') cell.classList.add('is-num');
       if (c.format === 'mono') cell.classList.add('is-mono');
-      var text = c.textOf(v, 'display');
+      var text = valueText(this.labels, c, v, 'display');
       var tone = c.tone(v);
-      if (tone) {
+      if (tone && this.isQuiet(c, tone)) {
+        cell.appendChild(el('span', 'hfx-dx-quiet', text));
+      } else if (tone) {
         var chip = toneAttrs(el('span', 'hfx-as-chip hfx-dx-chip'), tone);
         var dot = toneAttrs(el('span', 'hfx-as-dot'), tone); attr(dot, 'aria-hidden', 'true');
         chip.appendChild(dot); chip.appendChild(el('span', null, text));
         cell.appendChild(chip);
       } else if (c.format === 'link' && text) {
-        cell.appendChild(linkNode(text));
+        cell.appendChild(this.linkOf(r, c, text));
       } else {
         cell.textContent = text;
       }
@@ -1069,8 +1243,8 @@
           if (c.description) attr(label, 'title', c.description);
           row.appendChild(label);
           if (pos >= 0) {
-            var up = el('button', 'hfx-dx-iconbtn', '↑'); attr(up, 'type', 'button'); attr(up, 'aria-label', 'Move ' + c.label + ' left'); up.disabled = pos === 0;
-            var down = el('button', 'hfx-dx-iconbtn', '↓'); attr(down, 'type', 'button'); attr(down, 'aria-label', 'Move ' + c.label + ' right'); down.disabled = pos === chosen.length - 1;
+            var up = el('button', 'hfx-dx-iconbtn', '↑'); attr(up, 'type', 'button'); attr(up, 'aria-label', fmt(self.labels.moveLeft || 'Move {column} left', { column: c.label })); up.disabled = pos === 0;
+            var down = el('button', 'hfx-dx-iconbtn', '↓'); attr(down, 'type', 'button'); attr(down, 'aria-label', fmt(self.labels.moveRight || 'Move {column} right', { column: c.label })); down.disabled = pos === chosen.length - 1;
             up.addEventListener('click', function () { self.moveColumn(pos, -1); draw(); });
             down.addEventListener('click', function () { self.moveColumn(pos, 1); draw(); });
             row.appendChild(up); row.appendChild(down);
@@ -1096,8 +1270,9 @@
     var list = el('div', 'hfx-dx-filterlist');
     this.state.filters.forEach(function (f, i) {
       var row = el('div', 'hfx-dx-filterrow');
-      row.appendChild(el('span', null, describeFilter(ds, f)));
-      var x = el('button', 'hfx-dx-iconbtn', '×'); attr(x, 'type', 'button'); attr(x, 'aria-label', 'Remove filter');
+      var text = describeFilter(ds, f, self.labels);
+      row.appendChild(el('span', null, text));
+      var x = el('button', 'hfx-dx-iconbtn', '×'); attr(x, 'type', 'button'); attr(x, 'aria-label', removeFilterLabel(self.labels, text));
       x.addEventListener('click', function () { self.state.filters.splice(i, 1); self.refresh(true); panel.textContent = ''; self.renderFilterPanel(panel); });
       row.appendChild(x);
       list.appendChild(row);
@@ -1105,14 +1280,14 @@
     panel.appendChild(list);
 
     var form = el('form', 'hfx-dx-filterform');
-    var colSel = el('select', 'hfx-dx-input'); attr(colSel, 'aria-label', 'Column');
+    var colSel = el('select', 'hfx-dx-input'); attr(colSel, 'aria-label', self.labels.filterColumn || 'Column');
     ds.columns.forEach(function (c) { var o = el('option', null, c.label); o.value = c.id; colSel.appendChild(o); });
-    var opSel = el('select', 'hfx-dx-input'); attr(opSel, 'aria-label', 'Condition');
+    var opSel = el('select', 'hfx-dx-input'); attr(opSel, 'aria-label', self.labels.filterCondition || 'Condition');
     var valueWrap = el('span', 'hfx-dx-valuewrap');
     function redrawOps() {
       var col = ds.column(colSel.value);
       opSel.textContent = '';
-      opsFor(col).forEach(function (op) { var o = el('option', null, OP_LABELS[op]); o.value = op; opSel.appendChild(o); });
+      opsFor(col).forEach(function (op) { var o = el('option', null, opWord(self.labels, op).replace('{days}', 'N')); o.value = op; opSel.appendChild(o); });
       redrawValue();
     }
     function redrawValue() {
@@ -1121,11 +1296,12 @@
       if (!needsValue(op)) return;
       var input;
       var choice = op === 'eq' || op === 'ne' || op === 'in' || op === 'nin';
-      function options(target, values) { values.forEach(function (d) { var o = el('option', null, d.value); o.value = d.value; target.appendChild(o); }); }
+      function options(target, values) { values.forEach(function (d) { var o = el('option', null, d.label || d.value); o.value = d.value; target.appendChild(o); }); }
       if (choice && (col.kind === 'd' || col.kind === 'b')) {
         input = el('select', 'hfx-dx-input');
         if (op === 'in' || op === 'nin') attr(input, 'multiple', 'multiple');
-        options(input, col.kind === 'b' ? [{ value: 'Yes' }, { value: 'No' }] : col.distinct(allRows(ds)).slice(0, 500));
+        // Yes/no options show the report's words and keep the values a filter matches.
+        options(input, col.kind === 'b' ? [{ value: 'Yes', label: booleanWord(self.labels, 'Yes') }, { value: 'No', label: booleanWord(self.labels, 'No') }] : col.distinct(allRows(ds)).slice(0, 500));
       } else if (choice && self.remote && col.type === 'category') {
         // The values of a remote column are on the server: the box takes any text and suggests them once they arrive.
         input = el('input', 'hfx-dx-input'); attr(input, 'type', 'text');
@@ -1137,13 +1313,13 @@
         input = el('input', 'hfx-dx-input');
         attr(input, 'type', (op === 'next' || op === 'last' || op === 'older' || col.kind === 'n') ? 'number' : col.kind === 't' ? 'date' : 'text');
       }
-      attr(input, 'aria-label', 'Value');
+      attr(input, 'aria-label', self.labels.filterValue || 'Value');
       input.setAttribute('data-hfx-dx-value', '1');
       valueWrap.appendChild(input);
     }
     colSel.addEventListener('change', redrawOps);
     opSel.addEventListener('change', redrawValue);
-    var add = el('button', 'hfx-dx-btn', 'Add filter'); attr(add, 'type', 'submit');
+    var add = el('button', 'hfx-dx-btn', self.labels.addFilter || 'Add filter'); attr(add, 'type', 'submit');
     form.appendChild(colSel); form.appendChild(opSel); form.appendChild(valueWrap); form.appendChild(add);
     form.addEventListener('submit', function (e) {
       e.preventDefault();
@@ -1255,28 +1431,48 @@
     return drawerHost;
   }
 
-  // A row with a page target opens that element (with the neighbouring rows' targets for previous/next); any
-  // other row opens the record drawer.
+  // The targets of the rows around a row, for the previous and next buttons of what it opens: each target once, in the
+  // view's order. Several rows can name the same target (findings of one check); rows of a remote dataset that have not
+  // arrived are left out. Null when the row has no target.
+  Explorer.prototype.rowTargets = function (index, targetOf) {
+    var own = this.rowAt(index) >= 0 ? targetOf(this.rowAt(index)) : '';
+    if (!own) return null;
+    var from = Math.max(0, index - Math.floor(MAX_ROW_TARGETS / 2));
+    var to = Math.min(this.size(), from + MAX_ROW_TARGETS);
+    var ids = [], seen = dict();
+    for (var i = from; i < to; i++) {
+      var r = this.rowAt(i), id = r >= 0 ? targetOf(r) : '';
+      if (!id || seen[id]) continue;
+      seen[id] = true;
+      ids.push(id);
+    }
+    return { ids: ids, at: ids.indexOf(own) };
+  };
+
+  // The page target of a row (RowTarget): an element id or a report entity, with or without a leading "#".
+  Explorer.prototype.pageTargetOf = function (r) {
+    var col = this.cfg.rowTarget ? this.ds.column(this.cfg.rowTarget) : null;
+    return col ? String(col.text(r, 'export') || '').trim().replace(/^#/, '') : '';
+  };
+
+  // The report entity a row stands for (RowEntity): "type/key", with the key from the entity column.
+  Explorer.prototype.entityOf = function (r) {
+    var spec = this.cfg.rowEntity, col = spec && this.ds.column(spec.column);
+    var key = col ? String(col.text(r, 'export') || '').trim() : '';
+    return key ? spec.type + '/' + key : '';
+  };
+
+  // A row with a page target opens that element or entity (with the neighbouring rows' targets for previous/next); a
+  // row that stands for a report entity opens the entity's panel in the report's drawer; any other row opens the record
+  // drawer. A target or entity the report cannot show falls back to the record drawer too.
   Explorer.prototype.openRow = function (index, rowEl) {
     if (index < 0 || index >= this.size()) return;
-    var col = this.cfg.rowTarget ? this.ds.column(this.cfg.rowTarget) : null;
-    var own = col && this.rowAt(index) >= 0 ? col.text(this.rowAt(index), 'export') : '';
-    if (own) {
-      var from = Math.max(0, index - Math.floor(MAX_ROW_TARGETS / 2));
-      var to = Math.min(this.size(), from + MAX_ROW_TARGETS);
-      // Several rows can name the same element (findings of one check); each is visited once. Rows of a remote
-      // dataset that have not arrived are left out.
-      var ids = [], seen = dict();
-      for (var i = from; i < to; i++) {
-        var at0 = this.rowAt(i);
-        var id = at0 >= 0 ? col.text(at0, 'export') : '';
-        if (!id || seen[id]) continue;
-        seen[id] = true;
-        ids.push(id);
-      }
-      var at = ids.indexOf(own);
-      if (openPageTarget(ids, at, rowEl || this.root)) return;
-    }
+    var self = this, back = rowEl || document.activeElement || this.viewport;
+    var targets = this.cfg.rowTarget ? this.rowTargets(index, function (r) { return self.pageTargetOf(r); }) : null;
+    if (targets && openPageTarget(targets.ids, targets.at, rowEl || this.root, back)) return;
+    var report = window.hfxReport;
+    var entities = this.cfg.rowEntity && report && typeof report.openEntities === 'function' ? this.rowTargets(index, function (r) { return self.entityOf(r); }) : null;
+    if (entities && report.openEntities(entities.ids, entities.at, back)) return;
     if (this.cfg.drawer !== false) this.openDrawer(index);
   };
 
@@ -1426,6 +1622,7 @@
 
     var groups = dict(), order = [];
     ds.columns.forEach(function (c) {
+      if (c.drawer === false) return; // a key hidden in the grid, or a column the host keeps out of the drawer
       var g = c.group || labels.details;
       if (!groups[g]) { groups[g] = []; order.push(g); }
       groups[g].push(c);
@@ -1440,14 +1637,16 @@
         var dt = el('dt', null, c.label);
         if (c.description) attr(dt, 'title', c.description);
         var dd = el('dd');
-        var v = c.raw(r), text = c.textOf(v, 'export');
+        var v = c.raw(r), text = valueText(labels, c, v, 'export');
         var tone = c.tone(v);
-        if (tone) {
+        if (tone && self.isQuiet(c, tone)) {
+          dd.appendChild(el('span', 'hfx-dx-quiet', text));
+        } else if (tone) {
           var chip = toneAttrs(el('span', 'hfx-as-chip'), tone);
           var dot = toneAttrs(el('span', 'hfx-as-dot'), tone); attr(dot, 'aria-hidden', 'true');
           chip.appendChild(dot); chip.appendChild(el('span', null, text)); dd.appendChild(chip);
         } else if (c.format === 'link' && text) {
-          dd.appendChild(linkNode(text));
+          dd.appendChild(self.linkOf(r, c, text));
         } else {
           dd.textContent = text || '—';
         }
@@ -1485,8 +1684,9 @@
         rows.slice(0, rel.limit || 50).forEach(function (rr) {
           var row = el('tr');
           cols.forEach(function (c) {
-            var v = c.raw(rr), td = el('td'), tone = c.tone(v), text = c.textOf(v, 'display');
-            if (tone) { var chip = toneAttrs(el('span', 'hfx-as-chip'), tone); chip.appendChild(el('span', null, text)); td.appendChild(chip); }
+            var v = c.raw(rr), td = el('td'), tone = c.tone(v), text = valueText(labels, c, v, 'display');
+            if (tone && self.isQuiet(c, tone)) td.appendChild(el('span', 'hfx-dx-quiet', text));
+            else if (tone) { var chip = toneAttrs(el('span', 'hfx-as-chip'), tone); chip.appendChild(el('span', null, text)); td.appendChild(chip); }
             else td.textContent = text;
             if (c.format === 'mono') td.classList.add('is-mono');
             row.appendChild(td);
@@ -1597,10 +1797,16 @@
     });
   }
   var wakeSoon = debounce(wakeVisible, 60);
+  function fitAll() {
+    Object.keys(instances).forEach(function (id) { var inst = instances[id]; if (!inst.destroyed && inst.ds) inst.fitViewport(); });
+  }
   document.addEventListener('hfx:report-shown', function (event) {
     initAll(event.target && event.target.querySelectorAll ? event.target : document);
     wakeVisible();
+    // A page or chapter just shown has its explorers measured where they now stand.
+    requestAnimationFrame(fitAll);
   });
+  window.addEventListener('resize', debounce(fitAll, 120));
   document.addEventListener('click', wakeSoon, true);
   window.addEventListener('hashchange', wakeSoon);
   window.addEventListener('hfx:timezonechange', function () {

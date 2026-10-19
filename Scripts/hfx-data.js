@@ -101,12 +101,18 @@
     this.description = meta.description || null;
     this.hidden = !!meta.hidden;
     this.key = !!meta.key;
+    // Whether the record drawer lists the column (a key hidden in the grid is left out by the schema).
+    this.drawer = meta.drawer !== false;
     this.width = meta.width || null;
     // Layout intent for a host grid that fits its columns (priority, pinned, rowHeader, minWidth, maxWidth, fixed,
     // flex, autoSize), in the grid's wire names. The built-in viewport ignores it.
     this.layout = meta.layout || null;
     this.format = meta.format || null;
+    // A link column whose values are link text names the column of each row's address (ReportDatasetColumn.Link(string)).
+    this.linkTarget = meta.linkTarget || null;
     this.tones = meta.tones || null;
+    // Tones shown as plain muted text (ReportDatasetColumn.QuietTones): tokens success, neutral and info.
+    this.quiet = meta.quiet || null;
     this.local = !!meta.local;
     this.seconds = !!meta.seconds;
     this.index = index;
@@ -687,7 +693,7 @@
   };
 
   function metaOf(c) {
-    return { id: c.id, label: c.label, type: c.type, group: c.group, description: c.description, hidden: c.hidden, key: c.key, width: c.width, layout: c.layout, format: c.format, tones: c.tones, local: c.local, seconds: c.seconds };
+    return { id: c.id, label: c.label, type: c.type, group: c.group, description: c.description, hidden: c.hidden, key: c.key, drawer: c.drawer, width: c.width, layout: c.layout, format: c.format, linkTarget: c.linkTarget, tones: c.tones, quiet: c.quiet, local: c.local, seconds: c.seconds };
   }
 
   var sources = dict();

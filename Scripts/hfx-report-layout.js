@@ -1,4 +1,4 @@
-// HtmlForgeX report layout: bounded lists and distributions that fill the room their panel gets with more rows (never
+// HtmlForgeX report layout: bounded lists, distributions and change timelines that fill the room their panel gets with more rows (never
 // with wider spacing), and two-column splits whose columns end together. Everything here is measured in the browser;
 // without script a list shows its minimum rows and a split stretches its shorter column through the stylesheet alone.
 // Print shows every rendered row and stacks the columns.
@@ -10,19 +10,31 @@
   function closest(el, sel) { try { return el && el.closest ? el.closest(sel) : null; } catch (_) { return null; } }
   function shown(el) { return !!(el && el.getClientRects().length); }
   function bottomOf(el) { return el.getBoundingClientRect().bottom + window.pageYOffset; }
-  function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
   var printing = false;
 
   // ------------------------------------------------------------------ bounded lists and distributions
-  // Rows of a fitted queue, or the measured bars of a fitted distribution (coverage gaps always show).
-  function fitItems(root) { return qsa(root, ':scope > .hfx-rv-queue-list > .hfx-rv-queue-item, :scope > .hfx-rv-dist > .hfx-rv-dist-row:not(.is-gap)'); }
+  // Rows of a fitted queue, the measured bars of a fitted distribution (coverage gaps always show), or the entries of a
+  // fitted change timeline in reading order (inside their day groups when grouped).
+  function isTimeline(root) { return root.classList.contains('hfx-rv-changes'); }
+  function fitItems(root) {
+    if (isTimeline(root)) return qsa(root, ':scope > .hfx-rv-changes-list > .hfx-rv-change, :scope > .hfx-rv-changes-day > .hfx-rv-changes-list > .hfx-rv-change');
+    return qsa(root, ':scope > .hfx-rv-queue-list > .hfx-rv-queue-item, :scope > .hfx-rv-dist > .hfx-rv-dist-row:not(.is-gap)');
+  }
 
-  function setShown(root, count) {
-    fitItems(root).forEach(function (item, i) { item.classList.toggle('is-fit-extra', i >= count); });
+  function setCount(root, count) {
     root.setAttribute('data-hfx-rv-shown', String(count));
     qsa(root, '[data-hfx-rv-shown-count]').forEach(function (node) {
       node.textContent = typeof count.toLocaleString === 'function' ? count.toLocaleString() : String(count);
     });
+  }
+
+  function setShown(root, count) {
+    fitItems(root).forEach(function (item, i) { item.classList.toggle('is-fit-extra', i >= count); });
+    // A day of a timeline waits with its entries: its heading shows only while one of its entries does.
+    qsa(root, ':scope > .hfx-rv-changes-day').forEach(function (day) {
+      day.classList.toggle('is-fit-extra', !day.querySelector('.hfx-rv-change:not(.is-fit-extra)'));
+    });
+    setCount(root, count);
   }
 
   // The natural bottom of the other column of a split: its last child, measured while the split is not stretched.
@@ -39,28 +51,45 @@
     return bottom;
   }
 
-  function fitQueue(root) {
+  // The room the panel gets: down to the bottom of the window when the panel starts in the first screen, or to the
+  // natural bottom of a taller column beside it, whichever is lower.
+  function roomBottom(root, panel) {
+    var top = panel.getBoundingClientRect().top + window.pageYOffset;
+    var target = top < window.innerHeight ? window.innerHeight - 20 : 0;
+    return Math.max(target, partnerBottom(root));
+  }
+
+  // Every fitted view measures actual rows: queue details and wrapped distribution labels can vary in height just
+  // as timeline entries do. Measuring the whole panel also reserves its footer, coverage gaps and day headings.
+  function fitRows(root) {
+    // While filtered every rendered match shows; the fit is measured again when the filter is cleared and laid out.
     if (!shown(root)) return;
+    if (isTimeline(root) && root.classList.contains('is-filtering')) {
+      setCount(root, fitItems(root).filter(function (item) { return !item.classList.contains('hfx-rv-filtered'); }).length);
+      return;
+    }
     var min = parseInt(root.getAttribute('data-hfx-rv-fit-min'), 10) || 1;
     var max = parseInt(root.getAttribute('data-hfx-rv-fit-max'), 10) || min;
     var items = fitItems(root);
     if (!items.length) return;
-    setShown(root, Math.min(min, items.length));
+    var floor = Math.min(min, items.length);
+    var ceiling = Math.min(max, items.length);
+    setShown(root, floor);
     var panel = closest(root, '.hfx-as-panel') || root;
-    // One row's share of the height at its natural spacing: the shown rows' span plus the gap between rows.
-    var visibleRows = items.slice(0, Math.min(min, items.length));
-    var gap = parseFloat(getComputedStyle(items[0].parentElement).rowGap) || 0;
-    var span = visibleRows[visibleRows.length - 1].getBoundingClientRect().bottom - visibleRows[0].getBoundingClientRect().top;
-    var rowHeight = (span + gap) / visibleRows.length;
-    if (!(rowHeight > 0)) return;
-    // The room the panel gets: down to the bottom of the window when the panel starts in the first screen, or to the
-    // natural bottom of a taller column beside it, whichever is lower.
-    var top = panel.getBoundingClientRect().top + window.pageYOffset;
-    var target = top < window.innerHeight ? window.innerHeight - 20 : 0;
-    target = Math.max(target, partnerBottom(root));
-    var spare = target - bottomOf(panel);
-    var extra = spare > 0 ? Math.floor(spare / rowHeight) : 0;
-    setShown(root, clamp(min + extra, Math.min(min, items.length), Math.min(max, items.length)));
+    var target = roomBottom(root, panel);
+    if (target <= bottomOf(panel) || floor >= ceiling) return;
+    setShown(root, ceiling);
+    var fullBottom = bottomOf(panel);
+    var lastBottom = bottomOf(items[ceiling - 1]);
+    var count = floor;
+    for (var i = floor; i < ceiling; i++) {
+      if (fullBottom - (lastBottom - bottomOf(items[i])) > target) break;
+      count = i + 1;
+    }
+    setShown(root, count);
+    // Hiding categories can narrow a distribution's shared label column and wrap its remaining rows differently.
+    // Check the final geometry too, retaining the promised minimum even when that minimum fills the available room.
+    while (count > floor && bottomOf(panel) > target) setShown(root, --count);
   }
 
   // ------------------------------------------------------------------ balanced splits
@@ -93,8 +122,8 @@
     // side by side never measure each other at an earlier, larger size.
     splits.forEach(function (split) { split.classList.add('is-measuring'); });
     var queues = qsa(scope, '[data-hfx-rv-fit-min]');
-    queues.forEach(function (root) { if (shown(root)) setShown(root, Math.min(parseInt(root.getAttribute('data-hfx-rv-fit-min'), 10) || 1, fitItems(root).length)); });
-    queues.forEach(fitQueue);
+    queues.forEach(function (root) { if (shown(root) && !root.classList.contains('is-filtering')) setShown(root, Math.min(parseInt(root.getAttribute('data-hfx-rv-fit-min'), 10) || 1, fitItems(root).length)); });
+    queues.forEach(fitRows);
     splits.forEach(function (split) { split.classList.remove('is-measuring'); });
   }
 
@@ -123,7 +152,8 @@
       var current = root.getAttribute('data-hfx-rv-shown');
       var all = fitItems(root).length;
       qsa(root, '[data-hfx-rv-shown-count]').forEach(function (node) { node.textContent = String(all); });
-      return { root: root, shown: parseInt(current, 10) || all };
+      var count = parseInt(current, 10);
+      return { root: root, shown: isNaN(count) ? all : count };
     });
   });
   window.addEventListener('afterprint', function () {

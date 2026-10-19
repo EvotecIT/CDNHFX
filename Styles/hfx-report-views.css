@@ -85,9 +85,12 @@
 .hfx-as .hfx-rv-queue-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: var(--rv-rank-track) minmax(0, 1fr) auto auto; column-gap: 12px; }
 .hfx-rv-queue-item {
   grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; row-gap: 2px; align-items: center;
-  padding: 9px 4px 9px 10px; border-top: 1px solid var(--as-line); border-inline-start: 3px solid var(--sev, var(--as-line-strong));
+  padding: 9px 4px 9px 10px; border-top: 1px solid var(--as-line); border-inline-start: 3px solid transparent;
 }
-.hfx-rv-queue-item:is([data-outcome="pass"]:not([data-severity="info"]), [data-state="up"]) { border-inline-start-color: var(--as-line-strong); }
+/* One signal per row: the chip names the status and the edge stays clear. Settings(s => s.StatusEdge()) restores the
+   coloured edge (has-status-edge) for hosts that rely on it; the 3px track is kept either way, so ranks line up. */
+.hfx-rv-queue.has-status-edge .hfx-rv-queue-item { border-inline-start-color: var(--sev, var(--as-line-strong)); }
+.hfx-rv-queue.has-status-edge .hfx-rv-queue-item:is([data-outcome="pass"]:not([data-severity="info"]), [data-state="up"]) { border-inline-start-color: var(--as-line-strong); }
 .hfx-rv-queue-list > .hfx-rv-queue-item:first-child { border-top: 0; }
 .hfx-rv-queue-more > .hfx-rv-queue-list > .hfx-rv-queue-item:first-child { border-top: 1px solid var(--as-line); }
 .hfx-rv-queue-item > * { margin: 0; min-width: 0; }
@@ -103,7 +106,8 @@
 .hfx-as .hfx-rv-queue-title a { color: inherit; text-decoration: none; }
 .hfx-as .hfx-rv-queue-title a:hover { color: var(--as-accent); text-decoration: underline; }
 .hfx-as .hfx-rv-queue-meta { margin: 2px 0 0; display: flex; flex-wrap: wrap; gap: 0 6px; font-size: 12px; line-height: 1.45; color: var(--as-ink-3); }
-.hfx-rv-queue-meta > span + span::before { content: "\00b7\00a0"; }
+/* The separator ends the part before it (no break before it), so a wrapped meta line never starts with "·". */
+.hfx-rv-queue-meta > span:not(:last-child)::after { content: "\00a0\00b7"; }
 .hfx-rv-queue-scope { color: var(--as-ink-2); }
 .hfx-as .hfx-rv-queue-metric { margin: 0; text-align: right; line-height: 1.2; white-space: nowrap; }
 .hfx-rv-queue-metric b { display: block; font: 600 14px/1.2 var(--as-font-display); color: var(--as-ink); font-variant-numeric: tabular-nums; }
@@ -199,6 +203,11 @@
 .hfx-rv-dist-label > :first-child { flex: 1 1 100%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hfx-rv-dist-label small { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: var(--as-ink-3); }
 .hfx-rv-dist-label .hfx-as-chip { flex: none; min-height: 18px; padding: 0 7px; font-size: 11px; }
+/* Long names wrap instead of ending in an ellipsis: always with Settings(s => s.WrapLabels()), and in a distribution
+   narrower than 480px, where the label column has no room for a translated name. Words hyphenate by the document's
+   language (<html lang>, from ReportManifest.Language); a word with no hyphenation point left breaks anywhere last. */
+.hfx-rv-dist.is-wrap-labels .hfx-rv-dist-label > :is(:first-child, small) { white-space: normal; overflow: visible; text-overflow: clip; -webkit-hyphens: auto; hyphens: auto; overflow-wrap: break-word; }
+@container (max-width: 480px) { .hfx-rv-dist-label > :is(:first-child, small) { white-space: normal; overflow: visible; text-overflow: clip; -webkit-hyphens: auto; hyphens: auto; overflow-wrap: break-word; } }
 /* Bars are flat: no rounded caps to overlap. Segments of one bar sit 1px apart in the order the host added them. */
 .hfx-rv-dist-track { display: block; height: 10px; border-radius: 2px; background: var(--as-surface-3); overflow: hidden; }
 .hfx-rv-dist-track > i { display: block; height: 100%; min-width: 2px; border-radius: 0; background: var(--sev, var(--as-neutral)); }
@@ -206,6 +215,8 @@
 .hfx-rv-dist-bar > i { display: block; flex: 1 1 0; min-width: 2px; height: 100%; border-radius: 0; background: var(--sev, var(--as-neutral)); }
 /* Healthy is quiet: segments in the quiet tones take the calm pass fill (--hfx-dist-quiet), not the status colour. */
 .hfx-rv-dist-bar > i.is-quiet { background: var(--as-dist-quiet); }
+/* A segment without a status is neutral grey: it never inherits its row's colour or takes the pass/accent fill. */
+.hfx-rv-dist-bar > i.is-neutral { background: var(--as-neutral); }
 /* A distribution sized to its panel (Settings(s => s.Rows(min, max))): rows keep their natural spacing and stay at the
    top; categories past the fitted count wait off screen (print shows them) and the footer says how many show. */
 .hfx-as.hfx-rv-dist-fit { min-width: 0; display: flex; flex-direction: column; }
@@ -397,6 +408,10 @@
 }
 .hfx-rv-changes-day-count { font-size: 12px; font-weight: 500; color: var(--as-ink-3); font-variant-numeric: tabular-nums; }
 .hfx-rv-changes-day > .hfx-rv-changes-list > .hfx-rv-change:first-child { border-top: 0; }
+/* A timeline sized to its panel (Settings(s => s.Rows(min, max))): entries past the fitted count, and days that only hold
+   such entries, wait off screen; filtering shows every rendered match; print shows them all. */
+@media screen { .hfx-as.hfx-rv-changes:not(.is-filtering) :is(.hfx-rv-change, .hfx-rv-changes-day).is-fit-extra { display: none; } }
+.hfx-rv-changes > .hfx-rv-list-footer { margin-top: 6px; padding: 9px 0 0; }
 .hfx-rv-change-category { font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--as-ink-3); }
 .hfx-as .hfx-rv-change-values { margin: 4px 0 0; display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; line-height: 1.5; }
 .hfx-rv-change-value { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 6px; min-width: 0; }
@@ -454,7 +469,16 @@
 .hfx-as .hfx-rv-chart-caption, .hfx-as.hfx-rv-chart > .hfx-rv-chart-caption { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; margin: 0 0 8px; }
 .hfx-rv-chart-title { font: 600 13.5px/1.35 var(--as-font); color: var(--as-ink); }
 .hfx-rv-chart-subtitle { font-size: 12px; color: var(--as-ink-3); }
-.hfx-rv-chart-plot > div > svg { min-width: var(--rv-chart-min, 480px); }
+.hfx-rv-chart-plot > div > svg, .hfx-rv-chart-plot > .hfx-rv-chart-size.is-wide > div > svg { min-width: var(--rv-chart-min, 480px); }
+/* A drawing that fills its panel (time series): the SVG takes the panel's width at its own aspect, from the minimum width
+   up to 1.4 times its drawn height, so text stays between about 8 and 16 pixels. */
+.hfx-rv-chart-plot.is-fill :is(.hfx-rv-chart-themed, .hfx-rv-chart-light, .hfx-rv-chart-dark) > svg { display: block; width: 100%; height: auto; max-height: calc(var(--rv-chart-h, 360px) * 1.4); }
+/* A chart with a narrow drawing (ReportChartSettings.NarrowDrawings, time series) shows it below 640px of plot width, at the
+   plot's width, so its labels and ticks stay readable on a phone instead of scrolling sideways. */
+.hfx-rv-chart-plot.has-compact { container-type: inline-size; }
+.hfx-rv-chart-size.is-compact { display: none; }
+.hfx-rv-chart-size.is-compact svg { display: block; width: 100%; height: auto; min-width: 0; max-width: var(--rv-chart-narrow-max, none); max-height: none; }
+@container (max-width: 639.98px) { .hfx-rv-chart-size.is-wide { display: none; } .hfx-rv-chart-size.is-compact { display: block; } }
 /* The nearest theme scope decides, through inheritance, exactly as it decides the token values: the selectors are
    the ones of hfx-tokens.css, so a light scope inside a dark page (or the reverse, at any depth) gets its rendering. */
 :where(:root, [data-bs-theme="light"], [data-hfx-theme="light"], [data-hfx-tokens="light"]) { --rv-chart-light: block; --rv-chart-dark: none; }
@@ -523,7 +547,7 @@
     --hfx-ramp-diverging-negative-2: initial; --hfx-ramp-diverging-negative-3: initial; --hfx-ramp-diverging-neutral: initial; --hfx-ramp-diverging-positive-1: initial;
     --hfx-ramp-diverging-positive-2: initial; --hfx-ramp-diverging-positive-3: initial;
   }
-  .hfx-rv-chart-plot > div > svg { min-width: 0; }
+  .hfx-rv-chart-plot > div > svg, .hfx-rv-chart-plot > .hfx-rv-chart-size > div > svg { min-width: 0; }
   /* The data table of a chart prints in full once it is open, not the part that fitted its scrolling frame. */
   .hfx-rv-chart-data > .hfx-rv-scroll { max-height: none; overflow: visible; }
   .hfx-as.hfx-rv-chart { break-inside: avoid; }

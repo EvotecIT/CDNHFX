@@ -65,17 +65,30 @@
 .hfx-as-split[data-ratio="equal"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .hfx-as-split[data-ratio="single"] { grid-template-columns: minmax(0, 1fr); }
 .hfx-as-split-main, .hfx-as-split-aside { min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+/* A split stacks by the room it gets, not by the window: its frame is a size container, so a split beside the
+   navigation rail, in a drawer or in a narrow column stacks before its columns get too narrow for a summary grid. */
+.hfx-as-split-frame { container: hfx-split / inline-size; min-width: 0; }
+@container hfx-split (max-width: 959.98px) { .hfx-as-split:is([data-ratio="aside"], [data-ratio="wide"], [data-ratio="equal"]) { grid-template-columns: minmax(0, 1fr); } }
+/* Browsers without container queries stack by the window, as before. */
+@supports not (container-type: inline-size) {
+  @media (max-width: 1280px) { .hfx-as-split[data-ratio="aside"] { grid-template-columns: minmax(0, 1fr); } }
+  @media (max-width: 991.98px) { .hfx-as-split:is([data-ratio="wide"], [data-ratio="equal"]) { grid-template-columns: minmax(0, 1fr); } }
+}
 /* ReportSplit.Balance: the shorter column's last panel reaches the row's height, so the columns end together. A list
-   footer stays at the bottom of the stretched panel. The layout script measures natural heights with .is-measuring and
+   footer stays at the bottom of the stretched panel (below). The layout script measures natural heights with .is-measuring and
    stacks the columns (.is-stacked) when StretchOrStack finds them too different. */
 .hfx-as-split[data-balance] { align-items: stretch; }
 .hfx-as-split[data-balance] > * > :last-child { flex: 1 1 auto; }
+.hfx-as-split[data-balance] > * > .hfx-as-split-frame:last-child { display: flex; flex-direction: column; }
+.hfx-as-split[data-balance] > * > .hfx-as-split-frame:last-child > .hfx-as-split { flex: 1 1 auto; }
 .hfx-as-split[data-balance] > * > .hfx-as-panel:last-child { display: flex; flex-direction: column; }
 .hfx-as-split[data-balance] > * > .hfx-as-panel:last-child > .hfx-as-panel-body { flex: 1 1 auto; display: flex; flex-direction: column; }
-.hfx-as-split[data-balance] > * > .hfx-as-panel:last-child > .hfx-as-panel-body > .hfx-rv-queue:last-child { flex: 1 1 auto; display: flex; flex-direction: column; }
-.hfx-as-split[data-balance] > * > .hfx-as-panel:last-child > .hfx-as-panel-body > .hfx-rv-queue:last-child > .hfx-rv-list-footer { margin-top: auto; }
-.hfx-as-split[data-balance] > * > .hfx-as-panel:last-child > .hfx-as-panel-body > .hfx-rv-dist-fit:last-child { flex: 1 1 auto; }
-.hfx-as-split[data-balance] > * > .hfx-as-panel:last-child > .hfx-as-panel-body > .hfx-rv-dist-fit:last-child > .hfx-rv-list-footer { margin-top: auto; }
+/* Footers pin to the bottom of the stretched panel: the first list footer (ReportListFooter) or plain "View all" footer of
+   a queue, a fitted distribution or a change timeline that ends the panel, and a footer placed directly at the end of the
+   panel body. A second footer stays under the first. */
+.hfx-as-split[data-balance] > * > .hfx-as-panel:last-child > .hfx-as-panel-body > :is(.hfx-rv-queue, .hfx-rv-dist-fit, .hfx-rv-changes):last-child { flex: 1 1 auto; display: flex; flex-direction: column; }
+.hfx-as-split[data-balance] > * > .hfx-as-panel:last-child > .hfx-as-panel-body > :is(.hfx-rv-queue, .hfx-rv-dist-fit, .hfx-rv-changes):last-child > :is(.hfx-rv-list-footer, .hfx-rv-queue-foot):not(:is(.hfx-rv-list-footer, .hfx-rv-queue-foot) ~ *),
+.hfx-as-split[data-balance] > * > .hfx-as-panel:last-child > .hfx-as-panel-body > :is(.hfx-rv-list-footer, .hfx-rv-queue-foot):last-child { margin-top: auto; }
 .hfx-as-split[data-balance].is-measuring { align-items: start; }
 .hfx-as-split[data-balance].is-measuring > * > :last-child { flex: 0 0 auto; }
 .hfx-as-split.is-stacked { grid-template-columns: minmax(0, 1fr); }

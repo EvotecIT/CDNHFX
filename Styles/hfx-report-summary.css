@@ -1,4 +1,5 @@
 /* Compact report summaries, using the shared shell tokens. */
+.hfx-rv-print-count { display: none; }
 .hfx-rv-list-footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px 12px; padding: 9px 12px; border-top: 1px solid var(--as-line); font: 400 12px/1.4 var(--as-font); color: var(--as-ink-3); }
 .hfx-rv-quiet { margin: 8px 0; color: var(--as-ink-3); font-size: 12px; }
 .hfx-as.hfx-rv-chips { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 0; padding: 10px 12px; }
@@ -32,7 +33,7 @@
 .hfx-rv-queue.is-compact .hfx-rv-queue-main { min-width: 0; }
 .hfx-rv-queue.is-compact .hfx-rv-queue-meta { display: block; margin: 0; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11.5px; }
 .hfx-rv-queue.is-compact .hfx-rv-queue-meta .hfx-as-time { white-space: nowrap; }
-.hfx-rv-queue.is-compact .hfx-rv-queue-meta > span + span::before { content: " · "; }
+.hfx-rv-queue.is-compact .hfx-rv-queue-meta > span:not(:last-child)::after { content: "\00a0\00b7\00a0\200b"; }
 .hfx-rv-queue.is-compact .hfx-rv-queue-title { display: block; white-space: nowrap; text-overflow: ellipsis; font-size: 13px; line-height: 1.4; margin: 0; }
 .hfx-rv-queue.is-compact .hfx-rv-queue-item > .hfx-rv-queue-status { grid-column: 4; margin-top: 0; font-size: 11px; }
 .hfx-rv-queue.is-compact .hfx-rv-queue-metric b { font-size: 14px; }

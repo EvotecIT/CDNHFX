@@ -490,7 +490,18 @@
     return links.length ? links : [link];
   }
 
-  function entityDrawerOptions(id, links, index, returnFocus) {
+  // The entities a drawer steps through: identifiers with a panel, each once, compared without case.
+  function entityIds(ids) {
+    var seen = {};
+    return (ids || []).map(function (id) { return id == null ? '' : String(id); }).filter(function (id) {
+      var lower = id.toLowerCase();
+      if (!id || seen[lower] || !hasPanel(id)) return false;
+      seen[lower] = true;
+      return true;
+    });
+  }
+
+  function entityDrawerOptions(id, ids, index, returnFocus) {
     var tpl = entityPanel(id);
     if (!tpl) return null;
     var entry = entityEntry(id) || {};
@@ -511,14 +522,14 @@
       title: tpl.getAttribute('data-hfx-shell-entity-title') || entry.title || id,
       size: tpl.getAttribute('data-hfx-shell-entity-size') || 'regular',
       index: index,
-      count: links.length,
+      count: ids.length,
       returnFocus: returnFocus,
       onStep: function (next) {
-        var nextId = links[next].getAttribute('data-hfx-shell-entity');
+        var nextId = ids[next];
         // The neighbour's panel may be in another panel file: the drawer fills when it has arrived.
         var loading = loadPanel(nextId);
-        if (!loading) return entityDrawerOptions(nextId, links, next, returnFocus);
-        return loading.then(function () { return entityDrawerOptions(nextId, links, next, returnFocus); });
+        if (!loading) return entityDrawerOptions(nextId, ids, next, returnFocus);
+        return loading.then(function () { return entityDrawerOptions(nextId, ids, next, returnFocus); });
       },
       onContext: (entry.page || entry.file) ? function () { goToEntity(id, entry); } : null
     };
@@ -587,16 +598,48 @@
   var entityTicket = 0;
 
   function openEntity(id, link) {
+    var ids = link ? entityLinks(link).map(function (a) { return a.getAttribute('data-hfx-shell-entity'); }) : [];
+    return openEntityAmong(id, ids, link || null);
+  }
+
+  // The entity a link address names: an address of this document (or a bare fragment, which a link resolves against
+  // the base address) whose fragment is an entity identifier that no element carries. Null for any other address.
+  function entityFromHref(href) {
+    try {
+      var url = new URL(String(href || ''), document.baseURI || location.href);
+      if (!url.hash) return null;
+      var same = function (base) {
+        var other = new URL(base);
+        return url.origin === other.origin && url.pathname === other.pathname && url.search === other.search;
+      };
+      if (!same(location.href) && !(document.baseURI && same(document.baseURI))) return null;
+      var id = url.hash.slice(1);
+      try { id = decodeURIComponent(id); } catch (_) { }
+      return ENTITY.test(id) && !document.getElementById(id) ? id : null;
+    } catch (_) { return null; }
+  }
+
+  // Opens one of several entities, for example the rows of a list or a grid: its panel opens in the drawer, whose
+  // previous and next buttons step through the others that have a panel, in the given order. An entity without a panel
+  // goes to its page, or to the address a hosted report names for it. Returns false when the report knows nothing
+  // that shows the entity, so the caller can show it another way.
+  function openEntities(ids, index, returnFocus) {
+    var list = (ids || []).map(function (id) { return id == null ? '' : String(id); });
+    var id = list[index];
+    return !!id && openEntityAmong(id, list, returnFocus || null);
+  }
+
+  function openEntityAmong(id, ids, returnFocus) {
     if (!id) return false;
     entityTicket++;
     if (hasPanel(id)) {
-      var links = link ? entityLinks(link) : [];
       var lower = id.toLowerCase();
+      ids = entityIds(ids);
       // Several links may name the same entity; the position is the entity's, not the clicked link's.
-      var index = Math.max(0, links.findIndex(function (a) { return (a.getAttribute('data-hfx-shell-entity') || '').toLowerCase() === lower; }));
-      if (!links.length) { links = [document.createElement('a')]; links[0].setAttribute('data-hfx-shell-entity', id); index = 0; }
+      var index = ids.findIndex(function (other) { return other.toLowerCase() === lower; });
+      if (index < 0) { ids = [id]; index = 0; }
       var open = function () {
-        var options = entityDrawerOptions(id, links, index, link || null);
+        var options = entityDrawerOptions(id, ids, index, returnFocus);
         return !!options && openDrawer(options);
       };
       var loading = loadPanel(id);
@@ -1469,6 +1512,9 @@
     setHash: setHash,
     navigationVersion: navigationVersion,
     openEntity: openEntity,
+    openEntities: openEntities,
+    isEntityId: function (id) { return ENTITY.test(String(id || '')) && !document.getElementById(String(id)); },
+    entityFromHref: entityFromHref,
     chunks: { load: loadReportChunk },
     picker: { setOpen: setPickerOpen, sync: syncPicker },
     drawer: { open: openDrawer, close: closeDrawer, release: releaseDrawer, isOpen: drawerIsOpen, step: stepDrawer, guardScroll: guardDrawerScroll, print: printRecord },
