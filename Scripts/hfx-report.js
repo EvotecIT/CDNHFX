@@ -1089,8 +1089,11 @@
       var date = new Date(node.getAttribute('datetime') || '');
       if (isNaN(date.getTime())) return;
       var kind = node.getAttribute('data-hfx-time') || 'datetime';
-      node.textContent = formatTime(date, kind, kind === 'date' ? 'utc' : zone);
-      if (kind !== 'date') node.setAttribute('title', formatTime(date, 'datetime', zone === 'utc' ? 'local' : 'utc'));
+      var scope = node.closest('[data-hfx-time-zone]');
+      var nodeZone = scope ? scope.getAttribute('data-hfx-time-zone') : zone;
+      nodeZone = nodeZone === 'utc' ? 'utc' : 'local';
+      node.textContent = formatTime(date, kind, kind === 'date' ? 'utc' : nodeZone);
+      if (kind !== 'date') node.setAttribute('title', formatTime(date, 'datetime', nodeZone === 'utc' ? 'local' : 'utc'));
     });
   }
 
