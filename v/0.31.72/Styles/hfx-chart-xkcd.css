@@ -1,0 +1,19 @@
+.hfx-chart-xkcd-container {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.hfx-chart-xkcd {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  color: var(--tblr-body-color, var(--bs-body-color, #212529));
+  background: transparent;
+}
+
+.hfx-chart-xkcd text {
+  fill: currentColor;
+}

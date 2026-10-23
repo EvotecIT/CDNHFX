@@ -106,6 +106,7 @@
     }
     try {
       document.documentElement.setAttribute('data-bs-theme', mode);
+      document.documentElement.setAttribute('data-hfx-mode', selection === 'auto' ? 'auto' : mode);
     } catch (e) {
       // swallow
     }

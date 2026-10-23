@@ -127,7 +127,58 @@
                 }
             }
             protectExcelExportButtons(conf);
+            installRowParts(conf);
         } catch (_) { }
+    }
+
+    // DataTables creates deferred rows after the C# renderer has finished. Use
+    // its full cells array so hidden columns keep their original semantic keys.
+    function installRowParts(conf) {
+        if (conf.__hfxRowParts) return;
+        conf.__hfxRowParts = true;
+        var createdRow = conf.createdRow;
+        conf.createdRow = function (row, data, index, cells) {
+            var api = this.api();
+            row.setAttribute('data-hfx-part', 'row');
+            Array.prototype.forEach.call(cells || row.cells, function (cell, columnIndex) {
+                var header = api.column(columnIndex).header();
+                var key = header && header.getAttribute('data-col');
+                cell.setAttribute('data-hfx-part', 'cell');
+                // Attribute assignment preserves literal keys, including quotes
+                // and markup-like names, without creating an HTML injection path.
+                cell.setAttribute('data-col', key == null ? String(columnIndex) : key);
+            });
+            if (typeof createdRow === 'function') return createdRow.apply(this, arguments);
+        };
+    }
+
+    function syncRowSelection(rowApi) {
+        var row = rowApi.node();
+        if (!row || typeof rowApi.selected !== 'function') return;
+        var tokens = (row.getAttribute('data-state') || '').split(/\s+/).filter(function (value) {
+            return value && value !== 'selected';
+        });
+        if (rowApi.selected()) tokens.push('selected');
+        var value = tokens.join(' ');
+        if (row.getAttribute('data-state') !== value) row.setAttribute('data-state', value);
+    }
+
+    function bindRowPartState(api) {
+        var $ = global.jQuery || global.$;
+        var table = api.table().node();
+        if (!$ || !table || table.__hfxRowStateBound) return;
+        table.__hfxRowStateBound = true;
+        var currentRows = function () {
+            api.rows({ page: 'current' }).every(function () { syncRowSelection(this); });
+        };
+        $(table).on('select.dt.hfxRowParts deselect.dt.hfxRowParts', function (event, dt, type, indexes) {
+            if (dt.table().node() !== table || type !== 'row') return;
+            api.rows(indexes).every(function () { syncRowSelection(this); });
+        }).on('draw.dt.hfxRowParts', currentRows).on('destroy.dt.hfxRowParts', function () {
+            $(table).off('.hfxRowParts');
+            delete table.__hfxRowStateBound;
+        });
+        currentRows();
     }
 
     var adjustedTableWidths = typeof WeakMap !== 'undefined' ? new WeakMap() : null;
@@ -287,6 +338,7 @@
     function applyViewportAndToolbar(api, btnAlign, filterAlign, density) {
         try {
             var $ = global.jQuery || global.$; if (!$ || !api) return;
+            bindRowPartState(api);
             var $wrap = $(api.table().container());
             adjustTableViewport(api);
             bindResponsiveSizing(api);

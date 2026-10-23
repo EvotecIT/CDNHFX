@@ -1,0 +1,98 @@
+{
+  "version": 8,
+  "name": "Hfx High Contrast + Color Blind Safe",
+  "metadata": {
+    "hfx:a11y": "high-contrast color-blind"
+  },
+  "sources": {
+    "composite": {
+      "type": "vector",
+      "url": "mapbox://mapbox.mapbox-streets-v8"
+    }
+  },
+  "glyphs": "mapbox://fonts/mapbox/{fontstack}/{range}.pbf",
+  "layers": [
+    {
+      "id": "background",
+      "type": "background",
+      "paint": { "background-color": "#ffffff" }
+    },
+    {
+      "id": "landuse",
+      "type": "fill",
+      "source": "composite",
+      "source-layer": "landuse",
+      "paint": { "fill-color": "#f3f4f6" }
+    },
+    {
+      "id": "park",
+      "type": "fill",
+      "source": "composite",
+      "source-layer": "landuse",
+      "filter": ["==", "class", "park"],
+      "paint": { "fill-color": "#009e73" }
+    },
+    {
+      "id": "water",
+      "type": "fill",
+      "source": "composite",
+      "source-layer": "water",
+      "paint": { "fill-color": "#0072b2" }
+    },
+    {
+      "id": "road-major",
+      "type": "line",
+      "source": "composite",
+      "source-layer": "road",
+      "filter": ["==", "class", "motorway"],
+      "paint": { "line-color": "#e69f00", "line-width": 2.6 }
+    },
+    {
+      "id": "roads",
+      "type": "line",
+      "source": "composite",
+      "source-layer": "road",
+      "paint": { "line-color": "#d55e00", "line-width": 1.3 }
+    },
+    {
+      "id": "admin-boundary",
+      "type": "line",
+      "source": "composite",
+      "source-layer": "admin",
+      "filter": ["==", "admin_level", 2],
+      "paint": { "line-color": "#111827", "line-width": 1.1 }
+    },
+    {
+      "id": "place-label",
+      "type": "symbol",
+      "source": "composite",
+      "source-layer": "place_label",
+      "layout": {
+        "text-field": ["get", "name_en"],
+        "text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
+        "text-size": 12
+      },
+      "paint": {
+        "text-color": "#111827",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1.6
+      }
+    },
+    {
+      "id": "road-label",
+      "type": "symbol",
+      "source": "composite",
+      "source-layer": "road_label",
+      "layout": {
+        "text-field": ["get", "name_en"],
+        "text-font": ["Open Sans Regular", "Arial Unicode MS Regular"],
+        "text-size": 11
+      },
+      "paint": {
+        "text-color": "#111827",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1.3
+      }
+    }
+  ]
+}

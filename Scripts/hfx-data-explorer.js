@@ -988,7 +988,7 @@
     if (!this.fontSet) {
       var style = getComputedStyle(this.root);
       var family = style.fontFamily || 'sans-serif';
-      var mono = (style.getPropertyValue('--as-mono') || '').trim() || 'monospace';
+      var mono = (style.getPropertyValue('--hfx-font-mono') || '').trim() || 'monospace';
       this.fontSet = { head: '700 11px ' + family, cell: '12.5px ' + family, mono: '11.5px ' + mono };
     }
     return this.fontSet;

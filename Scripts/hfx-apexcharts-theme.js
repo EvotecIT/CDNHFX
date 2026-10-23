@@ -58,7 +58,7 @@
   }
 
   function getPalette(scope) {
-    var accentRgb = getCssVar('--hfx-surface-accent-rgb', scope) || getCssVar('--hfx-op-accent-rgb', scope);
+    var accentRgb = getCssVar('--hfx-surface-accent-rgb', scope) || getCssVar('--hfx-color-accent-rgb', scope);
     var accent = accentRgb ? ('rgb(' + accentRgb + ')') : '';
     var p1 = getCssVar('--hfx-palette-1', scope);
     var p2 = getCssVar('--hfx-palette-2', scope);
@@ -116,18 +116,30 @@
     return null;
   }
 
+  // Legacy cards keep their scoped colour overrides; design surfaces use roles.
+  function usesSemanticRoles(scope) {
+    try {
+      return !!(scope && scope.closest && scope.closest('[data-hfx-operational-workspace], [data-hfx-design-system]'));
+    } catch (_scope) {
+      return false;
+    }
+  }
+
   function resolveForeColor(scope) {
-    return getCssVar('--hfx-op-dashboard-text', scope)
-      || getCssVar('--hfx-op-text', scope)
+    var roleText = getCssVar('--hfx-color-text', scope);
+    return (usesSemanticRoles(scope) ? roleText : '')
       || getCssVar('--hfx-card-body-color', scope)
+      || roleText
       || getCssVar('--tblr-body-color', scope)
       || getCssVar('--bs-body-color', scope)
       || '#212529';
   }
 
   function resolveSurfaceBg(scope) {
-    return getCssVar('--hfx-op-dashboard-card-bg', scope)
+    var roleSurface = getCssVar('--hfx-color-surface-raised', scope);
+    return (usesSemanticRoles(scope) ? roleSurface : '')
       || getCssVar('--hfx-surface-card-bg', scope)
+      || roleSurface
       || getCssVar('--tblr-bg-surface', scope)
       || getCssVar('--tblr-card-bg', scope)
       || getCssVar('--tblr-body-bg', scope)

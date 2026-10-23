@@ -106,11 +106,14 @@
       var stored = null;
       try { stored = norm(localStorage.getItem(key)); } catch(_ls){ stored = null; }
       if (stored === 'auto') stored = null;
-      sel2 = stored || 'auto';
+      var declared = null;
+      try { declared = norm(root.getAttribute('data-hfx-theme-selection')) || norm(root.getAttribute('data-hfx-theme-default')); } catch(_declared) { }
+      sel2 = stored || declared || 'auto';
     }
 
     var r = resolve(sel2);
     try { root.setAttribute('data-bs-theme', r.m); } catch(_a) { }
+    try { root.setAttribute('data-hfx-mode', r.s === 'auto' ? 'auto' : r.m); } catch(_mode) { }
     try { root.setAttribute('data-hfx-theme', r.t); } catch(_b) { }
     try { root.setAttribute('data-hfx-theme-selection', r.s); } catch(_c) { }
 

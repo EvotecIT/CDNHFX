@@ -31,6 +31,58 @@
     }
   }
 
+  // Fixed menus escape rounded cards and nested scrolling/clipping surfaces.
+  // Keep the menu in its logical subtree so theme islands, focus and public
+  // component anatomy continue to apply without a detached overlay copy.
+  function hasClippingAncestor(toggle) {
+    for (var node = toggle && toggle.parentElement; node && node !== document.documentElement; node = node.parentElement) {
+      var css = getComputedStyle(node);
+      if (/hidden|clip|auto|scroll/.test(css.overflowX + ' ' + css.overflowY)) return true;
+    }
+    return false;
+  }
+
+  function dropdownInstance(Dropdown, toggle) {
+    if (!hasClippingAncestor(toggle)) return Dropdown.getOrCreateInstance(toggle);
+    return Dropdown.getOrCreateInstance(toggle, {
+      popperConfig: function (config) { return Object.assign({}, config, { strategy: 'fixed' }); }
+    });
+  }
+
+  var fixedFallbacks = new WeakMap();
+  var fixedProperties = ['position', 'left', 'right', 'top', 'bottom', 'transform', 'maxWidth', 'maxHeight', 'overflowY', 'margin'];
+  function releaseFixedFallback(menu) {
+    var saved = fixedFallbacks.get(menu);
+    if (!saved) return;
+    fixedProperties.forEach(function (key) { menu.style[key] = saved.styles[key]; });
+    fixedFallbacks.delete(menu);
+  }
+
+  function positionFixedFallback(toggle, menu) {
+    if (!fixedFallbacks.has(menu)) {
+      var styles = {};
+      fixedProperties.forEach(function (key) { styles[key] = menu.style[key]; });
+      fixedFallbacks.set(menu, { toggle: toggle, styles: styles });
+    }
+    var width = document.documentElement.clientWidth;
+    var height = document.documentElement.clientHeight;
+    var style = menu.style;
+    style.position = 'fixed'; style.transform = 'none'; style.margin = '0';
+    style.right = 'auto'; style.bottom = 'auto';
+    style.maxWidth = width + 'px'; style.maxHeight = height + 'px'; style.overflowY = 'auto';
+    var anchor = toggle.getBoundingClientRect();
+    var box = menu.getBoundingClientRect();
+    var parent = getDropdownContainer(toggle);
+    var up = parent && parent.classList.contains('dropup');
+    var left = menu.classList.contains('dropdown-menu-end') ? anchor.right - box.width : anchor.left;
+    var top = anchor.bottom;
+    if (parent && parent.classList.contains('dropend')) { left = anchor.right; top = anchor.top; }
+    else if (parent && parent.classList.contains('dropstart')) { left = anchor.left - box.width; top = anchor.top; }
+    else if (up || (box.height > height - anchor.bottom && anchor.top > height - anchor.bottom)) top = anchor.top - box.height;
+    style.left = Math.max(0, Math.min(left, width - box.width)) + 'px';
+    style.top = Math.max(0, Math.min(top, height - box.height)) + 'px';
+  }
+
   function ensureStaticPosition(menu) {
     try {
       if (!menu) return;
@@ -40,9 +92,15 @@
     } catch (_e) { /* ignore */ }
   }
 
-  function adjustMenuToViewport(toggle, menu) {
+  function adjustMenuToViewport(toggle, menu, fallback) {
     try {
       if (!menu) return;
+      if (hasClippingAncestor(toggle)) {
+        // Popper owns native fixed positioning. Only the no-Popper fallback
+        // needs explicit viewport coordinates; percentages would use the card.
+        if (fallback) positionFixedFallback(toggle, menu);
+        return;
+      }
       var vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
       var vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
       var toggleRect = toggle ? toggle.getBoundingClientRect() : menu.getBoundingClientRect();
@@ -86,6 +144,7 @@
       for (var i = 0; i < openMenus.length; i++) {
         try {
           openMenus[i].classList.remove('show');
+          releaseFixedFallback(openMenus[i]);
           var parent = openMenus[i].closest('.dropdown, .dropup, .dropstart, .dropend');
           if (parent) parent.classList.remove('show');
         } catch (_e) { /* ignore */ }
@@ -113,7 +172,7 @@
       toggle.setAttribute('aria-expanded', 'true');
       var parent = getDropdownContainer(toggle);
       if (parent) parent.classList.add('show');
-      adjustMenuToViewport(toggle, menu);
+      adjustMenuToViewport(toggle, menu, true);
     } catch (_e) { /* ignore */ }
   }
 
@@ -122,6 +181,7 @@
     try {
       if (menu) {
         menu.classList.remove('show');
+        releaseFixedFallback(menu);
       }
       if (toggle) {
         toggle.classList.remove('show');
@@ -151,7 +211,7 @@
               try { e.stopPropagation(); } catch (_e1) { /* ignore */ }
             }
 
-            var instance = Dropdown.getOrCreateInstance(toggle);
+            var instance = dropdownInstance(Dropdown, toggle);
             var before = menu && menu.classList.contains('show');
             if (before) {
               if (instance && instance.hide) {
@@ -185,7 +245,7 @@
               var after = menu && menu.classList.contains('show');
               if (before) {
                 if (after) {
-                  var instance = Dropdown.getOrCreateInstance(toggle);
+                  var instance = dropdownInstance(Dropdown, toggle);
                   if (instance && instance.hide) {
                     instance.hide();
                   }
@@ -226,7 +286,7 @@
       var Dropdown = resolveBootstrapDropdown();
       if (Dropdown && Dropdown.getOrCreateInstance) {
         for (var j = 0; j < toggles.length; j++) {
-          try { Dropdown.getOrCreateInstance(toggles[j]); } catch (_e5) { /* ignore */ }
+          try { dropdownInstance(Dropdown, toggles[j]); } catch (_e5) { /* ignore */ }
         }
       }
       return true;
@@ -238,6 +298,14 @@
   function bindGlobalClose() {
     if (document.__hfxDropdownGlobalClose) return;
     document.__hfxDropdownGlobalClose = true;
+    function repositionFallbacks() {
+      document.querySelectorAll('.dropdown-menu.show').forEach(function (menu) {
+        var saved = fixedFallbacks.get(menu);
+        if (saved) positionFixedFallback(saved.toggle, menu);
+      });
+    }
+    window.addEventListener('resize', repositionFallbacks);
+    document.addEventListener('scroll', repositionFallbacks, true);
     document.addEventListener('click', function (e) {
       try {
         var target = e && e.target ? e.target : null;

@@ -223,7 +223,7 @@
   }
   function syncBarHeight(shell) {
     var bar = shell && shell.querySelector('.hfx-shell-bar');
-    if (bar && bar.offsetHeight) shell.style.setProperty('--as-bar-offset', bar.offsetHeight + 'px');
+    if (bar && bar.offsetHeight) shell.style.setProperty('--hfx-shell-offset', bar.offsetHeight + 'px');
   }
 
   // ----------------------------------------------------------------- reveal
