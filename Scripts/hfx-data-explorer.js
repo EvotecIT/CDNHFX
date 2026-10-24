@@ -123,12 +123,24 @@
     if (col.kind === 'b' && value !== null && value !== undefined) return value ? (labels && labels.yes) || 'Yes' : (labels && labels.no) || 'No';
     return col.textOf(value, mode);
   }
+  // Thresholds paint the number itself; their explanation belongs to the tooltip and record details.
+  function numericText(node, column, value, text, details) {
+    if (column.type !== 'number' || !column.numericTones.length) return false;
+    var rule = column.numericTone(value);
+    var number = el('span', 'hfx-dx-number-tone', text); node.appendChild(number);
+    if (!rule) return true;
+    toneAttrs(number, rule.tone);
+    attr(node, 'title', text + (rule.label ? ' — ' + rule.label : ''));
+    if (details && rule.label) node.appendChild(el('span', 'hfx-dx-threshold-label', ' — ' + rule.label));
+    return true;
+  }
 
   function describeFilter(ds, f, labels) {
     var col = ds.column(f.column);
     var op = normOp(f.op);
     var values = f.values || [];
     if (col && col.kind === 'b') values = values.map(function (v) { return booleanWord(labels, v); });
+    else if (col && col.type === 'category') values = values.map(function (v) { return col.textOf(col.parse(v), 'display'); });
     var label = col ? col.label : f.column, word = opWord(labels, op);
     if (!needsValue(op)) return label + ' ' + word;
     if (op === 'next' || op === 'last' || op === 'older') return label + ' ' + word.replace('{days}', values[0] || '?');
@@ -161,6 +173,10 @@
     this.cfg = node ? JSON.parse(node.textContent || '{}') : {};
     this.labels = this.cfg.labels || {};
     this.id = this.cfg.id || root.id || nextId('hfx-dx');
+    // A synchronous same-ID replacement can register before the removal observer runs. Retire its detached
+    // predecessor before replacing the registry entry; connected moves retain their existing owner.
+    var predecessor = instances[this.id];
+    if (predecessor && predecessor.root !== root && !predecessor.root.isConnected) predecessor.destroy();
     this.rowHeight = this.cfg.density === 'comfortable' ? 38 : 31;
     this.views = this.cfg.views || [];
     this.storageKey = 'hfx-dx:' + (location.pathname || '') + ':' + this.id;
@@ -265,6 +281,7 @@
   };
 
   Explorer.prototype.applyView = function (view, initial, deferRefresh) {
+    if (this.ds && this.ds.rowIdentity === 'ordinal' && view && (view.keys !== undefined || view.stableKeyOrder)) throw new Error('Ordinal snapshot identity cannot replay saved selections or stable-key ordering across reports.');
     var ds = this.ds;
     var cols = (view && view.columns && view.columns.length ? view.columns : this.defaultColumns()).filter(function (id) { return ds.column(id); });
     this.state = {
@@ -287,6 +304,7 @@
   };
 
   Explorer.prototype.apply = function (spec) {
+    if (this.ds && this.ds.rowIdentity === 'ordinal' && spec.keys !== undefined) throw new Error('Ordinal snapshot identity cannot replay selected keys across reports.');
     if (!this.ds) { this.pending = spec; this.load(); return; }
     var view = null;
     if (spec.view) {
@@ -326,7 +344,7 @@
   };
 
   Explorer.prototype.compute = function () {
-    this.queryTime = Date.now(); this.order = runQuery(this.ds, this.querySpec(), this.queryTime);
+    this.queryTime = this.referenceTime(); this.order = runQuery(this.ds, this.querySpec(), this.queryTime);
     this.acceptExportQuery(this.querySpec(), this.queryTime);
   };
 
@@ -343,6 +361,7 @@
   };
 
   Explorer.prototype.draw = function (notify) {
+    this.refreshViewCounts();
     if (this.renderer) {
       this.renderQuick(); this.renderChips(); this.updateCount();
       this.active = this.size() ? 0 : -1; this.renderer.update();
@@ -433,7 +452,8 @@
     this.setBusy(true);
 
     var quick = (this.cfg.quick || []).map(function (id) { return ds.column(id); }).filter(Boolean);
-    var exportSpec = JSON.parse(JSON.stringify(this.querySpec())), exportTime = Date.now();
+    var exportSpec = JSON.parse(JSON.stringify(this.querySpec())), exportTime = this.referenceTime();
+    this.queryTime = exportTime;
     var spec = this.remoteSpec();
     spec.offset = 0;
     spec.limit = this.pageLimit(0);
@@ -526,6 +546,9 @@
 
   Explorer.prototype.ensurePage = function (p) {
     var self = this, seq = this.seq;
+    // A resize can redraw the old viewport while a replacement query's first page is still pending.
+    // Wait for that page to establish the new result before requesting any viewport pages.
+    if (this.loadedQuery !== seq) return;
     if (p < 0 || this.pages[p] || p * this.pageSize >= this.total) return;
     // A fast scroll passes many pages; only a few are asked for at once, and the rows on screen ask again.
     if (this.inflight >= PAGE_REQUESTS) return;
@@ -655,7 +678,7 @@
   Explorer.prototype.definition = function (forSavedView) {
     var st = this.state, ds = this.ds;
     // Saved UI views keep local operands editable; exported definitions use the same portable query as the endpoint.
-    var spec = this.querySpec(undefined, true);
+    var spec = this.querySpec(undefined, true, forSavedView);
     if (this.renderer && this.renderer.definition) spec = this.renderer.definition(spec);
     var def = I.wireQuery(spec, forSavedView ? null : ds);
     def.name = (this.cfg.definitionName ? this.cfg.definitionName + '-' : '') + (st.view || 'custom');
@@ -684,6 +707,22 @@
     this.viewsBar = viewsBar;
     toolbar.appendChild(viewsBar);
 
+    var phoneView = el('div', 'hfx-dx-phone-view');
+    var phoneLabel = el('label', null, (labels.view || 'View') + ':');
+    var viewSelect = el('select', 'hfx-dx-input');
+    viewSelect.id = nextId('hfx-dx-phone-view'); attr(phoneLabel, 'for', viewSelect.id); phoneView.appendChild(phoneLabel);
+    attr(viewSelect, 'aria-label', labels.view || 'View');
+    viewSelect.addEventListener('change', function () {
+      var view = self.views.concat(self.saved).filter(function (v) { return v.id === viewSelect.value; })[0];
+      if (view) self.applyView(view, false);
+    });
+    phoneView.appendChild(viewSelect);
+    var removeView = el('button', 'hfx-dx-btn is-quiet', '×'); attr(removeView, 'type', 'button'); removeView.hidden = true;
+    removeView.addEventListener('click', function () { self.removeSavedView(viewSelect.value); });
+    phoneView.appendChild(removeView); this.phoneRemoveView = removeView;
+    this.phoneView = phoneView; this.viewSelect = viewSelect;
+    toolbar.appendChild(phoneView);
+
     var tools = el('div', 'hfx-dx-tools');
     if (this.cfg.search !== false) {
       var label = el('label', 'hfx-dx-search');
@@ -706,11 +745,13 @@
       actions.appendChild(this.menuButton(labels.columns, 'columns', function (panel) { self.renderColumnPanel(panel); }));
     }
     var exports = this.cfg.exports || [];
-    if (exports.length || this.hostFormats().length) actions.appendChild(this.menuButton(labels['export'], 'export', function (panel) { self.renderExportPanel(panel); }));
+    if (exports.length || this.cfg.officeIMOExports || this.hostFormats().length) actions.appendChild(this.menuButton(labels['export'], 'export', function (panel) { self.renderExportPanel(panel); }));
     if (this.cfg.savedViews) actions.appendChild(this.menuButton(labels.saveView, 'save', function (panel) { self.renderSavePanel(panel); }));
     var reset = el('button', 'hfx-dx-btn is-quiet', labels.reset); attr(reset, 'type', 'button'); attr(reset, 'data-hfx-dx-reset', '1');
     reset.addEventListener('click', function () { self.applyView(self.currentView(), false); });
-    actions.appendChild(reset);
+    var actionPair = el('div', 'hfx-dx-action-pair');
+    if (actions.lastElementChild) actionPair.appendChild(actions.lastElementChild);
+    actionPair.appendChild(reset); actions.appendChild(actionPair);
     tools.appendChild(actions);
     toolbar.appendChild(tools);
 
@@ -856,25 +897,48 @@
     var self = this, bar = this.viewsBar;
     bar.textContent = '';
     var all = this.views.map(function (v) { return { v: v, saved: false }; }).concat(this.saved.map(function (v) { return { v: v, saved: true }; }));
-    if (all.length < 2 && !this.saved.length) { bar.hidden = true; return; }
+    this.viewSelect.textContent = '';
+    this.phoneView.hidden = all.length < 2 && !this.saved.length;
+    var selectedSaved = this.saved.filter(function (view) { return view.id === self.state.view; })[0];
+    this.phoneRemoveView.hidden = !selectedSaved;
+    if (selectedSaved) {
+      var removeLabel = fmt(this.labels.removeView || 'Remove {view}', { view: selectedSaved.title });
+      attr(this.phoneRemoveView, 'aria-label', removeLabel); attr(this.phoneRemoveView, 'title', removeLabel);
+    }
+    if (this.phoneView.hidden) { bar.hidden = true; return; }
     bar.hidden = false;
     all.forEach(function (item) {
       var v = item.v, on = v.id === self.state.view;
       var b = el('button', 'hfx-dx-view' + (item.saved ? ' is-saved' : ''), v.title);
       attr(b, 'type', 'button'); attr(b, 'role', 'tab'); attr(b, 'aria-selected', on ? 'true' : 'false');
+      var count = self.viewCounts && self.viewCounts[v.id];
+      var option = el('option', null, v.title + (count !== undefined ? ' · ' + num(count) : ''));
+      option.value = v.id; option.selected = on;
+      self.viewSelect.appendChild(option);
+      if (count !== undefined) { b.textContent += ' · ' + num(count); attr(b, 'aria-label', v.title); attr(b, 'aria-description', num(count) + ' ' + (self.labels.rows || 'rows')); }
       if (v.description) attr(b, 'title', v.description);
       b.addEventListener('click', function () { self.applyView(v, false); });
       bar.appendChild(b);
       if (item.saved) {
         var x = el('button', 'hfx-dx-view-remove', '×'); attr(x, 'type', 'button'); attr(x, 'aria-label', fmt(self.labels.removeView || 'Remove {view}', { view: v.title }));
         x.addEventListener('click', function () {
-          self.saved = self.saved.filter(function (s) { return s.id !== v.id; });
-          storageSet(self.storageKey, self.saved);
-          self.renderViews();
+          self.removeSavedView(v.id);
         });
         bar.appendChild(x);
       }
     });
+  };
+
+  Explorer.prototype.removeSavedView = function (id) {
+    this.saved = this.saved.filter(function (view) { return view.id !== id; });
+    storageSet(this.storageKey, this.saved);
+    if (this.state.view === id) {
+      var focus = this.viewSelect.getClientRects().length && (this.views.length > 1 || this.saved.length) ? this.viewSelect : this.root.querySelector('[data-hfx-dx-search]');
+      if (!focus) { attr(this.root, 'tabindex', '-1'); focus = this.root; }
+      // Set focus before refreshing: a native viewport replacement preserves the invoking search's focus.
+      focus.focus();
+      this.applyView(this.views.filter(function (view) { return view.default; })[0] || this.views[0] || null, false);
+    } else this.renderViews();
   };
 
   Explorer.prototype.renderQuick = function () {
@@ -894,7 +958,7 @@
         var b = el('button', 'hfx-dx-qchip');
         attr(b, 'type', 'button'); attr(b, 'aria-pressed', on ? 'true' : 'false');
         var tone = col.tone(col.parse(d.value)); if (tone) toneAttrs(b, tone);
-        b.appendChild(el('span', 'hfx-dx-qchip-label', col.kind === 'b' ? booleanWord(self.labels, d.value) : d.value));
+        b.appendChild(el('span', 'hfx-dx-qchip-label', col.kind === 'b' ? booleanWord(self.labels, d.value) : col.textOf(col.parse(d.value), 'display')));
         b.appendChild(el('span', 'hfx-dx-qchip-count', num(d.count)));
         b.addEventListener('click', function () {
           var set = self.state.quick[col.id] || (self.state.quick[col.id] = dict());
@@ -913,7 +977,7 @@
     if (this.remote) return this.facets[col.id.toLowerCase()] || [];
     var spec = this.querySpec(col.id);
     spec.limit = 0;
-    var rows = runQuery(this.ds, spec, this.queryTime || Date.now());
+    var rows = runQuery(this.ds, spec, this.queryTime === undefined ? this.referenceTime() : this.queryTime);
     return col.distinct(rows).slice(0, QUICK_VALUES);
   };
 
@@ -921,6 +985,10 @@
     var self = this, bar = this.chipBar, ds = this.ds;
     bar.textContent = '';
     var any = false;
+    (this.cfg.contextChips || []).forEach(function (text) {
+      any = true;
+      bar.appendChild(el('span', 'hfx-dx-fchip is-context', String(text)));
+    });
     // A filter another component applied comes first, named after it; removing it tells that component (hfx-dx:externalfilter).
     this.externalFilters().forEach(function (f) {
       any = true;
@@ -974,15 +1042,23 @@
   };
 
   Explorer.prototype.updateCount = function () {
-    var shown = this.size(), total = this.totalRows();
-    this.count.textContent = fmt(this.labels.count, { shown: num(shown), total: num(total) });
+    var shown = this.size(), total = this.totalRows(), totalLabel = this.totalRowsLabel();
+    this.count.textContent = fmt(this.labels.count, { shown: num(shown), total: totalLabel });
     // The short form a narrow toolbar shows: the rows shown, and the total when filters narrow them. The full sentence
     // stays the element's text, for assistive technology and anything that reads it.
-    this.count.setAttribute('data-short', shown === total ? num(shown) : num(shown) + ' / ' + num(total));
+    this.count.setAttribute('data-short', shown === total ? num(shown) : num(shown) + ' / ' + totalLabel);
   };
 
   // Rows in the dataset before any filter. A remote dataset says so in the page; live data may have grown since.
   Explorer.prototype.totalRows = function () { return this.remote ? Math.max(this.remote.rows || 0, this.total) : this.ds.rows; };
+
+  // Population counts may be unavailable while a scoped remote count is pending or refused.
+  Explorer.prototype.totalRowsLabel = function () { var total = this.totalRows(); return total === null ? '…' : num(total); };
+
+  Explorer.prototype.columnLayout = function (column) {
+    var lines = this.cfg.columnWrapping && this.cfg.columnWrapping[column.id];
+    return lines ? Object.assign({}, column.layout || {}, { wrap: true, maxLines: lines }) : column.layout;
+  };
 
   Explorer.prototype.fonts = function () {
     if (!this.fontSet) {
@@ -1022,7 +1098,7 @@
       var v = col.raw(r), text = valueText(this.labels, col, v, 'display');
       if (!text) continue;
       sizes.push(textWidth(text, font));
-      if (!chip && col.tone(v)) chip = true;
+      if (!chip && !col.numericTones.length && col.tone(v)) chip = true;
     }
     sizes.sort(function (a, b) { return a - b; });
     var content = (sizes.length ? sizes[Math.min(sizes.length - 1, Math.floor(sizes.length * 0.95))] : 0) + CELL_PAD + (chip ? CHIP_PAD : 0);
@@ -1036,6 +1112,9 @@
   Explorer.prototype.renderHeader = function () {
     if (this.renderer) return;
     var self = this, cols = this.visibleColumns(), head = this.head;
+    this.rowHeight = Math.max(this.cfg.density === 'comfortable' ? 38 : 31,
+      cols.reduce(function (height, c) { var layout = self.columnLayout(c); return layout && layout.wrap ? Math.max(height, (layout.maxLines || 2) * 17 + 10) : height; }, 0));
+    this.viewport.style.setProperty('--dx-row', this.rowHeight + 'px');
     var widths = cols.map(function (c) { return self.columnWidth(c); });
     // Spare width goes to text-like columns in proportion to their size; numbers and dates keep their fit.
     var grow = cols.map(function (c) { return c.type === 'text' || c.type === 'category' || c.format === 'mono' || c.format === 'link'; });
@@ -1162,7 +1241,20 @@
       if (c.format === 'mono') cell.classList.add('is-mono');
       var text = valueText(this.labels, c, v, 'display');
       var tone = c.tone(v);
-      if (tone && this.isQuiet(c, tone)) {
+      var layout = this.columnLayout(c);
+      cell.classList.toggle('is-wrap', !!(layout && layout.wrap));
+      if (layout && layout.wrap) {
+        cell.style.setProperty('--dx-lines', layout.maxLines || 2);
+        attr(cell, 'title', text);
+      } else {
+        cell.style.removeProperty('--dx-lines');
+        var tooltip = layout && layout.tooltip, source = tooltip && tooltip !== 'auto' ? this.ds.column(tooltip) : null;
+        if (tooltip === 'auto' || source) attr(cell, 'title', source ? valueText(this.labels, source, source.raw(r), 'display') : text);
+        else cell.removeAttribute('title');
+      }
+      if (numericText(cell, c, v, text, false)) {
+        // Numeric threshold colours never borrow the filled category-chip treatment.
+      } else if (tone && this.isQuiet(c, tone)) {
         cell.appendChild(el('span', 'hfx-dx-quiet', text));
       } else if (tone) {
         var chip = toneAttrs(el('span', 'hfx-as-chip hfx-dx-chip'), tone);
@@ -1173,6 +1265,11 @@
         cell.appendChild(this.linkOf(r, c, text));
       } else {
         cell.textContent = text;
+      }
+      if (layout && layout.wrap) {
+        var wrapped = el('span', 'hfx-dx-wrap-value');
+        while (cell.firstChild) wrapped.appendChild(cell.firstChild);
+        cell.appendChild(wrapped);
       }
   };
 
@@ -1374,8 +1471,10 @@
       e.preventDefault();
       var title = input.value.trim();
       if (!title) { input.focus(); return; }
-      var def = self.definition(true);
-      var view = { id: 'saved-' + Date.now().toString(36), title: title, columns: def.columns, keys: def.keys, filters: (def.filters || []).map(function (f) { return { column: f.column, op: f.op, values: f.values || (f.value !== undefined ? [f.value] : []) }; }), sort: def.sort || [], search: def.search || '', searchIn: def.searchIn, stableKeyOrder: !!def.stableKeyOrder, labels: def.labels || {}, limit: def.limit > 0 ? def.limit : null };
+      var def;
+      try { def = self.definition(true); }
+      catch (error) { self.setStatus(error.message, true); return; }
+      var view = { scopeView: def.scopeView, id: 'saved-' + Date.now().toString(36), title: title, columns: def.columns, keys: def.keys, filters: (def.filters || []).map(function (f) { return { column: f.column, op: f.op, values: f.values || (f.value !== undefined ? [f.value] : []) }; }), sort: def.sort || [], search: def.search || '', searchIn: def.searchIn, stableKeyOrder: !!def.stableKeyOrder, labels: def.labels || {}, limit: def.limit > 0 ? def.limit : null };
       self.saved.push(view);
       storageSet(self.storageKey, self.saved);
       input.value = '';
@@ -1627,6 +1726,9 @@
       if (!groups[g]) { groups[g] = []; order.push(g); }
       groups[g].push(c);
     });
+    var preferred = this.cfg.drawerGroups || [];
+    order = preferred.filter(function (g, index) { return groups[g] && preferred.indexOf(g) === index; })
+      .concat(order.filter(function (g) { return preferred.indexOf(g) < 0; }));
     order.forEach(function (g) {
       var cols = groups[g].filter(function (c) { return showEmpty || c.raw(r) !== null; });
       if (!cols.length) return;
@@ -1639,7 +1741,9 @@
         var dd = el('dd');
         var v = c.raw(r), text = valueText(labels, c, v, 'export');
         var tone = c.tone(v);
-        if (tone && self.isQuiet(c, tone)) {
+        if (numericText(dd, c, v, text, true)) {
+          // Keep the raw number and show its localized threshold explanation alongside it.
+        } else if (tone && self.isQuiet(c, tone)) {
           dd.appendChild(el('span', 'hfx-dx-quiet', text));
         } else if (tone) {
           var chip = toneAttrs(el('span', 'hfx-as-chip'), tone);
@@ -1685,7 +1789,8 @@
           var row = el('tr');
           cols.forEach(function (c) {
             var v = c.raw(rr), td = el('td'), tone = c.tone(v), text = valueText(labels, c, v, 'display');
-            if (tone && self.isQuiet(c, tone)) td.appendChild(el('span', 'hfx-dx-quiet', text));
+            if (numericText(td, c, v, text, false)) { /* The threshold word stays in the tooltip. */ }
+            else if (tone && self.isQuiet(c, tone)) td.appendChild(el('span', 'hfx-dx-quiet', text));
             else if (tone) { var chip = toneAttrs(el('span', 'hfx-as-chip'), tone); chip.appendChild(el('span', null, text)); td.appendChild(chip); }
             else td.textContent = text;
             if (c.format === 'mono') td.classList.add('is-mono');
@@ -1822,9 +1927,12 @@
     });
   });
 
+  window.HfxDataExplorerSnapshots.install({ Explorer: Explorer, Data: Data, runQuery: runQuery });
   window.HfxDataExplorerExports.install({Explorer:Explorer,Data:Data,I:I,el:el,attr:attr,fmt:fmt,num:num,pad:pad,dict:dict});
   if (window.HfxDataExplorerMenus) window.HfxDataExplorerMenus.install({ Explorer: Explorer, qsa: qsa });
   if (window.HfxDataExplorerPrint) window.HfxDataExplorerPrint.install({ Explorer: Explorer, instances: instances, el: el, attr: attr, fmt: fmt, num: num, closest: closest, qsa: qsa, describeFilter: describeFilter, headerOf: headerOf, initAll: initAll });
+
+  window.HfxDataExplorerScope.install({ Explorer: Explorer, I: I, el: el, attr: attr, num: num, describeFilter: describeFilter });
 
   function start() { initAll(); shortcutFromHash(); setTimeout(wakeVisible, 400); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();

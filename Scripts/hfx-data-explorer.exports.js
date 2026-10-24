@@ -40,21 +40,22 @@
     var self = this, labels = this.labels, ex = this.cfg.exports || [];
     function item(text, fn) { var b = el('button', 'hfx-dx-menuitem', text); attr(b, 'type', 'button'); b.addEventListener('click', fn); panel.appendChild(b); return b; }
     // The note of the open panel: an export that is still running reports there, also after the menu was reopened.
-    var note = el('p', 'hfx-dx-note', this.exportMessage || fmt(labels.count, { shown: num(this.size()), total: num(this.totalRows()) }));
+    var note = el('p', 'hfx-dx-note', this.exportMessage || fmt(labels.count, { shown: num(this.size()), total: this.totalRowsLabel() }));
     attr(note, 'role', 'status');
     panel.appendChild(note);
     this.exportNote = note;
     var scopeLabel = el('label', 'hfx-dx-export-scope', labels.exportScope), scope = el('select', 'hfx-dx-input');
     attr(scope, 'aria-label', labels.exportScope);
     [['filtered', labels.exportFiltered], ['selected', labels.exportSelected], ['all', labels.exportAll]].forEach(function (value) {
+      if (value[0] === 'selected' && !self.cfg.selectedRowExports) return;
       var option = el('option', '', value[1]); option.value = value[0];
-      option.disabled = value[0] === 'selected' && !(self.renderer && self.renderer.getSelection);
+      option.disabled = value[0] === 'selected' && !(self.cfg.selectedRowExports && self.renderer && self.renderer.getSelection);
       scope.appendChild(option);
     });
     scope.value = this.exportScope || 'filtered';
     scope.addEventListener('change', function () { self.exportScope = scope.value; });
     scopeLabel.appendChild(scope); panel.appendChild(scopeLabel);
-    if (ex.indexOf('csv') >= 0) item(labels.exportCsv, function () {
+    if (ex.indexOf('csv') >= 0 && !this.cfg.officeIMOExports) item(labels.exportCsv, function () {
       if (self.exporting) { self.exportSay(labels.exportBusy, true); return; }
       var capture = self.tryCaptureExport(scope.value, 'CSV');
       if (!capture) return;
@@ -62,13 +63,18 @@
       download(capture.name, 'text/csv;charset=utf-8', ['\uFEFF' + toCsv(capture.columns, capture.rows, capture.labels)]); self.closeMenus();
     });
     if (ex.indexOf('copy') >= 0) item(labels.copyRows, function () { self.copyRows(scope.value); });
-    // Office files are rendered by the host (OfficeIMO on the server), never in the page.
+    if (this.cfg.officeIMOExports) ['xlsx', 'csv', 'pdf'].forEach(function (format) {
+      item(format === 'csv' ? labels.exportCsv : fmt(labels.exportFile, {format:format.toUpperCase()}), function () { self.exportOfficeIMO(format, scope.value); });
+    });
+    // Hosted downloads retain their own endpoint contract. Browser-side OfficeIMO owns its configured formats.
     this.hostFormats().forEach(function (format) {
+      if (self.cfg.officeIMOExports && ['xlsx', 'csv', 'pdf'].indexOf(format) >= 0) return;
       item(fmt(labels.exportFile || 'Download {format}', { format: String(format).toUpperCase() }), function () { self.exportHost(format, scope.value); });
     });
     if (ex.indexOf('definition') >= 0) {
       var box = el('textarea', 'hfx-dx-definition'); attr(box, 'readonly', 'readonly'); attr(box, 'rows', '8'); attr(box, 'aria-label', labels.exportDefinition);
-      box.value = JSON.stringify(this.definition(), null, 2);
+      try { box.value = JSON.stringify(this.definition(), null, 2); }
+      catch (error) { self.exportSay(error.message, true); return; }
       panel.appendChild(el('p', 'hfx-dx-colgroup', labels.exportDefinition));
       panel.appendChild(box);
       item(labels.copy, function () {
@@ -82,6 +88,32 @@
   Explorer.prototype.tryCaptureExport = function (scope, format) {
     try { return this.captureExport(scope); }
     catch (error) { this.exportSay(fmt(this.labels.exportError, {format:format,reason:error.message})); return null; }
+  };
+
+  Explorer.prototype.exportOfficeIMO = function (format, scope) {
+    if (this.destroyed) return;
+    var self = this, labels = this.labels, upper = format.toUpperCase();
+    if (this.exporting) { this.exportSay(labels.exportBusy, true); return; }
+    var capture = this.tryCaptureExport(scope, upper);
+    if (!capture) return;
+    var abort = this.exportAbort = new AbortController();
+    this.exporting = true;
+    this.exportSay(fmt(labels.exportPreparing, {format:upper}), true);
+    Promise.resolve().then(function () {
+      if (!self.renderer || !self.renderer.prepareExport || !window.hfxOfficeIMO)
+        throw new Error('OfficeIMO exports are unavailable.');
+      return window.hfxOfficeIMO.explorer(self.renderer.prepareExport(capture, abort.signal), format, abort.signal);
+    }).then(function (blob) {
+      if (self.destroyed || abort.signal.aborted) return;
+      download(capture.name.slice(0, -4) + '.' + format, blob.type, [blob]);
+      self.exportSay(fmt(labels.count, {shown:num(self.size()),total:num(self.totalRows())}));
+      self.closeMenus();
+    }).catch(function (failure) {
+      if (!self.destroyed && !abort.signal.aborted) self.exportSay(fmt(labels.exportError, {format:upper,reason:failure.message}));
+    }).then(function () {
+      if (self.exportAbort === abort) self.exportAbort = null;
+      self.exporting = false;
+    });
   };
 
   Explorer.prototype.copyRows = function (scope) {
@@ -157,7 +189,7 @@
         return response.blob().then(function (blob) {
           if (self.destroyed || abort.signal.aborted) return;
           download(fileNameOf(response.headers.get('Content-Disposition'), format) || capture.name.slice(0,-4) + '.' + format, blob.type || 'application/octet-stream', [blob]);
-          self.exportSay(fmt(labels.count, { shown: num(self.size()), total: num(self.totalRows()) }));
+          self.exportSay(fmt(labels.count, { shown: num(self.size()), total: self.totalRowsLabel() }));
         });
       })
       .then(null, function (err) { if (!self.destroyed && !abort.signal.aborted) self.exportSay(fmt(labels.exportError, { format: upper, reason: err && err.message ? err.message : '' }).trim()); })
@@ -232,8 +264,10 @@
     this.collectExport(capture, cap, false, ',').then(function (result) {
       if (self.destroyed || capture.seq !== self.seq) throw new DOMException('Cancelled', 'AbortError');
       download(capture.name, 'text/csv;charset=utf-8', ['\uFEFF'].concat(result.parts));
-      self.exportSay(fmt(result.done < result.total ? self.labels.exportTruncated : self.labels.count,
-        {shown:num(result.done),total:num(result.total)}));
+      var truncated = result.done < result.total;
+      // A truncation reports the known file-result size. A completed scoped export keeps the view-population count.
+      var total = !truncated && self.scopeFilters && self.scopeFilters().length ? self.totalRowsLabel() : num(result.total);
+      self.exportSay(fmt(truncated ? self.labels.exportTruncated : self.labels.count, {shown:num(result.done),total:total}));
     }).catch(function (error) { if (!self.destroyed) self.exportSay(self.errorText(error)); })
     .then(function () { self.exporting = false; });
   };

@@ -662,7 +662,7 @@
   // One drawer per page. Content is either moved in from a source element and moved back when the drawer closes or
   // steps (so nothing is duplicated and widgets keep their state), or supplied as a fragment.
   var drawer = null; // { wrap, options, source, returnFocus }
-  var drawerLabels = { close: 'Close', previous: 'Previous', next: 'Next', context: 'Show in page', print: 'Print this record', record: 'Record' };
+  var drawerLabels = { close: 'Close', previous: 'Previous', next: 'Next', context: 'Show in page', print: 'Print this record', record: 'Record', copyTitle: 'Copy name' };
 
   function drawerWrap(options) {
     var shell = options.shell ? shellOf(options.shell) : document.querySelector('[data-hfx-shell]');
@@ -693,6 +693,9 @@
     titles.appendChild(el('p', 'hfx-as-eyebrow', { 'data-hfx-shell-drawer-eyebrow': '1' }));
     var row = el('div', 'hfx-shell-drawer-title-row');
     row.appendChild(el('h2', '', { id: id + '-title', 'data-hfx-shell-drawer-title': '1' }));
+    var copyTitle = el('button', 'hfx-as-linkbtn hfx-shell-drawer-copy', { type: 'button', 'data-hfx-shell-drawer-copy': '1', 'data-hfx-copy-text': '' });
+    copyTitle.textContent = labels.copyTitle;
+    row.appendChild(copyTitle);
     row.appendChild(el('span', '', { 'data-hfx-shell-drawer-status': '1' }));
     titles.appendChild(row);
     head.appendChild(titles);
@@ -755,7 +758,11 @@
     }
     wrap.querySelector('[data-hfx-shell-drawer]').setAttribute('data-size', options.size || 'wide');
     wrap.querySelector('[data-hfx-shell-drawer-eyebrow]').textContent = options.eyebrow || '';
-    wrap.querySelector('[data-hfx-shell-drawer-title]').textContent = options.title || '';
+    var title = wrap.querySelector('[data-hfx-shell-drawer-title]');
+    title.textContent = options.title || '';
+    title.title = options.title || '';
+    var copy = wrap.querySelector('[data-hfx-shell-drawer-copy]');
+    if (copy) { copy.setAttribute('data-hfx-copy-text', options.title || ''); copy.hidden = !options.title; }
     var status = wrap.querySelector('[data-hfx-shell-drawer-status]');
     status.innerHTML = '';
     if (options.status) status.appendChild(options.status);
@@ -1425,17 +1432,32 @@
     heading.textContent = word + ' · ' + title;
     if (eyebrow) { var small = document.createElement('small'); small.textContent = eyebrow; heading.appendChild(small); }
     record.appendChild(heading);
-    var body = wrap.querySelector('[data-hfx-shell-drawer-body]');
-    if (body) { var copy = body.cloneNode(true); copy.removeAttribute('data-hfx-shell-drawer-body'); copy.className = 'hfx-shell-print-record-body'; record.appendChild(copy); }
-    var style = document.createElement('style');
-    style.textContent = '@page hfx-record{@top-right{content:' + cssString(word + ' · ' + title) + '}}';
-    record.appendChild(style);
-    host.appendChild(record);
-    host.classList.add('is-printing-record');
+    // Views that draw their print copy on beforeprint (diffs, change lists, grids) draw it before the record is copied; the
+    // browser's own beforeprint follows and finds them ready.
+    // The record print is marked first, so the shell's own print preparation leaves the drawer open.
     printingRecord = { host: host, record: record };
-    window.print();
-    // Browsers that print without the afterprint event (or print asynchronously) clean up on the next interaction.
-    setTimeout(function () { if (printingRecord && !(window.matchMedia && window.matchMedia('print').matches)) endRecordPrint(); }, 1000);
+    var printed = false;
+    window.addEventListener('afterprint', function () { printed = true; }, { once: true });
+    try {
+      window.dispatchEvent(new Event('beforeprint'));
+      var body = wrap.querySelector('[data-hfx-shell-drawer-body]');
+      if (body) { var copy = body.cloneNode(true); copy.removeAttribute('data-hfx-shell-drawer-body'); copy.className = 'hfx-shell-print-record-body'; record.appendChild(copy); }
+      var style = document.createElement('style');
+      style.textContent = '@page hfx-record{@top-right{content:' + cssString(word + ' · ' + title) + '}}';
+      record.appendChild(style);
+      host.appendChild(record);
+      host.classList.add('is-printing-record');
+      window.print();
+    } catch (_) {
+      endRecordPrint();
+    }
+    // Browsers that print without print events (or print asynchronously) are told the print ended, so every view that the
+    // synthetic beforeprint prepared returns to the screen, and the record is removed.
+    setTimeout(function () {
+      if (!printingRecord || (window.matchMedia && window.matchMedia('print').matches)) return;
+      if (!printed) { try { window.dispatchEvent(new Event('afterprint')); } catch (_) { } }
+      endRecordPrint();
+    }, 1000);
   }
   function endRecordPrint() {
     if (!printingRecord) return;

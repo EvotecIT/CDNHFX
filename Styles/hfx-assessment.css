@@ -360,7 +360,8 @@
 .hfx-as-gate em { font-style: normal; color: var(--hfx-color-text-secondary); }
 
 /* ---------- stats & bars ---------- */
-.hfx-as-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.hfx-as-stats { display: flex; flex-wrap: wrap; }
+.hfx-as-stats > .hfx-as-stat { flex: 1 1 150px; box-sizing: border-box; }
 .hfx-as .hfx-as-stat { display: block; padding: 16px 18px; border-right: 1px solid var(--hfx-color-border); border-bottom: 1px solid var(--hfx-color-border); color: inherit; text-decoration: none; min-width: 0; }
 .hfx-as a.hfx-as-stat:hover { background: var(--hfx-color-surface-sunken); text-decoration: none; }
 .hfx-as-stat b { display: block; font: 600 24px/1.2 var(--hfx-font-display); letter-spacing: -.02em; color: var(--tone, var(--hfx-color-text)); }

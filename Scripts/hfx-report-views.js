@@ -19,6 +19,10 @@
     var explorer = explorerRoot && explorerRoot.hfxDataExplorer;
     if (explorer && explorer.state) explorer.clearFilters();
     else {
+      qsa(root, '[data-hfx-rv-facet]').forEach(function (select) {
+        select.value = '';
+        select.dispatchEvent(new Event('change', { bubbles: true }));
+      });
       qsa(root, '[data-hfx-rv-filter-input], [data-hfx-rv-matrix-filter]').forEach(function (input) {
         input.value = '';
         input.dispatchEvent(new Event('input', { bubbles: true }));
@@ -41,12 +45,18 @@
     var words = norm(input ? input.value : '').split(/\s+/).filter(Boolean);
     var chip = root.querySelector('[data-hfx-rv-chips] [data-hfx-rv-chip][aria-pressed="true"]');
     var category = chip ? chip.getAttribute('data-hfx-rv-chip') : '';
+    var facets = qsa(root, '[data-hfx-rv-facet]').filter(function (select) {
+      return closest(select, '[data-hfx-rv-filter]') === root && select.value !== '';
+    });
     var items = qsa(root, '[data-search]');
     var shown = 0;
     items.forEach(function (item) {
       var text = item.getAttribute('data-search') || '';
+      var values = {};
+      try { values = JSON.parse(item.getAttribute('data-hfx-rv-facets') || '{}'); } catch (_) { }
       var match = words.every(function (w) { return text.indexOf(w) >= 0; }) &&
-        (!category || item.getAttribute('data-category') === category);
+        (!category || item.getAttribute('data-category') === category) &&
+        facets.every(function (select) { return Object.prototype.hasOwnProperty.call(values, select.getAttribute('data-hfx-rv-facet')) && values[select.getAttribute('data-hfx-rv-facet')] === select.value; });
       item.classList.toggle('hfx-rv-filtered', !match);
       if (match) shown++;
     });
@@ -56,7 +66,7 @@
     var none = root.querySelector('[data-hfx-rv-filter-none]');
     if (none) none.hidden = shown > 0;
     var count = root.querySelector('[data-hfx-rv-filter-count]');
-    var filtered = words.length > 0 || !!category;
+    var filtered = words.length > 0 || !!category || facets.length > 0;
     // A timeline sized to its panel shows every rendered match while it is filtered.
     root.classList.toggle('is-filtering', filtered);
     if (root.hasAttribute('data-hfx-rv-fit-min') && window.hfxReportLayout) window.hfxReportLayout.layout(document);
@@ -79,6 +89,17 @@
     var target = e.target;
     if (target && target.matches && target.matches('[data-hfx-rv-filter-input]')) applyFilter(closest(target, '[data-hfx-rv-filter]'));
   });
+  document.addEventListener('change', function (e) {
+    var target = e.target;
+    if (target && target.matches && target.matches('[data-hfx-rv-facet]')) applyFilter(closest(target, '[data-hfx-rv-filter]'));
+  });
+
+  // Native disclosures retain their semantics; newly visible grids receive the shared reveal lifecycle.
+  document.addEventListener('toggle', function (e) {
+    var panel = e.target;
+    if (panel.matches && panel.matches('details.hfx-as-panel') && panel.open)
+      panel.dispatchEvent(new CustomEvent('hfx:report-shown', { bubbles: true }));
+  }, true);
 
   // ------------------------------------------------------------------ class toggles
   // A button marked data-hfx-rv-toggle="class" switches that class on the view it belongs to.
@@ -570,16 +591,26 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { initViews(document); });
   else initViews(document);
   // The report runtime announces content it has just shown or inserted (a page, a drawer panel).
-  document.addEventListener('hfx:report-shown', function (e) { initViews(e.target && e.target.querySelectorAll ? e.target : document); });
+  document.addEventListener('hfx:report-shown', function (e) {
+    var scope = e.target && e.target.querySelectorAll ? e.target : document;
+    initViews(scope);
+    // Tabs and deferred regions can insert closed disclosures after our beforeprint listener has already run.
+    if (printOpened !== null) openPrintDisclosures(scope);
+  });
 
   // ------------------------------------------------------------------ print
   // Items under a disclosure print too. The report shell opens the disclosures inside it; this covers views that are
   // used without a shell.
   var printOpened = null;
+  function openPrintDisclosures(scope) {
+    qsa(scope, 'details.hfx-rv-queue-more:not([open]), details.hfx-rv-consistency-more:not([open]), details[data-hfx-rv-print-open]:not([open])').forEach(function (details) {
+      printOpened.push(details);
+      details.open = true;
+    });
+  }
   window.addEventListener('beforeprint', function () {
-    if (printOpened) return;
-    printOpened = qsa(document, 'details.hfx-rv-queue-more:not([open]), details.hfx-rv-consistency-more:not([open]), details[data-hfx-rv-print-open]:not([open])');
-    printOpened.forEach(function (d) { d.open = true; });
+    if (printOpened === null) printOpened = [];
+    openPrintDisclosures(document);
   });
   window.addEventListener('afterprint', function () {
     if (!printOpened) return;

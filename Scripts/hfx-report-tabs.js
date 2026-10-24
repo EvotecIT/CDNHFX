@@ -4,6 +4,7 @@
   function all(root, selector) { return Array.prototype.slice.call(root.querySelectorAll(selector)); }
   function own(root, selector) { return all(root, selector).filter(function (el) { return el.closest('[data-hfx-rv-tabs]') === root; }); }
   function tabs(root) { return own(root, '[data-hfx-rv-tab]'); }
+  function caption(tab) { return Array.prototype.map.call(tab.childNodes, function (node) { return (node.textContent || '').trim(); }).filter(Boolean).join(' '); }
   function materialize(panel) {
     var template = panel.querySelector(':scope > template[data-hfx-rv-lazy]');
     if (template) { panel.appendChild(template.content); template.remove(); }
@@ -80,7 +81,16 @@
     }
     closeMenu(root, false);
     overflow(root);
-    if (focus) (selected.hidden ? root.querySelector('.hfx-rv-tabs-more') : selected).focus();
+    // Initial and history addresses keep the active chapter visible without scrolling the report vertically.
+    if (window.innerWidth >= 768 && root.getAttribute('data-layout') !== 'vertical') {
+      var list = selected.parentElement, itemBox = selected.getBoundingClientRect(), listBox = list.getBoundingClientRect();
+      if (itemBox.left < listBox.left) list.scrollLeft += itemBox.left - listBox.left;
+      else if (itemBox.right > listBox.right) list.scrollLeft += itemBox.right - listBox.right;
+    }
+    if (focus) {
+      if (window.innerWidth < 768) root.querySelector(':scope > .hfx-rv-tabs-bar > .hfx-rv-tabs-more').focus();
+      else selected.focus({ preventScroll: true });
+    }
     if (panel) {
       Promise.resolve(panel.__hfxMaterialized).then(function () {
         if (panel.hidden) return;
@@ -104,7 +114,9 @@
     var page = address.slice(0, split), key = address.slice(split + 1), found = false;
     all(document, '[data-hfx-rv-tabs]').some(function (root) {
       if (root.getAttribute('data-hfx-rv-tabs') !== page) return false;
-      found = select(root, key, false, false); return found;
+      var aliases = {};
+      try { aliases = JSON.parse(root.getAttribute('data-hfx-rv-aliases') || '{}'); } catch (_) { }
+      found = select(root, Object.prototype.hasOwnProperty.call(aliases, key) ? aliases[key] : key, false, false); return found;
     });
     return found;
   }
@@ -121,31 +133,29 @@
     });
   }
   function overflow(root) {
-    var orientation = root.querySelector('[role=tablist]');
-    if (orientation) orientation.setAttribute('aria-orientation', root.getAttribute('data-layout') === 'vertical' && window.innerWidth >= 768 ? 'vertical' : 'horizontal');
-    if (root.getAttribute('data-overflow') !== 'menu' || !root.getClientRects().length) return;
+    if (!root.getClientRects().length) return;
+    var vertical = root.getAttribute('data-layout') === 'vertical' && window.innerWidth >= 768;
+    var phone = window.innerWidth < 768;
     var list = root.querySelector(':scope > .hfx-rv-tabs-bar > .hfx-rv-tablist');
     var more = root.querySelector(':scope > .hfx-rv-tabs-bar > .hfx-rv-tabs-more');
     var menu = root.querySelector(':scope > .hfx-rv-tabs-bar > .hfx-rv-tabs-menu');
-    var items = tabs(root);
+    if (!list || !more || !menu) return;
+    list.setAttribute('aria-orientation', vertical ? 'vertical' : 'horizontal');
+    var items = tabs(root), current = items.filter(function (t) { return t.getAttribute('aria-selected') === 'true'; })[0];
     items.forEach(function (t) { t.hidden = false; });
-    more.hidden = true; menu.textContent = '';
-    if (list.scrollWidth <= list.clientWidth + 1) return;
-    more.hidden = false;
-    var available = list.clientWidth, used = 0;
-    // Account for dividers without allowing them to wrap the list.
-    own(root, '.hfx-rv-tab-divider').forEach(function (d) { used += d.getBoundingClientRect().width + 8; });
-    items.forEach(function (tab) {
-      used += tab.getBoundingClientRect().width;
-      tab.hidden = used > available;
-      if (!tab.hidden) return;
-      var option = document.createElement('button'); option.type = 'button'; option.setAttribute('role', 'menuitemradio');
-      option.setAttribute('aria-checked', tab.getAttribute('aria-selected')); option.setAttribute('data-hfx-rv-menu-tab', tab.getAttribute('data-hfx-rv-tab'));
-      option.textContent = tab.textContent; option.tabIndex = -1; menu.appendChild(option);
+    more.hidden = !phone; menu.textContent = '';
+    if (phone) {
+      items.forEach(function (tab) {
+        var option = document.createElement('button'); option.type = 'button'; option.setAttribute('role', 'menuitemradio');
+        option.setAttribute('aria-checked', tab.getAttribute('aria-selected')); option.setAttribute('data-hfx-rv-menu-tab', tab.getAttribute('data-hfx-rv-tab'));
+        option.textContent = caption(tab); option.tabIndex = -1; menu.appendChild(option);
+      });
+      if (!more.__hfxLabel) more.__hfxLabel = more.textContent;
+      more.textContent = current ? caption(current) + ' \u25be' : more.__hfxLabel;
+    } else closeMenu(root, false);
+    own(root, '[data-hfx-rv-scroll]').forEach(function (button) {
+      button.hidden = phone || vertical || list.scrollWidth <= list.clientWidth + 1;
     });
-    if (!menu.children.length) more.hidden = true;
-    var current = items.filter(function (t) { return t.hidden && t.getAttribute('aria-selected') === 'true'; })[0];
-    more.setAttribute('aria-label', current ? more.textContent + ': ' + current.textContent : more.textContent);
   }
   function init(scope) {
     all(scope, '[data-hfx-rv-tabs]').forEach(function (root) {
@@ -157,9 +167,13 @@
     });
   }
   document.addEventListener('click', function (e) {
-    var target = e.target.closest && e.target.closest('[data-hfx-rv-tab], [data-hfx-rv-menu-tab], .hfx-rv-tabs-more');
+    var target = e.target.closest && e.target.closest('[data-hfx-rv-tab], [data-hfx-rv-menu-tab], .hfx-rv-tabs-more, [data-hfx-rv-scroll]');
     if (!target) { all(document, '[data-hfx-rv-tabs]').forEach(function (root) { closeMenu(root, false); }); return; }
     var root = target.closest('[data-hfx-rv-tabs]');
+    if (target.hasAttribute('data-hfx-rv-scroll')) {
+      var list = root.querySelector(':scope > .hfx-rv-tabs-bar > .hfx-rv-tablist');
+      list.scrollBy({ left: Number(target.getAttribute('data-hfx-rv-scroll')) * list.clientWidth * .75, behavior: 'smooth' }); return;
+    }
     if (target.classList.contains('hfx-rv-tabs-more')) {
       var menu = root.querySelector('.hfx-rv-tabs-menu'), open = menu.hidden;
       menu.hidden = !open; target.setAttribute('aria-expanded', open ? 'true' : 'false');
@@ -200,12 +214,16 @@
   document.addEventListener('hfx:report-shown', function (e) { init(e.target); laneLinks(e.target); });
   document.addEventListener('hfx:report-drawings-ready', function (e) { laneLinks(e.target); });
   window.addEventListener('hashchange', fromAddress); window.addEventListener('popstate', fromAddress);
+  window.addEventListener('resize', function () { all(document, '[data-hfx-rv-tabs]').forEach(overflow); });
   function printPanel(panel) {
       var materialized = materialize(panel);
       // Deferred content kept in the page prints with its chapter; content in files waits for the print command.
       if (window.hfxReportDeferred && window.hfxReportDeferred.printScope) window.hfxReportDeferred.printScope(panel);
       panel.dispatchEvent(new CustomEvent('hfx:report-shown', { bubbles: true, detail: { print: true } }));
-      return materialized;
+      return Promise.resolve(materialized).then(function () {
+        // A file-backed region can finish after the synchronous native print preparation.
+        panel.dispatchEvent(new CustomEvent('hfx:report-shown', { bubbles: true, detail: { print: true } }));
+      });
   }
   function printPanels() {
     return Promise.all(all(document, '[data-hfx-rv-panel]').map(printPanel));

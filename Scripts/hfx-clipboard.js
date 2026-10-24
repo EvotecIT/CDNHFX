@@ -35,8 +35,9 @@
   }
 
   function copyViaTextarea(text) {
+    var ta, onCopy, active = document.activeElement;
     try {
-      var ta = document.createElement("textarea");
+      ta = document.createElement("textarea");
       ta.value = text || "";
       ta.setAttribute("readonly", "readonly");
       ta.style.position = "fixed";
@@ -45,16 +46,30 @@
       document.body.appendChild(ta);
       ta.select();
       ta.setSelectionRange(0, ta.value.length);
+      // A textarea normalizes CR/CRLF. Supply the original payload through the copy event instead of reading
+      // its normalized value. If that event has no writable clipboard, cancel rather than copy altered text.
+      var supplied = false, blocked = false;
+      onCopy = function (event) {
+        if (event.clipboardData && event.clipboardData.setData) {
+          event.preventDefault();
+          blocked = true;
+          try { event.clipboardData.setData("text/plain", text); supplied = true; } catch (_) { }
+        } else if (ta.value !== text) { event.preventDefault(); blocked = true; }
+      };
+      document.addEventListener("copy", onCopy, true);
       var ok = false;
       try {
         ok = document.execCommand("copy");
       } catch (_e) {
         ok = false;
       }
-      document.body.removeChild(ta);
-      return ok;
+      return ok && (supplied || !blocked && ta.value === text);
     } catch (_e) {
       return false;
+    } finally {
+      if (onCopy) document.removeEventListener("copy", onCopy, true);
+      if (ta && ta.parentNode) ta.parentNode.removeChild(ta);
+      try { if (active && document.documentElement.contains(active)) active.focus({ preventScroll: true }); } catch (_) { }
     }
   }
 

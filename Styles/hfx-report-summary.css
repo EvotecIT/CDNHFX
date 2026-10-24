@@ -45,11 +45,16 @@
 .hfx-as-picker:has(> .hfx-rv-picker-step) { display: inline-flex; align-items: center; gap: 4px; }
 .hfx-as.hfx-rv-kpis.is-compact { gap: 10px; grid-template-columns: repeat(auto-fit,minmax(min(100%,140px),1fr)); }
 .hfx-rv-kpis.is-compact .hfx-rv-kpi { padding: 10px 12px; gap: 2px; }
-.hfx-rv-kpis.is-compact .hfx-rv-kpi-number { font-size: 24px; }
+.hfx-rv-kpis.is-compact .hfx-rv-kpi-value { font-size: 24px; }
 .hfx-rv-kpis.is-compact .hfx-rv-kpi-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 .hfx-rv-kpis.is-compact .hfx-rv-spark { width: 64px; height: 22px; position: absolute; inset-inline-end: 10px; top: 30px; }
 .hfx-rv-kpis.is-compact .hfx-rv-kpi:has(.hfx-rv-spark) .hfx-rv-kpi-value { padding-inline-end: 68px; }
 .hfx-rv-kpis.is-compact .hfx-rv-kpi-label { padding: 0; }
+/* Narrow tiles keep the complete value and unit together, with the trend below instead of beside them. */
+@container (max-width: 180px) {
+  .hfx-rv-kpis.is-compact .hfx-rv-kpi > .hfx-rv-spark { position: static; }
+  .hfx-rv-kpis.is-compact .hfx-rv-kpi:has(.hfx-rv-spark) .hfx-rv-kpi-value { padding-inline-end: 0; }
+}
 .hfx-rv-kpis.is-compact .hfx-rv-kpi-detail, .hfx-rv-kpis.is-compact .hfx-rv-kpi-delta { font-size: 11.5px; }
 /* The page header reads top to bottom: eyebrow, title, then the summary sentence under the title (about 90 characters
    wide), never in a column beside it. Compact only tightens the spacing. */

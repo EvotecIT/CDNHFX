@@ -77,7 +77,7 @@
       if (parts.length) {
         var line = el('p', 'hfx-dx-print-state');
         parts.forEach(function (part, i) { if (i) line.appendChild(el('span', null, ' · ')); line.appendChild(part); });
-        line.appendChild(el('span', null, ' · ' + fmt(labels.count, { shown: num(size), total: num(this.totalRows()) })));
+        line.appendChild(el('span', null, ' · ' + fmt(labels.count, { shown: num(size), total: this.totalRowsLabel() })));
         holder.appendChild(line);
       }
       var split = splitColumns(cols, this.cfg.printColumns || 8);
@@ -121,7 +121,7 @@
       if (!split.detail.length) table.appendChild(body);
       holder.appendChild(table);
       if (size > shown) {
-        var exports = (this.cfg.exports || []).indexOf('csv') >= 0 || !!this.cfg.hostExport;
+        var exports = (this.cfg.exports || []).indexOf('csv') >= 0 || this.cfg.officeIMOExports || !!this.cfg.hostExport;
         holder.appendChild(el('p', 'hfx-dx-print-more', fmt(exports ? (labels.printLimitedExport || labels.printLimited) : labels.printLimited, { shown: num(shown), total: num(size) })));
       }
       this.root.appendChild(holder);

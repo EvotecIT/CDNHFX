@@ -100,7 +100,7 @@
 /* A split stacks by the room it gets, not by the window: its frame is a size container, so a split beside the
    navigation rail, in a drawer or in a narrow column stacks before its columns get too narrow for a summary grid. */
 .hfx-as-split-frame { container: hfx-split / inline-size; min-width: 0; }
-@container hfx-split (max-width: 959.98px) { .hfx-as-split:is([data-ratio="aside"], [data-ratio="wide"], [data-ratio="equal"]) { grid-template-columns: minmax(0, 1fr); } }
+@container hfx-split (max-width: 959.98px) { .hfx-as-split:not([data-stack-below]):is([data-ratio="aside"], [data-ratio="wide"], [data-ratio="equal"]) { grid-template-columns: minmax(0, 1fr); } }
 /* Browsers without container queries stack by the window, as before. */
 @supports not (container-type: inline-size) {
   @media (max-width: 1280px) { .hfx-as-split[data-ratio="aside"] { grid-template-columns: minmax(0, 1fr); } }
@@ -124,6 +124,8 @@
 .hfx-as-split[data-balance].is-measuring { align-items: start; }
 .hfx-as-split[data-balance].is-measuring > * > :last-child { flex: 0 0 auto; }
 .hfx-as-split.is-stacked { grid-template-columns: minmax(0, 1fr); }
+.hfx-as-split.is-width-stacked { grid-template-columns: minmax(0, 1fr); }
+@media screen and (max-width: 767.98px) { .hfx-as-split[data-stack-below] { grid-template-columns: minmax(0, 1fr); } }
 
 /* ---------- facts: a label above its value ---------- */
 /* Facts: the label sits above its value, so a long label or value never pushes its pair apart. Columns are added

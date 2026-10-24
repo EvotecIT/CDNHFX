@@ -6,10 +6,16 @@
     --hfx-font-sans: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
     --hfx-font-display: "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
     --hfx-font-mono: "Cascadia Mono", "Cascadia Code", Consolas, "SFMono-Regular", Menlo, monospace;
+    --hfx-type-title-size: 1.25rem;
+    --hfx-space-2: 0.5rem;
+    --hfx-space-0-5: 2px;
+    --hfx-border-width: 1px;
     --hfx-focus-width: 2px;
     --hfx-focus-offset: 2px;
     --hfx-radius-control: 6px;
     --hfx-radius-container: 10px;
+    --hfx-weight-medium: 500;
+    --hfx-z-tooltip: 1300;
   }
   :where(:root, [data-bs-theme="light"], [data-hfx-theme="light"], [data-hfx-tokens="light"]):where(:not([data-hfx-design-system], [data-hfx-design-system] *)) {
     --hfx-color-text-secondary: #4d525b;
@@ -43,7 +49,7 @@
 /* In-page chapters use the report surface tokens. Grid and chart internals keep their owning libraries' styles. */
 .hfx-rv-tabs { min-width: 0; }
 .hfx-rv-tabs-bar { display: flex; position: relative; min-width: 0; border-bottom: 1px solid var(--hfx-color-border-strong); }
-.hfx-rv-tablist { display: flex; flex: 1; min-width: 0; overflow-x: auto; align-items: stretch; scrollbar-width: thin; }
+.hfx-rv-tablist { display: flex; flex: 1; flex-wrap: nowrap; min-width: 0; overflow-x: auto; align-items: stretch; scrollbar-width: thin; }
 .hfx-as .hfx-rv-tab { display: flex; align-items: center; gap: 7px; flex: none; padding: 12px 14px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--hfx-color-text-secondary); font: 400 13px/1.35 var(--hfx-font-sans); white-space: nowrap; cursor: pointer; }
 .hfx-as .hfx-rv-tab[aria-selected=true] { border-bottom-color: var(--hfx-color-accent); color: var(--hfx-color-text); font-weight: 600; }
 .hfx-as .hfx-rv-tab:hover { background: var(--hfx-color-surface-sunken); }
@@ -56,7 +62,7 @@
 @media screen { .hfx-rv-tabpanel > .hfx-rv-tab-print-title + * { margin-top: 0; } }
 .hfx-rv-tab-divider { flex: none; width: 1px; margin: 10px 4px; background: var(--hfx-color-border-strong); }
 .hfx-rv-tabs-more { flex: none; border: 0; padding: 10px 14px; background: transparent; color: var(--hfx-color-text-secondary); font: 500 13px var(--hfx-font-sans); cursor: pointer; }
-.hfx-rv-tabs-menu { position: absolute; z-index: 20; inset-inline-end: 0; top: 100%; min-width: 180px; max-height: 60vh; overflow-y: auto; background: var(--hfx-color-surface); border: 1px solid var(--hfx-color-border-strong); border-radius: var(--hfx-radius-container); padding: 4px; box-shadow: var(--hfx-elevation-2); }
+.hfx-rv-tabs-menu { position: absolute; z-index: var(--hfx-z-tooltip); inset-inline-end: 0; top: 100%; min-width: 180px; max-height: 60vh; overflow-y: auto; background: var(--hfx-color-surface); border: var(--hfx-border-width) solid var(--hfx-color-border-strong); border-radius: var(--hfx-radius-container); padding: 4px; box-shadow: var(--hfx-elevation-2); }
 .hfx-rv-tabs-menu button { display: block; width: 100%; text-align: start; border: 0; border-radius: var(--hfx-radius-container); background: transparent; color: var(--hfx-color-text); padding: 9px 12px; font: 400 13px var(--hfx-font-sans); cursor: pointer; }
 .hfx-rv-tabs-menu button:hover, .hfx-rv-tabs-menu button[aria-checked=true] { background: var(--hfx-color-accent-subtle); }
 .hfx-rv-entry-dot { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--sev, var(--hfx-color-text-muted)); }
@@ -89,3 +95,12 @@
 }
 /* Print rules (every chapter in order under its heading) are in hfx-report-print.css. */
 .hfx-as .hfx-rv-tab[hidden],.hfx-as .hfx-rv-tabs-more[hidden],.hfx-as .hfx-rv-tabs-menu[hidden]{display:none!important}
+
+/* Desktop chapter navigation stays on one line; phones use the chapter picker. */
+.hfx-as .hfx-rv-tabs-scroll { flex: none; border: 0; padding: var(--hfx-space-2) calc(var(--hfx-space-2) + var(--hfx-space-0-5)); color: var(--hfx-color-text-secondary); background: var(--hfx-color-surface); font-family: var(--hfx-font-sans); font-weight: var(--hfx-weight-medium); font-size: var(--hfx-type-title-size); line-height: 1; cursor: pointer; }
+.hfx-rv-tabs-scroll:focus-visible { outline: var(--hfx-focus-width) solid var(--hfx-color-focus-ring); outline-offset: var(--hfx-focus-offset); }
+.hfx-as .hfx-rv-tabs-scroll[hidden] { display: none !important; }
+@media screen and (max-width: 767.98px) {
+  .hfx-rv-tabs-bar > .hfx-rv-tablist { display: none; }
+  .hfx-rv-tabs-bar > .hfx-rv-tabs-more { width: 100%; text-align: start; white-space: normal; }
+}

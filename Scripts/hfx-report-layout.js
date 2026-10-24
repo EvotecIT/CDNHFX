@@ -116,6 +116,18 @@
   function layout(scope) {
     if (printing) return;
     scope = scope || document;
+    qsa(scope, '.hfx-as-split[data-stack-below]').forEach(function (split) {
+      var frame = split.parentElement;
+      if (shown(split)) split.classList.toggle('is-width-stacked', frame.clientWidth < Number(split.getAttribute('data-stack-below')));
+      if (window.ResizeObserver && !frame.__hfxSplitObserver) {
+        frame.__hfxSplitWidth = frame.clientWidth;
+        frame.__hfxSplitObserver = new ResizeObserver(function () {
+          if (Math.abs(frame.clientWidth - frame.__hfxSplitWidth) < 1) return;
+          frame.__hfxSplitWidth = frame.clientWidth; schedule(document);
+        });
+        frame.__hfxSplitObserver.observe(frame);
+      }
+    });
     var splits = qsa(scope, '.hfx-as-split[data-balance]');
     splits.forEach(balanceSplit);
     // Lists measure the other column before it stretches, and every list starts from its minimum so two fitted lists

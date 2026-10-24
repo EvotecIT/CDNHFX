@@ -111,12 +111,16 @@
     // A link column whose values are link text names the column of each row's address (ReportDatasetColumn.Link(string)).
     this.linkTarget = meta.linkTarget || null;
     this.tones = meta.tones || null;
+    this.valueLabels = meta.valueLabels || null;
+    this.valueOrder = meta.valueOrder || [];
+    this.numericTones = meta.numericTones || [];
     // Tones shown as plain muted text (ReportDatasetColumn.QuietTones): tokens success, neutral and info.
     this.quiet = meta.quiet || null;
     this.local = !!meta.local;
     this.seconds = !!meta.seconds;
     this.index = index;
     data = data || {};
+    this.series = data.series || [];
     if (data.d) { this.kind = 'd'; this.dict = data.d; this.idx = data.i; }
     else if (data.s) { this.kind = 's'; this.values = data.s; }
     else if (data.n) { this.kind = 'n'; this.values = data.n; }
@@ -134,6 +138,8 @@
   }
   Column.prototype.isNumeric = function () { return this.kind === 'n' || this.kind === 't'; };
   Column.prototype.isDate = function () { return this.kind === 't'; };
+  // Ordered visual metadata is independent of raw scalar values used by queries and exports.
+  Column.prototype.history = function (r) { return this.series[r] || []; };
   Column.prototype.raw = function (r) {
     switch (this.kind) {
       case 'd': var i = this.idx[r]; return i === undefined || i < 0 ? null : this.dict[i];
@@ -142,14 +148,17 @@
     }
   };
   // Writes a value as raw() returns it (used when rows arrive page by page and are kept by position).
-  Column.prototype.store = function (r, value) {
+  Column.prototype.store = function (r, value, history) {
     if (this.kind === 'd') return;
     this.values[r] = value === null || value === undefined ? null : this.kind === 'b' ? (value ? 1 : 0) : value;
+    if (history || this.series.length) this.series[r] = history || null;
   };
   // Appends the rows of one chunk (the same column-by-column format as a whole dataset).
   Column.prototype.append = function (data, count) {
     data = data || {};
     var r, x, self = this;
+    var offset = this.kind === 'd' ? this.idx.length : this.values.length;
+    if (data.series || this.series.length) for (r = 0; r < count; r++) this.series[offset + r] = data.series && data.series[r] || null;
     if (this.open && !this.values.length) {
       this.open = false;
       if (data.d) { this.kind = 'd'; this.dict = []; this.idx = []; this.values = undefined; this._index = dict(); }
@@ -179,8 +188,12 @@
   };
   Column.prototype.textOf = function (value, mode) {
     if (value === null || value === undefined) return '';
+    if (this.type === 'category' && mode !== 'key' && this.valueLabels && Object.prototype.hasOwnProperty.call(this.valueLabels, String(value)))
+      return this.valueLabels[String(value)];
+    if (mode === 'key' && this.type !== 'category') mode = 'export';
     switch (this.kind) {
-      case 'n': return formatNumber(value);
+      case 'n': return this.format === 'durationMs' && mode !== 'export'
+        ? (Math.abs(value) < 1000 ? (Math.sign(value) * Math.round(Math.abs(value) * 10) / 10).toFixed(1).replace(/\.0$/, '') + ' ms' : (Math.sign(value) * Math.round(Math.abs(value) / 100) / 10).toFixed(1) + ' s') : formatNumber(value);
       case 't': return formatDate(value, this.type, mode, mode === 'export' ? this.local : this.showsLocal(), this.seconds);
       case 'b': return value ? 'Yes' : 'No';
       default: return String(value);
@@ -194,21 +207,46 @@
     if (!this._lower) {
       var self = this;
       if (this.kind === 'd') this._lower = this.dict.map(fold);
-      else { this._lower = new Array(this.values.length); for (var i = 0; i < this.values.length; i++) this._lower[i] = fold(self.text(i, 'display')); }
+      else { this._lower = new Array(this.values.length); for (var i = 0; i < this.values.length; i++) this._lower[i] = fold(self.text(i, self.type === 'category' ? 'key' : 'display')); }
     }
     if (this.kind === 'd') { var i2 = this.idx[r]; return i2 < 0 ? '' : this._lower[i2]; }
     return this._lower[r];
   };
+  Column.prototype.exactTokens = function () {
+    return this.type === 'category' && !!(this.valueOrder.length || this.valueLabels && Object.keys(this.valueLabels).length);
+  };
   Column.prototype.tone = function (value) {
+    var numeric = this.numericTone(value);
+    if (numeric) return numeric.tone;
     if (!this.tones || value === null || value === undefined) return null;
-    var s = this.textOf(value, 'export');
+    var s = this.textOf(value, 'key');
     if (Object.prototype.hasOwnProperty.call(this.tones, s)) return this.tones[s];
+    if (this.exactTokens()) return null;
     var lower = s.toLowerCase();
     for (var k in this.tones) if (Object.prototype.hasOwnProperty.call(this.tones, k) && k.toLowerCase() === lower) return this.tones[k];
     return null;
   };
+  // First matching authored rule wins. Numeric paint is metadata; the value remains a number in every export.
+  Column.prototype.numericTone = function (value) {
+    if (this.type !== 'number' || typeof value !== 'number' || !isFinite(value)) return null;
+    for (var i = 0; i < this.numericTones.length; i++) {
+      var rule = this.numericTones[i];
+      if (rule.operator === 'atMost' && value <= rule.value || rule.operator === 'atLeast' && value >= rule.value ||
+          rule.operator === 'below' && value < rule.value || rule.operator === 'above' && value > rule.value) return rule;
+    }
+    return null;
+  };
+  Column.prototype.compareValues = function (a, b) {
+    if (this.type === 'category' && this.valueOrder.length) {
+      var ai = this.valueOrder.indexOf(String(a)), bi = this.valueOrder.indexOf(String(b));
+      if (ai !== bi) return ai < 0 ? 1 : bi < 0 ? -1 : ai - bi;
+      if (ai < 0) return a < b ? -1 : a > b ? 1 : 0;
+    }
+    return compare(a, b);
+  };
   Column.prototype.parse = function (text) {
     if (text === null || text === undefined) return null;
+    if (this.exactTokens()) return String(text);
     var s = String(text).trim();
     if (!s) return null;
     if (this.kind === 'n') { var n = parseNumber(s); return isNaN(n) ? s : n; }
@@ -225,22 +263,44 @@
   Column.prototype.distinct = function (rows) {
     var counts = dict(), order = [];
     for (var i = 0; i < rows.length; i++) {
-      var v = this.text(rows[i], 'export');
+      var v = this.text(rows[i], 'key');
       if (!v) continue;
       if (!counts[v]) { counts[v] = 0; order.push(v); }
       counts[v] += 1;
     }
-    order.sort(function (a, b) { return counts[b] - counts[a] || (a < b ? -1 : a > b ? 1 : 0); });
-    return order.map(function (v) { return { value: v, count: counts[v] }; });
+    var self = this;
+    order.sort(function (a, b) { return self.valueOrder.length ? self.compareValues(a, b) : counts[b] - counts[a] || (a < b ? -1 : a > b ? 1 : 0); });
+    return order.map(function (v) {
+      var item = { value: v };
+      if (self.valueLabels && Object.prototype.hasOwnProperty.call(self.valueLabels, v)) item.label = self.valueLabels[v];
+      item.count = counts[v];
+      return item;
+    });
   };
 
   // --------------------------------------------------------------- datasets
+  // Shared strings are local to this dataset or chunk. Expand into the existing column representations without
+  // copying the strings. A category keeps only its own values, so unrelated table entries never become facet choices.
+  function columnData(meta, data, strings) {
+    if (!data || !data.r) return data;
+    if (meta.type !== 'category' && !data.dictionary) return { s: data.r.map(function (index) { return index < 0 ? null : strings[index]; }), series: data.series };
+    var values = [], positions = dict(), indexes = data.r.map(function (index) {
+      if (index < 0) return -1;
+      if (positions[index] === undefined) { positions[index] = values.length; values.push(strings[index]); }
+      return positions[index];
+    });
+    return { d: values, i: indexes, series: data.series };
+  }
+
   function Dataset(payload) {
     var self = this;
     this.id = payload.id;
+    this.rowIdentity = payload.rowIdentity || 'stableKey';
+    this.generatedAt = Date.parse(payload.generatedAt);
+    if (!Number.isFinite(this.generatedAt)) this.generatedAt = Date.now();
     this.title = payload.title || payload.id;
     this.rows = payload.data ? (payload.rows || 0) : 0;
-    this.columns = (payload.columns || []).map(function (meta, i) { return new Column(meta, (payload.data || [])[i], i); });
+    this.columns = (payload.columns || []).map(function (meta, i) { return new Column(meta, columnData(meta, (payload.data || [])[i], payload.strings), i); });
     this.byId = dict();
     this.columns.forEach(function (c) { self.byId[c.id.toLowerCase()] = c; });
     this.keyColumn = this.columns.filter(function (c) { return c.key; })[0] || null;
@@ -250,7 +310,7 @@
   // Adds the rows of one chunk: { rows: n, data: [one entry per column] }.
   Dataset.prototype.append = function (chunk) {
     var count = (chunk && chunk.rows) || 0, data = (chunk && chunk.data) || [];
-    for (var i = 0; i < this.columns.length; i++) this.columns[i].append(data[i], count);
+    for (var i = 0; i < this.columns.length; i++) this.columns[i].append(columnData(this.columns[i], data[i], chunk.strings), count);
     this.rows += count;
     this._lookups = dict();
   };
@@ -264,7 +324,7 @@
     if (!map) {
       map = dict();
       for (var r = 0; r < this.rows; r++) {
-        var k = col.text(r, 'display');
+        var k = col.text(r, col.type === 'category' ? 'key' : 'display');
         if (!k) continue;
         var keys = separator ? k.split(separator) : [k];
         for (var i = 0; i < keys.length; i++) {
@@ -320,7 +380,8 @@
     // Date columns are calendar dates: relative filters compare with today's date rather than this instant.
     var ref = col.type === 'date' ? todayAsDate(now) : now;
     function none() { return false; }
-    function eqAny(v) { for (var i = 0; i < operands.length; i++) if (operands[i] !== null && compare(v, operands[i]) === 0) return true; return false; }
+    var exactCategory = col.exactTokens();
+    function eqAny(v) { for (var i = 0; i < operands.length; i++) if (operands[i] !== null && (exactCategory ? v === operands[i] : compare(v, operands[i]) === 0)) return true; return false; }
     function containsAny(r) { var t = col.lower(r); for (var i = 0; i < lowered.length; i++) if (t.indexOf(lowered[i]) >= 0) return true; return false; }
     switch (op) {
       case 'eq': case 'in': return function (r) { var v = col.raw(r); return v !== null && eqAny(v); };
@@ -348,18 +409,28 @@
   // Rows matching a query in result order: filters, search over the query's search columns (its columns, or all
   // visible columns, when none are listed), sort with empty values last and a stable tie order, then the row limit.
   // Same evaluation as ReportQueryEngine.
+  // Keys are authored scalar identities, never display labels or generated row offsets.
+  function rowIdentity(column, value) {
+    if (!column || !/^(text|category|number)$/.test(column.type)) throw fail('key', 'A row identity requires a declared text, category or numeric key.');
+    if (column.type === 'number') {
+      if (typeof value !== 'number' || !Number.isFinite(value) || Math.abs(value) > Number.MAX_SAFE_INTEGER)
+        throw fail('key', 'Numeric row identities must be finite and within the safe numeric range. Use text keys for larger identifiers.');
+    } else if (typeof value !== 'string' || !value.trim()) throw fail('key', 'Row identities must be nonempty text.');
+    return String(value);
+  }
   function runQuery(ds, spec, now) {
     var keyValues = null, selected = null;
+    if (ds.rowIdentity === 'ordinal' && (spec.keys !== undefined || spec.stableKeyOrder)) throw fail('key', 'Ordinal snapshot identity cannot replay selected keys or stable-key ordering across reports.');
     if (spec.keys !== undefined) {
       if (!Array.isArray(spec.keys) || spec.keys.some(function (key) { return typeof key !== 'string' || !key.trim(); })) throw fail('key', 'Row identities must be nonempty text.');
       selected = new Set(spec.keys);
     }
     if (spec.stableKeyOrder || selected) {
-      if (!ds.keyColumn || !/^(text|category)$/.test(ds.keyColumn.type)) throw fail('key', 'Row-key selection and stable ordering require a declared text key.');
+      if (!ds.keyColumn || !/^(text|category|number)$/.test(ds.keyColumn.type)) throw fail('key', 'Row-key selection and stable ordering require a declared text, category or numeric key.');
       var seenKeys = new Set(); keyValues = [];
       for (var row = 0; row < ds.rows; row++) {
-        var id = ds.keyColumn.raw(row);
-        if (typeof id !== 'string' || !id.trim() || seenKeys.has(id)) throw fail('key', 'Stable keys must be nonempty and unique.');
+        var id = rowIdentity(ds.keyColumn, ds.keyColumn && ds.keyColumn.raw(row));
+        if (seenKeys.has(id)) throw fail('key', 'Stable keys must be nonempty and unique.');
         seenKeys.add(id); keyValues.push(id);
       }
       if (selected) selected.forEach(function (key) { if (!seenKeys.has(key)) throw fail('key', 'A selected row identity is absent from this dataset.'); });
@@ -391,10 +462,12 @@
           if (va === null && vb === null) continue;
           if (va === null) return 1;
           if (vb === null) return -1;
-          var res = compare(va, vb);
+          var res = keys[k].col.compareValues(va, vb);
           if (res !== 0 && !isNaN(res)) return keys[k].desc ? -res : res;
         }
-        return stableKeys ? (stableKeys[a] < stableKeys[b] ? -1 : stableKeys[a] > stableKeys[b] ? 1 : 0) : pos[a] - pos[b];
+        if (!stableKeys) return pos[a] - pos[b];
+        var ka = ds.keyColumn.type === 'number' ? ds.keyColumn.raw(a) : stableKeys[a], kb = ds.keyColumn.type === 'number' ? ds.keyColumn.raw(b) : stableKeys[b];
+        return ka < kb ? -1 : ka > kb ? 1 : 0;
       });
     }
     if (spec.limit > 0 && out.length > spec.limit) out.length = spec.limit;
@@ -622,7 +695,7 @@
     var work;
     if (this.kind === 'sidecar') {
       var chunks = (this.meta && this.meta.chunks) || [];
-      var ds = this._partial || (this._partial = { dataset: new Dataset({ id: this.id, title: this.meta.title, columns: this.meta.columns }), next: 0 });
+      var ds = this._partial || (this._partial = { dataset: new Dataset({ id: this.id, title: this.meta.title, generatedAt: this.meta.generatedAt, rowIdentity: this.meta.rowIdentity, columns: this.meta.columns }), next: 0 });
       var step = function () {
         if (ds.next >= chunks.length) return ds.dataset;
         var at = ds.next;
@@ -654,12 +727,12 @@
     if (this.kind !== 'remote') return this.load();
     if (this._schema) return this._schema.then(fresh);
     var work;
-    if (this.meta && this.meta.columns) work = Promise.resolve({ id: this.id, title: this.meta.title, columns: this.meta.columns });
+    if (this.meta && this.meta.columns) work = Promise.resolve({ id: this.id, title: this.meta.title, generatedAt: this.meta.generatedAt, rowIdentity: this.meta.rowIdentity, columns: this.meta.columns });
     else if (this.kind === 'remote') {
       // Metadata is shared; cancelling one explorer must not cancel another explorer's schema load.
       work = fetchPage(this.href, { limit: 0 }).then(function (doc) {
         if (doc.total > self.rows) self.rows = doc.total;
-        return { id: self.id, title: doc.title, columns: doc.schema || doc.columns || [] };
+        return { id: self.id, title: doc.title, generatedAt: doc.generatedAt, rowIdentity: doc.rowIdentity, columns: doc.schema || doc.columns || [] };
       });
     } else work = this.load();
     this._schema = work.then(null, function (err) { self._schema = null; throw err; });
@@ -676,24 +749,24 @@
       return this.schema(signal).then(function (dataset) { return fetchPage(self.href, spec, signal, dataset); }).then(function (doc) {
         return {
           total: doc.total || 0, offset: doc.offset || 0, count: doc.rows || 0, next: doc.next || null, truncated: !!doc.truncated,
-          facets: facetMap(doc.facets), dataset: new Dataset({ id: self.id, rows: doc.rows || 0, columns: doc.columns || [], data: doc.data || [] })
+          facets: facetMap(doc.facets), dataset: new Dataset({ id: self.id, generatedAt: doc.generatedAt, rowIdentity: doc.rowIdentity, rows: doc.rows || 0, columns: doc.columns || [], data: doc.data || [] })
         };
       });
     }
     return this.load().then(function (ds) {
       if (signal && signal.aborted) throw fail('aborted', 'The request was cancelled.', { name: 'AbortError' });
-      var page = queryPage(ds, spec, (options && options.now) || Date.now());
+      var page = queryPage(ds, spec, options && options.now !== undefined ? options.now : options && options.liveClock ? Date.now() : ds.generatedAt);
       var ids = spec.columns && spec.columns.length ? spec.columns : ds.columns.filter(function (c) { return !c.hidden; }).map(function (c) { return c.id; });
       var cols = ids.map(function (id) { return ds.column(id); }).filter(Boolean);
-      var part = new Dataset({ id: ds.id, title: ds.title, columns: cols.map(metaOf) });
-      cols.forEach(function (c, i) { for (var r = 0; r < page.rows.length; r++) part.columns[i].store(r, c.raw(page.rows[r])); });
+      var part = new Dataset({ id: ds.id, title: ds.title, generatedAt: new Date(ds.generatedAt).toISOString(), rowIdentity: ds.rowIdentity, columns: cols.map(metaOf) });
+      cols.forEach(function (c, i) { for (var r = 0; r < page.rows.length; r++) part.columns[i].store(r, c.raw(page.rows[r]), c.history(page.rows[r])); });
       part.rows = page.rows.length;
       return { total: page.total, offset: page.offset, count: page.rows.length, next: page.next, truncated: false, facets: facetMap(page.facets), dataset: part };
     });
   };
 
   function metaOf(c) {
-    return { id: c.id, label: c.label, type: c.type, group: c.group, description: c.description, hidden: c.hidden, key: c.key, drawer: c.drawer, width: c.width, layout: c.layout, format: c.format, linkTarget: c.linkTarget, tones: c.tones, quiet: c.quiet, local: c.local, seconds: c.seconds };
+    return { id: c.id, label: c.label, type: c.type, group: c.group, description: c.description, hidden: c.hidden, key: c.key, drawer: c.drawer, width: c.width, layout: c.layout, format: c.format, linkTarget: c.linkTarget, tones: c.tones, valueLabels: c.valueLabels, valueOrder: c.valueOrder, numericTones: c.numericTones, quiet: c.quiet, local: c.local, seconds: c.seconds };
   }
 
   var sources = dict();
@@ -708,7 +781,7 @@
     toCsv: toCsv,
     internals: {
       Dataset: Dataset, Column: Column, buildPredicate: buildPredicate, runQuery: runQuery, queryPage: queryPage, wireQuery: wireQuery,
-      formatNumber: formatNumber, parseNumber: parseNumber, normOp: normOp, OP_TOKENS: OP_TOKENS, toCsv: toCsv, csvHeader: csvHeader, csvLines: csvLines,
+      formatNumber: formatNumber, parseNumber: parseNumber, rowIdentity: rowIdentity, normOp: normOp, OP_TOKENS: OP_TOKENS, toCsv: toCsv, csvHeader: csvHeader, csvLines: csvLines,
       headerOf: headerOf, dict: dict, fold: fold
     }
   };

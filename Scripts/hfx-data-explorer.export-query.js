@@ -11,7 +11,7 @@
       if (!(spec.searchIn && spec.searchIn.length)) spec.searchIn = spec.columns.slice();
       var query = I.wireQuery(spec, this.ds);
       query.labels = clone(this.state.labels || {});
-      this.acceptedExport = { spec: spec, query: query, now: now || Date.now(), order: this.remote ? null : this.order.slice() };
+      this.acceptedExport = { spec: spec, query: query, now: now === undefined ? this.referenceTime() : now, order: this.remote ? null : this.order.slice() };
     };
 
     Explorer.prototype.captureExport = function (scope) {
@@ -26,15 +26,21 @@
         spec.filters = []; spec.search = ''; delete spec.keys; delete spec.limit;
         delete query.filters; delete query.search; delete query.keys; delete query.limit;
       }
+      var ordinal = this.ds.rowIdentity === 'ordinal', selectedRows = null;
       if (scope === 'selected') {
+        if (!this.cfg.selectedRowExports) throw new Error('Selected-row exports are disabled for this view.');
         if (!this.renderer || !this.renderer.getSelection) throw new Error('This view does not support row selection.');
         var keys = this.renderer.getSelection().slice();
         if (!keys.length) throw new Error('Select rows before exporting.');
         if (keys.length > 10000) throw new Error('Select at most 10,000 rows for an export.');
-        spec.keys = keys; query.keys = keys.slice();
+        if (ordinal) {
+          // Positions belong to this loaded snapshot only; they never enter a replayable report query.
+          var selected = new Set(keys);
+          selectedRows = I.runQuery(this.ds, spec, accepted.now).filter(function (r) { return selected.has(String(r)); });
+        } else { spec.keys = keys; query.keys = keys.slice(); }
       }
       delete spec.offset; delete spec.after; delete query.offset; delete query.after;
-      var rows = this.remote ? null : scope === 'filtered' ? accepted.order.slice() : I.runQuery(this.ds, spec, accepted.now);
+      var rows = this.remote ? null : scope === 'filtered' ? accepted.order.slice() : selectedRows || I.runQuery(this.ds, spec, accepted.now);
       var ds = this.ds, columns = spec.columns.map(function (id) {
         var column = ds.column(id);
         if (!column) throw new Error('An export column is no longer available.');
