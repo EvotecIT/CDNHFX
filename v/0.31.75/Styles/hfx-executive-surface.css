@@ -1,0 +1,11 @@
+/* Executive top-navigation surface styles. */
+
+html .layout-horizontal .page-header {
+    padding-top: 1.1rem;
+    padding-bottom: 0.5rem;
+}
+
+html .layout-horizontal .page-title,
+html .layout-horizontal h2 {
+    letter-spacing: -0.03em;
+}

@@ -1,0 +1,183 @@
+/* Compatibility for HtmlForgeX/Resources/Styles/ThemeSource/10-header-navigation.css. Native components read HFX roles. */
+:root[data-hfx-surface] .hfx-header-utilities > .nav-item,
+body[data-hfx-surface] .hfx-header-utilities > .nav-item,
+[data-hfx-surface] .hfx-header-utilities > .nav-item {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+}:root[data-hfx-surface] .hfx-header-utility-dropdown .hfx-header-utility-link--dropdown .nav-link-title,
+body[data-hfx-surface] .hfx-header-utility-dropdown .hfx-header-utility-link--dropdown .nav-link-title,
+[data-hfx-surface] .hfx-header-utility-dropdown .hfx-header-utility-link--dropdown .nav-link-title,
+.hfx-header-utility-dropdown .hfx-header-utility-link--dropdown .nav-link-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}:root[data-hfx-surface] .hfx-header-user .dropdown-menu.show,
+:root[data-hfx-surface] .hfx-header-notifications .dropdown-menu.show,
+:root[data-hfx-surface] .hfx-header-apps .dropdown-menu.show,
+body[data-hfx-surface] .hfx-header-user .dropdown-menu.show,
+body[data-hfx-surface] .hfx-header-notifications .dropdown-menu.show,
+body[data-hfx-surface] .hfx-header-apps .dropdown-menu.show,
+[data-hfx-surface] .hfx-header-user .dropdown-menu.show,
+[data-hfx-surface] .hfx-header-notifications .dropdown-menu.show,
+[data-hfx-surface] .hfx-header-apps .dropdown-menu.show {
+  z-index: 1090;
+}:root[data-hfx-surface] .hfx-nav-counter.bg-red,
+:root[data-hfx-surface] .hfx-nav-counter-floating.bg-red,
+body[data-hfx-surface] .hfx-nav-counter.bg-red,
+body[data-hfx-surface] .hfx-nav-counter-floating.bg-red,
+[data-hfx-surface] .hfx-nav-counter.bg-red,
+[data-hfx-surface] .hfx-nav-counter-floating.bg-red {
+  color: var(--hfx-color-text);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--hfx-color-status-bad-bg) 98.0%, transparent) 0%, color-mix(in srgb, var(--hfx-color-status-bad-bg) 98.0%, transparent) 100%) !important;
+  border: 1px solid color-mix(in srgb, var(--hfx-color-border) 46.0%, transparent);
+  box-shadow:
+    0 10px 22px color-mix(in srgb, var(--hfx-color-text) 28.0%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--hfx-color-text) 28.0%, transparent);
+  text-shadow: 0 1px 0 color-mix(in srgb, var(--hfx-color-text) 22.0%, transparent);
+}:root[data-hfx-surface] .navbar-vertical .hfx-sidebar-link > .hfx-nav-counter-sidebar,
+body[data-hfx-surface] .navbar-vertical .hfx-sidebar-link > .hfx-nav-counter-sidebar,
+[data-hfx-surface] .navbar-vertical .hfx-sidebar-link > .hfx-nav-counter-sidebar {
+  position: static !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  margin-left: auto !important;
+  transform: none !important;
+  flex: 0 0 auto;
+}.navbar-vertical .hfx-sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  min-width: 0;
+  padding-inline-end: .95rem;
+  overflow: hidden;
+}.navbar-vertical .hfx-sidebar-link .nav-link-icon {
+  flex: 0 0 auto;
+}.navbar-vertical .hfx-sidebar-link__title {
+  flex: 1 1 auto;
+  min-width: 0;
+}.navbar-vertical .hfx-sidebar-link > .hfx-nav-counter-sidebar {
+  position: static !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  margin-left: auto !important;
+  transform: none !important;
+  flex: 0 0 auto;
+}.navbar-vertical > .container-fluid,
+.navbar-vertical .navbar-collapse,
+.navbar-vertical .navbar-nav,
+.navbar-vertical .nav-item {
+  min-width: 0;
+  overflow-x: hidden;
+}.navbar-vertical .navbar-collapse,
+.navbar-vertical .scroll-y {
+  scrollbar-gutter: stable;
+}.navbar-expand.navbar-vertical[data-hfx-sidebar-width] {
+  width: var(--hfx-sidebar-width, 15rem);
+  left: 0;
+  right: auto;
+}.navbar-expand.navbar-vertical.navbar-right[data-hfx-sidebar-width] {
+  left: auto;
+  right: 0;
+}.navbar-expand.navbar-vertical[data-hfx-sidebar-width] ~ .page-wrapper {
+  margin-left: var(--hfx-sidebar-width, 15rem);
+}.navbar-expand.navbar-vertical.navbar-right[data-hfx-sidebar-width] ~ .page-wrapper {
+  margin-left: 0;
+  margin-right: var(--hfx-sidebar-width, 15rem);
+}.navbar-expand.navbar-vertical[data-hfx-sidebar-mode="slim"] .navbar-brand {
+  justify-content: center;
+  padding-inline: .35rem;
+}.navbar-expand.navbar-vertical[data-hfx-sidebar-mode="slim"] .navbar-brand a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}.navbar-expand.navbar-vertical[data-hfx-sidebar-mode="slim"] .navbar-brand .hfx-brand-stack {
+  display: none !important;
+}.navbar-expand.navbar-vertical[data-hfx-sidebar-mode="slim"] .nav-link.disabled .hfx-sidebar-link__title,
+.navbar-expand.navbar-vertical[data-hfx-sidebar-mode="slim"] .hfx-sidebar-link__title {
+  display: none;
+}.navbar-expand.navbar-vertical[data-hfx-sidebar-mode="slim"] .hfx-sidebar-link {
+  justify-content: center;
+  gap: 0;
+  padding-inline: .6rem;
+  min-height: 2.9rem;
+}.navbar-expand.navbar-vertical[data-hfx-sidebar-mode="slim"] .hfx-sidebar-link .nav-link-icon {
+  margin: 0;
+}.navbar-expand.navbar-vertical[data-hfx-sidebar-mode="slim"] .hfx-nav-counter-sidebar {
+  position: absolute !important;
+  top: .38rem;
+  inset-inline-end: .4rem;
+  min-width: 1.2rem;
+  height: 1.2rem;
+  padding-inline: .2rem;
+  font-size: .64rem;
+  box-shadow: 0 8px 16px color-mix(in srgb, var(--hfx-color-text) 16.0%, transparent);
+}.navbar-expand.navbar-vertical[data-hfx-sidebar-mode="slim"] .dropdown-toggle::after {
+  display: none;
+}@media (min-width: 576px) {.navbar-expand-sm.navbar-vertical[data-hfx-sidebar-width] {
+    width: var(--hfx-sidebar-width, 15rem);
+    left: 0;
+    right: auto;
+  }.navbar-expand-sm.navbar-vertical.navbar-right[data-hfx-sidebar-width] {
+    left: auto;
+    right: 0;
+  }.navbar-expand-sm.navbar-vertical[data-hfx-sidebar-width] ~ .page-wrapper {
+    margin-left: var(--hfx-sidebar-width, 15rem);
+  }.navbar-expand-sm.navbar-vertical.navbar-right[data-hfx-sidebar-width] ~ .page-wrapper {
+    margin-left: 0;
+    margin-right: var(--hfx-sidebar-width, 15rem);
+  }}@media (min-width: 768px) {.navbar-expand-md.navbar-vertical[data-hfx-sidebar-width] {
+    width: var(--hfx-sidebar-width, 15rem);
+    left: 0;
+    right: auto;
+  }.navbar-expand-md.navbar-vertical.navbar-right[data-hfx-sidebar-width] {
+    left: auto;
+    right: 0;
+  }.navbar-expand-md.navbar-vertical[data-hfx-sidebar-width] ~ .page-wrapper {
+    margin-left: var(--hfx-sidebar-width, 15rem);
+  }.navbar-expand-md.navbar-vertical.navbar-right[data-hfx-sidebar-width] ~ .page-wrapper {
+    margin-left: 0;
+    margin-right: var(--hfx-sidebar-width, 15rem);
+  }}@media (min-width: 992px) {.navbar-expand-lg.navbar-vertical[data-hfx-sidebar-width] {
+    width: var(--hfx-sidebar-width, 15rem);
+    left: 0;
+    right: auto;
+  }.navbar-expand-lg.navbar-vertical.navbar-right[data-hfx-sidebar-width] {
+    left: auto;
+    right: 0;
+  }.navbar-expand-lg.navbar-vertical[data-hfx-sidebar-width] ~ .page-wrapper {
+    margin-left: var(--hfx-sidebar-width, 15rem);
+  }.navbar-expand-lg.navbar-vertical.navbar-right[data-hfx-sidebar-width] ~ .page-wrapper {
+    margin-left: 0;
+    margin-right: var(--hfx-sidebar-width, 15rem);
+  }}@media (min-width: 1200px) {.navbar-expand-xl.navbar-vertical[data-hfx-sidebar-width] {
+    width: var(--hfx-sidebar-width, 15rem);
+    left: 0;
+    right: auto;
+  }.navbar-expand-xl.navbar-vertical.navbar-right[data-hfx-sidebar-width] {
+    left: auto;
+    right: 0;
+  }.navbar-expand-xl.navbar-vertical[data-hfx-sidebar-width] ~ .page-wrapper {
+    margin-left: var(--hfx-sidebar-width, 15rem);
+  }.navbar-expand-xl.navbar-vertical.navbar-right[data-hfx-sidebar-width] ~ .page-wrapper {
+    margin-left: 0;
+    margin-right: var(--hfx-sidebar-width, 15rem);
+  }}@media (min-width: 1400px) {.navbar-expand-xxl.navbar-vertical[data-hfx-sidebar-width] {
+    width: var(--hfx-sidebar-width, 15rem);
+    left: 0;
+    right: auto;
+  }.navbar-expand-xxl.navbar-vertical.navbar-right[data-hfx-sidebar-width] {
+    left: auto;
+    right: 0;
+  }.navbar-expand-xxl.navbar-vertical[data-hfx-sidebar-width] ~ .page-wrapper {
+    margin-left: var(--hfx-sidebar-width, 15rem);
+  }.navbar-expand-xxl.navbar-vertical.navbar-right[data-hfx-sidebar-width] ~ .page-wrapper {
+    margin-left: 0;
+    margin-right: var(--hfx-sidebar-width, 15rem);
+  }}

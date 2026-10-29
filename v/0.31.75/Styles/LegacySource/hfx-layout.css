@@ -1,0 +1,12 @@
+/* Compatibility for HtmlForgeX/Resources/Styles/hfx-layout.css. Native components read HFX roles. */
+.hfx-card-fill .card-body{display:flex;flex-direction:column;flex:1 1 auto;
+}.hfx-row-equalize .card{width:100%;height:100%;display:flex;flex-direction:column;
+}.hfx-row-equalize .card .card-body{display:flex;flex-direction:column;flex:1 1 auto;
+}.hfx-row-viewport-fit .card{width:100%;display:flex;flex-direction:column;
+}.hfx-row-viewport-fit .card .card-body{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;
+}.hfx-autofit .col{display:flex;flex-direction:column;min-width:0;
+}.hfx-autofit .card{width:100%;height:100%;display:flex;flex-direction:column;
+}.hfx-autofit .card .card-body{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;
+}.hfx-autofit .card-body:has(> canvas),
+.hfx-row-equalize .card-body:has(> canvas){display:grid;align-items:center;justify-items:center;
+}

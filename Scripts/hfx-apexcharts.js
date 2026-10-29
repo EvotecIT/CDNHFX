@@ -58,20 +58,12 @@
   }
 
   function getPalette(scope) {
-    var accentRgb = getCssVar('--hfx-surface-accent-rgb', scope) || getCssVar('--hfx-color-accent-rgb', scope);
-    var accent = accentRgb ? ('rgb(' + accentRgb + ')') : '';
-    var p1 = getCssVar('--hfx-palette-1', scope);
-    var p2 = getCssVar('--hfx-palette-2', scope);
-    var p3 = getCssVar('--hfx-palette-3', scope);
-    var p4 = getCssVar('--hfx-palette-4', scope);
-    var p5 = getCssVar('--hfx-palette-5', scope);
-    var p6 = getCssVar('--hfx-palette-6', scope);
-    var p7 = getCssVar('--hfx-palette-7', scope);
-    var list = [p1, p2, p3, p4, p5, p6, p7].filter(function (c) { return !!c; });
-    if (accent) list.unshift(accent);
-    if (list.length > 0) return list;
-    if (accent) return [accent, '#0ea5e9', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#14b8a6'];
-    return ['#0072b2', '#e69f00', '#009e73', '#d55e00', '#cc79a7', '#f0e442', '#56b4e9'];
+    var colors = [];
+    for (var index = 1; index <= 6; index++) {
+      var color = getCssVar('--hfx-color-series-' + index, scope);
+      if (color) colors.push(color);
+    }
+    return colors;
   }
 
   function getTheme(scope) {
@@ -99,42 +91,17 @@
     return 'light';
   }
 
-  // Legacy cards keep their scoped colour overrides; design surfaces use roles.
-  function usesSemanticRoles(scope) {
-    try {
-      return !!(scope && scope.closest && scope.closest('[data-hfx-operational-workspace], [data-hfx-design-system]'));
-    } catch (_scope) {
-      return false;
-    }
-  }
 
   function resolveForeColor(scope) {
-    var roleText = getCssVar('--hfx-color-text', scope);
-    return (usesSemanticRoles(scope) ? roleText : '')
-      || getCssVar('--hfx-card-body-color', scope)
-      || roleText
-      || getCssVar('--tblr-body-color', scope)
-      || getCssVar('--bs-body-color', scope)
-      || '';
+    return getCssVar('--hfx-color-text', scope);
   }
 
   function resolveSurfaceBg(scope) {
-    var roleSurface = getCssVar('--hfx-color-surface-raised', scope);
-    return (usesSemanticRoles(scope) ? roleSurface : '')
-      || getCssVar('--hfx-surface-card-bg', scope)
-      || roleSurface
-      || getCssVar('--tblr-bg-surface', scope)
-      || getCssVar('--tblr-card-bg', scope)
-      || getCssVar('--tblr-body-bg', scope)
-      || getCssVar('--bs-body-bg', scope)
-      || '';
+    return getCssVar('--hfx-color-surface', scope);
   }
 
   function resolveBorderColor(scope) {
-    return getCssVar('--hfx-surface-border', scope)
-      || getCssVar('--tblr-border-color', scope)
-      || getCssVar('--bs-border-color', scope)
-      || '';
+    return getCssVar('--hfx-color-border', scope);
   }
 
   function snapshotColors(chart) {

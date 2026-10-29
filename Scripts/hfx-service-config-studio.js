@@ -1576,6 +1576,8 @@
   }
 
   function readInputValue(input) {
+    // Credential values are read only by their explicit transport adapter.
+    if (input?.type === "password") return Boolean(input.value);
     if (!input) {
       return null;
     }
@@ -1600,6 +1602,7 @@
   }
 
   function setInputValue(input, value) {
+    if (input.type === "password") { input.value = ""; return; }
     if (input.type === "checkbox") {
       input.checked = Boolean(value);
       return;
@@ -1927,7 +1930,7 @@
     const values = {};
     root.querySelectorAll?.("[data-hfx-service-config-field-input]").forEach((input) => {
       const field = input.closest("[data-hfx-service-config-field]");
-      if (field?.getAttribute("data-hfx-service-config-dependency-active") === "false" || isRepeaterTemplateElement(field)) {
+      if (input.type === "password" || field?.getAttribute("data-hfx-service-config-dependency-active") === "false" || isRepeaterTemplateElement(field)) {
         return;
       }
 
@@ -2350,7 +2353,10 @@
       refreshDependencies(studio);
     }
 
-    const detail = { studio, payload, config: collectConfig(studio) };
+    const config = collectConfig(studio);
+    // A studio containing credential inputs reports the normalized public configuration,
+    // never the caller's potentially credential-bearing input payload.
+    const detail = { studio, payload: studio.querySelector('input[type="password"][data-hfx-service-config-field-input]') ? config : payload, config };
     dispatch(studio, "hfx:service-config-set", detail);
     return detail;
   }

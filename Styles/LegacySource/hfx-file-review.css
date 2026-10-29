@@ -1,0 +1,5 @@
+/* Compatibility for HtmlForgeX/Resources/Styles/hfx-file-review.css. Native components read HFX roles. */
+.hfx-file-scan-evidence-form .card-body,
+.hfx-file-transfer-decision-form .card-body {
+  gap: var(--hfx-file-gap) !important;
+}

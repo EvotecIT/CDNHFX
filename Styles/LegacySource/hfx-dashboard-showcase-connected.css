@@ -1,0 +1,44 @@
+/* Compatibility for HtmlForgeX/Resources/Styles/hfx-dashboard-showcase-connected.css. Native components read HFX roles. */
+.hfx-connected-grid-row .card{
+  margin:0 !important;
+  min-height:17.5rem;
+  border:0 !important;
+  border-right:1px solid color-mix(in srgb, var(--hfx-color-border-strong) 10.0%, transparent) !important;
+  border-bottom:1px solid color-mix(in srgb, var(--hfx-color-border-strong) 10.0%, transparent) !important;
+  border-radius:0 !important;
+  background:var(--hfx-color-surface) !important;
+  box-shadow:none !important;
+  transform:none !important;
+}.hfx-connected-grid-row .card:hover{
+  box-shadow:none !important;
+  transform:none !important;
+}.hfx-connected-grid-row--shell-metrics .card{
+  min-height:15.5rem;
+}.hfx-connected-grid-row--shell-lower .hfx-analytics-summary-card>.card-header,
+.hfx-connected-grid-row--shell-lower .hfx-connected-operating-panel__header,
+.hfx-connected-grid-row--shell-lower .hfx-connected-side-rail__header{
+  min-height:5.25rem;
+  border-radius:0 !important;
+  background:var(--hfx-color-surface) !important;
+}.hfx-connected-grid-row--shell-lower .hfx-analytics-summary-card>.card-header{
+  padding:1.25rem 1.35rem !important;
+}.hfx-connected-grid-row--shell-lower .hfx-analytics-summary-card>.card-header .card-subtitle,
+.hfx-connected-grid-row--shell-lower .hfx-connected-side-rail__header p{
+  max-width:28rem;
+}.hfx-connected-operating-panel__chart .apexcharts-canvas{
+  max-width:100%;
+}.hfx-dashboard-showcase--connected-grid .hfx-analytics-summary-card>.card-header{
+  padding:1.3rem 1.55rem .9rem !important;
+  border-bottom:1px solid color-mix(in srgb, var(--hfx-color-border-strong) 10.0%, transparent) !important;
+  border-radius:0 !important;
+  background:var(--hfx-color-surface);
+}.hfx-dashboard-showcase--connected-grid .hfx-analytics-summary-card>.card-body{
+  display:flex !important;
+  flex-direction:column;
+  flex:1 1 auto;
+  padding:0 !important;
+}.hfx-dashboard-showcase--connected-grid .hfx-analytics-summary-card__highlight .mt-3{
+  border-radius:.15rem !important;
+}.hfx-dashboard-showcase--connected-grid .hfx-metric-card>.card-body{
+  padding:1.55rem !important;
+}

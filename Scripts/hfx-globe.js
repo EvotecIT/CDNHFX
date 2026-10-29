@@ -664,8 +664,8 @@
 
       function applyThemeColors() {
         try {
-          var primary = resolveCssVar('rgb(var(--hfx-surface-accent-rgb, var(--tblr-primary-rgb, 6, 111, 209)))');
-          var body = resolveCssVar('var(--tblr-body-color, #1f2937)');
+          var primary = resolveCssVar('rgb(var(--hfx-surface-accent-rgb, var(--hfx-color-accent-rgb)))');
+          var body = resolveCssVar('var(--hfx-color-text)');
 
           // Background color may be CSS-var driven.
           if (cfg.backgroundColor != null && typeof globe.backgroundColor === 'function') {

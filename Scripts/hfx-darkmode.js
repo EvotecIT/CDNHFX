@@ -5,17 +5,20 @@
 
   function normalizeTheme(val) {
     var v = String(val || '').toLowerCase();
-    if (v === 'dark' || v === 'light') return v;
     if (v === 'auto' || v === 'system') return 'auto';
-    if (v === 'dark-black' || v === 'black' || v === 'darkblack') return 'dark-black';
-    if (v === 'dark-carbon' || v === 'carbon' || v === 'darkcarbon') return 'dark-carbon';
-    if (v === 'dark-matrix' || v === 'matrix' || v === 'darkmatrix' || v === 'dot-matrix') return 'dark-matrix';
+    var registry = window.HfxThemeRegistry && window.HfxThemeRegistry.registry;
+    if (!registry) return v === 'light' || v === 'dark' ? v : null;
+    v = registry.aliases[v] || v;
+    if (registry.pending.indexOf(v) >= 0) return 'dark';
+    return registry.themes.some(function (theme) { return theme.id === v; }) ? v : null;
     return null;
   }
 
   function normalizeA11y(val) {
     var s = String(val || '').toLowerCase().replace(/[+_]/g, ' ');
     if (!s || s === 'none' || s === 'default') return '';
+    var registry = window.HfxThemeRegistry && window.HfxThemeRegistry.registry;
+    if (registry && registry.overlays.some(function (overlay) { return overlay.id === s; })) return s;
     var parts = s.split(/\s+/);
     var hc = false;
     var cb = false;
@@ -32,12 +35,10 @@
 
   function baseModeOf(themeToken) {
     var t = normalizeTheme(themeToken);
-    if (t === 'dark') return 'dark';
-    if (t === 'light') return 'light';
-    if (t === 'dark-black') return 'dark';
-    if (t === 'dark-carbon') return 'dark';
-    if (t === 'dark-matrix') return 'dark';
     if (t === 'auto') return 'auto';
+    var registry = window.HfxThemeRegistry && window.HfxThemeRegistry.registry;
+    var theme = registry && registry.themes.filter(function (entry) { return entry.id === t; })[0];
+    return theme ? theme.mode : t;
     return null;
   }
 

@@ -1,0 +1,56 @@
+/* Compatibility for HtmlForgeX/Resources/Styles/hfx-portal-surface-theme-polish.css. Native components read HFX roles. */
+.hfx-scroll-surface,
+.scroll-y,
+.dataTables_scrollBody {
+    scrollbar-width: thin;
+    scrollbar-color: var(--hfx-scroll-thumb) var(--hfx-scroll-track);
+}.hfx-scroll-surface::-webkit-scrollbar,
+.scroll-y::-webkit-scrollbar,
+.dataTables_scrollBody::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}.hfx-scroll-surface::-webkit-scrollbar-track,
+.scroll-y::-webkit-scrollbar-track,
+.dataTables_scrollBody::-webkit-scrollbar-track {
+    background: var(--hfx-scroll-track);
+    border-radius: 999px;
+}.hfx-scroll-surface::-webkit-scrollbar-thumb,
+.scroll-y::-webkit-scrollbar-thumb,
+.dataTables_scrollBody::-webkit-scrollbar-thumb {
+    background: var(--hfx-scroll-thumb);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}.hfx-action-summary-card__actions .btn,
+.hfx-action-summary-card__notes > div,
+.hfx-review-feed-card__entries .fw-semibold,
+.hfx-review-feed-card__entries .text-secondary,
+.hfx-timeline-summary-card .timeline-event-card .card-title,
+.hfx-timeline-summary-card .timeline-event-card .text-muted,
+.hfx-workflow-summary-card .timeline-event-card .card-title,
+.hfx-workflow-summary-card .timeline-event-card .text-muted {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}.hfx-action-summary-card__actions .btn {
+    white-space: normal;
+    line-height: 1.4;
+    text-align: left;
+    justify-content: flex-start;
+}html[data-bs-theme="light"] .hfx-scroll-surface::-webkit-scrollbar,
+html[data-bs-theme="light"] .scroll-y::-webkit-scrollbar,
+html[data-bs-theme="light"] .dataTables_scrollBody::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}html[data-bs-theme="dark"] .hfx-scroll-surface::-webkit-scrollbar,
+html[data-bs-theme="dark"] .scroll-y::-webkit-scrollbar,
+html[data-bs-theme="dark"] .dataTables_scrollBody::-webkit-scrollbar,
+html[data-hfx-theme="dark-carbon"] .hfx-scroll-surface::-webkit-scrollbar,
+html[data-hfx-theme="dark-carbon"] .scroll-y::-webkit-scrollbar,
+html[data-hfx-theme="dark-carbon"] .dataTables_scrollBody::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+/* Palette-independent border geometry. */
+.hfx-scroll-surface::-webkit-scrollbar-track, .scroll-y::-webkit-scrollbar-track, .dataTables_scrollBody::-webkit-scrollbar-track { border-radius: 999px; }
+.hfx-scroll-surface::-webkit-scrollbar-thumb, .scroll-y::-webkit-scrollbar-thumb, .dataTables_scrollBody::-webkit-scrollbar-thumb { border-radius: 999px; }

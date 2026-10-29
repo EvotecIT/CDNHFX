@@ -5,8 +5,25 @@
   :where(:root):where(:not([data-hfx-design-system], [data-hfx-design-system] *)) {
     --hfx-radius-control: 6px;
   }
+  :where(:root, [data-bs-theme="light"], [data-hfx-theme="light"], [data-hfx-tokens="light"]):where(:not([data-hfx-design-system], [data-hfx-design-system] *)) {
+    --hfx-color-text-muted: #626770;
+    --hfx-color-surface: #ffffff;
+    --hfx-color-surface-sunken: #f7f8f9;
+    --hfx-color-text: #16181c;
+    --hfx-color-border: #e2e4e7;
+    --hfx-color-status-good-bg: #e2f0e9;
+  }
+  :where([data-bs-theme="dark"], [data-hfx-theme^="dark"], [data-hfx-tokens="dark"]):where(:not([data-hfx-design-system], [data-hfx-design-system] *)) {
+    --hfx-color-text-muted: #8f949d;
+    --hfx-color-surface: #16181c;
+    --hfx-color-surface-sunken: #111317;
+    --hfx-color-text: #f2f3f5;
+    --hfx-color-border: #272a30;
+    --hfx-color-status-good-bg: #1f362f;
+  }
 }
 /* hfx-token-fallbacks:end */
+
 
 /* HtmlForgeX report print: one stylesheet for the browser's Print, a report's build-time print version and the PDF
    renderers that convert it. It follows the report print spec: A4 (Letter by manifest), 16/14/18 mm margins, Calibri
@@ -20,23 +37,23 @@
 
 @page {
   margin: 16mm 14mm 18mm;
-  @top-left { font: 8pt/1.2 Calibri, Carlito, "Segoe UI", sans-serif; color: #5b6069; vertical-align: bottom; padding-bottom: 1.4mm; margin-bottom: 4.5mm; border-bottom: .5pt solid #d5d8dc; }
-  @top-center { vertical-align: bottom; margin-bottom: 4.5mm; border-bottom: .5pt solid #d5d8dc; }
-  @top-right { font: 8pt/1.2 Calibri, Carlito, "Segoe UI", sans-serif; color: #5b6069; text-align: right; vertical-align: bottom; padding-bottom: 1.4mm; margin-bottom: 4.5mm; border-bottom: .5pt solid #d5d8dc; }
-  @bottom-left { font: 8pt/1.2 Calibri, Carlito, "Segoe UI", sans-serif; color: #5b6069; vertical-align: top; padding-top: 1.4mm; margin-top: 5mm; border-top: .5pt solid #d5d8dc; }
-  @bottom-center { font: 8pt/1.2 Calibri, Carlito, "Segoe UI", sans-serif; color: #5b6069; text-align: center; vertical-align: top; padding-top: 1.4mm; margin-top: 5mm; border-top: .5pt solid #d5d8dc; }
-  @bottom-right { font: 8pt/1.2 Calibri, Carlito, "Segoe UI", sans-serif; color: #5b6069; text-align: right; vertical-align: top; padding-top: 1.4mm; margin-top: 5mm; border-top: .5pt solid #d5d8dc; }
+  @top-left { font: 8pt/1.2 Calibri, Carlito, "Segoe UI", sans-serif; color: var(--hfx-color-text-muted); vertical-align: bottom; padding-bottom: 1.4mm; margin-bottom: 4.5mm; border-bottom: .5pt solid var(--hfx-color-border); }
+  @top-center { vertical-align: bottom; margin-bottom: 4.5mm; border-bottom: .5pt solid var(--hfx-color-border); }
+  @top-right { font: 8pt/1.2 Calibri, Carlito, "Segoe UI", sans-serif; color: var(--hfx-color-text-muted); text-align: right; vertical-align: bottom; padding-bottom: 1.4mm; margin-bottom: 4.5mm; border-bottom: .5pt solid var(--hfx-color-border); }
+  @bottom-left { font: 8pt/1.2 Calibri, Carlito, "Segoe UI", sans-serif; color: var(--hfx-color-text-muted); vertical-align: top; padding-top: 1.4mm; margin-top: 5mm; border-top: .5pt solid var(--hfx-color-border); }
+  @bottom-center { font: 8pt/1.2 Calibri, Carlito, "Segoe UI", sans-serif; color: var(--hfx-color-text-muted); text-align: center; vertical-align: top; padding-top: 1.4mm; margin-top: 5mm; border-top: .5pt solid var(--hfx-color-border); }
+  @bottom-right { font: 8pt/1.2 Calibri, Carlito, "Segoe UI", sans-serif; color: var(--hfx-color-text-muted); text-align: right; vertical-align: top; padding-top: 1.4mm; margin-top: 5mm; border-top: .5pt solid var(--hfx-color-border); }
 }
 
 @media print {
   :root {
-    --p-ink: #16181c; --p-ink-2: #3f444c; --p-muted: #5b6069; --p-line: #d5d8dc; --p-line-soft: #e6e8eb; --p-fill: #f4f5f6;
-    --p-quiet: #6aa886;
+    --p-ink: var(--hfx-color-text); --p-ink-2: var(--hfx-color-text-muted); --p-muted: var(--hfx-color-text-muted); --p-line: var(--hfx-color-surface); --p-line-soft: var(--hfx-color-surface-sunken); --p-fill: var(--hfx-color-surface);
+    --p-quiet: var(--hfx-color-status-good-bg);
     --p-font: Calibri, Carlito, "Segoe UI", system-ui, sans-serif;
   }
-  html, body, body:has(.hfx-shell) { background: #fff !important; }
+  html, body, body:has(.hfx-shell) { background: var(--hfx-color-surface) !important; }
   .hfx-as { --hfx-font-sans: var(--p-font); --hfx-font-display: var(--p-font); --hfx-elevation-2: none; }
-  .hfx-shell { background: #fff; min-height: 0; color: var(--p-ink); font: 10pt/1.38 var(--p-font); font-variant-numeric: tabular-nums; orphans: 3; widows: 3; }
+  .hfx-shell { background: var(--hfx-color-surface); min-height: 0; color: var(--p-ink); font: 10pt/1.38 var(--p-font); font-variant-numeric: tabular-nums; orphans: 3; widows: 3; }
 
   /* Nothing interactive survives: the chrome goes, its state is written out. */
   .hfx-shell-bar, .hfx-shell-side, .hfx-shell-side-toggle, .hfx-shell-side-backdrop, .hfx-shell-skip, .hfx-shell-drawer-wrap,
@@ -44,7 +61,7 @@
   .hfx-as .hfx-as-linkbtn, .hfx-rv-empty-action, .hfx-rv-chart-data, .hfx-rv-chart-zone, .hfx-dx-toolbar,
   .hfx-shell-print-title.is-replaced, details[data-hfx-print="hide"] { display: none !important; }
   /* Tables of the page framework print their rows without their own controls (length, search, paging, buttons). */
-  .hfx-shell :is(.dt-length, .dt-search, .dt-paging, .dt-buttons, .dt-info, .dataTables_length, .dataTables_filter, .dataTables_paginate, .dataTables_info) { display: none !important; }
+
   /* Buttons that carry content (a sortable heading, a check's row) print as their text. */
   .hfx-as :is(.hfx-as-sort, .hfx-as-check-row) { border: 0; background: none; box-shadow: none; padding: 0; color: inherit; font: inherit; text-align: inherit; }
   .hfx-shell-layout { display: block; }
@@ -83,7 +100,7 @@
 
   /* Ink is spent on data: no panel fills or shadows. A page-level panel heading is an H2 (12.5 pt); a panel inside a
      chapter is an H3 (10.5 pt) with a hairline and prints as "Chapter · Panel". */
-  .hfx-as-panel, .hfx-as-panel.is-muted, .hfx-shell .card { background: none; border: 0; border-radius: 0; box-shadow: none; }
+
   :is(.hfx-as-panel, .hfx-as-panel.is-compact) > .hfx-as-panel-head { padding: 0 0 3px; border: 0; gap: 8px; align-items: baseline; break-after: avoid; }
   .hfx-as-panel-head > .hfx-as-icon { display: none; }
   .hfx-as .hfx-as-panel-titles { gap: 2px 8px; }
@@ -102,7 +119,7 @@
 
   /* Typed code previews keep their content on paper, with headings readable even when the screen theme stays dark. */
   .hfx-shell .hfx-code-block h3 { color: var(--p-ink); break-after: avoid; }
-  .hfx-shell .hfx-code-block :is(.card-subtitle, .text-secondary) { color: var(--p-muted) !important; }
+
   .hfx-shell .hfx-code-block__copy { display: none !important; }
 
   /* Chapters flatten: a line names them, each prints in order under its heading. */
@@ -121,7 +138,7 @@
   .hfx-as.hfx-rv-kpis, .hfx-as.hfx-rv-kpis.is-compact { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; padding: 0; border: .5pt solid var(--p-line); break-inside: avoid; }
   .hfx-as .hfx-rv-kpi, .hfx-as .is-compact > .hfx-rv-kpi { display: grid; align-content: start; gap: 1px; min-height: 0; padding: 8px 10px; border: 0; border-right: .5pt solid var(--p-line); border-bottom: .5pt solid var(--p-line); border-radius: 0; background: none; box-shadow: none; }
   .hfx-as .hfx-rv-kpi:nth-child(3n), .hfx-as .hfx-rv-kpi:last-child { border-right: 0; }
-  .hfx-as .hfx-rv-kpi:nth-child(3n+1):nth-last-child(-n+3), .hfx-as .hfx-rv-kpi:nth-child(3n+1):nth-last-child(-n+3) ~ .hfx-rv-kpi { border-bottom: 0; }
+  .hfx-as .hfx-rv-kpi:nth-child(3n/**/+1):nth-last-child(-n/**/+3), .hfx-as .hfx-rv-kpi:nth-child(3n/**/+1):nth-last-child(-n/**/+3) ~ .hfx-rv-kpi { border-bottom: 0; }
   .hfx-as .hfx-rv-kpi:is([data-state], [data-outcome], [data-sev], [data-severity]) { box-shadow: inset 2.5pt 0 0 var(--sev); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .hfx-as .hfx-rv-kpi-label { margin: 0; font: 400 8pt/1.3 var(--p-font); color: var(--p-muted); letter-spacing: 0; text-transform: none; }
   .hfx-as .hfx-rv-kpi-value { margin: 0; line-height: 1.1; }
@@ -136,7 +153,7 @@
   .hfx-as .hfx-rv-queue-rank { font-size: 8pt; color: var(--p-muted); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
   .hfx-as .hfx-rv-queue-title { margin: 0; font: 700 10pt/1.3 var(--p-font); color: var(--p-ink); white-space: normal; }
   .hfx-as .hfx-rv-queue-meta { display: block; margin: 0; font-size: 8.5pt; color: var(--p-ink-2); }
-  .hfx-as .hfx-rv-queue-meta > :not(:last-child)::after { content: "\00a0\00b7\00a0\200b"; }
+  .hfx-as .hfx-rv-queue-meta > :not(:last-child)::after { content: " · ​"; }
   .hfx-as .hfx-rv-queue-metric, .hfx-as .hfx-rv-queue-metric b { margin: 0; font: 400 8.5pt/1.3 var(--p-font); color: var(--p-ink-2); }
   .hfx-as .hfx-rv-queue-foot, .hfx-as .hfx-rv-list-footer a { display: none; }
   .hfx-as :is(.hfx-rv-list-footer, .hfx-rv-queue-print) { display: block; margin: 0; padding: 4px 0 0; border: 0; background: none; font-size: 8.5pt; color: var(--p-ink-2); }
@@ -180,10 +197,10 @@
   .hfx-as table.hfx-dx-print-table > tbody.hfx-dx-print-record > tr:first-child:not(:last-child) > td { border-bottom: 0; padding-bottom: 1px; }
   .hfx-as table.hfx-dx-print-table .hfx-dx-print-detail > td { padding-top: 0; font-size: 8pt; line-height: 1.35; color: var(--p-ink-2); }
   .hfx-as .hfx-dx-print-field { display: inline; }
-  .hfx-as .hfx-dx-print-field:not(:last-child)::after { content: "\00a0\00b7\00a0\200b"; color: var(--p-muted); }
+  .hfx-as .hfx-dx-print-field:not(:last-child)::after { content: " · ​"; color: var(--p-muted); }
   .hfx-as .hfx-dx-print-name { color: var(--p-muted); }
 .hfx-as .hfx-dx-print-quiet { color: var(--p-ink-2); }
-  .hfx-as .hfx-dx-print-name::after { content: "\00a0"; }
+  .hfx-as .hfx-dx-print-name::after { content: " "; }
   .hfx-as .hfx-dx-print-value .hfx-as-chip { display: inline-flex; }
   .hfx-as :is(table.hfx-dx-print-table, .hfx-rv-table) :is(.is-num, .is-number) { text-align: right; }
   /* Grids' print tables take the report's print type; change views (diffs, change lists, propagation) print their own layout. */

@@ -32,7 +32,7 @@
   }
   :where([data-bs-theme="dark"], [data-hfx-theme^="dark"], [data-hfx-tokens="dark"]):where(:not([data-hfx-design-system], [data-hfx-design-system] *)) {
     --hfx-color-text-secondary: #b0b4bc;
-    --hfx-color-text-muted: #8a8f98;
+    --hfx-color-text-muted: #8f949d;
     --hfx-elevation-2: 0 1px 2px rgba(0, 0, 0, .40), 0 10px 26px -14px rgba(0, 0, 0, .70);
     --hfx-color-surface: #16181c;
     --hfx-color-surface-sunken: #111317;
@@ -45,6 +45,7 @@
   }
 }
 /* hfx-token-fallbacks:end */
+
 
 /* In-page chapters use the report surface tokens. Grid and chart internals keep their owning libraries' styles. */
 .hfx-rv-tabs { min-width: 0; }
@@ -94,7 +95,8 @@
   .hfx-rv-tabs[data-layout=vertical] .hfx-shell-side-detail { display: none; }
 }
 /* Print rules (every chapter in order under its heading) are in hfx-report-print.css. */
-.hfx-as .hfx-rv-tab[hidden],.hfx-as .hfx-rv-tabs-more[hidden],.hfx-as .hfx-rv-tabs-menu[hidden]{display:none!important}
+.hfx-as .hfx-rv-tab[hidden],.hfx-as .hfx-rv-tabs-more[hidden],.hfx-as .hfx-rv-tabs-menu[hidden]{display:none!important;
+}
 
 /* Desktop chapter navigation stays on one line; phones use the chapter picker. */
 .hfx-as .hfx-rv-tabs-scroll { flex: none; border: 0; padding: var(--hfx-space-2) calc(var(--hfx-space-2) + var(--hfx-space-0-5)); color: var(--hfx-color-text-secondary); background: var(--hfx-color-surface); font-family: var(--hfx-font-sans); font-weight: var(--hfx-weight-medium); font-size: var(--hfx-type-title-size); line-height: 1; cursor: pointer; }

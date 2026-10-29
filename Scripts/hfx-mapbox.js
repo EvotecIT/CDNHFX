@@ -103,7 +103,7 @@
       var markers = markerSpecs || [];
       for (var i = 0; i < markers.length; i++) {
         var m = markers[i] || {};
-        var color = m.color ? String(m.color) : 'rgb(var(--hfx-surface-accent-rgb, var(--tblr-primary-rgb, 6, 111, 209)))';
+        var color = m.color ? String(m.color) : 'rgb(var(--hfx-surface-accent-rgb, var(--hfx-color-accent-rgb)))';
         var usePulse = !!m.pulse;
         var useGlow = !!m.glow;
         if (usePulse || useGlow) {

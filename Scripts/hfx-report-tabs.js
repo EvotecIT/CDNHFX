@@ -27,18 +27,7 @@
     return panel.__hfxPrepare;
   }
   function laneLinks(scope) {
-    all(scope, '[data-hfx-rv-lane-links]').forEach(function (root) {
-      var links; try { links = JSON.parse(root.getAttribute('data-hfx-rv-lane-links')); } catch (_) { return; }
-      all(root, 'svg').forEach(function (svg) {
-        all(svg, '[data-cfx-role="state-lane-label"]').forEach(function (label, i) {
-          if (!links[i] || label.parentNode.localName === 'a') return;
-          var a = document.createElementNS('http://www.w3.org/2000/svg', 'a');
-          a.setAttribute('href', links[i]); a.setAttribute('data-hfx-shell-entity', decodeURIComponent(links[i].slice(1)));
-          a.setAttribute('tabindex', '0'); a.setAttribute('aria-label', label.textContent);
-          label.parentNode.insertBefore(a, label); a.appendChild(label);
-        });
-      });
-    });
+    if (window.hfxReportTimeline) window.hfxReportTimeline.init(scope);
   }
   function closeMenu(root, focus) {
     var menu = root.querySelector(':scope > .hfx-rv-tabs-bar > .hfx-rv-tabs-menu');

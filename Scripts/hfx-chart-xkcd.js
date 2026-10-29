@@ -64,42 +64,13 @@
     };
   }
 
-  function isDarkTheme() {
-    var mode = getRootAttr('data-bs-theme') || getRootAttr('data-hfx-theme');
-    return String(mode || '').toLowerCase().indexOf('dark') === 0;
-  }
-
-  function highContrastPalette() {
-    return isDarkTheme()
-      ? ['#7cc7ff', '#ffb000', '#00d084', '#ff6b6b', '#d8a1ff', '#facc15', '#2dd4bf']
-      : ['#005f99', '#9a5800', '#007a59', '#a13f00', '#8a4770', '#766800', '#267da8'];
-  }
-
-  function colorBlindPalette() {
-    return ['#0072b2', '#e69f00', '#009e73', '#d55e00', '#cc79a7', '#f0e442', '#56b4e9'];
-  }
-
-  function getPalette(scope, a11y) {
-    var accentRgb = getCssVar('--hfx-surface-accent-rgb', scope) || getCssVar('--hfx-color-accent-rgb', scope);
-    var accent = accentRgb ? ('rgb(' + accentRgb + ')') : '';
-    var values = [
-      getCssVar('--hfx-palette-1', scope),
-      getCssVar('--hfx-palette-2', scope),
-      getCssVar('--hfx-palette-3', scope),
-      getCssVar('--hfx-palette-4', scope),
-      getCssVar('--hfx-palette-5', scope),
-      getCssVar('--hfx-palette-6', scope),
-      getCssVar('--hfx-palette-7', scope)
-    ].filter(function (color) { return !!color; });
-
-    var hasAccent = accent && !(a11y && (a11y.highContrast || a11y.colorBlind));
-    if (hasAccent) values.unshift(accent);
-    if (hasAccent && values.length === 1) {
-      values = values.concat(colorBlindPalette());
+  function getPalette(scope) {
+    var colors = [];
+    for (var index = 1; index <= 6; index++) {
+      var color = getCssVar('--hfx-color-series-' + index, scope);
+      if (color) colors.push(color);
     }
-    if (values.length > 0) return values;
-    if (a11y && a11y.highContrast) return highContrastPalette();
-    return colorBlindPalette();
+    return colors;
   }
 
   function getDataColorCount(config) {
@@ -128,60 +99,12 @@
     return colors;
   }
 
-  // Legacy cards keep their scoped colour overrides; design surfaces use roles.
-  function usesSemanticRoles(scope) {
-    try {
-      return !!(scope && scope.closest && scope.closest('[data-hfx-operational-workspace], [data-hfx-design-system]'));
-    } catch (_scope) {
-      return false;
-    }
-  }
-
   function resolveTextColor(scope) {
-    var roleText = getCssVar('--hfx-color-text', scope);
-    return (usesSemanticRoles(scope) ? roleText : '')
-      || getCssVar('--hfx-card-body-color', scope)
-      || roleText
-      || getCssVar('--tblr-body-color', scope)
-      || getCssVar('--bs-body-color', scope)
-      || '#212529';
-  }
-
-  function isSolidSvgColor(value) {
-    if (!value) return false;
-    var normalized = String(value).trim();
-    if (!normalized) return false;
-    var lower = normalized.toLowerCase();
-    return lower.indexOf('gradient(') < 0 && lower.indexOf('url(') < 0;
-  }
-
-  function getComputedBackgroundColor(scope) {
-    try {
-      var style = window.getComputedStyle ? window.getComputedStyle(scope || document.documentElement) : null;
-      return style ? style.backgroundColor : '';
-    } catch (_e) {
-      return '';
-    }
+    return getCssVar('--hfx-color-text', scope);
   }
 
   function resolveBackground(scope) {
-    var roleSurface = getCssVar('--hfx-color-surface-raised', scope);
-    var values = [
-      usesSemanticRoles(scope) ? roleSurface : '',
-      getCssVar('--hfx-surface-card-bg', scope),
-      roleSurface,
-      getCssVar('--tblr-bg-surface', scope),
-      getCssVar('--tblr-card-bg', scope),
-      getCssVar('--tblr-body-bg', scope),
-      getCssVar('--bs-body-bg', scope),
-      getComputedBackgroundColor(scope)
-    ];
-
-    for (var i = 0; i < values.length; i++) {
-      if (isSolidSvgColor(values[i])) return values[i];
-    }
-
-    return '#ffffff';
+    return getCssVar('--hfx-color-surface', scope);
   }
 
   function clone(value) {
@@ -205,7 +128,7 @@
 
     if (!opts || !opts.followTheme) {
       if ((!config.options.dataColors || !config.options.dataColors.length) && opts && opts.autoColors) {
-        config.options.dataColors = extendPalette(colorBlindPalette(), colorCount);
+        config.options.dataColors = extendPalette(getPalette(svg), colorCount);
       }
       return config;
     }
@@ -219,9 +142,7 @@
     }
 
     if (opts.autoFontFamily && !config.options.fontFamily) {
-      config.options.fontFamily = getCssVar('--tblr-font-sans-serif', svg)
-        || getCssVar('--bs-font-sans-serif', svg)
-        || 'Comic Sans MS, Comic Sans, cursive';
+      config.options.fontFamily = getCssVar('--hfx-font-sans', svg);
     }
 
     if ((!config.options.dataColors || !config.options.dataColors.length) && (opts.autoColors || a11y.colorBlind)) {

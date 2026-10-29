@@ -14,6 +14,7 @@
     --hfx-space-3: 0.75rem;
     --hfx-space-4: 1rem;
     --hfx-space-1-5: 6px;
+    --hfx-radius-pill: 999px;
     --hfx-border-width: 1px;
     --hfx-focus-width: 2px;
     --hfx-focus-offset: 2px;
@@ -22,6 +23,7 @@
     --hfx-shell-height: 56px;
     --hfx-weight-regular: 400;
     --hfx-weight-semibold: 600;
+    --hfx-z-popover: 1000;
     --hfx-z-tooltip: 1300;
   }
   :where(:root, [data-bs-theme="light"], [data-hfx-theme="light"], [data-hfx-tokens="light"]):where(:not([data-hfx-design-system], [data-hfx-design-system] *)) {
@@ -47,7 +49,7 @@
   }
   :where([data-bs-theme="dark"], [data-hfx-theme^="dark"], [data-hfx-tokens="dark"]):where(:not([data-hfx-design-system], [data-hfx-design-system] *)) {
     --hfx-color-text-secondary: #b0b4bc;
-    --hfx-color-text-muted: #8a8f98;
+    --hfx-color-text-muted: #8f949d;
     --hfx-elevation-2: 0 1px 2px rgba(0, 0, 0, .40), 0 10px 26px -14px rgba(0, 0, 0, .70);
     --hfx-color-surface: #16181c;
     --hfx-color-surface-sunken: #111317;
@@ -68,6 +70,7 @@
   }
 }
 /* hfx-token-fallbacks:end */
+
 
 /* HtmlForgeX data explorer. Uses shared semantic design tokens so it matches assessment reports in both themes. */
 
@@ -101,7 +104,7 @@
 
 .hfx-dx-toolbar { display: flex; flex-direction: column; gap: var(--hfx-space-2); min-width: 0; }
 
-.hfx-dx-views { display: flex; flex-wrap: wrap; gap: var(--hfx-space-1); align-items: center; }
+.hfx-dx-views { display: flex; flex-wrap: wrap; align-self: flex-start; gap: var(--hfx-space-1); align-items: center; padding: var(--hfx-space-1); background: var(--hfx-color-surface-sunken); border-radius: var(--hfx-radius-control); }
 .hfx-dx-phone-view { display: none; }
 .hfx-dx-view {
   border: var(--hfx-border-width) solid var(--hfx-color-border);
@@ -109,7 +112,7 @@
   color: var(--hfx-color-text-secondary);
   font: 600 12.5px/1 var(--hfx-font-sans);
   padding: 7px 11px;
-  border-radius: 999px;
+  border-radius: var(--hfx-radius-control);
   cursor: pointer;
 }
 .hfx-dx-view:hover { border-color: var(--hfx-color-border-strong); color: var(--hfx-color-text); }
@@ -167,7 +170,7 @@
   background: var(--hfx-color-surface);
   border: var(--hfx-border-width) solid var(--hfx-color-border-strong);
   border-radius: var(--hfx-radius-container);
-  box-shadow: 0 12px 34px -12px rgba(0, 0, 0, .35);
+  box-shadow: 0 12px 34px -12px color-mix(in srgb, var(--hfx-color-text) 35.0%, transparent);
   padding: 10px;
   display: flex;
   flex-direction: column;
@@ -200,8 +203,11 @@
 }
 
 .hfx-dx-quick { display: flex; flex-wrap: wrap; gap: 6px 16px; }
-.hfx-dx-quick-group { display: flex; flex-wrap: wrap; gap: var(--hfx-space-1); align-items: center; }
-.hfx-dx-quick-label { font: 700 10.5px/1 var(--hfx-font-sans); letter-spacing: .08em; text-transform: uppercase; color: var(--hfx-color-text-muted); margin-right: 2px; }
+.hfx-dx-quick-group { position: relative; min-width: 0; }
+.hfx-dx-quick-label { cursor: pointer; padding: var(--hfx-space-1-5) var(--hfx-space-2); border: var(--hfx-border-width) solid var(--hfx-color-border); border-radius: var(--hfx-radius-control); font-family: var(--hfx-font-sans); font-size: var(--hfx-type-caption-size); line-height: var(--hfx-type-caption-line-height); font-weight: var(--hfx-weight-semibold); color: var(--hfx-color-text-secondary); }
+.hfx-dx-quick-label:focus:not(:focus-visible) { outline: none; }
+.hfx-dx-view-edited { display: inline-block; width: var(--hfx-space-1-5); height: var(--hfx-space-1-5); margin-inline-start: var(--hfx-space-1-5); border-radius: 50%; background: currentColor; vertical-align: middle; }
+.hfx-dx-quick-choices { position: absolute; z-index: var(--hfx-z-popover); top: 100%; inset-inline-start: 0; display: flex; flex-direction: column; gap: var(--hfx-space-1); min-width: calc(var(--hfx-space-4) * 11); max-height: calc(var(--hfx-space-4) * 18); overflow: auto; padding: var(--hfx-space-2); background: var(--hfx-color-surface); border: var(--hfx-border-width) solid var(--hfx-color-border); border-radius: var(--hfx-radius-control); box-shadow: var(--hfx-elevation-2); }
 .hfx-dx-qchip {
   display: inline-flex; gap: var(--hfx-space-1-5); align-items: center;
   border: var(--hfx-border-width) solid var(--hfx-color-border); background: var(--hfx-color-surface); color: var(--hfx-color-text-secondary);
@@ -241,7 +247,7 @@
   background: var(--hfx-color-surface);
   overscroll-behavior: contain;
 }
-.hfx-dx-body.is-fixed-height .hfx-dx-viewport { height: var(--dx-height); }
+.hfx-dx-body:is(.is-fixed-height, .is-window-fill) .hfx-dx-viewport { height: var(--dx-height); }
 .hfx-dx-inner { position: relative; min-width: 100%; }
 .hfx-dx-row {
   display: grid;
@@ -315,14 +321,14 @@
 
 /* drawer */
 .hfx-dx-drawer-wrap { position: fixed; inset: 0; z-index: 1060; }
-.hfx-dx-drawer-backdrop { position: absolute; inset: 0; background: rgba(8, 12, 18, .32); touch-action: none; }
+.hfx-dx-drawer-backdrop { position: absolute; inset: 0; background: color-mix(in srgb, var(--hfx-color-surface) 32.0%, transparent); touch-action: none; }
 .hfx-dx-drawer {
   position: absolute; top: 0; right: 0; bottom: 0;
   width: min(560px, 100vw);
   display: flex; flex-direction: column;
   background: var(--hfx-color-surface); color: var(--hfx-color-text);
   border-left: 1px solid var(--hfx-color-border-strong);
-  box-shadow: -18px 0 40px -18px rgba(0, 0, 0, .45);
+  box-shadow: -18px 0 40px -18px color-mix(in srgb, var(--hfx-color-text) 45.0%, transparent);
   outline: none;
 }
 .hfx-dx-drawer-head {
@@ -398,24 +404,9 @@
     box-shadow: none;
   }
   /* TablerCardBody.BuildBody stacks multiple logical children in a vstack. Keep the same frame contract there. */
-  :is(.hfx-as-panel-body, .card-body) > .hfx-dx,
-  .card-body > .vstack > .hfx-dx {
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
-    background: transparent;
-    padding: 0;
-  }
+
   /* A semantic panel already supplies the frame when its content uses a card to group the explorer. */
-  :is(.hfx-as-panel-body, .card-body) > .card:has(> .card-body > .hfx-dx, > .card-body > .vstack > .hfx-dx) {
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
-    background: transparent;
-  }
-  :is(.hfx-as-panel-body, .card-body) > .card:has(> .card-body > .hfx-dx, > .card-body > .vstack > .hfx-dx) > .card-body {
-    padding-inline: 0;
-  }
+
   /* Host padding is deliberate at every width. Use an explicit flush body for edge-to-edge explorers. */
 }
 
@@ -423,6 +414,11 @@
   .hfx-dx-toolbar, .hfx-dx-drawer-wrap { display: none !important; }
   .hfx-dx-viewport { height: auto; max-height: none; overflow: visible; }
 }
+
+/* A tag list keeps each value independent; labels/tooltips are always plain text. */
+.hfx-dx-tags { display: inline-flex; gap: var(--hfx-space-1); align-items: center; max-width: 100%; }
+.hfx-dx-tag { white-space: nowrap; font-size: var(--hfx-type-caption-size); border: var(--hfx-border-width) solid currentColor; border-radius: var(--hfx-radius-pill); padding: 0 var(--hfx-space-1); }
+.hfx-dx-fields .hfx-dx-tags { flex-wrap: wrap; }
 /* One quiet, inspectable baseline; it never joins the removable filter chips. */
 .hfx-dx .hfx-dx-scope { position: relative; flex: 0 0 auto; color: var(--hfx-color-text-muted); }
 .hfx-dx .hfx-dx-scope[hidden] { display: none; }

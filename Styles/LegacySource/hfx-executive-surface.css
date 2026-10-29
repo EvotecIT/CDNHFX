@@ -1,0 +1,5 @@
+/* Compatibility for HtmlForgeX/Resources/Styles/hfx-executive-surface.css. Native components read HFX roles. */
+html[data-bs-theme="light"] .layout-horizontal .page-wrapper .card-title,
+html[data-bs-theme="light"] .layout-horizontal .page-wrapper h3 {
+    letter-spacing: -0.02em;
+}

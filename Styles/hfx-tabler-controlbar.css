@@ -11,25 +11,8 @@
     max-width: 100%;
 }
 
-.hfx-field-shell-inline > .col,
-.hfx-field-shell-inline > [class^="col-"],
-.hfx-field-shell-inline > [class*=" col-"] {
-    min-width: 0;
-}
-
-.hfx-field-shell .input-icon,
-.hfx-field-shell .input-group,
-.hfx-field-shell .form-control,
-.hfx-field-shell .form-select {
-    max-width: 100%;
-}
-
 .hfx-field-shell-bool .hfx-field-shell-control {
     min-width: 0;
-}
-
-.hfx-field-shell-bool .form-check {
-    margin-bottom: 0;
 }
 
 .hfx-bool-group {
@@ -44,49 +27,11 @@
     gap: .4rem;
 }
 
-.hfx-bool-group-stacked > .form-check,
-.hfx-bool-group-stacked > .hfx-field-shell,
-.hfx-bool-group-stacked > .mb-3 {
-    margin-bottom: 0 !important;
-}
-
-.hfx-bool-group .form-check-inline {
-    margin-right: 0;
-}
-
-.hfx-bool-group > .hfx-field-shell,
-.hfx-bool-group > .mb-3 {
-    margin-bottom: 0 !important;
-}
-
 .hfx-bool-control {
     display: inline-flex;
     align-items: center;
     gap: var(--hfx-bool-label-gap);
     min-height: var(--hfx-input-min-height);
-}
-
-.hfx-bool-control.form-check {
-    display: flex;
-    padding-left: 0;
-}
-
-.hfx-bool-control.form-check.form-check-inline {
-    display: inline-flex;
-}
-
-.hfx-bool-control.form-check.form-switch {
-    gap: calc(var(--hfx-bool-label-gap) + .16rem);
-}
-
-.hfx-bool-control .form-check-input {
-    margin: 0;
-    flex: 0 0 auto;
-}
-
-.hfx-bool-control .form-check-label {
-    margin: 0;
-    line-height: 1.35;
 }
 
 .hfx-field-shell-bool .form-hint,
@@ -155,25 +100,10 @@
     gap: var(--hfx-controlbar-actions-gap);
 }
 
-.hfx-controlbar-item > .mb-3,
-.hfx-controlbar-item > .hfx-field-shell,
-.hfx-controlbar-item > .form-check,
-.hfx-controlbar-item > .hfx-bool-wrap {
-    margin-bottom: 0 !important;
-}
-
 .hfx-controlbar-item-toggle {
     flex: 0 0 auto;
     display: flex;
     align-items: flex-end;
-}
-
-.hfx-controlbar-item-toggle > .form-check,
-.hfx-controlbar-item-toggle .form-check {
-    margin-bottom: 0;
-    min-height: var(--hfx-controlbar-control-height);
-    display: inline-flex;
-    align-items: center;
 }
 
 .hfx-controlbar-item-toggle .hfx-bool-wrap {
@@ -196,59 +126,6 @@
     margin-top: 0 !important;
 }
 
-.hfx-action-row > .btn,
-.hfx-action-row .btn {
-    min-height: var(--hfx-action-row-control-height);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    white-space: nowrap;
-}
-
-.hfx-action-row > .btn:not(.btn-lg),
-.hfx-action-row .btn:not(.btn-lg) {
-    padding: .28rem .65rem;
-    font-size: .85rem;
-    line-height: 1.2;
-}
-
-.hfx-action-row > .btn .icon,
-.hfx-action-row .btn .icon,
-.hfx-action-row > .btn svg,
-.hfx-action-row .btn svg {
-    width: .95rem;
-    height: .95rem;
-}
-
-.btn.hfx-btn-with-icon {
-    display: inline-flex;
-    align-items: center;
-    gap: .6rem;
-}
-
-.btn.hfx-btn-with-icon > span {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 auto;
-    line-height: 0;
-}
-
-.btn.hfx-btn-with-icon .icon,
-.btn.hfx-btn-with-icon svg {
-    width: 1rem;
-    height: 1rem;
-    flex: 0 0 auto;
-}
-
-.btn.hfx-btn-with-icon.w-100 {
-    justify-content: flex-start;
-}
-
-.btn.hfx-btn-with-icon-end {
-    justify-content: center;
-}
-
 .hfx-action-row-density-default {
     --hfx-action-row-gap: var(--hfx-controlbar-actions-gap);
     --hfx-action-row-control-height-local: var(--hfx-action-row-control-height);
@@ -269,36 +146,6 @@
     gap: var(--hfx-action-row-gap);
 }
 
-.hfx-action-row-density-compact > .btn:not(.btn-lg),
-.hfx-action-row-density-compact .btn:not(.btn-lg),
-.hfx-action-row-density-dense > .btn:not(.btn-lg),
-.hfx-action-row-density-dense .btn:not(.btn-lg) {
-    min-height: var(--hfx-action-row-control-height-local);
-    padding: .14rem .48rem;
-    font-size: .78rem;
-}
-
-.hfx-action-row-density-dense > .btn:not(.btn-lg),
-.hfx-action-row-density-dense .btn:not(.btn-lg) {
-    padding: .1rem .42rem;
-    font-size: .74rem;
-}
-
-.hfx-controlbar-item-action > .btn,
-.hfx-controlbar-item-action .btn,
-.hfx-controlbar-group-actions > .btn,
-.hfx-controlbar-group-actions .btn,
-.hfx-controlbar-group-start-items > .btn,
-.hfx-controlbar-group-start-items .btn,
-.hfx-controlbar-group-end-items > .btn,
-.hfx-controlbar-group-end-items .btn {
-    white-space: nowrap;
-    min-height: var(--hfx-controlbar-control-height);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
 .hfx-controlbar-density-default {
     --hfx-controlbar-control-height: var(--hfx-input-min-height);
 }
@@ -317,24 +164,6 @@
     font-size: .7rem;
 }
 
-.hfx-controlbar-density-compact .form-control,
-.hfx-controlbar-density-compact .form-select,
-.hfx-controlbar-density-compact .input-group > .form-control,
-.hfx-controlbar-density-compact .input-group > .form-select,
-.hfx-controlbar-density-compact .input-group > .input-group-text,
-.hfx-controlbar-density-compact .btn {
-    min-height: var(--hfx-controlbar-control-height);
-    padding: .14rem .48rem;
-    font-size: .78rem;
-    line-height: 1.2;
-}
-
-.hfx-controlbar-density-compact .btn .icon,
-.hfx-controlbar-density-compact .btn svg {
-    width: .95rem;
-    height: .95rem;
-}
-
 .hfx-controlbar-density-compact .hfx-bool-group {
     gap: .3rem .52rem;
 }
@@ -346,10 +175,6 @@
 .hfx-controlbar-density-compact .hfx-bool-control {
     gap: .78rem;
     min-height: var(--hfx-controlbar-control-height);
-}
-
-.hfx-controlbar-density-compact .hfx-bool-control.form-check.form-switch {
-    gap: .96rem;
 }
 
 .hfx-controlbar-density-dense {
@@ -377,51 +202,6 @@
 .hfx-controlbar-density-dense .hfx-bool-control {
     gap: .66rem;
     min-height: var(--hfx-controlbar-control-height);
-}
-
-.hfx-controlbar-density-dense .hfx-bool-control.form-check.form-switch {
-    gap: .78rem;
-}
-
-.hfx-controlbar-density-dense .form-control,
-.hfx-controlbar-density-dense .form-select,
-.hfx-controlbar-density-dense .input-group > .form-control,
-.hfx-controlbar-density-dense .input-group > .form-select,
-.hfx-controlbar-density-dense .input-group > .input-group-text,
-.hfx-controlbar-density-dense .btn {
-    min-height: var(--hfx-controlbar-control-height);
-    padding: .1rem .42rem;
-    font-size: .76rem;
-    line-height: 1.2;
-}
-
-.hfx-controlbar-density-dense .btn .icon,
-.hfx-controlbar-density-dense .btn svg {
-    width: 0.95rem;
-    height: 0.95rem;
-}
-
-.hfx-field-shell .input-group > .btn,
-.hfx-field-shell .input-group > .input-group-text {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.hfx-field-shell .input-group > .btn .icon,
-.hfx-field-shell .input-group > .btn svg,
-.hfx-field-shell .input-group > .input-group-text .icon,
-.hfx-field-shell .input-group > .input-group-text svg {
-    display: block;
-    vertical-align: middle;
-}
-
-.hfx-field-shell .input-group > .btn > span,
-.hfx-field-shell .input-group > .input-group-text > span {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 0;
 }
 
 .hfx-controlbar-rails {

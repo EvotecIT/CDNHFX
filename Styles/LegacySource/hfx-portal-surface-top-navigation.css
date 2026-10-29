@@ -1,0 +1,116 @@
+/* Compatibility for HtmlForgeX/Resources/Styles/hfx-portal-surface-top-navigation.css. Native components read HFX roles. */
+html[data-bs-theme="light"] .layout-horizontal header.navbar.sticky-top,
+html[data-bs-theme="light"] .page.layout-combo header.navbar.sticky-top {
+
+    margin: 0 0.85rem;
+    isolation: isolate;
+
+}html[data-bs-theme="light"] .layout-horizontal header.navbar.sticky-top::before,
+html[data-bs-theme="light"] .page.layout-combo header.navbar.sticky-top::before {
+    content: "";
+    position: absolute;
+    inset: 0 -0.85rem;
+
+    pointer-events: none;
+    z-index: -1;
+}html[data-bs-theme="light"] .layout-horizontal header.navbar .navbar-brand,
+html[data-bs-theme="light"] .page.layout-combo header.navbar .navbar-brand {
+
+    padding-inline-end: 0.45rem;
+    margin-inline-end: 0.4rem;
+
+}html[data-bs-theme="light"] .layout-horizontal header.navbar .navbar-nav,
+html[data-bs-theme="light"] .page.layout-combo header.navbar .navbar-nav {
+    gap: 0.25rem;
+}html[data-bs-theme="light"] .layout-horizontal header.navbar .navbar-nav .nav-link,
+ html[data-bs-theme="light"] .layout-horizontal header.navbar .dropdown-toggle,
+ html[data-bs-theme="light"] .page.layout-combo header.navbar .navbar-nav .nav-link,
+ html[data-bs-theme="light"] .page.layout-combo header.navbar .dropdown-toggle {
+     padding: 0.55rem 0.85rem;
+
+     font-weight: 500;
+
+     transition:
+        background-color 0.18s ease,
+        box-shadow 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease,
+        transform 0.18s ease;
+}html[data-bs-theme="light"] .layout-horizontal header.navbar .navbar-nav .nav-link.active,
+html[data-bs-theme="light"] .layout-horizontal header.navbar .navbar-nav .nav-link[aria-current="page"],
+html[data-bs-theme="light"] .layout-horizontal header.navbar .dropdown-toggle.active,
+html[data-bs-theme="light"] .layout-horizontal header.navbar .dropdown-toggle.show,
+html[data-bs-theme="light"] .page.layout-combo header.navbar .navbar-nav .nav-link.active,
+html[data-bs-theme="light"] .page.layout-combo header.navbar .navbar-nav .nav-link[aria-current="page"],
+html[data-bs-theme="light"] .page.layout-combo header.navbar .dropdown-toggle.active,
+html[data-bs-theme="light"] .page.layout-combo header.navbar .dropdown-toggle.show {
+
+    transform: translateY(-1px);
+}@media (min-width: 992px) {html[data-bs-theme="light"] .page.layout-combo[data-hfx-navigation-shell="top-with-left-sidebar"] > aside.navbar-vertical,
+    html[data-bs-theme="light"] .page.layout-combo[data-hfx-navigation-shell="top-with-right-sidebar"] > aside.navbar-vertical,
+    html[data-bs-theme="dark"] .page.layout-combo[data-hfx-navigation-shell="top-with-left-sidebar"] > aside.navbar-vertical,
+    html[data-bs-theme="dark"] .page.layout-combo[data-hfx-navigation-shell="top-with-right-sidebar"] > aside.navbar-vertical,
+    html[data-hfx-theme="dark-carbon"] .page.layout-combo[data-hfx-navigation-shell="top-with-left-sidebar"] > aside.navbar-vertical,
+    html[data-hfx-theme="dark-carbon"] .page.layout-combo[data-hfx-navigation-shell="top-with-right-sidebar"] > aside.navbar-vertical {
+        top: 0;
+        bottom: 0;
+        height: 100vh;
+        z-index: 1045;
+    }html[data-bs-theme="light"] .page.layout-combo[data-hfx-navigation-shell="top-with-left-sidebar"] > header.navbar.sticky-top::before,
+    html[data-bs-theme="light"] .page.layout-combo[data-hfx-navigation-shell="top-with-right-sidebar"] > header.navbar.sticky-top::before {
+        inset: 0;
+
+    }html[data-bs-theme="light"] .page.layout-combo[data-hfx-navigation-shell="top-with-left-sidebar"] > aside.navbar-vertical .navbar-brand,
+    html[data-bs-theme="light"] .page.layout-combo[data-hfx-navigation-shell="top-with-right-sidebar"] > aside.navbar-vertical .navbar-brand {
+        min-height: 4.55rem;
+        padding-top: 0.85rem;
+        padding-bottom: 0.85rem;
+    }}html[data-bs-theme="dark"] .layout-horizontal header.navbar.sticky-top,
+html[data-hfx-theme="dark-carbon"] .layout-horizontal header.navbar.sticky-top,
+html[data-bs-theme="dark"] .page.layout-combo header.navbar.sticky-top,
+html[data-hfx-theme="dark-carbon"] .page.layout-combo header.navbar.sticky-top {
+
+    margin-top: 0;
+
+    isolation: isolate;
+
+}html[data-bs-theme="dark"] .layout-horizontal header.navbar.sticky-top::before,
+html[data-hfx-theme="dark-carbon"] .layout-horizontal header.navbar.sticky-top::before,
+html[data-bs-theme="dark"] .page.layout-combo header.navbar.sticky-top::before,
+html[data-hfx-theme="dark-carbon"] .page.layout-combo header.navbar.sticky-top::before {
+    content: "";
+    position: absolute;
+    inset: 0 -0.85rem;
+
+    pointer-events: none;
+    z-index: -1;
+}html[data-bs-theme="dark"] .layout-horizontal header.navbar .navbar-nav .nav-link,
+html[data-bs-theme="dark"] .layout-horizontal header.navbar .dropdown-toggle,
+html[data-bs-theme="dark"] .page.layout-combo header.navbar .navbar-nav .nav-link,
+html[data-bs-theme="dark"] .page.layout-combo header.navbar .dropdown-toggle {
+
+    transition:
+        background-color 0.18s ease,
+        box-shadow 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease,
+        transform 0.18s ease;
+}html[data-bs-theme="dark"] .layout-horizontal header.navbar .navbar-nav .nav-link.active,
+html[data-bs-theme="dark"] .layout-horizontal header.navbar .navbar-nav .nav-link[aria-current="page"],
+html[data-bs-theme="dark"] .layout-horizontal header.navbar .dropdown-toggle.active,
+html[data-bs-theme="dark"] .layout-horizontal header.navbar .dropdown-toggle.show,
+html[data-bs-theme="dark"] .page.layout-combo header.navbar .navbar-nav .nav-link.active,
+html[data-bs-theme="dark"] .page.layout-combo header.navbar .navbar-nav .nav-link[aria-current="page"],
+html[data-bs-theme="dark"] .page.layout-combo header.navbar .dropdown-toggle.active,
+html[data-bs-theme="dark"] .page.layout-combo header.navbar .dropdown-toggle.show {
+
+    transform: translateY(-1px);
+}
+
+/* Palette-independent border geometry. */
+.layout-horizontal header.navbar.sticky-top, .page.layout-combo header.navbar.sticky-top { border-radius: var(--hfx-portal-shell-radius, 1.08rem); }
+body[data-hfx-surface="frosted"] header.navbar.sticky-top, body[data-hfx-surface="frosted"] .page-body::before { border-radius: var(--hfx-portal-shell-radius, 1.08rem); }
+body[data-hfx-surface="frosted"] header.navbar .navbar-nav .nav-link, body[data-hfx-surface="frosted"] header.navbar .dropdown-toggle, body[data-hfx-surface="frosted"] aside.navbar-vertical .nav-link { border-radius: var(--hfx-header-chip-radius, var(--hfx-header-rail-radius, 1.25rem)); }
+body[data-hfx-surface="frosted"] .page-wrapper .card, body[data-hfx-surface="frosted"] .hfx-workspace-tabs-card, body[data-hfx-surface="frosted"] .hfx-workspace-tabs-card > .card-body > .rounded-4, body[data-hfx-surface="frosted"] .hfx-data-table-card, body[data-hfx-surface="frosted"] .hfx-audit-log-card, body[data-hfx-surface="frosted"] .hfx-data-grid-card, body[data-hfx-surface="frosted"] .hfx-tracking-summary-card, body[data-hfx-surface="frosted"] .hfx-action-summary-card, body[data-hfx-surface="frosted"] .hfx-people-review-card, body[data-hfx-surface="frosted"] .hfx-review-feed-card, body[data-hfx-surface="frosted"] .hfx-timeline-summary-card { border-radius: var(--hfx-portal-surface-radius, 0.98rem); }
+body[data-hfx-surface="frosted"] .hfx-workspace-tabs-card .card-body > .rounded-4, body[data-hfx-surface="frosted"] .hfx-data-table-card .card-body > .rounded-4, body[data-hfx-surface="frosted"] .hfx-audit-log-card .card-body > .rounded-4, body[data-hfx-surface="frosted"] .hfx-data-grid-card .card-body > .rounded-4, body[data-hfx-surface="frosted"] .hfx-tracking-summary-card .card-body > .rounded-4, body[data-hfx-surface="frosted"] .hfx-action-summary-card .card-body > .rounded-4, body[data-hfx-surface="frosted"] .hfx-people-review-card .card-body > .rounded-4, body[data-hfx-surface="frosted"] .hfx-review-feed-card .card-body > .rounded-4, body[data-hfx-surface="frosted"] .hfx-timeline-summary-card .card-body > .rounded-4 { border-radius: var(--hfx-portal-panel-radius, 0.92rem) !important; }
+.layout-horizontal header.navbar .navbar-nav .nav-link, .layout-horizontal header.navbar .dropdown-toggle, .page.layout-combo header.navbar .navbar-nav .nav-link, .page.layout-combo header.navbar .dropdown-toggle { border-radius: var(--hfx-header-chip-radius, var(--hfx-header-rail-radius, 1.25rem)); }

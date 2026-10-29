@@ -1254,6 +1254,17 @@
     var picker = closest(e.target, '[data-hfx-as-picker]');
     if (picker && picker.classList.contains('is-open')) {
       if (e.key === 'Escape') { e.preventDefault(); setPickerOpen(picker, false, true); return; }
+      var radio = closest(e.target, '[role="radio"]');
+      var group = radio && closest(radio, '[role="radiogroup"][aria-orientation="vertical"]');
+      if (group && /^(ArrowDown|ArrowUp|Home|End)$/.test(e.key)) {
+        var choices = qsa(group, '[role="radio"]');
+        var index = choices.indexOf(radio);
+        var nextRadio = e.key === 'Home' ? 0 : e.key === 'End' ? choices.length - 1 : (index + (e.key === 'ArrowDown' ? 1 : -1) + choices.length) % choices.length;
+        e.preventDefault();
+        choices[nextRadio].focus();
+        choices[nextRadio].click();
+        return;
+      }
       if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
         e.preventDefault();
         movePickerFocus(picker, closest(e.target, '[data-hfx-as-picker-opt]'), e.key === 'ArrowDown' ? 1 : -1);

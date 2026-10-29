@@ -1,0 +1,12 @@
+/* Compatibility for HtmlForgeX/Resources/Styles/hfx-code-block.css. Native components read HFX roles. */
+.hfx-code-block .card-header,
+.hfx-code-block > .card-header {
+  align-items: flex-start;
+  gap: .75rem;
+}.hfx-code-block .card-header > .min-w-0 {
+  flex: 1 1 auto;
+}.hfx-code-block--compact .card-header {
+  padding-block: .65rem;
+}.hfx-code-block--compact .card-body {
+  padding: .75rem;
+}

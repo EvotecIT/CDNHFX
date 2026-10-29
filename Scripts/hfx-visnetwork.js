@@ -41,11 +41,11 @@
   }
 
   function resolvePalette() {
-    var text = getCssVar('--tblr-body-color') || getCssVar('--bs-body-color') || '#212529';
-    var border = getCssVar('--tblr-border-color') || getCssVar('--bs-border-color') || 'rgba(0,0,0,.1)';
-    var surface = getCssVar('--tblr-bg-surface') || getCssVar('--tblr-secondary-bg') || getCssVar('--bs-body-bg') || '#fff';
-    var primary = getCssVar('--tblr-primary') || getCssVar('--bs-primary') || '#066fd1';
-    var primaryFg = getCssVar('--tblr-primary-fg') || getCssVar('--bs-primary-text-emphasis') || '#fff';
+    var text = getCssVar('--hfx-color-text') || getCssVar('--hfx-color-text') || '#212529';
+    var border = getCssVar('--hfx-color-border') || getCssVar('--hfx-color-border') || 'rgba(0,0,0,.1)';
+    var surface = getCssVar('--hfx-color-surface') || getCssVar('--hfx-color-surface') || getCssVar('--hfx-color-surface-page') || '#fff';
+    var primary = getCssVar('--hfx-color-accent') || getCssVar('--hfx-color-accent') || '#066fd1';
+    var primaryFg = getCssVar('--hfx-color-accent-contrast') || getCssVar('--hfx-color-accent-text') || '#fff';
 
     // When Tabler exposes primary text emphasis, it's not always a suitable foreground; fall back to white in dark mode.
     try {

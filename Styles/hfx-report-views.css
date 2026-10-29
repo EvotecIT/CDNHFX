@@ -36,7 +36,7 @@
     --hfx-color-text-muted: #626770;
     --hfx-ramp-sequential-1: #9ab8dc;
     --hfx-ramp-sequential-2: #5598e7;
-    --hfx-ramp-sequential-3: #2a78d6;
+    --hfx-ramp-sequential-3: #2171ce;
     --hfx-ramp-sequential-4: #1c5cab;
     --hfx-ramp-sequential-5: #104281;
     --hfx-color-surface: #ffffff;
@@ -52,7 +52,7 @@
   }
   :where([data-bs-theme="dark"], [data-hfx-theme^="dark"], [data-hfx-tokens="dark"]):where(:not([data-hfx-design-system], [data-hfx-design-system] *)) {
     --hfx-color-text-secondary: #b0b4bc;
-    --hfx-color-text-muted: #8a8f98;
+    --hfx-color-text-muted: #8f949d;
     --hfx-ramp-sequential-1: #324c6e;
     --hfx-ramp-sequential-2: #2a78d6;
     --hfx-ramp-sequential-3: #5598e7;
@@ -72,14 +72,13 @@
 }
 /* hfx-token-fallbacks:end */
 
+
 /* HtmlForgeX report views: the view archetypes every report shares (key figures, queue, facts, coverage,
    distribution, matrices, change timeline, entity header). They live in the report surface scope (.hfx-as) and read
    shared semantic design tokens directly, so light, dark, high contrast and forced colours
    come from the token scopes.
    Colour rule: counts and status are neutral. --sev (set by data-outcome with data-severity, or data-state) colours
    findings only. Not evaluated and not observable are hatched, could not evaluate and unknown are dashed. */
-
-
 
 /* Filtering hides on screen only: print always shows every item. */
 @media screen {
@@ -111,6 +110,7 @@
   list-style: none; margin-bottom: 0; margin-inline: 0; padding: 0; display: grid; gap: 12px;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 148px), 1fr));
 }
+.hfx-as.hfx-rv-kpis[data-hfx-balanced], .hfx-as.hfx-rv-kpis.is-compact[data-hfx-balanced] { grid-template-columns: repeat(var(--hfx-kpi-columns), minmax(0, 1fr)); }
 .hfx-rv-kpi {
   position: relative; container-type: inline-size; min-width: 0;
   display: flex; flex-direction: column; gap: 3px;
@@ -153,7 +153,7 @@
 .hfx-rv-kpi-delta { font-size: var(--hfx-type-caption-size); line-height: 1.45; color: var(--hfx-color-text-secondary); }
 .hfx-rv-kpi-delta .hfx-as-icon { display: inline-flex; vertical-align: -2px; margin-right: 4px; color: var(--hfx-color-text-muted); }
 .hfx-rv-kpi-meaning { color: var(--hfx-color-text-muted); }
-.hfx-rv-kpi-meaning::before { content: "\00a0\00b7\00a0"; }
+.hfx-rv-kpi-meaning::before { content: " · "; }
 .hfx-rv-kpi-detail { font-size: var(--hfx-type-caption-size); line-height: 1.4; color: var(--hfx-color-text-muted); overflow-wrap: anywhere; }
 
 /* ---------- queue ---------- */
@@ -577,6 +577,7 @@
 .hfx-rv-chart-title { font: 600 13.5px/1.35 var(--hfx-font-sans); color: var(--hfx-color-text); }
 .hfx-rv-chart-subtitle { font-size: var(--hfx-type-caption-size); color: var(--hfx-color-text-muted); }
 .hfx-rv-chart-plot > div > svg, .hfx-rv-chart-plot > .hfx-rv-chart-size.is-wide > div > svg { min-width: var(--rv-chart-min, 480px); }
+.hfx-rv-chart-plot.is-intrinsic :is(.hfx-rv-chart-themed, .hfx-rv-chart-light, .hfx-rv-chart-dark) > svg { display: block; width: auto; height: auto; min-width: 0; max-width: none; }
 /* Fit in either direction. The viewBox preserves the drawing's aspect ratio, including within an explicit viewport height.
    Compact drawings keep their readable labels; neither intrinsic size nor a height cap leaves unused panel width. */
 .hfx-rv-chart-plot.is-fill :is(.hfx-rv-chart-themed, .hfx-rv-chart-light, .hfx-rv-chart-dark) > svg { display: block; width: 100%; height: var(--rv-chart-panel-height); max-width: min(100%, var(--rv-chart-max)); max-height: none; margin-inline: auto; }
@@ -585,11 +586,11 @@
 .hfx-rv-chart-plot.has-compact { container-type: inline-size; }
 .hfx-rv-chart-size.is-compact { display: none; }
 .hfx-rv-chart-size.is-compact svg { display: block; width: 100%; height: auto; min-width: 0; max-width: var(--rv-chart-narrow-max, none); max-height: none; }
+.hfx-rv-chart-plot.is-intrinsic .hfx-rv-chart-size.is-compact svg { width: auto; max-width: none; }
 @container (max-width: 639.98px) { .hfx-rv-chart-size.is-wide { display: none; } .hfx-rv-chart-size.is-compact { display: block; } }
 /* The nearest theme scope decides, through inheritance, exactly as it decides the token values: the selectors are
    the ones of hfx-tokens.css, so a light scope inside a dark page (or the reverse, at any depth) gets its rendering. */
-:where(:root, [data-bs-theme="light"], [data-hfx-theme="light"], [data-hfx-tokens="light"]) { --rv-chart-light: block; --rv-chart-dark: none; }
-:where([data-bs-theme="dark"], [data-hfx-theme^="dark"], [data-hfx-tokens="dark"]) { --rv-chart-light: none; --rv-chart-dark: block; }
+
 .hfx-rv-chart-light { display: var(--rv-chart-light, block); }
 .hfx-rv-chart-dark { display: var(--rv-chart-dark, none); }
 .hfx-as .hfx-rv-chart-note { margin: 6px 0 0; font-size: var(--hfx-type-caption-size); line-height: 1.45; color: var(--hfx-color-text-muted); }
@@ -683,7 +684,11 @@
 .hfx-rv-facets select:focus-visible { outline: var(--hfx-focus-width) solid var(--hfx-color-focus-ring); outline-offset: var(--hfx-focus-offset); }
 .hfx-as-panel > summary.hfx-as-panel-head { cursor: pointer; list-style: none; }
 .hfx-as-panel > summary.hfx-as-panel-head::-webkit-details-marker { display: none; }
-.hfx-as-panel > summary.hfx-as-panel-head::before { content: "\203a"; flex: none; color: var(--hfx-color-text-muted); font-size: var(--hfx-type-title-size); line-height: 1; }
+.hfx-as-panel > summary.hfx-as-panel-head::before { content: "›"; flex: none; color: var(--hfx-color-text-muted); font-size: var(--hfx-type-title-size); line-height: 1; }
 .hfx-as-panel[open] > summary.hfx-as-panel-head::before { transform: rotate(90deg); }
 .hfx-as-panel > summary.hfx-as-panel-head:focus-visible { outline: var(--hfx-focus-width) solid var(--hfx-color-focus-ring); outline-offset: calc(-1 * var(--hfx-focus-offset)); }
 @media (max-width: 575.98px) { .hfx-rv-facets > label { flex-wrap: wrap; max-width: 100%; } .hfx-rv-facets select { max-width: 100%; } }
+
+:root { --rv-chart-light: var(--hfx-display-light); }
+
+:root { --rv-chart-dark: var(--hfx-display-dark); }

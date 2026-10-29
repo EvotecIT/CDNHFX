@@ -4,7 +4,11 @@
 @layer hfx.tokens.fallbacks {
   :where(:root):where(:not([data-hfx-design-system], [data-hfx-design-system] *)) {
     --hfx-font-sans: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    --hfx-type-caption-size: 0.75rem;
+    --hfx-space-1: 0.25rem;
+    --hfx-space-1-5: 6px;
     --hfx-focus-width: 2px;
+    --hfx-focus-offset: 2px;
     --hfx-radius-control: 6px;
     --hfx-radius-container: 10px;
   }
@@ -14,18 +18,21 @@
     --hfx-color-surface: #ffffff;
     --hfx-color-border: #e2e4e7;
     --hfx-color-border-strong: #cdd0d5;
+    --hfx-color-accent-text: #02726a;
     --hfx-color-focus-ring: #02726a;
   }
   :where([data-bs-theme="dark"], [data-hfx-theme^="dark"], [data-hfx-tokens="dark"]):where(:not([data-hfx-design-system], [data-hfx-design-system] *)) {
     --hfx-color-text-secondary: #b0b4bc;
-    --hfx-color-text-muted: #8a8f98;
+    --hfx-color-text-muted: #8f949d;
     --hfx-color-surface: #16181c;
     --hfx-color-border: #272a30;
     --hfx-color-border-strong: #363a42;
+    --hfx-color-accent-text: #37c9b8;
     --hfx-color-focus-ring: #37c9b8;
   }
 }
 /* hfx-token-fallbacks:end */
+
 
 /* Compact report summaries, using the shared shell tokens. */
 .hfx-rv-print-count { display: none; }
@@ -34,7 +41,7 @@
 .hfx-as.hfx-rv-chips { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 0; padding: 10px 12px; }
 .hfx-rv-chip { display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--hfx-color-border); border-radius: var(--hfx-radius-container); padding: 1px 8px; font: 400 12px/1.4 var(--hfx-font-sans); color: var(--sev, var(--hfx-color-text-secondary)); text-decoration: none; background: var(--hfx-color-surface); }
 .hfx-as .hfx-rv-chip { color: var(--sev, var(--hfx-color-text-secondary)); }
-.hfx-rv-chip::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.hfx-rv-chip::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 .hfx-rv-chip[data-state=up], .hfx-rv-chip[data-outcome=pass] { color: var(--hfx-color-text-muted); }
 .hfx-rv-picker-marks { display: flex; gap: 3px; margin-inline-start: auto; }
 .hfx-rv-picker-mark { width: 8px; height: 8px; border-radius: var(--hfx-radius-control); background: var(--sev, var(--hfx-color-border-strong)); }
@@ -65,13 +72,14 @@
 .hfx-as-scopehead.is-compact .hfx-as-eyebrow { margin-bottom: 2px; }
 .hfx-as .hfx-as-scopehead.is-compact .hfx-as-scopehead-desc { margin-top: 4px; font-size: 13.5px; }
 @media (max-width: 575.98px) { .hfx-as.hfx-rv-kpis.is-compact { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (max-width: 319.98px) { .hfx-as.hfx-rv-kpis, .hfx-as.hfx-rv-kpis.is-compact { grid-template-columns: 1fr; } }
 @media print { .hfx-rv-picker-step { display: none; } }
 .hfx-rv-queue.is-compact .hfx-rv-queue-list { grid-template-columns: var(--rv-rank-track) minmax(0,1fr) auto auto; column-gap: 10px; }
 .hfx-rv-queue.is-compact .hfx-rv-queue-item { padding: 2px 10px; row-gap: 0; }
 .hfx-rv-queue.is-compact .hfx-rv-queue-main { min-width: 0; }
 .hfx-rv-queue.is-compact .hfx-rv-queue-meta { display: block; margin: 0; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11.5px; }
 .hfx-rv-queue.is-compact .hfx-rv-queue-meta .hfx-as-time { white-space: nowrap; }
-.hfx-rv-queue.is-compact .hfx-rv-queue-meta > span:not(:last-child)::after { content: "\00a0\00b7\00a0\200b"; }
+.hfx-rv-queue.is-compact .hfx-rv-queue-meta > span:not(:last-child)::after { content: " · ​"; }
 .hfx-rv-queue.is-compact .hfx-rv-queue-title { display: block; white-space: nowrap; text-overflow: ellipsis; font-size: 13px; line-height: 1.4; margin: 0; }
 .hfx-rv-queue.is-compact .hfx-rv-queue-item > .hfx-rv-queue-status { grid-column: 4; margin-top: 0; font-size: 11px; }
 .hfx-rv-queue.is-compact .hfx-rv-queue-metric b { font-size: 14px; }
@@ -87,3 +95,16 @@
   .hfx-rv-queue.is-compact .hfx-rv-queue-item > .hfx-rv-queue-status { grid-column: 2 / -1; }
 }
 @media print { .hfx-rv-queue.is-compact .hfx-rv-queue-title { white-space: normal; } }
+
+/* Chip overflow remains a native disclosure, including in fact rows. */
+.hfx-rv-chip-rest { display: flex; flex-wrap: wrap; gap: var(--hfx-space-1-5); list-style: none; margin: var(--hfx-space-1) 0 0; padding: 0; }
+.hfx-rv-chip-more > summary { cursor: pointer; color: var(--hfx-color-accent-text); font-size: var(--hfx-type-caption-size); }
+.hfx-rv-chip-more > summary:focus-visible { outline: var(--hfx-focus-width) solid var(--hfx-color-focus-ring); outline-offset: var(--hfx-focus-offset); }
+.hfx-rv-fact .hfx-rv-chips { padding: 0; }
+[data-hfx-rv-lane-links] svg a { cursor: pointer; }
+[data-hfx-rv-lane-links] svg a:hover text { text-decoration: underline; }
+[data-hfx-rv-lane-links] svg a:focus-visible { outline: var(--hfx-focus-width) solid var(--hfx-color-focus-ring); outline-offset: var(--hfx-focus-offset); }
+@media print {
+  .hfx-rv-chip-more > summary { display: none; }
+  .hfx-rv-chip-more > .hfx-rv-chip-rest { margin: 0; }
+}

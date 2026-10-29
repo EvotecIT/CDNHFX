@@ -1,0 +1,5 @@
+/* Compatibility for HtmlForgeX/Resources/Styles/hfx-dashboard-card-timeline-planner.css. Native components read HFX roles. */
+.hfx-timeline-planner-card .card-body{
+  min-width:0;
+  padding:var(--hfx-timeline-planner-padding);
+}

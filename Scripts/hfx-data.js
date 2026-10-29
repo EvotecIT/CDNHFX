@@ -17,7 +17,6 @@
 
   // ------------------------------------------------------------------ utils
   function qsa(root, sel) { try { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); } catch (_) { return []; } }
-  function pad(n) { return n < 10 ? '0' + n : '' + n; }
   function dict() { return Object.create(null); }
   function fail(code, message, extra) {
     var e = new Error(message); e.code = code;
@@ -25,53 +24,13 @@
     return e;
   }
 
-  // Dates are epoch milliseconds. Date columns hold a calendar date at UTC midnight; date-time columns hold an instant,
-  // shown in UTC unless the column asks for the viewer's local time. Formats match HtmlForgeX ReportValueFormatter.
-  // A report shell lets the reader choose UTC. Columns that show local time then show, parse and search UTC.
-  function readerWantsUtc() {
-    try { return document.documentElement.getAttribute('data-hfx-time-zone') === 'utc'; } catch (_) { return false; }
-  }
-  function formatDate(ms, type, mode, local, seconds) {
-    var d = new Date(ms);
-    var utc = type === 'date' || !local;
-    var day = (utc ? d.getUTCFullYear() : d.getFullYear()) + '-' + pad((utc ? d.getUTCMonth() : d.getMonth()) + 1) + '-' + pad(utc ? d.getUTCDate() : d.getDate());
-    if (type === 'date') return day;
-    var time = pad(utc ? d.getUTCHours() : d.getHours()) + ':' + pad(utc ? d.getUTCMinutes() : d.getMinutes());
-    return day + ' ' + time + (mode === 'export' || seconds ? ':' + pad(utc ? d.getUTCSeconds() : d.getSeconds()) : '');
-  }
-  // Shortest round-trip text (JavaScript number formatting), mirrored by ReportValueFormatter.FormatNumber.
-  function formatNumber(n) { return n === 0 ? '0' : String(n); }
-  var NUMBER_TEXT = /^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/;
-  var DATE_TEXT = /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,7}))?)?)?\s*(Z|UTC|[+-]\d{2}:?\d{2})?$/i;
-  function parseNumber(s) { return NUMBER_TEXT.test(s) ? Number(s) : NaN; }
-  // Parses yyyy-MM-dd[ HH:mm[:ss[.fff]]][Z|UTC|+hh:mm]. Without a zone the value is UTC, or local time for local columns.
-  function parseDateText(s, type, local) {
-    var m = DATE_TEXT.exec(s);
-    if (!m) return NaN;
-    var y = +m[1], mo = +m[2] - 1, d = +m[3];
-    if (y < 1 || y > 9999 || mo < 0 || mo > 11 || d < 1) return NaN;
-    var calendar = new Date(0); calendar.setUTCFullYear(y, mo + 1, 0);
-    if (d > calendar.getUTCDate()) return NaN;
-    calendar.setUTCFullYear(y, mo, d); calendar.setUTCHours(0, 0, 0, 0);
-    if (type === 'date') return calendar.getTime();
-    var h = +(m[4] || 0), mi = +(m[5] || 0), se = +(m[6] || 0), ms = m[7] ? Math.floor(+('0.' + m[7]) * 1000) : 0;
-    if (h > 23 || mi > 59 || se > 59) return NaN;
-    var zone = m[8];
-    var t;
-    if (!zone && local) { var clock = new Date(0); clock.setFullYear(y, mo, d); clock.setHours(h, mi, se, ms); t = clock.getTime(); }
-    else {
-      calendar.setUTCHours(h, mi, se, ms); t = calendar.getTime();
-      if (zone && !/^(z|utc)$/i.test(zone)) {
-        var sign = zone[0] === '-' ? -1 : 1, digits = zone.slice(1).replace(':', '');
-        var zh = +digits.slice(0, 2), zm = +digits.slice(2, 4);
-        if (zh > 14 || zm > 59 || (zh === 14 && zm !== 0)) return NaN;
-        t -= sign * ((+digits.slice(0, 2)) * 60 + (+digits.slice(2, 4))) * 60000;
-      }
-    }
-    return isNaN(t) || t < -62135596800000 || t > 253402300799999 ? NaN : t;
-  }
-  // Today's calendar date in the viewer's time zone, as a UTC-midnight value like Date column values.
-  function todayAsDate(now) { var d = new Date(now); return Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()); }
+  var scalars = window.HfxDataScalars;
+  var readerWantsUtc = scalars.readerWantsUtc;
+  var formatDate = scalars.formatDate;
+  var formatNumber = scalars.formatNumber;
+  var parseNumber = scalars.parseNumber;
+  var parseDateText = scalars.parseDateText;
+  var todayAsDate = scalars.todayAsDate;
 
   // --------------------------------------------------------------- decoding
   function base64ToBytes(text) {
@@ -97,6 +56,7 @@
     this.id = meta.id;
     this.label = meta.label || meta.id;
     this.type = meta.type || 'text';
+    this.tagSort = meta.tagSort || 'count';
     this.group = meta.group || null;
     this.description = meta.description || null;
     this.hidden = !!meta.hidden;
@@ -126,10 +86,11 @@
     else if (data.n) { this.kind = 'n'; this.values = data.n; }
     else if (data.t) { this.kind = 't'; this.values = data.t; }
     else if (data.b) { this.kind = 'b'; this.values = data.b; }
+    else if (data.a) { this.kind = 'a'; this.values = data.a; }
     else {
       // A column described before any of its rows arrived takes the storage of its type; a text column takes the
       // storage of the first chunk appended to it.
-      this.kind = KIND_OF_TYPE[this.type] || 's';
+      this.kind = this.type === 'tags' ? 'a' : KIND_OF_TYPE[this.type] || 's';
       this.values = [];
       // Only a category keeps one dictionary across chunks, as its values repeat; free text stays plain text.
       this.open = this.kind === 's' && this.type === 'category';
@@ -181,19 +142,27 @@
       if (data.d) for (r = 0; r < count; r++) { x = data.i[r]; this.values.push(x === undefined || x < 0 ? null : data.d[x]); }
       else { var s = data.s || []; for (r = 0; r < count; r++) this.values.push(s[r] === undefined ? null : s[r]); }
     } else {
-      var src = data.n || data.t || data.b || [];
+      var src = data.n || data.t || data.b || data.a || [];
       for (r = 0; r < count; r++) this.values.push(src[r] === undefined ? null : src[r]);
     }
     this._lower = null;
   };
   Column.prototype.textOf = function (value, mode) {
     if (value === null || value === undefined) return '';
+    if (this.kind === 'a') return value.map(function (tag) { return tag.label === undefined ? tag.labelKey : tag.label; }).join('; ');
     if (this.type === 'category' && mode !== 'key' && this.valueLabels && Object.prototype.hasOwnProperty.call(this.valueLabels, String(value)))
       return this.valueLabels[String(value)];
     if (mode === 'key' && this.type !== 'category') mode = 'export';
     switch (this.kind) {
-      case 'n': return this.format === 'durationMs' && mode !== 'export'
-        ? (Math.abs(value) < 1000 ? (Math.sign(value) * Math.round(Math.abs(value) * 10) / 10).toFixed(1).replace(/\.0$/, '') + ' ms' : (Math.sign(value) * Math.round(Math.abs(value) / 100) / 10).toFixed(1) + ' s') : formatNumber(value);
+      case 'n':
+        if (this.format === 'percentageUnits' && mode !== 'export') {
+          var rounded = value >= 99.95 && value < 100 ? 99.9 : Math.sign(value) * Math.round(Math.abs(value) * 10) / 10;
+          var locale = document.documentElement.lang || undefined;
+          try { return new Intl.NumberFormat(locale, {minimumFractionDigits:1,maximumFractionDigits:1,useGrouping:false}).format(rounded) + '%'; }
+          catch (_) { return rounded.toFixed(1) + '%'; }
+        }
+        return this.format === 'durationMs' && mode !== 'export'
+          ? (Math.abs(value) < 1000 ? (Math.sign(value) * Math.round(Math.abs(value) * 10) / 10).toFixed(1).replace(/\.0$/, '') + ' ms' : (Math.sign(value) * Math.round(Math.abs(value) / 100) / 10).toFixed(1) + ' s') : formatNumber(value);
       case 't': return formatDate(value, this.type, mode, mode === 'export' ? this.local : this.showsLocal(), this.seconds);
       case 'b': return value ? 'Yes' : 'No';
       default: return String(value);
@@ -261,8 +230,16 @@
   };
   // Distinct values of the given rows with their counts: most frequent first, equal counts in code unit order.
   Column.prototype.distinct = function (rows) {
-    var counts = dict(), order = [];
+    var counts = dict(), order = [], keys = dict(), labels = dict();
     for (var i = 0; i < rows.length; i++) {
+      if (this.kind === 'a') {
+        (this.raw(rows[i]) || []).forEach(function (tag) {
+          var folded = fold(tag.labelKey), key = keys[folded];
+          if (key === undefined) { key = keys[folded] = tag.labelKey; labels[key] = tag.label === undefined ? tag.labelKey : tag.label; counts[key] = 0; order.push(key); }
+          counts[key]++;
+        });
+        continue;
+      }
       var v = this.text(rows[i], 'key');
       if (!v) continue;
       if (!counts[v]) { counts[v] = 0; order.push(v); }
@@ -273,6 +250,7 @@
     return order.map(function (v) {
       var item = { value: v };
       if (self.valueLabels && Object.prototype.hasOwnProperty.call(self.valueLabels, v)) item.label = self.valueLabels[v];
+      if (self.kind === 'a') item.label = labels[v];
       item.count = counts[v];
       return item;
     });
@@ -345,7 +323,7 @@
     '!=': 'ne', '<>': 'ne', 'ne': 'ne', 'neq': 'ne', 'not-equals': 'ne', 'is-not': 'ne', 'notequalto': 'ne',
     'in': 'in', 'any-of': 'in', 'not-in': 'nin', 'nin': 'nin', 'none-of': 'nin', 'notin': 'nin',
     'contains': 'contains', 'like': 'contains', 'not-contains': 'ncontains', 'ncontains': 'ncontains', 'not-like': 'ncontains', 'notcontains': 'ncontains',
-    'contains-token': 'token', 'containstoken': 'token',
+    'contains-token': 'token', 'containstoken': 'token', 'has-tag': 'tag', 'hastag': 'tag',
     '<': 'lt', 'lt': 'lt', 'lessthan': 'lt', '<=': 'le', 'le': 'le', 'lte': 'le', 'lessthanorequal': 'le',
     '>': 'gt', 'gt': 'gt', 'greaterthan': 'gt', '>=': 'ge', 'ge': 'ge', 'gte': 'ge', 'greaterthanorequal': 'ge',
     'empty': 'empty', 'is-empty': 'empty', 'null': 'empty', 'isempty': 'empty',
@@ -355,7 +333,7 @@
     'before-now': 'past', 'past': 'past', 'beforenow': 'past', 'after-now': 'future', 'future': 'future', 'afternow': 'future',
     'older-than-days': 'older', 'older-than': 'older', 'olderthandays': 'older'
   };
-  var OP_TOKENS = { eq: '=', ne: '!=', 'in': 'in', nin: 'not-in', contains: 'contains', token: 'contains-token', ncontains: 'not-contains', lt: '<', le: '<=', gt: '>', ge: '>=', empty: 'empty', nempty: 'not-empty', next: 'next-days', last: 'last-days', past: 'before-now', future: 'after-now', older: 'older-than-days' };
+  var OP_TOKENS = { eq: '=', ne: '!=', 'in': 'in', nin: 'not-in', contains: 'contains', token: 'contains-token', tag: 'has-tag', ncontains: 'not-contains', lt: '<', le: '<=', gt: '>', ge: '>=', empty: 'empty', nempty: 'not-empty', next: 'next-days', last: 'last-days', past: 'before-now', future: 'after-now', older: 'older-than-days' };
   var DAY = 86400000;
 
   function normOp(op) { return OPS[String(op || '=').toLowerCase()] || 'eq'; }
@@ -384,6 +362,9 @@
     function eqAny(v) { for (var i = 0; i < operands.length; i++) if (operands[i] !== null && (exactCategory ? v === operands[i] : compare(v, operands[i]) === 0)) return true; return false; }
     function containsAny(r) { var t = col.lower(r); for (var i = 0; i < lowered.length; i++) if (t.indexOf(lowered[i]) >= 0) return true; return false; }
     switch (op) {
+      case 'tag':
+        if (col.kind !== 'a' || !values.length) throw fail('filter', 'has-tag requires a tag list and at least one label key.');
+        return function (r) { return (col.raw(r) || []).some(function (tag) { return lowered.indexOf(fold(tag.labelKey)) >= 0; }); };
       case 'eq': case 'in': return function (r) { var v = col.raw(r); return v !== null && eqAny(v); };
       case 'ne': case 'nin': return function (r) { var v = col.raw(r); return v === null || !eqAny(v); };
       case 'contains': return function (r) { return col.raw(r) !== null && containsAny(r); };
@@ -451,18 +432,36 @@
       }
       if (ok) out.push(r);
     }
-    var sort = spec.sort || [];
+    var groups = [], declared = spec.groupBy || [];
+    if (!Array.isArray(declared) || declared.length > 4) throw fail('group', 'A query supports at most four grouping keys.');
+    declared.forEach(function (id) {
+      var column = typeof id === 'string' && ds.column(id.trim());
+      if (!column) throw fail('group', 'Unknown grouping column.');
+      if (column.kind === 'a') throw fail('group', 'Tag lists cannot be scalar grouping keys; select a separate category.');
+      if (groups.indexOf(column.id) < 0) groups.push(column.id);
+    });
+    var detailSort = spec.sort || [];
+    var sort = groups.map(function (id) {
+      var explicit = detailSort.filter(function (s) { return ds.column(s.column)?.id === id; })[0];
+      return { column: id, descending: !!(explicit && explicit.descending) };
+    }).concat(detailSort.filter(function (s) { return groups.indexOf(ds.column(s.column)?.id) < 0; }));
     if (sort.length || stableKeys) {
-      var keys = sort.map(function (s) { return { col: ds.column(s.column), desc: !!s.descending }; }).filter(function (k) { return k.col; });
+      var keys = sort.map(function (s) { return { col: ds.column(s.column), desc: !!s.descending, group: groups.indexOf(ds.column(s.column)?.id) >= 0 }; }).filter(function (k) { return k.col; });
       var pos = new Int32Array(ds.rows);
       for (var i = 0; i < out.length; i++) pos[out[i]] = i;
       out.sort(function (a, b) {
         for (var k = 0; k < keys.length; k++) {
           var va = keys[k].col.raw(a), vb = keys[k].col.raw(b);
+          if (keys[k].col.kind === 'a') {
+            va = va && va.length ? keys[k].col.tagSort === 'first' ? va[0].labelKey : va.length : null;
+            vb = vb && vb.length ? keys[k].col.tagSort === 'first' ? vb[0].labelKey : vb.length : null;
+          }
           if (va === null && vb === null) continue;
           if (va === null) return 1;
           if (vb === null) return -1;
           var res = keys[k].col.compareValues(va, vb);
+          // Exact raw categories remain contiguous when folded text comparisons tie.
+          if (!res && keys[k].group && typeof va === 'string' && typeof vb === 'string') res = va < vb ? -1 : va > vb ? 1 : 0;
           if (res !== 0 && !isNaN(res)) return keys[k].desc ? -res : res;
         }
         if (!stableKeys) return pos[a] - pos[b];
@@ -479,7 +478,7 @@
   // One page of a query, as a dataset endpoint answers it: the rows of the page by index, how many rows matched,
   // the cursor of the next page and the value counts the query asked for. Same evaluation as ReportQueryEngine.
   function queryPage(ds, spec, now) {
-    var all = runQuery(ds, { filters: spec.filters, search: spec.search, searchIn: spec.searchIn, columns: spec.columns, sort: spec.sort, stableKeyOrder: spec.stableKeyOrder, keys: spec.keys }, now);
+    var all = runQuery(ds, { filters: spec.filters, search: spec.search, searchIn: spec.searchIn, columns: spec.columns, groupBy: spec.groupBy, sort: spec.sort, stableKeyOrder: spec.stableKeyOrder, keys: spec.keys }, now);
     var start = spec.offset > 0 ? spec.offset : 0;
     if (spec.after) {
       // The same grammar as ReportQueryEngine: the prefix and plain digits.
@@ -513,7 +512,7 @@
       var r = rows[i], line = new Array(cols.length);
       for (var j = 0; j < cols.length; j++) {
         var c = cols[j], t = c.text(r, 'export');
-        line[j] = csvField(c.type === 'text' || c.type === 'category' ? guardFormula(t) : t, separator);
+        line[j] = csvField(c.type === 'text' || c.type === 'category' || c.type === 'tags' ? guardFormula(t) : t, separator);
       }
       out.push(line.join(separator));
     }
@@ -582,6 +581,7 @@
     var q = {};
     if (spec.stableKeyOrder) q.stableKeyOrder = true;
     if (spec.keys !== undefined) q.keys = spec.keys.slice();
+    if (spec.groupBy !== undefined) q.groupBy = spec.groupBy.slice();
     if (dataset) {
       q.timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       q.displayUtc = readerWantsUtc();
@@ -766,7 +766,7 @@
   };
 
   function metaOf(c) {
-    return { id: c.id, label: c.label, type: c.type, group: c.group, description: c.description, hidden: c.hidden, key: c.key, drawer: c.drawer, width: c.width, layout: c.layout, format: c.format, linkTarget: c.linkTarget, tones: c.tones, valueLabels: c.valueLabels, valueOrder: c.valueOrder, numericTones: c.numericTones, quiet: c.quiet, local: c.local, seconds: c.seconds };
+    return { id: c.id, label: c.label, type: c.type, tagSort: c.tagSort, group: c.group, description: c.description, hidden: c.hidden, key: c.key, drawer: c.drawer, width: c.width, layout: c.layout, format: c.format, linkTarget: c.linkTarget, tones: c.tones, valueLabels: c.valueLabels, valueOrder: c.valueOrder, numericTones: c.numericTones, quiet: c.quiet, local: c.local, seconds: c.seconds };
   }
 
   var sources = dict();

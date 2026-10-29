@@ -1,0 +1,57 @@
+/* Compatibility for HtmlForgeX/Resources/Styles/hfx-service-config-studio.css. Native components read HFX roles. */
+.hfx-service-config-workbench__actions .btn{
+  display:inline-flex;
+  align-items:center;
+  gap:var(--hfx-space-1-5);
+}.hfx-service-config-live-table:has([data-hfx-restore-candidate-rows]) .table-responsive{
+  overflow-x:hidden;
+}.hfx-service-config-studio .nav.nav-underline[data-hfx-scrollable-tabs],
+.hfx-service-config-studio [data-hfx-tabs-id][data-hfx-scrollable-tabs]{
+  flex-wrap:nowrap;
+  overflow-x:auto;
+  overflow-y:hidden;
+  overscroll-behavior-inline:contain;
+  touch-action:pan-y pinch-zoom;
+  scroll-behavior:smooth;
+  scroll-padding-inline:.75rem;
+  scrollbar-gutter:auto;
+  scrollbar-width:none;
+  padding-bottom:0;
+  cursor:default;
+}.hfx-service-config-studio .nav.nav-underline[data-hfx-scrollable-tabs]::-webkit-scrollbar,
+.hfx-service-config-studio [data-hfx-tabs-id][data-hfx-scrollable-tabs]::-webkit-scrollbar{
+  display:none;
+}.hfx-service-config-studio .nav.nav-underline[data-hfx-tabs-overflowing="1"],
+.hfx-service-config-studio [data-hfx-tabs-id][data-hfx-tabs-overflowing="1"]{
+  cursor:grab;
+  -webkit-mask-repeat:no-repeat;
+  mask-repeat:no-repeat;
+}.hfx-service-config-studio .nav.nav-underline[data-hfx-tabs-can-left="0"][data-hfx-tabs-can-right="1"],
+.hfx-service-config-studio [data-hfx-tabs-id][data-hfx-tabs-can-left="0"][data-hfx-tabs-can-right="1"]{
+  -webkit-mask-image:linear-gradient(to right,var(--hfx-color-surface) 0,var(--hfx-color-surface) calc(100% - 1.75rem),transparent 100%);
+  mask-image:linear-gradient(to right,var(--hfx-color-surface) 0,var(--hfx-color-surface) calc(100% - 1.75rem),transparent 100%);
+}.hfx-service-config-studio .nav.nav-underline[data-hfx-tabs-can-left="1"][data-hfx-tabs-can-right="0"],
+.hfx-service-config-studio [data-hfx-tabs-id][data-hfx-tabs-can-left="1"][data-hfx-tabs-can-right="0"]{
+  -webkit-mask-image:linear-gradient(to right,transparent 0,var(--hfx-color-surface) 1.75rem,var(--hfx-color-surface) 100%);
+  mask-image:linear-gradient(to right,transparent 0,var(--hfx-color-surface) 1.75rem,var(--hfx-color-surface) 100%);
+}.hfx-service-config-studio .nav.nav-underline[data-hfx-tabs-can-left="1"][data-hfx-tabs-can-right="1"],
+.hfx-service-config-studio [data-hfx-tabs-id][data-hfx-tabs-can-left="1"][data-hfx-tabs-can-right="1"]{
+  -webkit-mask-image:linear-gradient(to right,transparent 0,var(--hfx-color-surface) 1.75rem,var(--hfx-color-surface) calc(100% - 1.75rem),transparent 100%);
+  mask-image:linear-gradient(to right,transparent 0,var(--hfx-color-surface) 1.75rem,var(--hfx-color-surface) calc(100% - 1.75rem),transparent 100%);
+}.hfx-service-config-studio .nav.nav-underline[data-hfx-scrollable-tabs] .nav-link,
+.hfx-service-config-studio [data-hfx-tabs-id][data-hfx-scrollable-tabs] .nav-link{
+  position:relative;
+  z-index:1;
+}.hfx-service-config-studio .nav.nav-underline[data-hfx-scrollable-tabs].is-dragging,
+.hfx-service-config-studio [data-hfx-tabs-id][data-hfx-scrollable-tabs].is-dragging{
+  cursor:grabbing;
+  user-select:none;
+}.hfx-service-config-setting-panel__copy .text-muted,
+.hfx-service-config-action-card__copy .text-muted{
+  color:var(--hfx-service-config-muted);
+  overflow-wrap:anywhere;
+}.hfx-service-config-live-table--evidence .hfx-service-config-live-table__table tr.hfx-service-config-live-table__row--selected .text-muted{
+  color:var(--hfx-color-text-muted)!important;
+}@media (max-width:820px){.hfx-service-config-studio__actions>.btn{
+    width:100%;
+}}

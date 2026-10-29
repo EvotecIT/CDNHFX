@@ -1,0 +1,207 @@
+/* Compatibility for HtmlForgeX/Resources/Styles/ThemeSource/00-surface-foundations.css. Native components read HFX roles. */
+:root[data-hfx-surface] .hfx-scroll-surface,
+:root[data-hfx-surface] .dataTables_scrollBody,
+:root[data-hfx-surface] .hfx-table-viewport,
+:root[data-hfx-surface] .hfx-table-shell,
+body[data-hfx-surface] .hfx-scroll-surface,
+body[data-hfx-surface] .dataTables_scrollBody,
+body[data-hfx-surface] .hfx-table-viewport,
+body[data-hfx-surface] .hfx-table-shell,
+[data-hfx-surface] .hfx-scroll-surface,
+[data-hfx-surface] .dataTables_scrollBody,
+[data-hfx-surface] .hfx-table-viewport,
+[data-hfx-surface] .hfx-table-shell {
+  scrollbar-gutter: stable;
+}:root[data-hfx-surface] ::-webkit-scrollbar,
+body[data-hfx-surface] ::-webkit-scrollbar,
+[data-hfx-surface] ::-webkit-scrollbar,
+[data-hfx-surface].hfx-scroll-surface::-webkit-scrollbar,
+[data-hfx-surface].dataTables_scrollBody::-webkit-scrollbar,
+[data-hfx-surface].hfx-table-viewport::-webkit-scrollbar,
+[data-hfx-surface].hfx-table-shell::-webkit-scrollbar {
+  width: var(--hfx-scrollbar-size);
+  height: var(--hfx-scrollbar-size);
+}:root[data-hfx-surface] ::-webkit-scrollbar-track,
+body[data-hfx-surface] ::-webkit-scrollbar-track,
+[data-hfx-surface] ::-webkit-scrollbar-track,
+[data-hfx-surface].hfx-scroll-surface::-webkit-scrollbar-track,
+[data-hfx-surface].dataTables_scrollBody::-webkit-scrollbar-track,
+[data-hfx-surface].hfx-table-viewport::-webkit-scrollbar-track,
+[data-hfx-surface].hfx-table-shell::-webkit-scrollbar-track {
+  background: var(--hfx-scrollbar-track);
+  border-radius: var(--hfx-scrollbar-radius);
+  box-shadow: inset 0 0 0 1px var(--hfx-scrollbar-border);
+}:root[data-hfx-surface] ::-webkit-scrollbar-track:hover,
+body[data-hfx-surface] ::-webkit-scrollbar-track:hover,
+[data-hfx-surface] ::-webkit-scrollbar-track:hover,
+[data-hfx-surface].hfx-scroll-surface::-webkit-scrollbar-track:hover,
+[data-hfx-surface].dataTables_scrollBody::-webkit-scrollbar-track:hover,
+[data-hfx-surface].hfx-table-viewport::-webkit-scrollbar-track:hover,
+[data-hfx-surface].hfx-table-shell::-webkit-scrollbar-track:hover {
+  background: var(--hfx-scrollbar-track-hover);
+}:root[data-hfx-surface] ::-webkit-scrollbar-thumb,
+body[data-hfx-surface] ::-webkit-scrollbar-thumb,
+[data-hfx-surface] ::-webkit-scrollbar-thumb,
+[data-hfx-surface].hfx-scroll-surface::-webkit-scrollbar-thumb,
+[data-hfx-surface].dataTables_scrollBody::-webkit-scrollbar-thumb,
+[data-hfx-surface].hfx-table-viewport::-webkit-scrollbar-thumb,
+[data-hfx-surface].hfx-table-shell::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--hfx-scrollbar-thumb-hover), var(--hfx-scrollbar-thumb));
+  border-radius: var(--hfx-scrollbar-radius);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--hfx-color-text) 28.0%, transparent);
+}:root[data-hfx-surface] ::-webkit-scrollbar-thumb:hover,
+body[data-hfx-surface] ::-webkit-scrollbar-thumb:hover,
+[data-hfx-surface] ::-webkit-scrollbar-thumb:hover,
+[data-hfx-surface].hfx-scroll-surface::-webkit-scrollbar-thumb:hover,
+[data-hfx-surface].dataTables_scrollBody::-webkit-scrollbar-thumb:hover,
+[data-hfx-surface].hfx-table-viewport::-webkit-scrollbar-thumb:hover,
+[data-hfx-surface].hfx-table-shell::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--hfx-scrollbar-thumb-active), var(--hfx-scrollbar-thumb-hover));
+}:root[data-hfx-surface] ::-webkit-scrollbar-thumb:active,
+body[data-hfx-surface] ::-webkit-scrollbar-thumb:active,
+[data-hfx-surface] ::-webkit-scrollbar-thumb:active,
+[data-hfx-surface].hfx-scroll-surface::-webkit-scrollbar-thumb:active,
+[data-hfx-surface].dataTables_scrollBody::-webkit-scrollbar-thumb:active,
+[data-hfx-surface].hfx-table-viewport::-webkit-scrollbar-thumb:active,
+[data-hfx-surface].hfx-table-shell::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(180deg, var(--hfx-scrollbar-thumb-active), var(--hfx-scrollbar-thumb-active));
+}:root[data-hfx-surface] ::-webkit-scrollbar-corner,
+body[data-hfx-surface] ::-webkit-scrollbar-corner,
+[data-hfx-surface] ::-webkit-scrollbar-corner,
+[data-hfx-surface].hfx-scroll-surface::-webkit-scrollbar-corner,
+[data-hfx-surface].dataTables_scrollBody::-webkit-scrollbar-corner,
+[data-hfx-surface].hfx-table-viewport::-webkit-scrollbar-corner,
+[data-hfx-surface].hfx-table-shell::-webkit-scrollbar-corner {
+  background: transparent;
+}:root[data-hfx-surface="soft"] .card:not([class*="bg-"]),
+:root[data-hfx-surface="frosted"] .card:not([class*="bg-"]),
+body[data-hfx-surface="soft"] .card:not([class*="bg-"]),
+body[data-hfx-surface="frosted"] .card:not([class*="bg-"]),
+[data-hfx-surface="soft"].card:not([class*="bg-"]),
+[data-hfx-surface="frosted"].card:not([class*="bg-"]) {
+  background: var(--hfx-surface-card-bg);
+  border-color: var(--hfx-surface-border);
+  border-radius: var(--hfx-surface-radius);
+  box-shadow: var(--hfx-surface-shadow), var(--hfx-surface-highlight);
+  backdrop-filter: var(--hfx-surface-blur);
+  -webkit-backdrop-filter: var(--hfx-surface-blur);
+}:root[data-hfx-surface="soft"] .card-header,
+:root[data-hfx-surface="soft"] .card-footer,
+:root[data-hfx-surface="frosted"] .card-header,
+:root[data-hfx-surface="frosted"] .card-footer,
+body[data-hfx-surface="soft"] .card-header,
+body[data-hfx-surface="soft"] .card-footer,
+body[data-hfx-surface="frosted"] .card-header,
+body[data-hfx-surface="frosted"] .card-footer,
+[data-hfx-surface="soft"] > .card-header,
+[data-hfx-surface="soft"] > .card-footer,
+[data-hfx-surface="frosted"] > .card-header,
+[data-hfx-surface="frosted"] > .card-footer {
+  background: var(--hfx-surface-cap-bg);
+  border-color: var(--hfx-surface-border);
+}:root[data-hfx-surface="soft"] .navbar:not(.navbar-transparent),
+:root[data-hfx-surface="frosted"] .navbar:not(.navbar-transparent),
+body[data-hfx-surface="soft"] .navbar:not(.navbar-transparent),
+body[data-hfx-surface="frosted"] .navbar:not(.navbar-transparent),
+[data-hfx-surface="soft"].navbar:not(.navbar-transparent),
+[data-hfx-surface="frosted"].navbar:not(.navbar-transparent) {
+  background: var(--hfx-surface-card-bg);
+  border-color: var(--hfx-surface-border);
+  box-shadow: var(--hfx-surface-shadow), var(--hfx-surface-highlight);
+  backdrop-filter: var(--hfx-surface-blur);
+  -webkit-backdrop-filter: var(--hfx-surface-blur);
+}:root[data-hfx-surface="soft"] .navbar-vertical .nav-link.active,
+:root[data-hfx-surface="frosted"] .navbar-vertical .nav-link.active,
+body[data-hfx-surface="soft"] .navbar-vertical .nav-link.active,
+body[data-hfx-surface="frosted"] .navbar-vertical .nav-link.active,
+[data-hfx-surface="soft"].navbar-vertical .nav-link.active,
+[data-hfx-surface="frosted"].navbar-vertical .nav-link.active {
+  background: var(--hfx-surface-nav-active-bg);
+  border: 1px solid var(--hfx-surface-nav-active-border);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--hfx-color-text) 45.0%, transparent);
+}:root[data-hfx-surface="soft"] .nav-link.active,
+:root[data-hfx-surface="frosted"] .nav-link.active,
+body[data-hfx-surface="soft"] .nav-link.active,
+body[data-hfx-surface="frosted"] .nav-link.active,
+[data-hfx-surface="soft"] .nav-link.active,
+[data-hfx-surface="frosted"] .nav-link.active {
+  background: var(--hfx-surface-nav-active-bg);
+  border-color: var(--hfx-surface-nav-active-border);
+}:root[data-hfx-surface] .hfx-header-navbar .navbar-brand,
+body[data-hfx-surface] .hfx-header-navbar .navbar-brand,
+[data-hfx-surface] .hfx-header-navbar .navbar-brand {
+  min-width: 0;
+  margin-inline-end: .45rem;
+}:root[data-hfx-surface] .navbar-brand a,
+body[data-hfx-surface] .navbar-brand a,
+[data-hfx-surface] .navbar-brand a {
+  display: inline-flex;
+  align-items: center;
+  gap: .65rem;
+  min-width: 0;
+}:root[data-hfx-surface] .navbar-brand .navbar-brand-text,
+body[data-hfx-surface] .navbar-brand .navbar-brand-text,
+[data-hfx-surface] .navbar-brand .navbar-brand-text {
+  min-width: 0;
+}:root[data-hfx-surface] .navbar-brand .navbar-brand-image,
+body[data-hfx-surface] .navbar-brand .navbar-brand-image,
+[data-hfx-surface] .navbar-brand .navbar-brand-image {
+  flex: 0 0 auto;
+}:root[data-hfx-surface] .navbar-brand .hfx-brand-stack,
+body[data-hfx-surface] .navbar-brand .hfx-brand-stack,
+[data-hfx-surface] .navbar-brand .hfx-brand-stack {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  min-width: 0;
+  gap: .08rem;
+  line-height: 1.05;
+}:root[data-hfx-surface] .navbar-brand .hfx-brand-title,
+body[data-hfx-surface] .navbar-brand .hfx-brand-title,
+[data-hfx-surface] .navbar-brand .hfx-brand-title {
+  display: block;
+  font-weight: 700;
+  font-size: .98rem;
+  line-height: 1.08;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}:root[data-hfx-surface] .navbar-vertical .navbar-brand,
+body[data-hfx-surface] .navbar-vertical .navbar-brand,
+[data-hfx-surface] .navbar-vertical .navbar-brand {
+  width: 100%;
+  min-height: 4.25rem;
+  margin: 0;
+  padding: 1rem .85rem .95rem;
+  justify-content: flex-start;
+}:root[data-hfx-surface] .navbar-vertical .navbar-brand a,
+body[data-hfx-surface] .navbar-vertical .navbar-brand a,
+[data-hfx-surface] .navbar-vertical .navbar-brand a {
+  width: 100%;
+  padding: .1rem .15rem;
+}:root[data-hfx-surface] .navbar-brand .hfx-brand-subtitle,
+body[data-hfx-surface] .navbar-brand .hfx-brand-subtitle,
+[data-hfx-surface] .navbar-brand .hfx-brand-subtitle {
+  display: block;
+  font-size: .72rem;
+  line-height: 1.05;
+  font-weight: 600;
+  letter-spacing: .02em;
+  color: var(--hfx-header-role-color);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}:root[data-hfx-surface] .hfx-header-navbar__primary .nav-link,
+body[data-hfx-surface] .hfx-header-navbar__primary .nav-link,
+[data-hfx-surface] .hfx-header-navbar__primary .nav-link {
+  border-radius: var(--hfx-header-chip-radius, calc(var(--hfx-surface-radius-sm) + .15rem));
+  padding-inline: .85rem;
+  min-height: 2.6rem;
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  white-space: nowrap;
+}

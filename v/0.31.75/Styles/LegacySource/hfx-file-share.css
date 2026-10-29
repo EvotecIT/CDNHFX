@@ -1,0 +1,26 @@
+/* Compatibility for HtmlForgeX/Resources/Styles/hfx-file-share.css. Native components read HFX roles. */
+.hfx-file-share-options .card-body,
+.hfx-file-share-link-list .card-body,
+.hfx-file-share-summary .card-body,
+.hfx-file-share-password-challenge .card-body {
+  gap: var(--hfx-file-gap) !important;
+}.hfx-file-share-options .card-body {
+  display: grid !important;
+  gap: .95rem !important;
+  padding: 1rem !important;
+}.hfx-file-share-options .card-title {
+  margin-bottom: 0;
+  font-size: 1rem;
+  font-weight: 780;
+}.hfx-file-share-options .hfx-bool-control .form-check-input {
+  margin-top: 0;
+}.hfx-file-share-options .form-control,
+.hfx-file-share-options .form-select,
+.hfx-file-share-options .ts-wrapper {
+  min-width: 0;
+}.hfx-file-share-options .form-control,
+.hfx-file-share-options .form-select {
+  min-height: 2.35rem;
+}.hfx-file-share-options__submit .btn {
+  min-height: 2.5rem;
+}

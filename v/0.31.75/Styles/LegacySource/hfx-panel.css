@@ -1,0 +1,31 @@
+/* Compatibility for HtmlForgeX/Resources/Styles/hfx-panel.css. Native components read HFX roles. */
+.hfx-panel-shell .card {
+  border-radius: var(--hfx-radius-container);
+  overflow: hidden;
+}.hfx-panel-shell .card-body,
+.hfx-panel-shell .card-header,
+.hfx-panel-shell .tab-content,
+.hfx-panel-shell .tab-pane {
+  overflow: hidden;
+}.hfx-panel-shell .list-group-item {
+  overflow: hidden;
+}.hfx-panel-shell .list-group-item > .d-flex {
+  flex-wrap: nowrap;
+  gap: 0.75rem;
+  align-items: center;
+}.hfx-panel-shell .hfx-list-trailing .badge {
+  font-size: 0.65rem;
+  letter-spacing: 0.02em;
+  padding: 0.25rem 0.5rem;
+}.hfx-panel-shell .card-body h2,
+.hfx-panel-shell .card-body h4 {
+  margin-top: 0;
+  margin-bottom: 0.35rem;
+}.hfx-panel-shell .card-actions {
+  gap: 0.35rem;
+}.hfx-panel-shell .card-actions .badge {
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.45rem;
+}

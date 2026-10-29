@@ -1,0 +1,345 @@
+/* ---------- PrismJS (shared roles) ---------- */
+pre[class*="language-"],
+code[class*="language-"] {
+  color: var(--hfx-code-color);
+  background: var(--hfx-code-bg);
+}
+
+pre[class*="language-"] {
+  border: 1px solid var(--hfx-code-border);
+  border-radius: var(--hfx-radius-md);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--hfx-code-border) 40%, transparent) inset;
+}
+
+pre[class*="language-"] ::selection,
+code[class*="language-"] ::selection {
+  background: var(--hfx-code-selection-bg);
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: color-mix(in srgb, var(--hfx-code-color) 60%, transparent);
+}
+
+.token.punctuation { color: color-mix(in srgb, var(--hfx-code-color) 75%, transparent); }
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted { color: var(--hfx-code-token-red); }
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted { color: var(--hfx-code-token-green); }
+
+.token.operator,
+.token.entity,
+.token.url { color: var(--hfx-code-token-yellow); }
+
+.token.atrule,
+.token.keyword { color: var(--hfx-code-token-blue); }
+
+.token.function { color: var(--hfx-code-token-purple); }
+.token.class-name { color: var(--hfx-code-token-orange); }
+.token.regex,
+.token.important,
+.token.variable { color: var(--hfx-code-token-amber); }
+
+.line-numbers .line-numbers-rows {
+  border-right: 1px solid var(--hfx-code-border);
+}
+
+div.code-toolbar > .toolbar > .toolbar-item > button,
+div.code-toolbar > .toolbar > .toolbar-item > a,
+div.code-toolbar > .toolbar > .toolbar-item > span {
+  color: var(--hfx-code-color);
+  background: color-mix(in srgb, var(--hfx-code-bg) 88%, var(--hfx-color-surface-sunken));
+  border: 1px solid var(--hfx-code-border);
+  border-radius: 4px;
+}
+
+
+/* ---------- SmartWizard (shared role variables) ---------- */
+:root, [data-hfx-theme], [data-hfx-style], [data-hfx-mode], [data-hfx-tokens], [data-bs-theme] {
+  --sw-border-color: var(--hfx-color-border);
+  --sw-toolbar-btn-color: var(--hfx-color-accent-contrast);
+  --sw-toolbar-btn-background-color: var(--hfx-color-accent);
+
+  --sw-anchor-default-primary-color: var(--hfx-color-surface-sunken);
+  --sw-anchor-default-secondary-color: var(--hfx-color-text-secondary);
+  --sw-anchor-active-primary-color: var(--hfx-color-accent);
+  --sw-anchor-active-secondary-color: var(--hfx-color-accent-contrast);
+
+  --sw-anchor-done-primary-color: color-mix(in srgb, var(--hfx-color-accent) 55%, var(--hfx-color-surface-sunken));
+  --sw-anchor-done-secondary-color: var(--hfx-color-text);
+
+  --sw-anchor-disabled-primary-color: var(--hfx-color-surface-sunken);
+  --sw-anchor-disabled-secondary-color: color-mix(in srgb, var(--hfx-color-text) 35%, transparent);
+
+  --sw-progress-color: var(--hfx-color-accent);
+  --sw-progress-background-color: var(--hfx-color-surface-sunken);
+
+  --sw-loader-color: var(--hfx-color-accent);
+  --sw-loader-background-color: var(--hfx-color-surface-sunken);
+  --sw-loader-background-wrapper-color: color-mix(in srgb, var(--hfx-color-surface-page) 85%, transparent);
+}
+
+/* ---------- SmartTab (shared role variables) ---------- */
+:root, [data-hfx-theme], [data-hfx-style], [data-hfx-mode], [data-hfx-tokens], [data-bs-theme] {
+  --st-background: transparent;
+  --st-border: 1px solid var(--hfx-color-border);
+  --st-anchor-default-primary-color: var(--hfx-color-text);
+  --st-anchor-default-secondary-color: color-mix(in srgb, var(--hfx-color-text) 55%, transparent);
+  --st-anchor-active-primary-color: var(--hfx-color-accent);
+  --st-anchor-active-secondary-color: var(--hfx-color-accent-contrast);
+  --st-anchor-disabled-primary-color: color-mix(in srgb, var(--hfx-color-text) 35%, transparent);
+  --st-anchor-disabled-secondary-color: color-mix(in srgb, var(--hfx-color-text) 25%, transparent);
+  --st-loader-color: var(--hfx-color-accent);
+  --st-loader-background-color: var(--hfx-color-surface-sunken);
+  --st-loader-background-wrapper-color: color-mix(in srgb, var(--hfx-color-surface-page) 85%, transparent);
+}
+
+.st-theme-elite > .nav {
+  background-color: var(--hfx-color-surface);
+}
+
+.st-theme-elite > .nav .nav-link.active::after,
+.st-theme-forge > .nav .nav-link.active::after {
+  background: var(--hfx-color-surface);
+}
+
+/* ---------- Quill (shared roles) ---------- */
+.ql-toolbar.ql-snow,
+.ql-container.ql-snow {
+  border-color: var(--hfx-color-border);
+}
+
+.ql-toolbar.ql-snow {
+  background: var(--hfx-color-surface-sunken);
+}
+
+.ql-container.ql-snow {
+  background: var(--hfx-color-surface);
+  color: var(--hfx-color-text);
+}
+
+.ql-snow .ql-picker,
+.ql-snow .ql-picker-label,
+.ql-snow .ql-picker-options,
+.ql-snow .ql-tooltip,
+.ql-snow.ql-toolbar button,
+.ql-snow .ql-toolbar button {
+  color: var(--hfx-color-text);
+}
+
+.ql-snow .ql-stroke { stroke: var(--hfx-color-text); }
+.ql-snow .ql-fill { fill: var(--hfx-color-text); }
+
+.ql-snow.ql-toolbar button:hover .ql-stroke,
+.ql-snow .ql-toolbar button:hover .ql-stroke,
+.ql-snow.ql-toolbar button.ql-active .ql-stroke,
+.ql-snow .ql-toolbar button.ql-active .ql-stroke {
+  stroke: var(--hfx-color-accent);
+}
+
+.ql-snow.ql-toolbar button:hover .ql-fill,
+.ql-snow .ql-toolbar button:hover .ql-fill,
+.ql-snow.ql-toolbar button.ql-active .ql-fill,
+.ql-snow .ql-toolbar button.ql-active .ql-fill {
+  fill: var(--hfx-color-accent);
+}
+
+.ql-snow.ql-toolbar .ql-picker-label:hover,
+.ql-snow .ql-toolbar .ql-picker-label:hover,
+.ql-snow.ql-toolbar .ql-picker-label.ql-active,
+.ql-snow .ql-toolbar .ql-picker-label.ql-active {
+  color: var(--hfx-color-accent);
+}
+
+.ql-snow .ql-picker-options {
+  background: var(--hfx-color-surface);
+  border-color: var(--hfx-color-border);
+}
+
+.ql-snow .ql-editor.ql-blank::before {
+  color: var(--hfx-color-text-muted);
+}
+
+.ql-snow .ql-tooltip {
+  background: var(--hfx-color-surface);
+  border-color: var(--hfx-color-border);
+  box-shadow: var(--hfx-elevation-2);
+}
+
+.ql-snow .ql-tooltip input[type=text] {
+  background: var(--hfx-color-surface-sunken);
+  border-color: var(--hfx-color-border);
+  color: var(--hfx-color-text);
+}
+
+/* ---------- FullCalendar (CSS variables) ---------- */
+.fc {
+  --fc-border-color: var(--hfx-color-border);
+  --fc-page-bg-color: transparent;
+  --fc-neutral-bg-color: var(--hfx-color-surface-sunken);
+  --fc-neutral-text-color: var(--hfx-color-text-muted);
+  --fc-today-bg-color: color-mix(in srgb, var(--hfx-color-accent) 12%, transparent);
+
+  --fc-event-bg-color: var(--hfx-color-accent);
+  --fc-event-border-color: var(--hfx-color-accent);
+  --fc-event-text-color: var(--hfx-color-accent-contrast);
+
+  --fc-button-text-color: var(--hfx-color-accent-contrast);
+  --fc-button-bg-color: var(--hfx-color-accent);
+  --fc-button-border-color: transparent;
+  --fc-button-hover-bg-color: color-mix(in srgb, var(--hfx-color-accent) 88%, var(--hfx-color-surface));
+  --fc-button-hover-border-color: transparent;
+  --fc-button-active-bg-color: color-mix(in srgb, var(--hfx-color-accent) 78%, var(--hfx-color-surface));
+  --fc-button-active-border-color: transparent;
+}
+
+/* ---------- VisNetwork ---------- */
+.diagram {
+  border-radius: var(--hfx-radius-md);
+  background: var(--hfx-color-surface);
+  border: 1px solid var(--hfx-color-border);
+}
+
+.vis-network div.vis-manipulation {
+  background: var(--hfx-color-surface) !important;
+  border-bottom: 1px solid var(--hfx-color-border) !important;
+  color: var(--hfx-color-text) !important;
+}
+
+.vis-network div.vis-configuration.vis-config-option-container {
+  background-color: var(--hfx-color-surface) !important;
+  border-color: var(--hfx-color-border) !important;
+  color: var(--hfx-color-text) !important;
+}
+
+.vis-network div.vis-configuration.vis-config-button {
+  background-color: var(--hfx-color-surface-sunken) !important;
+  border-color: var(--hfx-color-border) !important;
+  color: var(--hfx-color-text) !important;
+}
+
+.vis-network div.vis-configuration.vis-config-button.hover {
+  background-color: var(--hfx-color-accent) !important;
+  border-color: var(--hfx-color-accent) !important;
+  color: var(--hfx-color-accent-contrast) !important;
+}
+
+.vis-network div.vis-configuration.vis-config-item.vis-config-s2 {
+  background-color: var(--hfx-color-surface-sunken) !important;
+}
+
+.vis-network div.vis-configuration.vis-config-item.vis-config-s3 {
+  background-color: color-mix(in srgb, var(--hfx-color-surface-sunken) 70%, var(--hfx-color-surface)) !important;
+}
+
+.vis-network div.vis-configuration.vis-config-item.vis-config-s4 {
+  background-color: color-mix(in srgb, var(--hfx-color-surface-sunken) 55%, var(--hfx-color-surface)) !important;
+}
+
+.vis-network .vis-configuration-popup {
+  background: color-mix(in srgb, var(--hfx-color-text) 85%, transparent) !important;
+  border-color: var(--hfx-color-border) !important;
+  color: var(--hfx-color-surface-page) !important;
+}
+
+.vis-network .vis-configuration-popup:after {
+  border-left-color: color-mix(in srgb, var(--hfx-color-text) 85%, transparent) !important;
+}
+
+.vis-network .vis-configuration-popup:before {
+  border-left-color: var(--hfx-color-border) !important;
+}
+
+.vis-network div.vis-color-picker {
+  background-color: var(--hfx-color-surface) !important;
+  box-shadow: 0 0 10px 0 rgba(var(--hfx-color-text-rgb), 0.35) !important;
+}
+
+.vis-network div.vis-color-picker div.vis-initial-color,
+.vis-network div.vis-color-picker div.vis-new-color {
+  border-color: var(--hfx-color-border) !important;
+  color: var(--hfx-color-text) !important;
+}
+
+.vis-network div.vis-color-picker div.vis-button {
+  background-color: var(--hfx-color-surface-sunken) !important;
+  border-color: var(--hfx-color-border) !important;
+  color: var(--hfx-color-text) !important;
+}
+
+.vis-network div.vis-tooltip {
+  background-color: var(--hfx-color-surface) !important;
+  border-color: var(--hfx-color-border) !important;
+  color: var(--hfx-color-text) !important;
+  box-shadow: 3px 3px 10px rgba(var(--hfx-color-text-rgb), 0.2) !important;
+}
+
+.vis-network .vis-active {
+  box-shadow: 0 0 10px color-mix(in srgb, var(--hfx-color-accent) 55%, transparent) !important;
+}
+
+/* ---------- ScrollingText (sectionScrolling) ---------- */
+.diagramLoadingBar .diagramOuterBorder,
+.diagramLoadingBar .diagramBorder {
+  background: var(--hfx-color-surface-sunken);
+  border-color: var(--hfx-color-border);
+}
+.diagramLoadingBar .diagramText { color: var(--hfx-color-text); }
+
+.sectionScrolling .section-nav {
+  border-left: 1px solid var(--hfx-color-border);
+}
+
+.sectionScrolling .section-nav a {
+  color: var(--hfx-color-text-muted);
+}
+
+.sectionScrolling .section-nav a:hover,
+.sectionScrolling .section-nav a:focus {
+  color: var(--hfx-color-text);
+}
+
+.sectionScrolling .section-nav li.active > a {
+  color: var(--hfx-color-accent);
+  font-weight: 600;
+}
+
+/* Legacy controls consume the same accessible foreground as primary buttons. */
+:root .page-item.active .page-link {
+  color: var(--hfx-color-accent-contrast);
+  background-color: var(--hfx-color-accent);
+}
+:root .form-check-input[type="checkbox"]:checked {
+  background-image: var(--hfx-control-check-image);
+}
+:root .form-check-input[type="radio"]:checked {
+  background-image: var(--hfx-control-radio-image);
+}
+
+/* Map chrome follows the selected roles under every theme and overlay. */
+.mapboxgl-ctrl-group,
+.mapboxgl-popup-content {
+  background: var(--hfx-color-surface-raised);
+  color: var(--hfx-color-text);
+  border-color: var(--hfx-color-border);
+}
+
+@media (forced-colors: active) {
+  /* Let the platform draw its own checked glyph and system-colour foreground. */
+  :root .form-check-input {
+    appearance: auto;
+    background-image: none !important;
+  }
+}

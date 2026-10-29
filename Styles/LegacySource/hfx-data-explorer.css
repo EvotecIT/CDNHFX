@@ -1,0 +1,16 @@
+/* Compatibility for HtmlForgeX/Resources/Styles/hfx-data-explorer.css. Native components read HFX roles. */
+@media screen {:is(.hfx-as-panel-body, .card-body) > .hfx-dx,
+  .card-body > .vstack > .hfx-dx {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+    padding: 0;
+  }:is(.hfx-as-panel-body, .card-body) > .card:has(> .card-body > .hfx-dx, > .card-body > .vstack > .hfx-dx) {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+  }:is(.hfx-as-panel-body, .card-body) > .card:has(> .card-body > .hfx-dx, > .card-body > .vstack > .hfx-dx) > .card-body {
+    padding-inline: 0;
+  }}

@@ -1,0 +1,72 @@
+/* Compatibility for HtmlForgeX/Resources/Styles/hfx-portal-surface-theme-alignment.css. Native components read HFX roles. */
+html[data-hfx-theme="dark-black"] .hfx-theme-menu__item:hover,
+html[data-hfx-theme="dark-black"] .hfx-theme-menu__item:focus,
+html[data-hfx-theme="dark-black"] .hfx-header-user__menu-item:hover,
+html[data-hfx-theme="dark-black"] .hfx-header-user__menu-item:focus,
+html[data-hfx-theme="dark-black"] .hfx-header-dropdown-card .list-group-item:hover,
+html[data-hfx-theme="dark-carbon"] .hfx-theme-menu__item:hover,
+html[data-hfx-theme="dark-carbon"] .hfx-theme-menu__item:focus,
+html[data-hfx-theme="dark-carbon"] .hfx-header-user__menu-item:hover,
+html[data-hfx-theme="dark-carbon"] .hfx-header-user__menu-item:focus,
+html[data-hfx-theme="dark-carbon"] .hfx-header-dropdown-card .list-group-item:hover,
+html[data-hfx-a11y~="high-contrast"] .hfx-theme-menu__item:hover,
+html[data-hfx-a11y~="high-contrast"] .hfx-theme-menu__item:focus,
+html[data-hfx-a11y~="high-contrast"] .hfx-header-user__menu-item:hover,
+html[data-hfx-a11y~="high-contrast"] .hfx-header-user__menu-item:focus,
+html[data-hfx-a11y~="high-contrast"] .hfx-header-dropdown-card .list-group-item:hover {
+
+    transform: translateY(-1px);
+}html[data-hfx-a11y~="high-contrast"] .page-wrapper .card,
+html[data-hfx-a11y~="high-contrast"] .hfx-narrative-summary-card,
+html[data-hfx-a11y~="high-contrast"] .hfx-insight-summary-card,
+html[data-hfx-a11y~="high-contrast"] .hfx-metric-card,
+html[data-hfx-a11y~="high-contrast"] .hfx-gauge-card,
+html[data-hfx-a11y~="high-contrast"] .hfx-breakdown-card,
+html[data-hfx-a11y~="high-contrast"] .hfx-category-bars-card,
+html[data-hfx-a11y~="high-contrast"] .hfx-line-comparison-card,
+html[data-hfx-a11y~="high-contrast"] .hfx-workspace-tabs-card,
+html[data-hfx-a11y~="high-contrast"] .hfx-data-table-card,
+html[data-hfx-a11y~="high-contrast"] .hfx-audit-log-card,
+html[data-hfx-a11y~="high-contrast"] .hfx-data-grid-card,
+html[data-hfx-a11y~="high-contrast"] .hfx-tracking-summary-card,
+html[data-hfx-a11y~="high-contrast"] .hfx-action-summary-card,
+html[data-hfx-a11y~="high-contrast"] .hfx-people-review-card,
+html[data-hfx-a11y~="high-contrast"] .hfx-review-feed-card,
+html[data-hfx-a11y~="high-contrast"] .hfx-timeline-summary-card,
+html[data-hfx-a11y~="high-contrast"] .hfx-reports-analytics-row .card {
+    background: var(--hfx-portal-panel-bg) !important;
+    border-color: var(--hfx-portal-shell-border) !important;
+    box-shadow: var(--hfx-portal-surface-shadow) !important;
+}html[data-hfx-a11y~="high-contrast"] .hfx-narrative-summary-card__narrative,
+html[data-hfx-a11y~="high-contrast"] .hfx-insight-summary-card__hero,
+html[data-hfx-a11y~="high-contrast"] .hfx-narrative-summary-card__insight,
+html[data-hfx-a11y~="high-contrast"] .hfx-narrative-summary-card__chip,
+html[data-hfx-a11y~="high-contrast"] .hfx-insight-summary-card__floating-stat,
+html[data-hfx-a11y~="high-contrast"] .hfx-insight-summary-card__inline-stat,
+html[data-hfx-a11y~="high-contrast"] .hfx-workspace-tabs-card .card-header,
+html[data-hfx-a11y~="high-contrast"] .hfx-data-table-card .card-header,
+html[data-hfx-a11y~="high-contrast"] .hfx-audit-log-card .card-header,
+html[data-hfx-a11y~="high-contrast"] .hfx-data-grid-card .card-header,
+html[data-hfx-a11y~="high-contrast"] .hfx-tracking-summary-card .card-header,
+html[data-hfx-a11y~="high-contrast"] .hfx-action-summary-card .card-header,
+html[data-hfx-a11y~="high-contrast"] .hfx-people-review-card .card-header,
+html[data-hfx-a11y~="high-contrast"] .hfx-review-feed-card .card-header,
+html[data-hfx-a11y~="high-contrast"] .hfx-timeline-summary-card .card-header,
+html[data-hfx-a11y~="high-contrast"] .hfx-workspace-tabs-card .card-body > .rounded-4,
+html[data-hfx-a11y~="high-contrast"] .hfx-data-table-card .card-body > .rounded-4,
+html[data-hfx-a11y~="high-contrast"] .hfx-audit-log-card .card-body > .rounded-4,
+html[data-hfx-a11y~="high-contrast"] .hfx-data-grid-card .card-body > .rounded-4,
+html[data-hfx-a11y~="high-contrast"] .hfx-tracking-summary-card .card-body > .rounded-4,
+html[data-hfx-a11y~="high-contrast"] .hfx-action-summary-card .card-body > .rounded-4,
+html[data-hfx-a11y~="high-contrast"] .hfx-people-review-card .card-body > .rounded-4,
+html[data-hfx-a11y~="high-contrast"] .hfx-review-feed-card .card-body > .rounded-4,
+html[data-hfx-a11y~="high-contrast"] .hfx-timeline-summary-card .card-body > .rounded-4 {
+    background: var(--hfx-portal-soft-surface) !important;
+    border-color: var(--hfx-portal-shell-border) !important;
+    color: var(--hfx-portal-shell-text) !important;
+}
+
+/* Palette-independent border geometry. */
+.hfx-metric-card, .hfx-gauge-card, .hfx-breakdown-card, .hfx-category-bars-card, .hfx-line-comparison-card, .hfx-workspace-tabs-card, .hfx-data-table-card, .hfx-audit-log-card, .hfx-data-grid-card, .hfx-tracking-summary-card, .hfx-action-summary-card, .hfx-people-review-card, .hfx-review-feed-card, .hfx-timeline-summary-card, .hfx-reports-analytics-row .card, html[data-hfx-a11y~="color-blind"] .hfx-metric-card, html[data-hfx-a11y~="color-blind"] .hfx-gauge-card, html[data-hfx-a11y~="color-blind"] .hfx-breakdown-card, html[data-hfx-a11y~="color-blind"] .hfx-category-bars-card, html[data-hfx-a11y~="color-blind"] .hfx-line-comparison-card, html[data-hfx-a11y~="color-blind"] .hfx-workspace-tabs-card, html[data-hfx-a11y~="color-blind"] .hfx-data-table-card, html[data-hfx-a11y~="color-blind"] .hfx-audit-log-card, html[data-hfx-a11y~="color-blind"] .hfx-data-grid-card, html[data-hfx-a11y~="color-blind"] .hfx-tracking-summary-card, html[data-hfx-a11y~="color-blind"] .hfx-action-summary-card, html[data-hfx-a11y~="color-blind"] .hfx-people-review-card, html[data-hfx-a11y~="color-blind"] .hfx-review-feed-card, html[data-hfx-a11y~="color-blind"] .hfx-timeline-summary-card, html[data-hfx-a11y~="color-blind"] .hfx-reports-analytics-row .card { border-radius: var(--hfx-portal-surface-radius, 0.98rem); }
+.hfx-workspace-tabs-card .card-header, .hfx-data-table-card .card-header, .hfx-audit-log-card .card-header, .hfx-data-grid-card .card-header, .hfx-tracking-summary-card .card-header, .hfx-action-summary-card .card-header, .hfx-people-review-card .card-header, .hfx-review-feed-card .card-header, .hfx-timeline-summary-card .card-header, html[data-hfx-a11y~="color-blind"] .hfx-workspace-tabs-card .card-header, html[data-hfx-a11y~="color-blind"] .hfx-data-table-card .card-header, html[data-hfx-a11y~="color-blind"] .hfx-audit-log-card .card-header, html[data-hfx-a11y~="color-blind"] .hfx-data-grid-card .card-header, html[data-hfx-a11y~="color-blind"] .hfx-tracking-summary-card .card-header, html[data-hfx-a11y~="color-blind"] .hfx-action-summary-card .card-header, html[data-hfx-a11y~="color-blind"] .hfx-people-review-card .card-header, html[data-hfx-a11y~="color-blind"] .hfx-review-feed-card .card-header, html[data-hfx-a11y~="color-blind"] .hfx-timeline-summary-card .card-header { border-top-left-radius: inherit;border-top-right-radius: inherit; }
+.hfx-workspace-tabs-card .card-body > .rounded-4, .hfx-data-table-card .card-body > .rounded-4, .hfx-audit-log-card .card-body > .rounded-4, .hfx-data-grid-card .card-body > .rounded-4, .hfx-tracking-summary-card .card-body > .rounded-4, .hfx-action-summary-card .card-body > .rounded-4, .hfx-people-review-card .card-body > .rounded-4, .hfx-review-feed-card .card-body > .rounded-4, .hfx-timeline-summary-card .card-body > .rounded-4, html[data-hfx-a11y~="color-blind"] .hfx-workspace-tabs-card .card-body > .rounded-4, html[data-hfx-a11y~="color-blind"] .hfx-data-table-card .card-body > .rounded-4, html[data-hfx-a11y~="color-blind"] .hfx-audit-log-card .card-body > .rounded-4, html[data-hfx-a11y~="color-blind"] .hfx-data-grid-card .card-body > .rounded-4, html[data-hfx-a11y~="color-blind"] .hfx-tracking-summary-card .card-body > .rounded-4, html[data-hfx-a11y~="color-blind"] .hfx-action-summary-card .card-body > .rounded-4, html[data-hfx-a11y~="color-blind"] .hfx-people-review-card .card-body > .rounded-4, html[data-hfx-a11y~="color-blind"] .hfx-review-feed-card .card-body > .rounded-4, html[data-hfx-a11y~="color-blind"] .hfx-timeline-summary-card .card-body > .rounded-4 { border-radius: var(--hfx-portal-panel-radius, 0.92rem) !important; }

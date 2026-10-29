@@ -45,16 +45,12 @@
   }
 
   function getPalette() {
-    var p1 = getCssVar('--hfx-palette-1');
-    var p2 = getCssVar('--hfx-palette-2');
-    var p3 = getCssVar('--hfx-palette-3');
-    var p4 = getCssVar('--hfx-palette-4');
-    var p5 = getCssVar('--hfx-palette-5');
-    var p6 = getCssVar('--hfx-palette-6');
-    var p7 = getCssVar('--hfx-palette-7');
-    var list = [p1, p2, p3, p4, p5, p6, p7].filter(function (c) { return !!c; });
-    if (list.length > 0) return list;
-    return ['#0072b2', '#e69f00', '#009e73', '#d55e00', '#cc79a7', '#f0e442', '#56b4e9'];
+    var colors = [];
+    for (var index = 1; index <= 6; index++) {
+      var color = getCssVar('--hfx-color-series-' + index);
+      if (color) colors.push(color);
+    }
+    return colors;
   }
 
   function isPieLike(type) {
@@ -172,9 +168,9 @@
   }
 
   function resolveThemeColors() {
-    var text = getCssVar('--tblr-body-color') || getCssVar('--bs-body-color') || '#212529';
-    var muted = getCssVar('--tblr-muted') || getCssVar('--bs-secondary-color') || text;
-    var border = getCssVar('--tblr-border-color') || getCssVar('--bs-border-color') || 'rgba(0,0,0,.1)';
+    var text = getCssVar('--hfx-color-text');
+    var muted = getCssVar('--hfx-color-text-muted') || getCssVar('--hfx-color-text-muted') || text;
+    var border = getCssVar('--hfx-color-border');
     var grid = withAlpha(border, 0.35);
     return { text: text, muted: muted, border: border, grid: grid };
   }

@@ -1,6 +1,7 @@
 /* Public component anatomy. Legacy pages keep their existing presentation. */
 @layer hfx.components {
-  :where([data-hfx-design-system], [data-hfx-design-system] :is([data-hfx-style], [data-hfx-mode], [data-bs-theme], [data-hfx-theme], [data-hfx-tokens], [data-cx-theme], [data-theme])) {
+  /* Widget theme metadata does not create an HFX page canvas; components own their surfaces. */
+  :where([data-hfx-design-system], [data-hfx-design-system] :is([data-hfx-style], [data-hfx-mode], [data-bs-theme], [data-hfx-theme], [data-hfx-tokens], [data-theme])) {
     background: var(--hfx-color-surface-page);
     color: var(--hfx-color-text);
     font-family: var(--hfx-font-sans);
@@ -267,7 +268,7 @@
     background: var(--hfx-color-surface-sunken); color: var(--hfx-color-text-secondary);
   }
   :where([data-hfx-design-system]) :where([data-hfx-part="step"][data-state~="current"])::before { background: var(--hfx-color-accent); color: var(--hfx-color-accent-contrast); border-color: var(--hfx-color-accent); }
-  :where([data-hfx-design-system]) :where([data-hfx-part="step"][data-state~="done"])::before { content: "\2713"; background: var(--hfx-color-status-good-bg); color: var(--hfx-color-status-good-fg); border-color: var(--hfx-color-status-good-border); }
+  :where([data-hfx-design-system]) :where([data-hfx-part="step"][data-state~="done"])::before { content: "✓"; background: var(--hfx-color-status-good-bg); color: var(--hfx-color-status-good-fg); border-color: var(--hfx-color-status-good-border); }
   :where([data-hfx-design-system]) :where([data-hfx-part="menu"], [data-hfx-part="popover"], [data-hfx-part="dialog-surface"], [data-hfx-part="drawer"]) {
     color: var(--hfx-color-text); background: var(--hfx-color-surface-raised);
     border: var(--hfx-border-width) solid var(--hfx-color-border); border-radius: var(--hfx-radius-overlay); box-shadow: var(--hfx-elevation-2);
