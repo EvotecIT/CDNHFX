@@ -44,6 +44,10 @@
 .hfx-rv-picker-step:focus-visible { outline: var(--hfx-focus-width) solid var(--hfx-color-focus-ring); }
 .hfx-as-picker:has(> .hfx-rv-picker-step) { display: inline-flex; align-items: center; gap: 4px; }
 .hfx-as.hfx-rv-kpis.is-compact { gap: 10px; grid-template-columns: repeat(auto-fit,minmax(min(100%,140px),1fr)); }
+@media (max-width: 575.98px) {
+  .hfx-as.hfx-rv-kpis, .hfx-as.hfx-rv-kpis.is-compact { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hfx-as.hfx-rv-kpis > .hfx-rv-kpi:last-child:nth-child(odd) { grid-column: 1 / -1; }
+}
 .hfx-rv-kpis.is-compact .hfx-rv-kpi { padding: 10px 12px; gap: 2px; }
 .hfx-rv-kpis.is-compact .hfx-rv-kpi-value { font-size: 24px; }
 .hfx-rv-kpis.is-compact .hfx-rv-kpi-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }

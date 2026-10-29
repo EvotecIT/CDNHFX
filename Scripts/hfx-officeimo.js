@@ -109,29 +109,18 @@
             delete button.filename;
             if (format === 'excel') {
                 var excel = button.hfxExcel || {};
-                options.workbook = {oversizedText:'preserve', dateMode:'utc'};
-                options.sheetName = excel.sheetName || 'Sheet1';
-                options.sheet = {freezeHeader: !!excel.freezeHeader, autoFilter: !!excel.autoFilter, boldHeader: true};
+                options.xlsx = {oversizedText:'preserve', dateMode:'utc', sheet:{name:excel.sheetName || 'Sheet1',
+                    freezeHeader:!!excel.freezeHeader, autoFilter:!!excel.autoFilter, boldHeader:true}};
                 // Buttons' '*' title resolves through exportInfo once the table exists.
                 var configuredTitle = button.title;
                 options.columnOptions = {};
                 options.filename = function (configuration, table) {
                     tableApi = table;
-                    var info = table.buttons.exportInfo(Object.assign({}, configuration, {title: configuredTitle === undefined ? '*' : configuredTitle}));
-                    if (info.title) options.sheet.title = {text: info.title};
-                    // The canonical action shallow-copies options before resolving the filename. Keep this map's identity.
-                    Object.keys(options.columnOptions).forEach(function (key) {delete options.columnOptions[key];});
-                    var indexes = table.columns(options.exportOptions.columns || '').indexes().toArray();
-                    indexes.forEach(function (source, position) {
-                        var width = excel.widths && excel.widths[position + 1], fmt = excel.formats && excel.formats[position + 1];
-                        if (width || fmt) options.columnOptions[source] = Object.assign({}, width ? {width:width} : {}, fmt ? {format:fmt} : {});
-                    });
                     return configuredFilename || '*';
                 };
                 // Native report layout is translated above; the writer owns worksheet layout.
                 delete button.title;
                 delete button.filename;
-                if (configuredTitle !== undefined) options.sheet.title = configuredTitle ? {text:configuredTitle} : undefined;
             } else if (format === 'pdf') {
                 if (button.title === undefined) button.title = '*';
                 options.pdf = {fontSize:10, pageSize:'A4', orientation:'portrait', wideTable:'fit'};
@@ -140,6 +129,18 @@
             button.action = function (event, table, node, configuration, complete) {
                 var context = this;
                 load('datatables', format === 'pdf').then(function () {
+                    tableApi = table;
+                    // Resolve host labels and selectors before OfficeIMO captures its immutable writer options.
+                    if (format === 'excel') {
+                        var effective = configuration.officeimo;
+                        var info = table.buttons.exportInfo(Object.assign({}, configuration, {title:configuredTitle === undefined ? '*' : configuredTitle}));
+                        effective.xlsx.sheet.title = info.title ? {text:info.title} : undefined;
+                        Object.keys(effective.columnOptions).forEach(function (key) {delete effective.columnOptions[key];});
+                        table.columns(effective.exportOptions.columns || '').indexes().toArray().forEach(function (source, position) {
+                            var width = excel.widths && excel.widths[position + 1], fmt = excel.formats && excel.formats[position + 1];
+                            if (width || fmt) effective.columnOptions[source] = Object.assign({}, width ? {width:width} : {}, fmt ? {format:fmt} : {});
+                        });
+                    }
                     if (!host.ext.buttons.officeimoExcel) global.OfficeIMO.registerDataTablesButtons(host);
                     if (format === 'pdf') configuration.officeimo.pdf.fonts = fonts();
                     host.ext.buttons[format === 'excel' ? 'officeimoExcel' : 'officeimoPdf'].action.call(context, event, table, node, configuration, complete);
@@ -163,34 +164,40 @@
             return {id:unique && format !== 'csv' ? format : 'hfx-' + format + '-' + index, label:button.text || (format === 'xlsx' ? 'Excel' : format.toUpperCase()), extension:format, showInMenu:nativeMenu,
                 mime:format === 'xlsx' ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' : format === 'csv' ? 'text/csv;charset=utf-8' : 'application/pdf',
                 write:async function (capture, context) {
-                    await load('canopyx', format === 'pdf');
-                    if (context.signal.aborted) throw new DOMException('Export cancelled.', 'AbortError');
-                    var options = {signal:context.signal, tones:tones, onProgress:function (event) {context.progress(event.rows);}};
-                    var configuredTitle = button.title === undefined ? '*' : button.title;
-                    var title = configuredTitle === '*' ? document.title : configuredTitle;
-                    if (format === 'pdf') {
-                        options.pdf = {fonts:fonts(), fontSize:10, wideTable:'fit', title:title || undefined};
-                        // Printable fit wraps text independently of the browser grid's single-line layout.
-                        options.columnOptions = {};
-                        capture.request.columns.forEach(function (column) {options.columnOptions[column.id] = {wrapText:true};});
-                    } else if (format === 'xlsx') {
-                        var excel = button.hfxExcel || {};
-                        options.xlsx = {oversizedText:'preserve', dateMode:'utc', sheet:{name:excel.sheetName || 'Sheet1', freezeHeader:!!excel.freezeHeader,
-                            autoFilter:!!excel.autoFilter, boldHeader:true, title:title ? {text:title} : undefined}};
-                        options.columnOptions = {};
-                        capture.request.columns.forEach(function (column, position) {
-                            var width = excel.widths && excel.widths[position + 1], fmt = excel.formats && excel.formats[position + 1];
-                            if (width || fmt) options.columnOptions[column.id] = Object.assign({}, width ? {width:width} : {}, fmt ? {format:fmt} : {});
-                        });
+                    try {
+                        await load('canopyx', format === 'pdf');
+                        if (context.signal.aborted) throw new DOMException('Export cancelled.', 'AbortError');
+                        var options = {signal:context.signal, tones:tones, onProgress:function (event) {context.progress(event.rows);}};
+                        var configuredTitle = button.title === undefined ? '*' : button.title;
+                        var title = configuredTitle === '*' ? document.title : configuredTitle;
+                        if (format === 'pdf') {
+                            options.pdf = {fonts:fonts(), fontSize:10, wideTable:'fit', title:title || undefined};
+                            // Printable fit wraps text independently of the browser grid's single-line layout.
+                            options.columnOptions = {};
+                            capture.request.columns.forEach(function (column) {options.columnOptions[column.id] = {wrapText:true};});
+                        } else if (format === 'xlsx') {
+                            var excel = button.hfxExcel || {};
+                            options.xlsx = {oversizedText:'preserve', dateMode:'utc', sheet:{name:excel.sheetName || 'Sheet1', freezeHeader:!!excel.freezeHeader,
+                                autoFilter:!!excel.autoFilter, boldHeader:true, title:title ? {text:title} : undefined}};
+                            options.columnOptions = {};
+                            capture.request.columns.forEach(function (column, position) {
+                                var width = excel.widths && excel.widths[position + 1], fmt = excel.formats && excel.formats[position + 1];
+                                if (width || fmt) options.columnOptions[column.id] = Object.assign({}, width ? {width:width} : {}, fmt ? {format:fmt} : {});
+                            });
+                        }
+                        var blob = await global.OfficeIMO.exportCanopy(capture, format, options);
+                        if (context.signal.aborted) throw new DOMException('Export cancelled.', 'AbortError');
+                        var name = button.filename && button.filename !== '*' ? button.filename : context.fileName;
+                        return new File([blob], name + '.' + format, {type:blob.type});
+                    } catch (failure) {
+                        if (failure.name === 'AbortError') throw failure;
+                        error(failure);
+                        throw new Error(root.getAttribute('data-hfx-cx-export-failed') || "Couldn't export this view.");
                     }
-                    var blob = await global.OfficeIMO.exportCanopy(capture, format, options);
-                    if (context.signal.aborted) throw new DOMException('Export cancelled.', 'AbortError');
-                    var name = button.filename && button.filename !== '*' ? button.filename : context.fileName;
-                    return new File([blob], name + '.' + format, {type:blob.type});
                 }};
         });
         var configuration = {exportFormats:providers};
-        if (nativeMenu) configuration.exportMenu = {csv:false,copy:false,values:root.getAttribute('data-hfx-cx-officeimo-values') === 'raw' ? 'raw' : 'display'};
+        if (nativeMenu) configuration.exportMenu = {csv:false,copy:true,values:root.getAttribute('data-hfx-cx-officeimo-values') === 'raw' ? 'raw' : 'display'};
         global.CanopyX.configure(root.getAttribute('data-hfx-canopyx'), configuration);
         if (nativeMenu) return;
         var toolbar = root.querySelector('[data-hfx-cx-document-exports]'), scope = toolbar.querySelector('select');
@@ -208,7 +215,7 @@
                 scope:scope.value, values:root.getAttribute('data-hfx-cx-officeimo-values') === 'raw' ? 'raw' : 'display', signal:controller.signal,
                 onProgress:function (event) {if (operation === controller) status.textContent = event.completed + (event.total == null ? ' records' : ' of ' + event.total + ' records');}});})
                 .then(function () {status.textContent = 'Export ready.';}, function (failure) {
-                    status.textContent = failure.name === 'AbortError' ? 'Export cancelled.' : failure.message; if (failure.name !== 'AbortError') error(failure);
+                    status.textContent = failure.name === 'AbortError' ? 'Export cancelled.' : root.getAttribute('data-hfx-cx-export-failed');
                 }).finally(function () {operation = null; scope.disabled = false;
                     var returnFocus = controller.signal.aborted || document.activeElement === cancel; cancel.hidden = true;
                     Array.prototype.forEach.call(controls, function (control) {control.disabled = false;}); if (returnFocus) button.focus();});

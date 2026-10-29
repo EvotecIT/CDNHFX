@@ -1555,6 +1555,19 @@
   };
 
   // The report entity a row stands for (RowEntity): "type/key", with the key from the entity column.
+  // Manifest routes carry the actual dataset key, independently of the entity's own key.
+  Explorer.prototype.openRecordKey = function (key) {
+    if (!this.loaded || !this.ds || this.renderer && this.renderer.isQueryAccepted && !this.renderer.isQueryAccepted()) return false;
+    if (this.remote || this.ds.rowIdentity === 'ordinal' || !this.ds.keyColumn || this.cfg.drawer === false) return false;
+    for (var row = 0; row < this.ds.rows; row++) {
+      if (String(this.ds.keyColumn.raw(row)) === key) {
+        // A registered record can be outside the reader's current query. Show it alone without changing that query.
+        this.openDrawer(this.indexOfRow(row), row); return true;
+      }
+    }
+    return false;
+  };
+
   Explorer.prototype.entityOf = function (r) {
     var spec = this.cfg.rowEntity, col = spec && this.ds.column(spec.column);
     var key = col ? String(col.text(r, 'export') || '').trim() : '';
@@ -1587,9 +1600,10 @@
     return api.drawer;
   };
 
-  Explorer.prototype.openDrawer = function (index) {
-    if (index < 0 || index >= this.size()) return;
-    if (this.rowAt(index) < 0) {
+  Explorer.prototype.openDrawer = function (index, record) {
+    var detached = index < 0 && record !== undefined && record >= 0 && record < this.ds.rows;
+    if (!detached && (index < 0 || index >= this.size())) return;
+    if (!detached && this.rowAt(index) < 0) {
       // The page of the record is on its way: the drawer opens when it arrives.
       this.pendingDrawer = index;
       this.active = index;
@@ -1599,9 +1613,9 @@
     }
     var shell = this.shellDrawer();
     // The runtime keeps where focus returns to while the drawer is open, so every open can name it.
-    if (shell && shell.open(this.shellDrawerOptions(index, document.activeElement || this.viewport))) {
+    if (shell && shell.open(this.shellDrawerOptions(index, document.activeElement || this.viewport, record))) {
       this.inShellDrawer = true;
-      this.showRecord(index);
+      this.showRecord(index, record);
       return;
     }
     var d = ensureDrawer(), labels = this.labels;
@@ -1610,11 +1624,11 @@
     d.close.setAttribute('aria-label', labels.close); d.close.title = labels.close;
     d.prev.setAttribute('aria-label', labels.previous); d.prev.title = labels.previous;
     d.next.setAttribute('aria-label', labels.next); d.next.title = labels.next;
-    this.showRecord(index);
+    this.showRecord(index, record);
     this.fillDrawer(this.drawerRow);
-    d.pos.textContent = num(index + 1) + ' / ' + num(this.size());
-    d.prev.disabled = index <= 0;
-    d.next.disabled = index >= this.size() - 1;
+    d.pos.textContent = detached ? '1 / 1' : num(index + 1) + ' / ' + num(this.size());
+    d.prev.disabled = detached || index <= 0;
+    d.next.disabled = detached || index >= this.size() - 1;
     // The page under the drawer must not scroll; the report runtime does that without restyling <html>.
     if (window.hfxReport && window.hfxReport.drawer.guardScroll) window.hfxReport.drawer.guardScroll(d.wrap, d.body);
     d.wrap.hidden = false;
@@ -1622,30 +1636,32 @@
   };
 
   // Marks the record that is open and keeps its row in view.
-  Explorer.prototype.showRecord = function (index) {
-    this.active = index;
+  Explorer.prototype.showRecord = function (index, record) {
+    this.drawerDetached = index < 0;
+    if (!this.drawerDetached) this.active = index;
     this.pendingDrawer = -1;
-    this.drawerRow = this.rowAt(index);
-    this.scrollToIndex(index);
+    this.drawerRow = record === undefined ? this.rowAt(index) : record;
+    if (!this.drawerDetached) this.scrollToIndex(index);
     this.renderRows(false);
   };
 
   // What the shell drawer shows for a record: the dataset as the eyebrow, the title column as the title, the fields and
   // related rows as the body; stepping walks the rows of the explorer as they are filtered and sorted.
-  Explorer.prototype.shellDrawerOptions = function (index, returnFocus) {
-    var self = this, r = this.rowAt(index), head = this.recordHead(r);
+  Explorer.prototype.shellDrawerOptions = function (index, returnFocus, record) {
+    var self = this, r = record === undefined ? this.rowAt(index) : record, head = this.recordHead(r);
     var body = el('div', 'hfx-dx-record');
     if (head.sub) body.appendChild(el('p', 'hfx-dx-drawer-sub', head.sub));
     // The record is found again by its row, which survives a new order while the drawer is open.
-    this.renderRecord(body, r, function () { if (self.inShellDrawer) self.openDrawer(self.indexOfRow(self.drawerRow)); });
+    this.renderRecord(body, r, function () { if (self.inShellDrawer) self.openDrawer(self.indexOfRow(self.drawerRow), self.drawerRow); });
     return {
       shell: this.root, owner: this, eyebrow: head.eyebrow, title: head.title, content: body, size: 'regular',
-      index: index, count: this.size(), returnFocus: returnFocus || null,
+      index: index < 0 ? 0 : index, count: index < 0 ? 1 : this.size(), returnFocus: returnFocus || null,
       // openDrawer handles the ends, a remote row that is still on its way (it scrolls there and opens it when it
       // arrives) and filling the open drawer; the runtime has nothing more to do.
-      onStep: function (next) { self.openDrawer(next); return null; },
+      onStep: function (next) { if (index >= 0) self.openDrawer(next); return null; },
       onClose: function () {
         self.inShellDrawer = false;
+        self.drawerDetached = false;
         self.drawerRow = -1;
         self.pendingDrawer = -1;
         self.renderRows(false);
@@ -1654,6 +1670,7 @@
   };
 
   Explorer.prototype.stepDrawer = function (delta) {
+    if (this.drawerDetached) return;
     var i = this.indexOfRow(this.drawerRow);
     this.openDrawer(Math.max(0, Math.min(this.size() - 1, i + delta)));
   };

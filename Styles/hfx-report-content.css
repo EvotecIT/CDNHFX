@@ -9,6 +9,9 @@
   :where(:root):where(:not([data-hfx-design-system], [data-hfx-design-system] *)) {
     --hfx-font-sans: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
     --hfx-font-mono: "Cascadia Mono", "Cascadia Code", Consolas, "SFMono-Regular", Menlo, monospace;
+    --hfx-space-1: 0.25rem;
+    --hfx-space-4: 1rem;
+    --hfx-space-1-5: 6px;
     --hfx-radius-pill: 999px;
     --hfx-pattern-hatched: repeating-linear-gradient(135deg, color-mix(in srgb, currentColor 45%, transparent) 0 2px, transparent 2px calc(2px + 4px));
     --hfx-pattern-outline-width: 1.5px;
@@ -263,9 +266,7 @@
   border: var(--hfx-pattern-outline-width) var(--hfx-pattern-outline-style) var(--hfx-color-text-muted);
 }
 .hfx-shell-stale[hidden] { display: none; }
-/* ReportProvenancePlacement.TopBar: the provenance sits compactly in the chrome bar on wide screens and the line above
-   the pages takes over on narrow screens and in print. Items that do not fit wrap onto a hidden second row (they stay in
-   the accessibility tree); the stale badge sits outside the items, so it always stays. */
+/* Provenance stays visible on wide screens, wrapping to another line when needed. Narrow screens and print use the page copy. */
 .hfx-shell-bar-provenance { display: none; }
 @media screen and (min-width: 1200px) {
   .hfx-shell.has-bar-provenance .hfx-shell-provenance.is-bar-fallback { display: none; }
@@ -276,9 +277,9 @@
   .hfx-shell.has-bar-provenance .hfx-shell-bar-provenance + .hfx-shell-tools { margin-left: 0; }
   .hfx-shell.has-bar-provenance .hfx-shell-bar-provenance + .hfx-shell-bar-items { margin-left: 0; }
   .hfx-shell-bar-prov-items {
-    display: flex; flex-wrap: wrap; justify-content: flex-end; column-gap: 16px; row-gap: 18px; min-width: 0; height: 18px; overflow: hidden;
+    display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--hfx-space-1) var(--hfx-space-4); min-width: 0; padding-block: var(--hfx-space-1-5);
   }
-  .hfx-shell-bar-provenance .hfx-shell-prov-item { white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+  .hfx-shell-bar-provenance .hfx-shell-prov-item { max-width: 100%; flex-wrap: wrap; overflow-wrap: anywhere; }
   .hfx-shell-bar-provenance .hfx-shell-prov-label { color: var(--hfx-color-chrome-text-muted); }
   .hfx-shell-bar-provenance .hfx-shell-stale {
     flex: none; white-space: nowrap; padding: 0 9px; color: var(--hfx-color-chrome-text);
@@ -295,6 +296,7 @@
 .hfx-shell-main:has(> .hfx-shell-page[data-template="explorer"]:not([hidden])) { max-width: none; }
 .hfx-shell-drawer[data-size="regular"] { width: min(620px, 94vw); }
 .hfx-as .hfx-as-time { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.hfx-as .hfx-as-scopehead-detail.is-window { font-family: var(--hfx-font-sans); }
 .hfx-as .hfx-as-entity-link { color: var(--hfx-color-accent); font-weight: 500; text-decoration: none; }
 .hfx-as .hfx-as-entity-link:hover { text-decoration: underline; }
 

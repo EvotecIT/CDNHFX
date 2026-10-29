@@ -566,6 +566,7 @@
       // Commit the reader's entity address once, before a grid selects its row. A revealer may otherwise write
       // its own address first, replacing the source page and making Back remain on the entity's page.
       setHash(id, true);
+      if (entry.record && window.hfxReportRecords) { window.hfxReportRecords.open(entry.record, id); return true; }
       var anchor = entry.anchor && document.getElementById(entry.anchor);
       // An anchor inside content that has not loaded yet (a deferred region, an unopened chapter) is found by its
       // library, which keeps the entity's address. Without an anchor the entity may be a row inside a component of that
@@ -1092,6 +1093,19 @@
 
   function applyTimes(root) {
     var zone = timeZone();
+    qsa(root || document, '[data-hfx-window-start]').forEach(function (node) {
+      var start = new Date(node.getAttribute('data-hfx-window-start')), end = new Date(node.getAttribute('data-hfx-window-end'));
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) return;
+      var options = { year: 'numeric', month: 'short', day: 'numeric' };
+      if (end - start < 172800000) { options.hour = '2-digit'; options.minute = '2-digit'; options.hourCycle = 'h23'; }
+      if (zone === 'utc') options.timeZone = 'UTC';
+      var formatter = new Intl.DateTimeFormat(node.getAttribute('data-hfx-window-culture') || 'en', options);
+      var suffix = zone === 'utc' ? 'UTC' : offsetLabel(start);
+      if (zone !== 'utc' && offsetLabel(end) !== suffix) suffix += ' / ' + offsetLabel(end);
+      node.textContent = (start.getTime() === end.getTime() ? formatter.format(start) :
+        typeof formatter.formatRange === 'function' ? formatter.formatRange(start, end) : formatter.format(start) + ' – ' + formatter.format(end)) +
+        ' ' + suffix;
+    });
     qsa(root || document, 'time[data-hfx-time]').forEach(function (node) {
       var date = new Date(node.getAttribute('datetime') || '');
       if (isNaN(date.getTime())) return;

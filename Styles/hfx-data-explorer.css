@@ -185,6 +185,7 @@
 .hfx-dx-menuitem:hover { background: var(--hfx-color-surface-sunken); }
 .hfx-dx-note { margin: 0; color: var(--hfx-color-text-muted); font-size: var(--hfx-type-caption-size); }
 .hfx-dx-export-scope { display: grid; gap: var(--hfx-space-1-5); color: var(--hfx-color-text-secondary); font: 600 12px/1.4 var(--hfx-font-sans); }
+.hfx-dx-export-scope, .hfx-dx-export-scope > select { min-width: 0; max-width: 100%; box-sizing: border-box; }
 .hfx-dx-colgroup { margin: 6px 0 0; font: 700 10.5px/1.2 var(--hfx-font-sans); letter-spacing: .08em; text-transform: uppercase; color: var(--hfx-color-text-muted); }
 .hfx-dx-collist { display: flex; flex-direction: column; gap: 2px; }
 .hfx-dx-colrow { display: flex; align-items: center; gap: var(--hfx-space-1); }

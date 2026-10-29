@@ -143,6 +143,8 @@ body:has(.hfx-shell) { background: var(--hfx-color-surface-page); }
 /* ReportShell.BarItem: compact host items (a hosted page's connection status) between the provenance and the tools. */
 .hfx-shell-bar-items { margin-left: auto; display: flex; align-items: center; gap: var(--hfx-space-2); flex: none; min-width: 0; }
 .hfx-shell-bar-items + .hfx-shell-tools { margin-left: 0; }
+.hfx-shell-bar .btn[data-hfx-button="ghost"] { color: var(--hfx-color-chrome-text); background: transparent; border-color: transparent; }
+.hfx-shell-bar .btn[data-hfx-button="ghost"]:is(:hover, :focus-visible, [aria-expanded="true"]) { color: var(--hfx-color-chrome-text); background: color-mix(in srgb, var(--hfx-color-chrome-text) 6%, transparent); }
 .hfx-shell-tool {
   width: 34px; height: 34px; border-radius: var(--hfx-radius-control); border: 1px solid color-mix(in srgb, var(--hfx-color-chrome-text) 14%, transparent); padding: 0;
   background: none; color: var(--hfx-color-chrome-text-muted); display: inline-flex; align-items: center; justify-content: center; cursor: pointer;

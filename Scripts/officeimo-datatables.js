@@ -5,32 +5,47 @@ const officeimo = root.OfficeIMO || (root.OfficeIMO = {});
 const cacheKey = Symbol.for("@evotecit/officeimo/modules");
 const _modules = officeimo[cacheKey] || new Map();
 if (!officeimo[cacheKey]) Object.defineProperty(officeimo, cacheKey, { value: _modules });
-const _m2 = _modules.get("dd969d5cbc3aef12718d139818e6c9d43dad3dcfea78483f90bae652bce46f53") ?? (() => {
+const _m2 = _modules.get("d5c945064d81fdd257960f48c421125e106e5f270427d170bb05587dd96a44ea") ?? (() => {
+const errorBrand = Symbol.for("@evotecit/officeimo/OfficeIMOError");
+const unsupportedBrand = Symbol.for("@evotecit/officeimo/NotSupportedError");
 class OfficeIMOError extends Error {
     code;
+    static [Symbol.hasInstance](value) {
+        // Inherited checks on user subclasses must retain their own prototype identity.
+        if (this !== OfficeIMOError)
+            return Function.prototype[Symbol.hasInstance].call(this, value);
+        return !!value && typeof value === "object" && value[errorBrand] === true;
+    }
     constructor(code, message, options) {
         super(message, options);
         this.code = code;
+        Object.defineProperty(this, errorBrand, { value: true });
         this.name = "OfficeIMOError";
     }
 }
 class NotSupportedError extends OfficeIMOError {
     feature;
+    static [Symbol.hasInstance](value) {
+        if (this !== NotSupportedError)
+            return Function.prototype[Symbol.hasInstance].call(this, value);
+        return !!value && typeof value === "object" && value[unsupportedBrand] === true;
+    }
     constructor(feature) {
         super("NOT_SUPPORTED", feature + " is not supported yet.");
         this.feature = feature;
+        Object.defineProperty(this, unsupportedBrand, { value: true });
         this.name = "NotSupportedError";
     }
 }
 const _exports = Object.freeze({ OfficeIMOError: OfficeIMOError, NotSupportedError: NotSupportedError });
-_modules.set("dd969d5cbc3aef12718d139818e6c9d43dad3dcfea78483f90bae652bce46f53", _exports);
+_modules.set("d5c945064d81fdd257960f48c421125e106e5f270427d170bb05587dd96a44ea", _exports);
 return _exports;
 })();
 
-const _m4 = _modules.get("1ae4f4554ececbf0fc1e5d32f40275e35f228dca922cfc0760ae681fd9690d7e") ?? (() => {
+const _m4 = _modules.get("87c24efeaa0f1579c19afeeb4918caeb4f8f65a88d24a246e2cfd712b37dbac3") ?? (() => {
 function checkAbort(signal) {
     if (signal?.aborted)
-        throw signal.reason ?? new DOMException("Export cancelled.", "AbortError");
+        throw signal.reason;
 }
 /** Race a pending producer or sink operation without leaving abort listeners behind. */
 function withAbort(promise, signal) {
@@ -38,7 +53,7 @@ function withAbort(promise, signal) {
         return Promise.resolve(promise);
     return new Promise((resolve, reject) => {
         const cleanup = () => signal.removeEventListener("abort", abort);
-        const abort = () => { cleanup(); reject(signal.reason ?? new DOMException("Export cancelled.", "AbortError")); };
+        const abort = () => { cleanup(); reject(signal.reason); };
         signal.addEventListener("abort", abort, { once: true });
         Promise.resolve(promise).then(value => { cleanup(); resolve(value); }, error => { cleanup(); reject(error); });
         if (signal.aborted)
@@ -178,11 +193,11 @@ function pause() {
     });
 }
 const _exports = Object.freeze({ checkAbort: checkAbort, withAbort: withAbort, inputRows: inputRows, rowsFromBatches: rowsFromBatches, concatRows: concatRows, consumeRows: consumeRows, beginTask: beginTask, taskYieldDue: taskYieldDue, pause: pause });
-_modules.set("1ae4f4554ececbf0fc1e5d32f40275e35f228dca922cfc0760ae681fd9690d7e", _exports);
+_modules.set("87c24efeaa0f1579c19afeeb4918caeb4f8f65a88d24a246e2cfd712b37dbac3", _exports);
 return _exports;
 })();
 
-const _m3 = _modules.get("30899b95dd5dd6f624c2452b62f806fd950961d21a48ccf9c2dfb3452abb67a9") ?? (() => {
+const _m3 = _modules.get("5337d1e3bd5ae0c1d10a476fcd31540d20337ccf7aa93c7e9e26c2b1a7dab92b") ?? (() => {
 const { checkAbort, consumeRows, withAbort, pause, taskYieldDue } = _m4;
 
 const { OfficeIMOError } = _m2;
@@ -192,8 +207,9 @@ async function withDestination(destination, operation) {
     // Native streams can belong to another browser realm; constructor identity is not portable.
     if (destination && typeof destination.getWriter === "function") {
         const writer = destination.getWriter();
+        // Native streams may retain accepted chunks after write resolves.
         try {
-            return await operation({ write: bytes => writer.write(bytes) });
+            return await operation({ write: bytes => writer.write(new Uint8Array(bytes)) });
         }
         finally {
             writer.releaseLock();
@@ -287,7 +303,7 @@ async function writeBytes(source, sink, signal) {
     });
 }
 const _exports = Object.freeze({ withDestination: withDestination, BlobByteSink: BlobByteSink, ChunkedTextSink: ChunkedTextSink, writeBytes: writeBytes });
-_modules.set("30899b95dd5dd6f624c2452b62f806fd950961d21a48ccf9c2dfb3452abb67a9", _exports);
+_modules.set("5337d1e3bd5ae0c1d10a476fcd31540d20337ccf7aa93c7e9e26c2b1a7dab92b", _exports);
 return _exports;
 })();
 
@@ -313,30 +329,53 @@ _modules.set("501f5fccaecb27d9e514b74cf64893649e50616692250593d120ca315b510c04",
 return _exports;
 })();
 
-const _m7 = _modules.get("e3ffb91cf46091b5b178d3d4d7b158f52cf21d2ee0e7dfe1fb5140810fd7fecb") ?? (() => {
+const _m7 = _modules.get("d363b84eac65064b2e372063af61a4e9e5c576501693c862628297c812ba7832") ?? (() => {
 /** @internal One target policy shared by document writers and portable cells. */
 function copyExportLink(link) {
-    if (!link || typeof link !== "object" || typeof link.target !== "string" ||
-        !/^(?:https?:\/\/|mailto:)/i.test(link.target) || /[\u0000-\u0020\u007f]/.test(link.target))
+    if (!link || typeof link !== "object")
         throw new TypeError("Hyperlinks require an absolute HTTP, HTTPS or mailto target without whitespace or controls.");
-    const url = new URL(link.target);
+    const { target, tooltip } = link;
+    if (typeof target !== "string" || !/^(?:https?:\/\/|mailto:)/i.test(target) || /[\u0000-\u0020\u007f]/.test(target))
+        throw new TypeError("Hyperlinks require an absolute HTTP, HTTPS or mailto target without whitespace or controls.");
+    const url = new URL(target);
     if ((url.protocol === "http:" || url.protocol === "https:") && (!url.hostname || url.username || url.password))
         throw new TypeError("Hyperlink HTTP targets need a host and must not contain credentials.");
-    if (link.tooltip !== undefined && typeof link.tooltip !== "string")
+    if (tooltip !== undefined && typeof tooltip !== "string")
         throw new TypeError("Hyperlink tooltip must be text.");
-    return Object.freeze({ target: url.href, ...(link.tooltip === undefined ? {} : { tooltip: link.tooltip }) });
+    return Object.freeze({ target: url.href, ...(tooltip === undefined ? {} : { tooltip }) });
 }
 const _exports = Object.freeze({ copyExportLink: copyExportLink });
-_modules.set("e3ffb91cf46091b5b178d3d4d7b158f52cf21d2ee0e7dfe1fb5140810fd7fecb", _exports);
+_modules.set("d363b84eac65064b2e372063af61a4e9e5c576501693c862628297c812ba7832", _exports);
 return _exports;
 })();
 
-const _m5 = _modules.get("f79dd9ca01bb1864831e26b384a6612a1eb631936d358dd2a008a894dbceb4fd") ?? (() => {
+const _m5 = _modules.get("732224f6995c2478cf33a6ed01f3e3d3dcccb159a731d6db9280104bd5040fc5") ?? (() => {
 const { isDate } = _m6;
 
 const { copyExportLink } = _m7;
 
 const exportCellBrand = Symbol.for("@evotecit/officeimo/ExportCell");
+/** @internal Capture only portable scalar presentation fields before retaining or cloning a cell. */
+function copyCellPresentation(value) {
+    if (!value || typeof value !== "object" || Array.isArray(value))
+        throw new TypeError("Cell presentation must be an object.");
+    const result = {};
+    for (const key of ["background", "color", "numberFormat", "bold", "italic", "wrapText", "alignment"]) {
+        const field = value[key];
+        if (field === undefined)
+            continue;
+        if (["bold", "italic", "wrapText"].includes(key)) {
+            if (typeof field !== "boolean")
+                throw new TypeError("Cell presentation " + key + " must be boolean.");
+        }
+        else if (typeof field !== "string")
+            throw new TypeError("Cell presentation " + key + " must be text.");
+        if (key === "alignment" && !["left", "center", "right", "fill", "justify", "distributed"].includes(field))
+            throw new TypeError("Invalid cell presentation alignment.");
+        result[key] = field;
+    }
+    return Object.freeze(result);
+}
 /** One resolved value/presentation decision that can be reused across exports. Strings remain literal data. */
 class ExportCell {
     value;
@@ -346,12 +385,13 @@ class ExportCell {
     link;
     constructor(value, options = {}) {
         this.value = value;
-        if (options.text !== undefined && typeof options.text !== "string")
+        const { text, presentation, link } = options;
+        if (text !== undefined && typeof text !== "string")
             throw new TypeError("Display text must be a string.");
         assertScalar(value);
-        this.text = options.text;
-        this.presentation = options.presentation === undefined ? undefined : Object.freeze({ ...options.presentation });
-        this.link = options.link === undefined ? undefined : copyExportLink(options.link);
+        this.text = text;
+        this.presentation = presentation === undefined ? undefined : copyCellPresentation(presentation);
+        this.link = link === undefined ? undefined : copyExportLink(link);
         Object.defineProperty(this, exportCellBrand, { value: true });
         Object.freeze(this);
     }
@@ -371,12 +411,521 @@ function assertExportValue(value) {
         return;
     assertScalar(value);
 }
-const _exports = Object.freeze({ ExportCell: ExportCell, assertScalar: assertScalar, assertExportValue: assertExportValue });
-_modules.set("f79dd9ca01bb1864831e26b384a6612a1eb631936d358dd2a008a894dbceb4fd", _exports);
+const _exports = Object.freeze({ copyCellPresentation: copyCellPresentation, ExportCell: ExportCell, assertScalar: assertScalar, assertExportValue: assertExportValue });
+_modules.set("732224f6995c2478cf33a6ed01f3e3d3dcccb159a731d6db9280104bd5040fc5", _exports);
 return _exports;
 })();
 
-const _m1 = _modules.get("9e9621bba11170b44ed2da3db9d8769784402a320771933ef68ba6b9d9f10a31") ?? (() => {
+const _m10 = _modules.get("50b3c10b690ceff693c8c5f809195ba6845b20e60f408e791a750d2ecbd5c669") ?? (() => {
+/** Capture a structural option record before validation or asynchronous work.
+ * Own fields and supported prototype accessors are read once. Nested values remain
+ * borrowed until their owning format captures or validates them. */
+function captureFields(input, fields) {
+    const captured = { ...input };
+    for (const field of fields) {
+        if (Object.hasOwn(captured, field))
+            continue;
+        const value = input[field];
+        if (value !== undefined)
+            captured[field] = value;
+    }
+    return captured;
+}
+const _exports = Object.freeze({ captureFields: captureFields });
+_modules.set("50b3c10b690ceff693c8c5f809195ba6845b20e60f408e791a750d2ecbd5c669", _exports);
+return _exports;
+})();
+
+const _m9 = _modules.get("42faf379960e5674a6fdfa8c8fca0bb68bbd74587231248d2524d7004def3671") ?? (() => {
+const { OfficeIMOError } = _m2;
+
+const { captureFields } = _m10;
+
+/** @internal Check before accepting the next value or chunk. */
+class ExportBudget {
+    cells = 0;
+    text = 0;
+    reservedCells = 0;
+    reservedText = 0;
+    limits;
+    constructor(limits = {}) {
+        if (!limits || typeof limits !== "object" || Array.isArray(limits))
+            throw new TypeError("Export limits must be an object.");
+        // Capture before validation. Supported class getters are ordinary structural
+        // options too, and an accessor must not change the ceiling after validation.
+        const captured = captureFields(limits, ["maxRows", "maxCells", "maxTextCharacters", "maxOutputBytes"]);
+        for (const [key, value] of Object.entries(captured))
+            if (value !== undefined && (!Number.isSafeInteger(value) || value < 0))
+                throw new RangeError(key + " must be a nonnegative safe integer.");
+        this.limits = Object.freeze(captured);
+    }
+    check(kind, value) {
+        const maximum = this.limits[kind];
+        if (maximum !== undefined && value > maximum)
+            throw new OfficeIMOError("RESOURCE_LIMIT", kind + " exceeded (" + value + " > " + maximum + ").");
+    }
+    row(count) { this.check("maxRows", count); }
+    reserve(cells, characters) {
+        this.check("maxCells", this.cells + this.reservedCells + cells);
+        this.check("maxTextCharacters", this.text + this.reservedText + characters);
+        this.reservedCells += cells;
+        this.reservedText += characters;
+    }
+    release(cells, characters) { this.reservedCells -= cells; this.reservedText -= characters; }
+    cell(value, reservedCharacters) {
+        if (reservedCharacters !== undefined)
+            this.release(1, reservedCharacters);
+        // Immutable limits cannot acquire a ceiling later. Avoid per-cell accounting
+        // when neither emitted-cell nor text totals are observable by a resource cap.
+        if (this.limits.maxCells === undefined && this.limits.maxTextCharacters === undefined)
+            return;
+        this.check("maxCells", this.cells + this.reservedCells + 1);
+        const length = typeof value === "string" ? value.length : 0;
+        this.check("maxTextCharacters", this.text + this.reservedText + length);
+        this.cells++;
+        this.text += length;
+    }
+}
+/** @internal Ownership stays with the caller. */
+function boundedSink(sink, budget) {
+    let bytes = 0;
+    return { write(chunk) {
+            budget.check("maxOutputBytes", bytes + chunk.length);
+            bytes += chunk.length;
+            return sink.write(chunk);
+        } };
+}
+const _exports = Object.freeze({ ExportBudget: ExportBudget, boundedSink: boundedSink });
+_modules.set("42faf379960e5674a6fdfa8c8fca0bb68bbd74587231248d2524d7004def3671", _exports);
+return _exports;
+})();
+
+const _m11 = _modules.get("0391fe35ea7d02b25804ab4d0e7543136d6bb615f368f268c74aa135f23aa6bc") ?? (() => {
+const { assertExportValue } = _m5;
+
+const { checkAbort } = _m4;
+
+const { isDate } = _m6;
+
+const { captureFields } = _m10;
+
+function createRowProjector(columns, worksheet, signal, validate = assertExportValue) {
+    const getters = columns.some(column => column.value);
+    return (row, rowIndex = 0) => {
+        if (Array.isArray(row) && !getters) {
+            const length = row.length;
+            if (length > columns.length)
+                throw new RangeError("Row has more values than declared columns.");
+            // Resolve each positional value once, just like key/value projections. Returning the
+            // source array would let an accessor change a value after the portable-value check.
+            const values = new Array(length);
+            for (let index = 0; index < length; index++) {
+                const value = row[index];
+                validate(value);
+                values[index] = value;
+            }
+            return values;
+        }
+        if (!row || typeof row !== "object" || isDate(row))
+            throw new TypeError("A row must be an array or object.");
+        if (Array.isArray(row) && row.length > columns.length && !columns.every(column => column.value))
+            throw new RangeError("Project every column explicitly when selecting from a wider array row.");
+        return columns.map((c, columnIndex) => {
+            if (c.value) {
+                checkAbort(signal);
+                const context = { rowIndex, columnIndex, column: c,
+                    ...(worksheet ? { sheetName: worksheet.sheetName, worksheetRow: worksheet.firstDataRow + rowIndex } : {}) };
+                const result = c.value(row, context);
+                validate(result);
+                checkAbort(signal);
+                return result;
+            }
+            if (Array.isArray(row)) {
+                const result = row[columnIndex];
+                validate(result);
+                return result;
+            }
+            const key = c.key ?? c.header;
+            const result = Object.prototype.hasOwnProperty.call(row, key) ? row[key] : undefined;
+            validate(result);
+            return result;
+        });
+    };
+}
+/** @internal Shared metadata fields for full columns and adapter-owned partial overrides. */
+const columnOptionFields = ["header", "key", "value", "width", "type", "format", "wrapText", "alignment", "rowHeader", "groups", "style", "valueFormatter"];
+function copyColumns(columns, workbookStyles = false) {
+    if (!Array.isArray(columns))
+        throw new TypeError("Declare the columns in export order.");
+    return columns.map(c => {
+        if (!c || typeof c !== "object" && typeof c !== "function")
+            throw new TypeError("Each column needs a string header and an optional string key.");
+        // Own extension metadata remains available to its format owner. Capture the
+        // supported structural fields even when a class exposes prototype getters.
+        const captured = captureFields(c, columnOptionFields);
+        if (!workbookStyles && captured.style !== undefined)
+            throw new TypeError("Workbook-local column styles require the advanced Workbook API; use portable ExportCell presentation.");
+        if (typeof captured.header !== "string" || (captured.key !== undefined && typeof captured.key !== "string"))
+            throw new TypeError("Each column needs a string header and an optional string key.");
+        if (captured.value !== undefined && typeof captured.value !== "function")
+            throw new TypeError("Column value getters must be functions.");
+        if (captured.rowHeader !== undefined && typeof captured.rowHeader !== "boolean")
+            throw new TypeError("Column rowHeader must be boolean.");
+        if (captured.groups !== undefined) {
+            if (!Array.isArray(captured.groups))
+                throw new TypeError("Column groups must be an array of strings.");
+            const groups = Array.from(captured.groups);
+            if (groups.some(group => typeof group !== "string"))
+                throw new TypeError("Column groups must be an array of strings.");
+            return { ...captured, groups: Object.freeze(groups) };
+        }
+        return captured;
+    });
+}
+const _exports = Object.freeze({ createRowProjector: createRowProjector, columnOptionFields: columnOptionFields, copyColumns: copyColumns });
+_modules.set("0391fe35ea7d02b25804ab4d0e7543136d6bb615f368f268c74aa135f23aa6bc", _exports);
+return _exports;
+})();
+
+const _m12 = _modules.get("c9fde2c438e186da56f740105fcd41c265fdfdd855a4f1b811d556a02387479b") ?? (() => {
+class NumericAggregate {
+    operation;
+    count = 0;
+    sum = 0;
+    mean = 0;
+    min = Infinity;
+    max = -Infinity;
+    constructor(operation) {
+        this.operation = operation;
+    }
+    accept(value) {
+        if (!this.operation || typeof value !== "number" || !Number.isFinite(value))
+            return;
+        this.count++;
+        if (this.operation === "sum") {
+            this.sum += value;
+            if (!Number.isFinite(this.sum))
+                throw new RangeError("Numeric total exceeds finite number range.");
+        }
+        else if (this.operation === "average") {
+            const delta = value - this.mean;
+            this.mean = this.count === 1 ? value : Number.isFinite(delta) ? this.mean + delta / this.count : this.mean * ((this.count - 1) / this.count) + value / this.count;
+        }
+        else if (this.operation === "min")
+            this.min = Math.min(this.min, value);
+        else if (this.operation === "max")
+            this.max = Math.max(this.max, value);
+    }
+    value() {
+        return this.operation === "count" ? this.count : this.operation === "sum" ? this.sum : !this.count ? null : this.operation === "average" ? this.mean : this.operation === "min" ? this.min : this.max;
+    }
+}
+function createTotals(columns, totals = {}) {
+    const keys = columns.map(c => c.key ?? c.header);
+    for (const [key, operation] of Object.entries(totals)) {
+        if (keys.filter(k => k === key).length !== 1)
+            throw new TypeError("Totals need an unambiguous declared column key: " + key);
+        if (!["sum", "count", "average", "min", "max"].includes(operation))
+            throw new TypeError("Invalid total operation.");
+    }
+    return keys.map(key => new NumericAggregate(Object.prototype.hasOwnProperty.call(totals, key) ? totals[key] : undefined));
+}
+const _exports = Object.freeze({ NumericAggregate: NumericAggregate, createTotals: createTotals });
+_modules.set("c9fde2c438e186da56f740105fcd41c265fdfdd855a4f1b811d556a02387479b", _exports);
+return _exports;
+})();
+
+const _m13 = _modules.get("e95bb0e3f342d1379b67a3d541fa808e06361da8460169a6aec152ee7deb69b2") ?? (() => {
+const { ExportCell, assertExportValue } = _m5;
+
+const { isDate } = _m6;
+
+/** Copy portable values when an operation retains metadata or a projected row beyond its producer's turn. */
+function copyExportValue(value) {
+    assertExportValue(value);
+    if (isDate(value))
+        return new Date(Date.prototype.getTime.call(value));
+    if (value instanceof ExportCell) {
+        const { value: scalar, text, presentation, link } = value;
+        return new ExportCell(isDate(scalar) ? new Date(Date.prototype.getTime.call(scalar)) : scalar, { ...(text === undefined ? {} : { text }), ...(presentation === undefined ? {} : { presentation }),
+            ...(link === undefined ? {} : { link }) });
+    }
+    return value;
+}
+const _exports = Object.freeze({ copyExportValue: copyExportValue });
+_modules.set("e95bb0e3f342d1379b67a3d541fa808e06361da8460169a6aec152ee7deb69b2", _exports);
+return _exports;
+})();
+
+const _m8 = _modules.get("046b305cdccf817d847addb75a778131622de23f2840830bbe1c0c26053a68c0") ?? (() => {
+const { ExportCell, assertScalar } = _m5;
+
+const { isDate } = _m6;
+
+const { checkAbort, inputRows, pause, taskYieldDue } = _m4;
+
+const { ExportBudget } = _m9;
+
+const { OfficeIMOError } = _m2;
+
+const { copyColumns, createRowProjector } = _m11;
+
+const { createTotals } = _m12;
+
+const { copyExportValue } = _m13;
+
+const sources = new WeakMap();
+/** @internal Writers accept the owned immutable event source rather than trusting caller-authored event protocols. */
+function assertGroupedReportSource(value) {
+    if (!value || typeof value !== "object" || !sources.has(value))
+        throw new TypeError("Create grouped report sources with createGroupedReport.");
+}
+/** @internal The consuming writer's signal reaches pending source reads as well as destination writes. */
+function groupedReportEvents(source, signal) {
+    assertGroupedReportSource(source);
+    return { async *[Symbol.asyncIterator]() {
+            const operation = groupedReportOperation(source, signal);
+            try {
+                yield* operation.events;
+            }
+            finally {
+                operation.dispose();
+            }
+        } };
+}
+/** @internal Share cancellation between original source reads and destination writes; callers dispose in finally. */
+function groupedReportOperation(source, signal) {
+    assertGroupedReportSource(source);
+    const factory = sources.get(source), linked = linkedSignals(factory.signal, signal);
+    return { signal: linked.signal, events: factory.events(linked.signal), dispose: linked.dispose };
+}
+function linkedSignals(source, consumer) {
+    if (!source || !consumer || source === consumer)
+        return { signal: source ?? consumer, dispose() { } };
+    const controller = new AbortController(), abortSource = () => controller.abort(source.reason), abortConsumer = () => controller.abort(consumer.reason);
+    source.addEventListener("abort", abortSource, { once: true });
+    consumer.addEventListener("abort", abortConsumer, { once: true });
+    if (source.aborted)
+        abortSource();
+    else if (consumer.aborted)
+        abortConsumer();
+    return { signal: controller.signal, dispose() { source.removeEventListener("abort", abortSource); consumer.removeEventListener("abort", abortConsumer); } };
+}
+function maximum(value, fallback, name) {
+    const result = value ?? fallback;
+    if (!Number.isSafeInteger(result) || result < 0)
+        throw new RangeError(name + " must be a nonnegative safe integer.");
+    return result;
+}
+function scalar(value) { return value instanceof ExportCell ? value.value : value; }
+function identity(value) {
+    if (value == null)
+        return { key: null, id: "null", text: "" };
+    if (isDate(value)) {
+        const time = Date.prototype.getTime.call(value);
+        if (!Number.isFinite(time))
+            throw new TypeError("A group key date must be valid.");
+        return { key: new Date(time), id: "date:" + time, text: new Date(time).toISOString() };
+    }
+    if (typeof value === "number" && !Number.isFinite(value))
+        throw new TypeError("A numeric group key must be finite.");
+    const text = String(value);
+    return { key: value, id: typeof value + ":" + text, text };
+}
+function eventKey(value) { return isDate(value) ? new Date(Date.prototype.getTime.call(value)) : value; }
+function result(aggregates) {
+    return Object.freeze(aggregates.map(aggregate => aggregate.operation === undefined ? null : aggregate.value()));
+}
+function groupingLevels(input, keys, groupLabel) {
+    const selected = typeof input === "string" ? [input] : Array.isArray(input) ? Array.from(input) : undefined;
+    if (!selected || selected.length < 1 || selected.length > 4)
+        throw new TypeError("groupBy must declare between one and four grouping levels.");
+    if (groupLabel !== undefined && typeof groupLabel !== "function")
+        throw new TypeError("groupLabel must be a synchronous function.");
+    if (groupLabel && selected.length !== 1)
+        throw new TypeError("groupLabel is only available for one grouping level; use descriptor labels for a hierarchy.");
+    const seen = new Set();
+    return Object.freeze(selected.map(level => {
+        if (typeof level !== "string" && (!level || typeof level !== "object" || Array.isArray(level)))
+            throw new TypeError("A grouping level must name a stable column key or provide a descriptor.");
+        // Supported structural fields, including prototype accessors, are captured once.
+        const { key, value, label } = typeof level === "string" ? { key: level, value: undefined, label: undefined } : level;
+        if (typeof key !== "string" || !key.length || seen.has(key))
+            throw new TypeError("Grouping levels need unique, nonempty stable keys.");
+        seen.add(key);
+        if (value !== undefined && typeof value !== "function")
+            throw new TypeError("Grouping value getters must be synchronous functions.");
+        if (label !== undefined && typeof label !== "function")
+            throw new TypeError("Grouping labels must be synchronous functions.");
+        if (label && groupLabel)
+            throw new TypeError("Specify either groupLabel or the grouping descriptor label.");
+        const column = keys.indexOf(key);
+        if (column >= 0 && value !== undefined)
+            throw new TypeError("A declared grouping column reuses its projected value; do not provide another value getter.");
+        if (column < 0 && value === undefined)
+            throw new TypeError("groupBy must name a declared stable column key; hidden grouping fields need an explicit value getter.");
+        return Object.freeze({ key, column, value, label: label ?? groupLabel });
+    }));
+}
+/** Copy date keys on every event so a consumer cannot mutate later hierarchy decisions. */
+function groupPath(active) {
+    return Object.freeze(active.map(({ group }) => Object.freeze({ ...group, key: eventKey(group.key) })));
+}
+function labelText(format, key, fallback) {
+    if (!format)
+        return fallback;
+    const formatted = format(eventKey(key));
+    if (typeof formatted?.then === "function")
+        void Promise.resolve(formatted).catch(() => { });
+    if (typeof formatted !== "string")
+        throw new TypeError("Grouping labels must return synchronous text.");
+    return formatted;
+}
+/** Group a preordered row source once. Closed-group recurrence within the same parent rejects.
+ * Equality is locale independent: strings are exact, numbers and booleans retain their types, dates compare
+ * by UTC instant, and null/undefined share one group. No sorting or complete group-body retention occurs. */
+function createGroupedReport(rows, options) {
+    if (!options || typeof options !== "object")
+        throw new TypeError("Grouped report options are required.");
+    // Capture configuration before validation so accessors cannot select different columns in later stages.
+    const { columns: selected, groupBy, totals: selectedTotals, groupLabel, maxGroups: requestedGroups, maxGroupKeyCharacters: requestedCharacters, signal: sourceSignal, limits } = options;
+    if (limits !== undefined && (!limits || typeof limits !== "object" || Array.isArray(limits)))
+        throw new TypeError("Grouped source limits must be an object.");
+    if (limits !== undefined && "maxOutputBytes" in limits)
+        throw new TypeError("Set maxOutputBytes on the format writer, not the grouped source.");
+    if (!Array.isArray(selected) || !selected.length)
+        throw new TypeError("A grouped report needs declared columns.");
+    const columns = copyColumns(selected);
+    const keys = columns.map(column => column.key);
+    if (keys.some(key => typeof key !== "string" || key.length === 0) || new Set(keys).size !== keys.length)
+        throw new TypeError("Grouped report columns need unique, nonempty stable keys.");
+    const levels = groupingLevels(groupBy, keys, groupLabel);
+    const totals = Object.freeze({ ...selectedTotals });
+    const grand = createTotals(columns, totals);
+    for (let column = 0; column < columns.length; column++)
+        if (grand[column].operation !== undefined && columns[column].type !== "number")
+            throw new TypeError("Grouped numeric totals require a column declared with type:number.");
+    const maxGroups = maximum(requestedGroups, 1000, "maxGroups");
+    const maxCharacters = maximum(requestedCharacters, 1000000, "maxGroupKeyCharacters");
+    const budget = new ExportBudget(limits);
+    const portable = Object.freeze(columns.map(column => {
+        const { value: _getter, ...metadata } = column;
+        return Object.freeze(metadata);
+    }));
+    for (const column of columns) {
+        budget.cell(column.header);
+        for (const group of column.groups ?? [])
+            budget.reserve(0, group.length);
+        Object.freeze(column);
+    }
+    let consumed = false;
+    const eventsFor = (signal) => Object.freeze({ [Symbol.asyncIterator]() {
+            if (consumed)
+                throw new TypeError("A grouped report source can be consumed only once.");
+            consumed = true;
+            return iterate(signal);
+        } });
+    const events = eventsFor(sourceSignal);
+    async function* iterate(signal) {
+        const project = createRowProjector(columns, undefined, signal);
+        const seen = new Set(), active = [];
+        let characters = 0, rowCount = 0, groups = 0;
+        for await (const input of inputRows(rows, signal)) {
+            // Copy positional input once before the shared projector validates and inspects its values.
+            const snapshot = Array.isArray(input) ? Array.from(input) : input;
+            const projected = project(snapshot, rowCount), values = [];
+            for (let column = 0; column < columns.length; column++)
+                values.push(copyExportValue(projected[column]) ?? null);
+            checkAbort(signal);
+            const next = levels.map((level, index) => {
+                checkAbort(signal);
+                const value = level.column >= 0 ? scalar(values[level.column]) : level.value(snapshot, Object.freeze({ rowIndex: rowCount, level: index, key: level.key }));
+                assertScalar(value);
+                checkAbort(signal);
+                return identity(value);
+            });
+            budget.row(rowCount + 1);
+            for (let column = 0; column < values.length; column++) {
+                const value = values[column], raw = scalar(value);
+                if (grand[column].operation !== undefined && raw != null && (typeof raw !== "number" || !Number.isFinite(raw)))
+                    throw new TypeError("Grouped numeric metrics must resolve to finite numbers or null.");
+                budget.cell(raw);
+                if (value instanceof ExportCell && value.text !== undefined)
+                    budget.reserve(0, value.text.length);
+            }
+            let common = 0;
+            while (common < active.length && active[common].id === next[common].id)
+                common++;
+            const pending = [];
+            for (let level = common; level < levels.length; level++) {
+                const value = next[level], parent = pending.at(-1) ?? active[level - 1];
+                // Parent indexes are generated integers, so scalar strings containing delimiters cannot collide.
+                const scopedId = (parent?.group.groupIndex ?? -1) + ":" + value.id;
+                if (seen.has(scopedId))
+                    throw new TypeError("Grouped rows must be contiguous; a closed group key occurred again within the same parent.");
+                if (groups === maxGroups)
+                    throw new OfficeIMOError("RESOURCE_LIMIT", "maxGroups exceeded.");
+                const label = labelText(levels[level].label, value.key, value.text);
+                checkAbort(signal);
+                const nextCharacters = characters + scopedId.length + label.length;
+                if (!Number.isSafeInteger(nextCharacters) || nextCharacters > maxCharacters)
+                    throw new OfficeIMOError("RESOURCE_LIMIT", "maxGroupKeyCharacters exceeded.");
+                budget.reserve(0, label.length);
+                pending.push({ id: value.id, group: Object.freeze({ groupIndex: groups, key: value.key, label, level }),
+                    rows: 0, aggregates: createTotals(columns, totals) });
+                characters = nextCharacters;
+                seen.add(scopedId);
+                groups++;
+            }
+            while (active.length > common) {
+                checkAbort(signal);
+                const path = groupPath(active), ending = active.pop();
+                yield Object.freeze({ kind: "groupEnd", ...path.at(-1), path, rows: ending.rows, totals: result(ending.aggregates) });
+            }
+            for (const opening of pending) {
+                checkAbort(signal);
+                active.push(opening);
+                const path = groupPath(active);
+                yield Object.freeze({ kind: "groupStart", ...path.at(-1), path });
+            }
+            for (let column = 0; column < values.length; column++) {
+                const raw = scalar(values[column]);
+                for (const group of active)
+                    group.aggregates[column].accept(raw);
+                grand[column].accept(raw);
+            }
+            for (const group of active)
+                group.rows++;
+            checkAbort(signal);
+            yield Object.freeze({ kind: "row", values: Object.freeze(values), rowIndex: rowCount,
+                groupIndex: active.at(-1).group.groupIndex, path: groupPath(active) });
+            rowCount++;
+            if (taskYieldDue()) {
+                await pause();
+                checkAbort(signal);
+            }
+        }
+        checkAbort(signal);
+        while (active.length) {
+            checkAbort(signal);
+            const path = groupPath(active), ending = active.pop();
+            yield Object.freeze({ kind: "groupEnd", ...path.at(-1), path, rows: ending.rows, totals: result(ending.aggregates) });
+        }
+        checkAbort(signal);
+        yield Object.freeze({ kind: "complete", rows: rowCount, groups, totals: result(grand) });
+    }
+    const source = Object.freeze({ columns: portable, groupBy: Object.freeze(levels.map(level => level.key)), totals, events });
+    sources.set(source, { signal: sourceSignal, events: eventsFor });
+    return source;
+}
+const _exports = Object.freeze({ assertGroupedReportSource: assertGroupedReportSource, groupedReportEvents: groupedReportEvents, groupedReportOperation: groupedReportOperation, createGroupedReport: createGroupedReport });
+_modules.set("046b305cdccf817d847addb75a778131622de23f2840830bbe1c0c26053a68c0", _exports);
+return _exports;
+})();
+
+const _m1 = _modules.get("81b3d47c02b7d8443b79e02b3cfb52032d6b73d9a3fb592b777ebe028ad0ef00") ?? (() => {
+
+
 
 
 
@@ -418,12 +967,12 @@ function saveBlob(blob, fileName) {
         setTimeout(() => URL.revokeObjectURL(url), 30000);
     }
 }
-const _exports = Object.freeze({ OfficeIMOError: _m2.OfficeIMOError, NotSupportedError: _m2.NotSupportedError, BlobByteSink: _m3.BlobByteSink, ChunkedTextSink: _m3.ChunkedTextSink, writeBytes: _m3.writeBytes, ExportCell: _m5.ExportCell, checkAbort: _m4.checkAbort, withAbort: _m4.withAbort, inputRows: _m4.inputRows, pause: _m4.pause, detectFeatures: detectFeatures, saveBlob: saveBlob });
-_modules.set("9e9621bba11170b44ed2da3db9d8769784402a320771933ef68ba6b9d9f10a31", _exports);
+const _exports = Object.freeze({ OfficeIMOError: _m2.OfficeIMOError, NotSupportedError: _m2.NotSupportedError, BlobByteSink: _m3.BlobByteSink, ChunkedTextSink: _m3.ChunkedTextSink, writeBytes: _m3.writeBytes, ExportCell: _m5.ExportCell, createGroupedReport: _m8.createGroupedReport, checkAbort: _m4.checkAbort, withAbort: _m4.withAbort, inputRows: _m4.inputRows, pause: _m4.pause, detectFeatures: detectFeatures, saveBlob: saveBlob });
+_modules.set("81b3d47c02b7d8443b79e02b3cfb52032d6b73d9a3fb592b777ebe028ad0ef00", _exports);
 return _exports;
 })();
 
-const _m8 = _modules.get("6cfd3e806439f6301003a2d1699a74fdfa574d935550ab62b97b528728eaee1f") ?? (() => {
+const _m14 = _modules.get("6cfd3e806439f6301003a2d1699a74fdfa574d935550ab62b97b528728eaee1f") ?? (() => {
 /** @internal Notify synchronously; observe an accidental promise before rejecting its unsupported use. */
 function notifyProgress(callback, progress) {
     if (!callback)
@@ -439,176 +988,188 @@ _modules.set("6cfd3e806439f6301003a2d1699a74fdfa574d935550ab62b97b528728eaee1f",
 return _exports;
 })();
 
-const _m10 = _modules.get("02ec6cf227afac6ead01cf24b9e3958c71ffd2616ecf0ad6b0baed551f39b86d") ?? (() => {
-const { OfficeIMOError } = _m2;
-
-/** @internal Check before accepting the next value or chunk. */
-class ExportBudget {
-    cells = 0;
-    text = 0;
-    reservedCells = 0;
-    reservedText = 0;
-    limits;
-    constructor(limits = {}) {
-        for (const [key, value] of Object.entries(limits))
-            if (value !== undefined && (!Number.isSafeInteger(value) || value < 0))
-                throw new RangeError(key + " must be a nonnegative safe integer.");
-        this.limits = Object.freeze({ ...limits });
-    }
-    check(kind, value) {
-        const maximum = this.limits[kind];
-        if (maximum !== undefined && value > maximum)
-            throw new OfficeIMOError("RESOURCE_LIMIT", kind + " exceeded (" + value + " > " + maximum + ").");
-    }
-    row(count) { this.check("maxRows", count); }
-    reserve(cells, characters) {
-        this.check("maxCells", this.cells + this.reservedCells + cells);
-        this.check("maxTextCharacters", this.text + this.reservedText + characters);
-        this.reservedCells += cells;
-        this.reservedText += characters;
-    }
-    release(cells, characters) { this.reservedCells -= cells; this.reservedText -= characters; }
-    cell(value, reservedCharacters) {
-        if (reservedCharacters !== undefined)
-            this.release(1, reservedCharacters);
-        // Immutable limits cannot acquire a ceiling later. Avoid per-cell accounting
-        // when neither emitted-cell nor text totals are observable by a resource cap.
-        if (this.limits.maxCells === undefined && this.limits.maxTextCharacters === undefined)
-            return;
-        this.check("maxCells", this.cells + this.reservedCells + 1);
-        const length = typeof value === "string" ? value.length : 0;
-        this.check("maxTextCharacters", this.text + this.reservedText + length);
-        this.cells++;
-        this.text += length;
-    }
-}
-/** @internal Ownership stays with the caller. */
-function boundedSink(sink, budget) {
-    let bytes = 0;
-    return { write(chunk) {
-            budget.check("maxOutputBytes", bytes + chunk.length);
-            bytes += chunk.length;
-            return sink.write(chunk);
-        } };
-}
-const _exports = Object.freeze({ ExportBudget: ExportBudget, boundedSink: boundedSink });
-_modules.set("02ec6cf227afac6ead01cf24b9e3958c71ffd2616ecf0ad6b0baed551f39b86d", _exports);
-return _exports;
-})();
-
-const _m11 = _modules.get("e5f51523cbe24352ffc2ddc2cdf46cc1145e4215964526154f109ec9c0146386") ?? (() => {
+const _m17 = _modules.get("d56b24243cff6f3552a2f7b45521af4491494375ec76117e9ac1ebb047ce02da") ?? (() => {
 const { assertExportValue } = _m5;
 
-const { checkAbort } = _m4;
+const { copyExportValue } = _m13;
 
-const { isDate } = _m6;
-
-function createRowProjector(columns, worksheet, signal, validate = assertExportValue) {
-    const getters = columns.some(column => column.value);
-    return (row, rowIndex = 0) => {
-        if (Array.isArray(row) && !getters) {
-            if (row.length > columns.length)
-                throw new RangeError("Row has more values than declared columns.");
-            for (const value of row)
-                validate(value);
-            return row;
-        }
-        if (!row || typeof row !== "object" || isDate(row))
-            throw new TypeError("A row must be an array or object.");
-        if (Array.isArray(row) && row.length > columns.length && !columns.every(column => column.value))
-            throw new RangeError("Project every column explicitly when selecting from a wider array row.");
-        return columns.map((c, columnIndex) => {
-            if (c.value) {
-                checkAbort(signal);
-                const context = { rowIndex, columnIndex, column: c,
-                    ...(worksheet ? { sheetName: worksheet.sheetName, worksheetRow: worksheet.firstDataRow + rowIndex } : {}) };
-                const result = c.value(row, context);
-                validate(result);
-                checkAbort(signal);
-                return result;
-            }
-            if (Array.isArray(row)) {
-                const result = row[columnIndex];
-                validate(result);
-                return result;
-            }
-            const key = c.key ?? c.header;
-            const result = Object.prototype.hasOwnProperty.call(row, key) ? row[key] : undefined;
-            validate(result);
-            return result;
-        });
-    };
+/** Capture a bounded public matrix before validation or asynchronous report production can revisit its fields. */
+function captureTableSpans(rows, columns) {
+    if (!Array.isArray(rows) || !rows.length || rows.length > 16)
+        throw new RangeError("Spanned headings/footers need from 1 through 16 rows.");
+    const captured = rows.map(row => {
+        if (!Array.isArray(row) || row.length !== columns)
+            throw new TypeError("Spanned rows must have the declared column count.");
+        return Object.freeze(row.map(cell => {
+            if (cell === null)
+                return null;
+            if (!cell || typeof cell !== "object")
+                throw new TypeError("Uncovered heading/footer cells need an anchor value.");
+            const { value, columnSpan, rowSpan } = cell;
+            return Object.freeze({ value: copyExportValue(value), ...(columnSpan === undefined ? {} : { columnSpan }),
+                ...(rowSpan === undefined ? {} : { rowSpan }) });
+        }));
+    });
+    tableSpans(captured, columns);
+    return Object.freeze(captured);
 }
-function copyColumns(columns, workbookStyles = false) {
-    if (!Array.isArray(columns))
-        throw new TypeError("Declare the columns in export order.");
-    return columns.map(c => {
-        if (!workbookStyles && c?.style !== undefined)
-            throw new TypeError("Workbook-local column styles require the advanced Workbook API; use portable ExportCell presentation.");
-        if (!c || typeof c.header !== "string" || (c.key !== undefined && typeof c.key !== "string"))
-            throw new TypeError("Each column needs a string header and an optional string key.");
-        if (c.value !== undefined && typeof c.value !== "function")
-            throw new TypeError("Column value getters must be functions.");
-        if (c.groups !== undefined && (!Array.isArray(c.groups) || c.groups.some((group) => typeof group !== "string")))
-            throw new TypeError("Column groups must be an array of strings.");
-        return { ...c, ...(c.groups ? { groups: Object.freeze([...c.groups]) } : {}) };
+/** Validate one small, rectangular heading/footer matrix before any drawing. */
+function tableSpans(rows, columns) {
+    if (!Array.isArray(rows) || !rows.length || rows.length > 16)
+        throw new RangeError("Spanned headings/footers need from 1 through 16 rows.");
+    const covered = Array.from({ length: rows.length }, () => new Uint8Array(columns));
+    return rows.map((row, level) => {
+        if (!Array.isArray(row) || row.length !== columns)
+            throw new TypeError("Spanned rows must have the declared column count.");
+        const anchors = [];
+        for (let first = 0; first < columns; first++) {
+            const cell = row[first];
+            if (covered[level][first]) {
+                if (cell !== null)
+                    throw new TypeError("Covered heading/footer cells must be null.");
+                continue;
+            }
+            if (!cell || typeof cell !== "object")
+                throw new TypeError("Uncovered heading/footer cells need an anchor value.");
+            const span = cell.columnSpan ?? 1, rowSpan = cell.rowSpan ?? 1;
+            if (!Number.isInteger(span) || !Number.isInteger(rowSpan) || span < 1 || rowSpan < 1 || first + span > columns || level + rowSpan > rows.length)
+                throw new RangeError("Heading/footer spans must stay inside the declared matrix.");
+            const value = cell.value;
+            assertExportValue(value);
+            for (let r = level; r < level + rowSpan; r++)
+                for (let c = first; c < first + span; c++) {
+                    if (covered[r][c])
+                        throw new TypeError("Heading/footer spans overlap.");
+                    if ((r !== level || c !== first) && rows[r]?.[c] !== null)
+                        throw new TypeError("Covered heading/footer cells must be null.");
+                    covered[r][c] = 1;
+                }
+            anchors.push(Object.freeze({ first, span, rowSpan, value }));
+        }
+        return Object.freeze(anchors);
     });
 }
-const _exports = Object.freeze({ createRowProjector: createRowProjector, copyColumns: copyColumns });
-_modules.set("e5f51523cbe24352ffc2ddc2cdf46cc1145e4215964526154f109ec9c0146386", _exports);
+const _exports = Object.freeze({ captureTableSpans: captureTableSpans, tableSpans: tableSpans });
+_modules.set("d56b24243cff6f3552a2f7b45521af4491494375ec76117e9ac1ebb047ce02da", _exports);
 return _exports;
 })();
 
-const _m9 = _modules.get("8d53c3ca40bb7f550fede378a9850d80d8bda9928e93cfbb2fb46a3e4faaffa4") ?? (() => {
+const _m16 = _modules.get("2f5c0823847e9209017d01b2a753f36056df2a9988fae1f3a1bd5fd186545220") ?? (() => {
+const { captureTableSpans, tableSpans } = _m17;
+
+/** Snapshot small report matrices; flattening is an explicit format decision, never inferred from labels. */
+function csvStructuredRows(rows, columns, mode) {
+    const anchors = tableSpans(captureTableSpans(rows, columns), columns), output = anchors.map(() => Array(columns).fill(""));
+    for (let row = 0; row < anchors.length; row++)
+        for (const anchor of anchors[row]) {
+            if ((anchor.span > 1 || anchor.rowSpan > 1) && mode === undefined)
+                throw new TypeError("CSV spanned headings/footers require an explicit spanMode: repeat or anchors.");
+            const value = anchor.value;
+            for (let r = row; r < row + (mode === "repeat" ? anchor.rowSpan : 1); r++)
+                for (let c = anchor.first; c < anchor.first + (mode === "repeat" ? anchor.span : 1); c++)
+                    output[r][c] = value;
+        }
+    return output;
+}
+const _exports = Object.freeze({ csvStructuredRows: csvStructuredRows });
+_modules.set("2f5c0823847e9209017d01b2a753f36056df2a9988fae1f3a1bd5fd186545220", _exports);
+return _exports;
+})();
+
+const _m18 = _modules.get("9b33d9107e62ba8299c576072de40d24a261464f118de4ace64f23154fc78307") ?? (() => {
+/** Compatibility display policy; hosts can supply labels without changing typed source values. */
+const defaultBooleanText = Object.freeze({ true: "True", false: "False" });
+/** @internal Capture display policy once, before source iteration or asynchronous output. */
+function captureBooleanText(input) {
+    if (input === undefined)
+        return defaultBooleanText;
+    if (!input || typeof input !== "object")
+        throw new TypeError("booleanText must contain true and false strings.");
+    const yes = input.true, no = input.false;
+    if (typeof yes !== "string" || typeof no !== "string")
+        throw new TypeError("booleanText must contain true and false strings.");
+    return Object.freeze({ true: yes, false: no });
+}
+const _exports = Object.freeze({ defaultBooleanText: defaultBooleanText, captureBooleanText: captureBooleanText });
+_modules.set("9b33d9107e62ba8299c576072de40d24a261464f118de4ace64f23154fc78307", _exports);
+return _exports;
+})();
+
+const _m19 = _modules.get("f0627ba89e5c8fcb376ebe3ce72dcc8d68c34952981f8703e36b8bb1a9894208") ?? (() => {
+const { captureFields } = _m10;
+
+/** @internal Share the format's capture policy with thin adapters before they compose options. */
+function captureCsvOptions(input) {
+    if (!input || typeof input !== "object")
+        throw new TypeError("CSV options are required.");
+    return captureFields(input, ["columns", "signal", "limits", "onProgress", "valueMode", "delimiter", "lineEnding", "bom", "includeHeader", "headerRows",
+        "footer", "spanMode", "formulaInjectionProtection", "quote", "nullValue", "booleanText"]);
+}
+const _exports = Object.freeze({ captureCsvOptions: captureCsvOptions });
+_modules.set("f0627ba89e5c8fcb376ebe3ce72dcc8d68c34952981f8703e36b8bb1a9894208", _exports);
+return _exports;
+})();
+
+const _m15 = _modules.get("b48bcab805d4c75294dd8d8e8dc57f96d9db3f5af31a8f0ddc6562f010f566e4") ?? (() => {
 const { beginTask, checkAbort, consumeRows, taskYieldDue, withAbort } = _m4;
 
 const { BlobByteSink, ChunkedTextSink, withDestination } = _m3;
 
-const { ExportBudget, boundedSink } = _m10;
+const { ExportBudget, boundedSink } = _m9;
 
 const { ExportCell } = _m5;
 
 const { isDate } = _m6;
 
-const { notifyProgress } = _m8;
+const { notifyProgress } = _m14;
 
 const { copyColumns, createRowProjector } = _m11;
 
+const { csvStructuredRows } = _m16;
+
+const { captureBooleanText } = _m18;
+
+const { captureCsvOptions } = _m19;
 
 
 
 
-function csvField(value, delimiter, protect, quote, nullValue) {
-    if (value == null && nullValue !== undefined)
-        value = nullValue;
+
+function csvField(value, delimiter, protect, quote, booleanText) {
+    const kind = typeof value;
     let text;
     if (value == null)
         text = "";
+    else if (kind === "string")
+        text = value;
+    else if (kind === "number") {
+        text = Number.isFinite(value) ? String(value) : "";
+        // Numeric text has no CSV delimiter, quote or line break to escape.
+        return quote === "all" ? '"' + text + '"' : text;
+    }
+    else if (kind === "boolean")
+        text = booleanText[value ? "true" : "false"];
     else if (isDate(value))
         text = Number.isFinite(value.getTime()) ? value.toISOString() : "";
-    else if (typeof value === "boolean")
-        text = value ? "True" : "False";
-    else if (typeof value === "number")
-        text = Number.isFinite(value) ? String(value) : "";
-    else if (typeof value === "string")
-        text = value;
     else {
         if (typeof value.then === "function")
             void Promise.resolve(value).catch(() => { });
         throw new TypeError("CSV cells and formatter results must be synchronous strings, numbers, booleans, Dates or null.");
     }
-    if (protect && typeof value === "string" && /^ *[=+\-@\t\r\n]/.test(text))
+    // Only ASCII spaces, controls and markers through @ can begin the protected prefix.
+    if (protect && (kind === "string" || kind === "boolean") && text.charCodeAt(0) <= 64 && /^ *[=+\-@\t\r\n]/.test(text))
         text = "'" + text;
-    return quote === "all" || (quote === "strings" && typeof value === "string") || text.includes(delimiter) || /["\r\n]/.test(text)
-        ? '"' + text.replace(/"/g, '""') + '"' : text;
+    return quote === "all" || (quote === "strings" && kind === "string") || text.includes(delimiter) || /["\r\n]/.test(text)
+        ? '"' + (text.includes('"') ? text.replace(/"/g, '""') : text) + '"' : text;
 }
 async function writeCsvTo(rows, destination, configuration) {
-    const options = configuration;
+    const options = captureCsvOptions(configuration);
     return withDestination(destination, sink => write(rows, sink, options));
 }
 async function write(rows, sink, options) {
     beginTask();
     const columns = copyColumns(options.columns).map(c => Object.freeze(c)), delimiter = options.delimiter ?? ",", lineEnding = options.lineEnding ?? "\r\n", quote = options.quote ?? "minimal";
+    const booleanText = captureBooleanText(options.booleanText);
     if (![",", ";", "\t"].includes(delimiter))
         throw new RangeError("Delimiter must be comma, semicolon or tab.");
     if (!["\r\n", "\n", "\r"].includes(lineEnding))
@@ -619,6 +1180,10 @@ async function write(rows, sink, options) {
         throw new RangeError("valueMode must be raw or display.");
     if (options.nullValue !== undefined && typeof options.nullValue !== "string")
         throw new TypeError("nullValue must be a string.");
+    if (options.spanMode !== undefined && options.spanMode !== "repeat" && options.spanMode !== "anchors")
+        throw new TypeError("CSV spanMode must be repeat or anchors.");
+    const headings = options.includeHeader === false ? [] : options.headerRows === undefined ? columns.length ? [columns.map(c => c.header)] : [] : csvStructuredRows(options.headerRows, columns.length, options.spanMode);
+    const footers = options.footer === undefined ? [] : csvStructuredRows(options.footer.rows, columns.length, options.spanMode);
     for (const column of columns)
         if (column.valueFormatter !== undefined && typeof column.valueFormatter !== "function")
             throw new TypeError("CSV value formatters must be functions.");
@@ -645,9 +1210,9 @@ async function write(rows, sink, options) {
             let value = !header && column.valueFormatter ? column.valueFormatter(raw, { rowIndex: count, columnIndex: i, column, values: snapshot }) : raw;
             if (value == null && options.nullValue !== undefined)
                 value = options.nullValue;
-            budget.cell(value);
+            budget.cell(typeof value === "boolean" ? booleanText[value ? "true" : "false"] : value);
             checkAbort(signal);
-            text += (i ? delimiter : "") + csvField(value, delimiter, protect, quote, options.nullValue);
+            text += (i ? delimiter : "") + csvField(value, delimiter, protect, quote, booleanText);
             if (text.length >= buffer.chunkSize || (i & 127) === 127 && taskYieldDue()) {
                 if (buffer.append(text))
                     return buffer.flush().then(() => record(values, header, i + 1, snapshot));
@@ -657,8 +1222,8 @@ async function write(rows, sink, options) {
         if (buffer.append(text + lineEnding))
             return buffer.flush().then(() => { notifyProgress(options.onProgress, { phase: "rows", rows: count + (header ? 0 : 1) }); });
     }
-    if (options.includeHeader !== false && columns.length)
-        await record(columns.map(c => c.header), true);
+    for (const heading of headings)
+        await record(heading, true);
     await consumeRows(rows, signal, row => {
         budget.row(count + 1);
         const pending = record(project(row, count));
@@ -666,13 +1231,15 @@ async function write(rows, sink, options) {
             return pending.then(() => { count++; });
         count++;
     });
+    for (const footer of footers)
+        await record(footer, true);
     await buffer.close();
     notifyProgress(options.onProgress, { phase: "complete", rows: count, bytes });
     checkAbort(signal);
     return { rows: count, columns: columns.length, bytes };
 }
 async function writeCsv(rows, configuration) {
-    const options = configuration;
+    const options = captureCsvOptions(configuration);
     const sink = new BlobByteSink();
     try {
         let completedRows = 0;
@@ -693,11 +1260,11 @@ async function writeCsv(rows, configuration) {
     }
 }
 const _exports = Object.freeze({ saveBlob: _m1.saveBlob, ExportCell: _m5.ExportCell, writeCsvTo: writeCsvTo, writeCsv: writeCsv });
-_modules.set("8d53c3ca40bb7f550fede378a9850d80d8bda9928e93cfbb2fb46a3e4faaffa4", _exports);
+_modules.set("b48bcab805d4c75294dd8d8e8dc57f96d9db3f5af31a8f0ddc6562f010f566e4", _exports);
 return _exports;
 })();
 
-const _m15 = _modules.get("1c59bcf8a34f5a3e12c0bbcde4b2cc33229bf5680c6553fea568737cb154643b") ?? (() => {
+const _m23 = _modules.get("8ece66b561682170c879991995105163f4c484c8355d5e451fc6f52a9fbc3f82") ?? (() => {
 const { OfficeIMOError } = _m2;
 
 /** Canonical absolute OPC part URI. ASCII URI spelling; Unicode must be UTF-8 percent encoded. */
@@ -741,16 +1308,18 @@ function relativePartTarget(source, target) {
     return relative.split("/", 1)[0].includes(":") ? "./" + relative : relative;
 }
 const _exports = Object.freeze({ partUri: partUri, relationshipPartUri: relationshipPartUri, relativePartTarget: relativePartTarget });
-_modules.set("1c59bcf8a34f5a3e12c0bbcde4b2cc33229bf5680c6553fea568737cb154643b", _exports);
+_modules.set("8ece66b561682170c879991995105163f4c484c8355d5e451fc6f52a9fbc3f82", _exports);
 return _exports;
 })();
 
-const _m17 = _modules.get("d9a861cb1ec0360496ee3bb1e96213bc66bfe82792559a40d04ada941e38e5ed") ?? (() => {
+const _m25 = _modules.get("227236fd7adc9472e188831b8f16fdc69338c4d779f2b69a8abbd8dbfa95b585") ?? (() => {
 const { OfficeIMOError } = _m2;
 
 const { ChunkedTextSink } = _m3;
 
 const xmlDeclaration = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+const xmlEscapes = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;",
+    "\r": "&#13;", "\n": "&#10;", "\t": "&#9;" };
 /** XML 1.0 characters; Unicode mode retains valid surrogate pairs. */
 function cleanXml(value, policy = "strip") {
     if (policy !== "strip" && policy !== "reject")
@@ -762,9 +1331,7 @@ function cleanXml(value, policy = "strip") {
 }
 /** Escape data, including whitespace that XML parsers otherwise normalize. */
 function escapeXml(value, policy = "strip") {
-    const escapes = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;",
-        "\r": "&#13;", "\n": "&#10;", "\t": "&#9;" };
-    return cleanXml(value, policy).replace(/[&<>"'\r\n\t]/g, c => escapes[c]);
+    return cleanXml(value, policy).replace(/[&<>"'\r\n\t]/g, c => xmlEscapes[c]);
 }
 /** Encode an OOXML ST_Xstring attribute without interpreting literal escape tokens as characters. */
 function escapeOoxmlAttribute(value, policy = "strip") {
@@ -823,12 +1390,12 @@ class XmlWriter {
         throw new OfficeIMOError("INVALID_STATE", "XML writer is closed."); }
 }
 const _exports = Object.freeze({ xmlDeclaration: xmlDeclaration, cleanXml: cleanXml, escapeXml: escapeXml, escapeOoxmlAttribute: escapeOoxmlAttribute, validateXmlName: validateXmlName, XmlWriter: XmlWriter });
-_modules.set("d9a861cb1ec0360496ee3bb1e96213bc66bfe82792559a40d04ada941e38e5ed", _exports);
+_modules.set("227236fd7adc9472e188831b8f16fdc69338c4d779f2b69a8abbd8dbfa95b585", _exports);
 return _exports;
 })();
 
-const _m16 = _modules.get("de974ad7b2b04798ac3f0c8a2414bccda3247c7a1709f8f57949956008e476a4") ?? (() => {
-const { escapeXml, xmlDeclaration } = _m17;
+const _m24 = _modules.get("56b2057461a668e8c90abd1fbf4f13ff93efd9854e590c82a195799f0f842c2a") ?? (() => {
+const { escapeXml, xmlDeclaration } = _m25;
 
 const { isDate } = _m6;
 
@@ -849,11 +1416,11 @@ function appPropertiesXml(properties = {}, policy = "strip") {
         '<Application>' + escapeXml(properties.application ?? "OfficeIMO", policy) + '</Application><Company>' + escapeXml(properties.company ?? "", policy) + '</Company></Properties>';
 }
 const _exports = Object.freeze({ corePropertiesXml: corePropertiesXml, appPropertiesXml: appPropertiesXml });
-_modules.set("de974ad7b2b04798ac3f0c8a2414bccda3247c7a1709f8f57949956008e476a4", _exports);
+_modules.set("56b2057461a668e8c90abd1fbf4f13ff93efd9854e590c82a195799f0f842c2a", _exports);
 return _exports;
 })();
 
-const _m20 = _modules.get("790c15edc51b308be3e7d8222630d407f8c79c31ab21ba0b9f92c00f44ab4021") ?? (() => {
+const _m28 = _modules.get("790c15edc51b308be3e7d8222630d407f8c79c31ab21ba0b9f92c00f44ab4021") ?? (() => {
 const crcTable = new Uint32Array(256).map((_, index) => {
     let value = index;
     for (let bit = 0; bit < 8; bit++)
@@ -876,12 +1443,12 @@ _modules.set("790c15edc51b308be3e7d8222630d407f8c79c31ab21ba0b9f92c00f44ab4021",
 return _exports;
 })();
 
-const _m19 = _modules.get("7f87afcf60f5a26c736ecb79910a0ad7f291217eef7537cd4f83b391819c2587") ?? (() => {
+const _m27 = _modules.get("597d152d20a2a28ee5cd6d4243a79a71ce8b83769a77441bfc944aadc0a6efbd") ?? (() => {
 const { checkAbort, withAbort } = _m4;
 
 const { OfficeIMOError } = _m2;
 
-const { Crc32 } = _m20;
+const { Crc32 } = _m28;
 
 
 
@@ -907,7 +1474,7 @@ class EntryWriter {
     closed = false;
     cleaned = false;
     lifetime = new AbortController();
-    abort = () => { this.fail(this.signal?.reason ?? new DOMException("Export cancelled.", "AbortError")); };
+    abort = () => { this.fail(this.signal?.reason); };
     constructor(compression, sink, signal) {
         this.sink = sink;
         this.signal = signal;
@@ -1003,21 +1570,23 @@ class EntryWriter {
         this.reader?.releaseLock();
     }
 }
-const _exports = Object.freeze({ Crc32: _m20.Crc32, zipLimit: zipLimit, zipSize: zipSize, EntryWriter: EntryWriter });
-_modules.set("7f87afcf60f5a26c736ecb79910a0ad7f291217eef7537cd4f83b391819c2587", _exports);
+const _exports = Object.freeze({ Crc32: _m28.Crc32, zipLimit: zipLimit, zipSize: zipSize, EntryWriter: EntryWriter });
+_modules.set("597d152d20a2a28ee5cd6d4243a79a71ce8b83769a77441bfc944aadc0a6efbd", _exports);
 return _exports;
 })();
 
-const _m18 = _modules.get("6eb47fc215e4b235d1134f80b987e263aa42a195e61a033551445c1f0c9bcb51") ?? (() => {
+const _m26 = _modules.get("699a019e0c3f317a62bf3a6e59b76b6cf1645908b0f1b1f157c18f4d4f368dfb") ?? (() => {
 
 
-const { EntryWriter, zipSize } = _m19;
+const { EntryWriter, zipSize } = _m27;
 
 const { checkAbort, withAbort, pause, taskYieldDue } = _m4;
 
 const { OfficeIMOError } = _m2;
 
 const { BlobByteSink, writeBytes } = _m3;
+
+const { captureFields } = _m10;
 
 const encoder = new TextEncoder();
 function validateEntryName(name) {
@@ -1046,7 +1615,6 @@ function header(signature, length, name = new Uint8Array()) {
 }
 /** Sequential ZIP writer. Entry bytes use data descriptors; only central-directory metadata is retained. */
 class ZipWriter {
-    options;
     sink;
     owned;
     names = new Set();
@@ -1054,20 +1622,39 @@ class ZipWriter {
     offset = 0;
     active;
     state = "open";
+    options;
+    lifetime = new AbortController();
+    disposal;
     constructor(sink, options = {}) {
-        this.options = options;
-        if (options.maxOutputBytes !== undefined && (!Number.isSafeInteger(options.maxOutputBytes) || options.maxOutputBytes < 0))
+        const captured = captureFields(options, ["compression", "signal", "maxOutputBytes"]);
+        const { compression, maxOutputBytes } = captured;
+        if (maxOutputBytes !== undefined && (!Number.isSafeInteger(maxOutputBytes) || maxOutputBytes < 0))
             throw new RangeError("maxOutputBytes must be a nonnegative safe integer.");
-        if (options.compression !== undefined && options.compression !== "auto" && options.compression !== "store")
+        if (compression !== undefined && compression !== "auto" && compression !== "store")
             throw new RangeError("compression must be auto or store.");
+        this.options = Object.freeze(captured);
         this.owned = sink ? undefined : new BlobByteSink();
         this.sink = sink ?? this.owned;
+    }
+    /** Pending header/directory writes and source reads must also stop on explicit discard. */
+    async acceptance(operation) {
+        const signal = this.options.signal;
+        const abort = () => this.lifetime.abort(signal?.reason);
+        signal?.addEventListener("abort", abort, { once: true });
+        try {
+            checkAbort(signal);
+            checkAbort(this.lifetime.signal);
+            return await withAbort(Promise.resolve(operation()), this.lifetime.signal);
+        }
+        finally {
+            signal?.removeEventListener("abort", abort);
+        }
     }
     async emit(bytes) {
         if (this.options.maxOutputBytes !== undefined && this.offset + bytes.length > this.options.maxOutputBytes)
             throw new OfficeIMOError("RESOURCE_LIMIT", "maxOutputBytes exceeded.");
         this.offset = zipSize(this.offset + bytes.length);
-        await withAbort(Promise.resolve(this.sink.write(bytes)), this.options.signal);
+        await this.acceptance(() => this.sink.write(bytes));
     }
     reserve(name) {
         checkAbort(this.options.signal);
@@ -1113,7 +1700,7 @@ class ZipWriter {
             await this.emit(this.local(encoded, entry, true));
             const writer = entry;
             let busy = false, closed = false, completion;
-            const discard = async (error) => { closed = true; this.state = "failed"; await writer.discard(error); this.owned?.discard(); this.active = undefined; };
+            const discard = async (error) => { closed = true; this.state = "failed"; this.lifetime.abort(error); await writer.discard(error); this.owned?.discard(); this.active = undefined; };
             return this.active = {
                 write: async (bytes) => {
                     if (busy || closed || this.state !== "writing")
@@ -1168,9 +1755,9 @@ class ZipWriter {
         const entry = await this.openEntry(name);
         try {
             if (typeof source === "function")
-                await withAbort(Promise.resolve(source(entry)), this.options.signal);
+                await this.acceptance(() => source(entry));
             else
-                await writeBytes(source, entry, this.options.signal);
+                await this.acceptance(() => writeBytes(source, entry, this.lifetime.signal));
             await entry.close();
         }
         catch (error) {
@@ -1180,7 +1767,11 @@ class ZipWriter {
     }
     get bytesWritten() { return this.offset; }
     /** Drop owned output and release the active compressor. Caller-owned partial bytes remain with the caller. */
-    async discard(error) { this.state = "failed"; await this.active?.discard(error); this.owned?.discard(); }
+    discard(error) {
+        this.state = "failed";
+        this.lifetime.abort(error);
+        return this.disposal ??= (async () => { await this.active?.discard(error); this.owned?.discard(); })();
+    }
     /** @internal Buffered worksheet compression stays in the format owner. */
     async addPrepared(name, entry) {
         const encoded = this.reserve(name), offset = this.offset;
@@ -1239,29 +1830,31 @@ class ZipWriter {
         return this.owned.toBlob(type);
     }
 }
-const _exports = Object.freeze({ Crc32: _m19.Crc32, validateEntryName: validateEntryName, ZipWriter: ZipWriter });
-_modules.set("6eb47fc215e4b235d1134f80b987e263aa42a195e61a033551445c1f0c9bcb51", _exports);
+const _exports = Object.freeze({ Crc32: _m27.Crc32, validateEntryName: validateEntryName, ZipWriter: ZipWriter });
+_modules.set("699a019e0c3f317a62bf3a6e59b76b6cf1645908b0f1b1f157c18f4d4f368dfb", _exports);
 return _exports;
 })();
 
-const _m14 = _modules.get("eb6db17d49450674b12e834934423973c1995bd7a495459f2ff623f7ba0229fa") ?? (() => {
+const _m22 = _modules.get("4d4856357f94ecbeea67d111ff5e97f916ccc6be6aaefde219d461c6ad10a8c5") ?? (() => {
 
 
 
 
-const { partUri, relationshipPartUri, relativePartTarget } = _m15;
+const { partUri, relationshipPartUri, relativePartTarget } = _m23;
 
-const { corePropertiesXml, appPropertiesXml } = _m16;
+const { corePropertiesXml, appPropertiesXml } = _m24;
 
-const { ZipWriter } = _m18;
+const { ZipWriter } = _m26;
 
 const { ChunkedTextSink } = _m3;
 
 const { OfficeIMOError } = _m2;
 
-const { escapeXml, xmlDeclaration } = _m17;
+const { escapeXml, xmlDeclaration } = _m25;
 
 const { checkAbort, pause, taskYieldDue } = _m4;
+
+const { captureFields } = _m10;
 
 const relationshipsNamespace = "http://schemas.openxmlformats.org/package/2006/relationships";
 const officeRelationshipsNamespace = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
@@ -1304,7 +1897,6 @@ class ContentTypes {
 }
 /** Format-neutral part and relationship owner. A source iterable is consumed once at finalization. */
 class OpcPackage {
-    options;
     types = new ContentTypes();
     parts = new Map();
     directories = new Set();
@@ -1312,9 +1904,10 @@ class OpcPackage {
     state = "open";
     result;
     zip;
+    options;
     constructor(options = {}) {
-        this.options = options;
-        this.zip = new ZipWriter(options.sink, options);
+        this.options = Object.freeze(captureFields(options, ["compression", "signal", "maxOutputBytes", "invalidCharacterPolicy", "sink"]));
+        this.zip = new ZipWriter(this.options.sink, this.options);
     }
     open() { if (this.state !== "open")
         throw new OfficeIMOError("INVALID_STATE", "OPC package is finalized."); }
@@ -1341,8 +1934,11 @@ class OpcPackage {
         return uri;
     }
     addPart(part) {
-        const uri = this.reserve(part.uri, part.contentType);
-        this.parts.set(uri.toLowerCase(), { ...part, uri, data: part.data instanceof Uint8Array ? new Uint8Array(part.data) : part.data });
+        const { uri: requestedUri, contentType, data } = part;
+        // Structural accessors and byte ownership are captured before reserving metadata.
+        const capturedData = data instanceof Uint8Array ? new Uint8Array(data) : data;
+        const uri = this.reserve(requestedUri, contentType);
+        this.parts.set(uri.toLowerCase(), { uri, contentType, data: capturedData });
     }
     /** @internal */
     addPrepared(uri, type, prepared) {
@@ -1367,17 +1963,19 @@ class OpcPackage {
         checkAbort(this.options.signal);
         this.open();
         source = source === "/" ? source : partUri(source);
-        if (!/^[A-Za-z_][A-Za-z0-9_.-]*$/.test(relationship.id))
+        const { id, type, target: requestedTarget, external } = relationship;
+        this.open();
+        if (!/^[A-Za-z_][A-Za-z0-9_.-]*$/.test(id))
             throw new TypeError("Relationship id must be an XML ID.");
-        if (!/^[A-Za-z][A-Za-z0-9+.-]*:[^\s<>"']+$/.test(relationship.type))
+        if (!/^[A-Za-z][A-Za-z0-9+.-]*:[^\s<>"']+$/.test(type))
             throw new TypeError("Relationship type must be an absolute URI.");
-        const target = relationship.external ? relationship.target : partUri(relationship.target);
-        if (relationship.external && (!target || /[\u0000-\u0020]/.test(target)))
+        const target = external ? requestedTarget : partUri(requestedTarget);
+        if (external && (!target || /[\u0000-\u0020]/.test(target)))
             throw new TypeError("Invalid external relationship target.");
         const key = source.toLowerCase(), list = this.relationships.get(key) ?? new Map();
-        if (list.has(relationship.id))
-            throw new TypeError("Duplicate relationship id: " + relationship.id);
-        list.set(relationship.id, { ...relationship, target });
+        if (list.has(id))
+            throw new TypeError("Duplicate relationship id: " + id);
+        list.set(id, { id, type, target, ...(external === undefined ? {} : { external }) });
         this.relationships.set(key, list);
     }
     setProperties(core = {}, app = {}) {
@@ -1486,12 +2084,12 @@ class OpcPackage {
         await this.zip.discard(error);
     }
 }
-const _exports = Object.freeze({ partUri: _m15.partUri, relationshipPartUri: _m15.relationshipPartUri, relativePartTarget: _m15.relativePartTarget, corePropertiesXml: _m16.corePropertiesXml, appPropertiesXml: _m16.appPropertiesXml, relationshipsNamespace: relationshipsNamespace, officeRelationshipsNamespace: officeRelationshipsNamespace, contentTypesNamespace: contentTypesNamespace, relationshipTypes: relationshipTypes, ContentTypes: ContentTypes, OpcPackage: OpcPackage });
-_modules.set("eb6db17d49450674b12e834934423973c1995bd7a495459f2ff623f7ba0229fa", _exports);
+const _exports = Object.freeze({ partUri: _m23.partUri, relationshipPartUri: _m23.relationshipPartUri, relativePartTarget: _m23.relativePartTarget, corePropertiesXml: _m24.corePropertiesXml, appPropertiesXml: _m24.appPropertiesXml, relationshipsNamespace: relationshipsNamespace, officeRelationshipsNamespace: officeRelationshipsNamespace, contentTypesNamespace: contentTypesNamespace, relationshipTypes: relationshipTypes, ContentTypes: ContentTypes, OpcPackage: OpcPackage });
+_modules.set("4d4856357f94ecbeea67d111ff5e97f916ccc6be6aaefde219d461c6ad10a8c5", _exports);
 return _exports;
 })();
 
-const _m22 = _modules.get("204def412284dfb11df9aececd57c8c0455db2927ebdb483dd255e7b29f6f359") ?? (() => {
+const _m30 = _modules.get("204def412284dfb11df9aececd57c8c0455db2927ebdb483dd255e7b29f6f359") ?? (() => {
 function colorArgb(value) {
     if (typeof value !== "string" || !/^#?(?:[0-9a-f]{6}|[0-9a-f]{8})$/i.test(value))
         throw new TypeError("Color must be RGB or ARGB hex.");
@@ -1503,12 +2101,12 @@ _modules.set("204def412284dfb11df9aececd57c8c0455db2927ebdb483dd255e7b29f6f359",
 return _exports;
 })();
 
-const _m23 = _modules.get("4ab86bb45f864ae0512151e4068f81ed890a42fab7dc8a574efc3d748df7c3d4") ?? (() => {
+const _m31 = _modules.get("6ae88f25e1c09d00fbb828917498569f883fae88ec25d37caebaf8a2b802b148") ?? (() => {
 const { OfficeIMOError } = _m2;
 
-const { cleanXml, escapeOoxmlAttribute } = _m17;
+const { cleanXml, escapeOoxmlAttribute } = _m25;
 
-const { colorArgb } = _m22;
+const { colorArgb } = _m30;
 
 /** @internal Reject unsupported properties rather than silently losing presentation. */
 function fields(value, allowed, label) {
@@ -1610,18 +2208,18 @@ function differentialXml(style, policy, numberFormat) {
     return xml;
 }
 const _exports = Object.freeze({ fields: fields, optionalBoolean: optionalBoolean, DifferentialStyles: DifferentialStyles, differentialXml: differentialXml });
-_modules.set("4ab86bb45f864ae0512151e4068f81ed890a42fab7dc8a574efc3d748df7c3d4", _exports);
+_modules.set("6ae88f25e1c09d00fbb828917498569f883fae88ec25d37caebaf8a2b802b148", _exports);
 return _exports;
 })();
 
-const _m21 = _modules.get("d161fa0b379454c110e39cc08d827c2d47405c09066ecedbb70a12f4a35d2bfd") ?? (() => {
-const { escapeOoxmlAttribute, cleanXml, xmlDeclaration } = _m17;
+const _m29 = _modules.get("077c3c668f1457253dba044e6f6be7f7afd28a8976ed20c764bd5d5dc7c41889") ?? (() => {
+const { escapeOoxmlAttribute, cleanXml, xmlDeclaration } = _m25;
 
 const { OfficeIMOError } = _m2;
 
-const { colorArgb } = _m22;
+const { colorArgb } = _m30;
 
-const { DifferentialStyles } = _m23;
+const { DifferentialStyles } = _m31;
 
 
 
@@ -1784,6 +2382,10 @@ class StyleRegistry {
             ...(typeof overlay.border === "object" ? { border: { ...this.borders[source.border], ...overlay.border } } : {})
         });
     }
+    /** @internal Typed headings retain header appearance and the column's date number format. */
+    dateHeader(base, dateStyle) {
+        return this.compose(base, { numberFormat: this.styles[this.validateStyle(dateStyle)].numberFormat });
+    }
     /** @internal Column shorthand and header style composition. */
     forColumn(column, header = false, fill, date = false) {
         const base = !header && column.style !== undefined ? this.styles[this.validateStyle(column.style)] : undefined;
@@ -1819,17 +2421,131 @@ class StyleRegistry {
         }).join("") + '</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>' + this.differential.toXml() + '</styleSheet>';
     }
 }
-const _exports = Object.freeze({ colorArgb: _m22.colorArgb, spreadsheetNamespace: spreadsheetNamespace, NumberFormats: NumberFormats, validateStylePatch: validateStylePatch, copyStylePatch: copyStylePatch, StyleRegistry: StyleRegistry });
-_modules.set("d161fa0b379454c110e39cc08d827c2d47405c09066ecedbb70a12f4a35d2bfd", _exports);
+const _exports = Object.freeze({ colorArgb: _m30.colorArgb, spreadsheetNamespace: spreadsheetNamespace, NumberFormats: NumberFormats, validateStylePatch: validateStylePatch, copyStylePatch: copyStylePatch, StyleRegistry: StyleRegistry });
+_modules.set("077c3c668f1457253dba044e6f6be7f7afd28a8976ed20c764bd5d5dc7c41889", _exports);
 return _exports;
 })();
 
-const _m24 = _modules.get("1aac198e2184d5d5a6e3d4ac9d414ec92991420a1c8ad0f5f798ea8c7c8daab8") ?? (() => {
-const { cleanXml, escapeXml } = _m17;
+const _m33 = _modules.get("f1de2157d2aefa347a314940eb7f89c16545e11f69923920e605409433742f93") ?? (() => {
+const { NotSupportedError } = _m2;
 
-const { ExportCell, assertExportValue, assertScalar } = _m5;
+const { cleanXml, escapeXml } = _m25;
 
-const { isDate } = _m6;
+const formulaCells = new WeakSet();
+const nestedAggregateCells = new WeakSet();
+/** Reject external references and identify nested total functions without evaluating Excel expressions. */
+function inspectReferences(formula) {
+    let subtotal = false;
+    const identifier = /[\p{L}_\\][\p{L}\p{N}\p{M}_.\\]*/uy;
+    for (let i = 0; i < formula.length; i++) {
+        const character = formula[i];
+        if (character === '"') {
+            // Excel string literals double their embedded quotes. Their text is not a reference token.
+            while (++i < formula.length)
+                if (formula[i] === '"') {
+                    if (formula[i + 1] !== '"')
+                        break;
+                    i++;
+                }
+        }
+        else if (character === "'") {
+            let quoted = "";
+            while (++i < formula.length) {
+                if (formula[i] === "'") {
+                    if (formula[i + 1] !== "'")
+                        break;
+                    i++;
+                }
+                quoted += formula[i];
+            }
+            if (formula.slice(i + 1).trimStart().startsWith("!") && /[\[\]]/.test(quoted))
+                throw new NotSupportedError("external-workbook formulas");
+        }
+        else if (character === "[") {
+            let depth = 1;
+            while (++i < formula.length && depth) {
+                // Apostrophes escape special characters in table-column captions.
+                if (formula[i] === "'") {
+                    i++;
+                    continue;
+                }
+                if (formula[i] === "[")
+                    depth++;
+                else if (formula[i] === "]")
+                    depth--;
+            }
+            if (/^[A-Za-z0-9_.]*!/.test(formula.slice(i)))
+                throw new NotSupportedError("external-workbook formulas");
+            i--;
+        }
+        else if (character === "|")
+            throw new NotSupportedError("DDE formulas");
+        else {
+            identifier.lastIndex = i;
+            const token = identifier.exec(formula);
+            if (token) {
+                if (["SUBTOTAL", "AGGREGATE", "_XLFN.AGGREGATE"].includes(token[0].toUpperCase()) && /^\s*\(/.test(formula.slice(identifier.lastIndex)))
+                    subtotal = true;
+                i = identifier.lastIndex - 1;
+            }
+        }
+    }
+    return subtotal;
+}
+function captureFormula(value) {
+    if (typeof value !== "string")
+        throw new TypeError("Formula text must be a string.");
+    const text = value.trim().replace(/^=/, "");
+    if (!text.trim() || text.length > 8192)
+        throw new RangeError("Formulas require 1 through 8,192 characters.");
+    // Text stripping could change a calculation, so formulas always reject invalid XML characters.
+    cleanXml(text, "reject");
+    return { text, subtotal: inspectReferences(text) };
+}
+/** An authored XLSX storage expression and its initial numeric or blank result. Future functions retain their required _xlfn prefixes; the writer does not evaluate or normalize function names. */
+class FormulaCell {
+    cachedValue;
+    style;
+    static [Symbol.hasInstance](value) {
+        return value !== null && typeof value === "object" && formulaCells.has(value);
+    }
+    formula;
+    constructor(formula, cachedValue, style) {
+        this.cachedValue = cachedValue;
+        this.style = style;
+        const captured = captureFormula(formula);
+        this.formula = captured.text;
+        if (cachedValue !== null && (typeof cachedValue !== "number" || !Number.isFinite(cachedValue)))
+            throw new TypeError("Formula caches must be finite numbers or null for a blank result.");
+        if (style !== undefined && (!Number.isSafeInteger(style) || style < 0))
+            throw new RangeError("Formula style indexes must be nonnegative safe integers.");
+        formulaCells.add(this);
+        if (captured.subtotal)
+            nestedAggregateCells.add(this);
+        Object.freeze(this);
+    }
+}
+/** @internal Excel excludes cells containing SUBTOTAL or AGGREGATE expressions from a generated SUBTOTAL. */
+function isSubtotalFormula(cell) { return nestedAggregateCells.has(cell); }
+/** @internal The worksheet owns the cell coordinate, style and cumulative formula budget. */
+function formulaXml(cell) {
+    if (!(cell instanceof FormulaCell))
+        throw new TypeError("Formula cells must be created with FormulaCell.");
+    return "<f>" + escapeXml(cell.formula, "reject") + "</f><v>" + (cell.cachedValue ?? "") + "</v>";
+}
+const _exports = Object.freeze({ FormulaCell: FormulaCell, isSubtotalFormula: isSubtotalFormula, formulaXml: formulaXml });
+_modules.set("f1de2157d2aefa347a314940eb7f89c16545e11f69923920e605409433742f93", _exports);
+return _exports;
+})();
+
+const _m32 = _modules.get("4bce839e90e3ef590aa1b224ffd9c4bdf24d7639b93bdf879f9a0d79de4cd0e4") ?? (() => {
+const { cleanXml, escapeXml } = _m25;
+
+const { assertExportValue, assertScalar } = _m5;
+
+const { FormulaCell } = _m33;
+
+const { copyExportValue } = _m13;
 
 /** A typed value plus a workbook-local style index. */
 class Cell {
@@ -1842,6 +2558,8 @@ class Cell {
 }
 /** @internal Advanced worksheets admit cells registered on their owning workbook. */
 function assertXlsxValue(value) {
+    if (value instanceof FormulaCell)
+        return;
     if (value instanceof Cell)
         assertScalar(value.value);
     else
@@ -1849,13 +2567,11 @@ function assertXlsxValue(value) {
 }
 /** @internal Buffered samples and footer definitions capture mutable Date values. */
 function copyValue(value) {
-    if (isDate(value))
-        return new Date(value.getTime());
-    if (value instanceof Cell && isDate(value.value))
-        return new Cell(new Date(value.value.getTime()), value.style);
-    if (value instanceof ExportCell && isDate(value.value))
-        return new ExportCell(new Date(value.value.getTime()), { ...(value.text === undefined ? {} : { text: value.text }), ...(value.presentation ? { presentation: value.presentation } : {}), ...(value.link ? { link: value.link } : {}) });
-    return value;
+    if (value instanceof FormulaCell)
+        return value;
+    if (value instanceof Cell)
+        return Object.freeze(new Cell(copyExportValue(value.value), value.style));
+    return copyExportValue(value);
 }
 function cellText(value, policy = "strip") {
     const text = cleanXml(value, policy);
@@ -1886,12 +2602,13 @@ function sheetName(requested, names, policy, register = true) {
         throw new TypeError("Sheet name must be a string.");
     // Validate and deduplicate the decoded literal value, before ST_Xstring attribute encoding.
     // A requested _xHHHH_ token is literal text; the serializer protects its leading underscore.
-    let base = cleanXml(requested, policy).replace(/[\[\]:*?/\\]/g, "_").trim().replace(/^'+|'+$/g, "").trim();
+    let base = cleanXml(requested, policy).replace(/[\[\]:*?/\\]/g, "_").replace(/^[\s']+|[\s']+$/g, "");
+    // Clipping can expose an internal apostrophe or the reserved History name.
+    base = clipName(base, 31).replace(/[\s']+$/g, "");
     if (!base)
         base = "Sheet";
     if (base.toLowerCase() === "history")
         base += "_";
-    base = clipName(base, 31);
     let name = base, suffix = 2;
     while (names.has(name.toLowerCase())) {
         const tail = " (" + suffix++ + ")";
@@ -1914,17 +2631,193 @@ function excelDate(date, mode) {
     return (time - Date.UTC(1899, 11, 31)) / 86400000 + (time >= Date.UTC(1900, 2, 1) ? 1 : 0);
 }
 const _exports = Object.freeze({ Cell: Cell, assertXlsxValue: assertXlsxValue, copyValue: copyValue, cellText: cellText, inlineText: inlineText, columnName: columnName, sheetName: sheetName, excelDate: excelDate });
-_modules.set("1aac198e2184d5d5a6e3d4ac9d414ec92991420a1c8ad0f5f798ea8c7c8daab8", _exports);
+_modules.set("4bce839e90e3ef590aa1b224ffd9c4bdf24d7639b93bdf879f9a0d79de4cd0e4", _exports);
 return _exports;
 })();
 
-const _m26 = _modules.get("8193451460f632b94935a6a96b293e3bff4434b68eff93b8a45331424b91052d") ?? (() => {
-const { cleanXml, escapeXml, escapeOoxmlAttribute, xmlDeclaration } = _m17;
+const _m34 = _modules.get("e92456dbf0c50db97c8b6cf9a09365489ca3a882b4d506ad4dd841805b1146d1") ?? (() => {
+const { captureFields } = _m10;
+
+/** Capture bounded disjoint ranges before asynchronous serialization; absent columns stay visible. */
+function captureColumnOutlines(input, columns) {
+    if (input === undefined)
+        return undefined;
+    if (!Array.isArray(input) || input.length > columns)
+        throw new TypeError("Column outlines must be bounded, non-overlapping ranges.");
+    let end = 0;
+    return Object.freeze(input.map(range => {
+        if (!range || typeof range !== "object")
+            throw new TypeError("Column outlines require range metadata.");
+        return captureFields(range, ["firstColumn", "columnCount", "level", "hidden", "collapsed"]);
+    }).sort((a, b) => a.firstColumn - b.firstColumn).map(range => {
+        const { firstColumn, columnCount, level = 0, hidden, collapsed } = range;
+        if (!Number.isSafeInteger(firstColumn) || firstColumn < end || !Number.isSafeInteger(columnCount) || columnCount < 1 || firstColumn + columnCount > columns)
+            throw new RangeError("Column outline ranges must be disjoint and within the declared columns.");
+        if (!Number.isInteger(level) || level < 0 || level > 7)
+            throw new RangeError("Column outline level must be from zero through seven.");
+        for (const flag of [hidden, collapsed])
+            if (flag !== undefined && typeof flag !== "boolean")
+                throw new TypeError("Column outline flags must be booleans.");
+        end = firstColumn + columnCount;
+        return Object.freeze({ firstColumn, columnCount, level, ...(hidden === undefined ? {} : { hidden }), ...(collapsed === undefined ? {} : { collapsed }) });
+    }));
+}
+/** @internal Positions are captured even when a sheet has only column outlines. */
+function validateOutlinePositions(options) {
+    for (const flag of [options.outlineSummaryBelow, options.outlineSummaryRight])
+        if (flag !== undefined && typeof flag !== "boolean")
+            throw new TypeError("Outline summary positions must be booleans.");
+}
+/** @internal Resolve at most 16,384 columns once, without retaining any worksheet body. */
+function columnOutlineMap(ranges) {
+    const result = new Map();
+    for (const range of ranges ?? [])
+        for (let index = range.firstColumn; index < range.firstColumn + range.columnCount; index++)
+            result.set(index, range);
+    return result;
+}
+const _exports = Object.freeze({ captureColumnOutlines: captureColumnOutlines, validateOutlinePositions: validateOutlinePositions, columnOutlineMap: columnOutlineMap });
+_modules.set("e92456dbf0c50db97c8b6cf9a09365489ca3a882b4d506ad4dd841805b1146d1", _exports);
+return _exports;
+})();
+
+const _m37 = _modules.get("84c16159c55cf4c0af5d3c67510302694946ae99c6c685fc09314069ee3da5c5") ?? (() => {
+const { ChunkedTextSink } = _m3;
+
+const { escapeXml, xmlDeclaration } = _m25;
+
+const { officeRelationshipsNamespace } = _m22;
+
+const { columnName } = _m32;
+
+const chartNamespace = "http://schemas.openxmlformats.org/drawingml/2006/chart";
+const chartContentType = "application/vnd.openxmlformats-officedocument.drawingml.chart+xml";
+/** @internal Graphic frames share a drawing with worksheet images; their nonvisual IDs must be unique. */
+function chartAnchorXml(chart, objectId, policy) {
+    const size = ' cx="' + Math.round(chart.width * 9525) + '" cy="' + Math.round(chart.height * 9525) + '"';
+    return '<xdr:oneCellAnchor><xdr:from><xdr:col>' + (chart.column - 1) + '</xdr:col><xdr:colOff>0</xdr:colOff><xdr:row>' + (chart.row - 1) + '</xdr:row><xdr:rowOff>0</xdr:rowOff></xdr:from>' +
+        '<xdr:ext' + size + '/><xdr:graphicFrame macro=""><xdr:nvGraphicFramePr><xdr:cNvPr id="' + objectId + '" name="Chart ' + chart.id + '" descr="' + escapeXml(chart.description ?? chart.title ?? "", policy) + '"/>' +
+        '<xdr:cNvGraphicFramePr/></xdr:nvGraphicFramePr><xdr:xfrm><a:off x="0" y="0"/><a:ext cx="0" cy="0"/></xdr:xfrm><a:graphic><a:graphicData uri="' + chartNamespace + '">' +
+        '<c:chart xmlns:c="' + chartNamespace + '" r:id="chart' + chart.id + '"/></a:graphicData></a:graphic></xdr:graphicFrame><xdr:clientData/></xdr:oneCellAnchor>';
+}
+function titleXml(value, policy) {
+    return '<c:title><c:tx><c:rich><a:bodyPr/><a:lstStyle/><a:p><a:pPr><a:defRPr/></a:pPr><a:r><a:t xml:space="preserve">' +
+        escapeXml(value, policy) + '</a:t></a:r></a:p></c:rich></c:tx><c:overlay val="0"/></c:title>';
+}
+function* reference(kind, formula, values, policy) {
+    yield '<c:' + kind + 'Ref><c:f>' + escapeXml(formula, policy) + '</c:f><c:' + kind + 'Cache>';
+    if (kind === "num")
+        yield '<c:formatCode>General</c:formatCode>';
+    yield '<c:ptCount val="' + values.length + '"/>';
+    for (let i = 0; i < values.length; i++)
+        yield '<c:pt idx="' + i + '"><c:v xml:space="preserve">' + escapeXml(String(values[i]), policy) + '</c:v></c:pt>';
+    yield '</c:' + kind + 'Cache></c:' + kind + 'Ref>';
+}
+function labelsXml(chart, policy) {
+    const labels = chart.dataLabels;
+    if (!labels)
+        return "";
+    const positions = { center: "ctr", insideEnd: "inEnd", outsideEnd: "outEnd", bestFit: "bestFit", above: "t", below: "b", left: "l", right: "r" };
+    return '<c:dLbls>' + (labels.numberFormat === undefined ? "" : '<c:numFmt formatCode="' + escapeXml(labels.numberFormat, policy) + '" sourceLinked="0"/>') +
+        (labels.position === undefined ? "" : '<c:dLblPos val="' + positions[labels.position] + '"/>') + '<c:showLegendKey val="0"/><c:showVal val="' + (labels.showValue === false ? 0 : 1) +
+        '"/><c:showCatName val="' + (labels.showCategoryName ? 1 : 0) + '"/><c:showSerName val="' + (labels.showSeriesName ? 1 : 0) +
+        '"/><c:showPercent val="' + (labels.showPercent ? 1 : 0) + '"/><c:showBubbleSize val="0"/></c:dLbls>';
+}
+function axesXml(chart, policy) {
+    const horizontal = chart.type === "barClustered", value = chart.valueAxis;
+    const scaling = '<c:scaling><c:orientation val="minMax"/>' + (value?.maximum === undefined ? "" : '<c:max val="' + value.maximum + '"/>') +
+        (value?.minimum === undefined ? "" : '<c:min val="' + value.minimum + '"/>') + '</c:scaling>';
+    const ticks = '<c:majorTickMark val="none"/><c:minorTickMark val="none"/><c:tickLblPos val="nextTo"/>';
+    return '<c:catAx><c:axId val="1"/><c:scaling><c:orientation val="minMax"/></c:scaling><c:delete val="0"/><c:axPos val="' + (horizontal ? "l" : "b") + '"/>' +
+        (chart.categoryAxis?.title ? titleXml(chart.categoryAxis.title, policy) : "") + '<c:numFmt formatCode="General" sourceLinked="1"/>' + ticks +
+        '<c:crossAx val="2"/><c:crosses val="autoZero"/><c:auto val="1"/><c:lblAlgn val="ctr"/><c:lblOffset val="100"/><c:noMultiLvlLbl val="0"/></c:catAx>' +
+        '<c:valAx><c:axId val="2"/>' + scaling + '<c:delete val="0"/><c:axPos val="' + (horizontal ? "b" : "l") + '"/><c:majorGridlines/>' +
+        (value?.title ? titleXml(value.title, policy) : "") + '<c:numFmt formatCode="' + escapeXml(value?.numberFormat ?? "General", policy) + '" sourceLinked="' + (value?.numberFormat === undefined ? 1 : 0) + '"/>' + ticks +
+        '<c:crossAx val="1"/><c:crosses val="autoZero"/><c:crossBetween val="between"/></c:valAx>';
+}
+function* chartXml(chart, policy) {
+    const pie = chart.type === "pie", line = chart.type === "line", tag = pie ? "pieChart" : line ? "lineChart" : "barChart";
+    const source = "'" + chart.dataSheetName.replace(/'/g, "''") + "'!", end = chart.data.categories.length + 1;
+    yield xmlDeclaration + '<c:chartSpace xmlns:c="' + chartNamespace + '" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="' + officeRelationshipsNamespace + '"><c:date1904 val="0"/>' +
+        (chart.language === undefined ? "" : '<c:lang val="' + escapeXml(chart.language, policy) + '"/>') + '<c:chart>';
+    if (chart.title)
+        yield titleXml(chart.title, policy);
+    yield '<c:autoTitleDeleted val="' + (chart.title ? 0 : 1) + '"/><c:plotArea><c:layout/><c:' + tag + '>';
+    if (!pie)
+        yield line ? '<c:grouping val="standard"/>' : '<c:barDir val="' + (chart.type === "barClustered" ? "bar" : "col") + '"/><c:grouping val="clustered"/>';
+    yield '<c:varyColors val="' + (pie ? 1 : 0) + '"/>';
+    for (let i = 0; i < chart.data.series.length; i++) {
+        const series = chart.data.series[i], column = "$" + columnName(i + 2);
+        yield '<c:ser><c:idx val="' + i + '"/><c:order val="' + i + '"/><c:tx>';
+        const nameFormula = chart.binding ? chart.binding.references.names[i] : source + column + "$1";
+        if (nameFormula === undefined)
+            yield '<c:v>' + escapeXml(series.name, policy) + '</c:v>';
+        else
+            yield* reference("str", nameFormula, [series.name], policy);
+        yield '</c:tx>';
+        if (series.color)
+            yield '<c:spPr>' + (line ? '<a:ln w="25400">' : "") + '<a:solidFill><a:srgbClr val="' + series.color + '"/></a:solidFill>' + (line ? '</a:ln>' : "") + '</c:spPr>';
+        if (!line && !pie)
+            yield '<c:invertIfNegative val="0"/>';
+        yield '<c:cat>';
+        yield* reference("str", chart.binding?.references.categories ?? source + '$A$2:$A$' + end, chart.data.categories, policy);
+        yield '</c:cat><c:val>';
+        yield* reference("num", chart.binding?.references.values[i] ?? source + column + "$2:" + column + "$" + end, series.values, policy);
+        yield '</c:val>' + (line ? '<c:smooth val="0"/>' : "") + '</c:ser>';
+    }
+    yield labelsXml(chart, policy);
+    if (!pie && !line)
+        yield '<c:gapWidth val="150"/><c:overlap val="0"/>';
+    if (!pie)
+        yield '<c:axId val="1"/><c:axId val="2"/>';
+    yield '</c:' + tag + '>';
+    if (!pie)
+        yield axesXml(chart, policy);
+    yield '</c:plotArea>';
+    if (chart.legend !== false) {
+        const position = { right: "r", bottom: "b", left: "l", top: "t" }[chart.legend ?? "right"];
+        yield '<c:legend><c:legendPos val="' + position + '"/><c:layout/><c:overlay val="0"/></c:legend>';
+    }
+    // Snapshot data sheets are hidden; bound sources remain visible and respect native visibility.
+    yield '<c:plotVisOnly val="' + (chart.binding ? 1 : 0) + '"/><c:dispBlanksAs val="gap"/><c:showDLblsOverMax val="0"/></c:chart></c:chartSpace>';
+}
+/** @internal Stream cache points through the existing bounded, cancellation-aware XML sink. */
+async function writeChartXml(chart, destination, policy, signal) {
+    const text = new ChunkedTextSink(destination, signal);
+    for (const fragment of chartXml(chart, policy))
+        if (text.append(fragment))
+            await text.flush();
+    await text.close();
+}
+const _exports = Object.freeze({ chartNamespace: chartNamespace, chartContentType: chartContentType, chartAnchorXml: chartAnchorXml, writeChartXml: writeChartXml });
+_modules.set("84c16159c55cf4c0af5d3c67510302694946ae99c6c685fc09314069ee3da5c5", _exports);
+return _exports;
+})();
+
+const _m36 = _modules.get("9d4496a1ff3d58ac0b9dcd7304e6861184df30700c344329157899639df7b5e4") ?? (() => {
+const { cleanXml, escapeXml, escapeOoxmlAttribute, xmlDeclaration } = _m25;
 
 const { copyExportLink } = _m7;
 
-const { officeRelationshipsNamespace } = _m14;
+const { officeRelationshipsNamespace } = _m22;
 
+const { chartAnchorXml } = _m37;
+
+const { captureFields } = _m10;
+
+/** @internal Native charts and images use the same drawing coordinate policy. */
+function copyDrawingAnchor(anchor, policy) {
+    anchor = captureFields(anchor, ["row", "column", "width", "height", "description"]);
+    if (!Number.isInteger(anchor.row) || anchor.row < 1 || anchor.row > 1048576 || !Number.isInteger(anchor.column) || anchor.column < 1 || anchor.column > 16384)
+        throw new RangeError("Drawing anchors must be one-based worksheet rows and columns.");
+    for (const size of [anchor.width, anchor.height])
+        if (!Number.isFinite(size) || size <= 0 || size > 100000)
+            throw new RangeError("Drawing display dimensions must be positive and at most 100,000 pixels.");
+    if (anchor.description !== undefined && typeof anchor.description !== "string")
+        throw new TypeError("Drawing description must be a string.");
+    return Object.freeze({ row: anchor.row, column: anchor.column, width: anchor.width, height: anchor.height,
+        ...(anchor.description === undefined ? {} : { description: cleanXml(anchor.description, policy) }) });
+}
 function cellPosition(reference) {
     const match = typeof reference === "string" && /^([A-Z]{1,3})([1-9][0-9]{0,6})$/.exec(reference);
     if (!match)
@@ -1938,32 +2831,31 @@ function cellPosition(reference) {
     return { row, column };
 }
 function copyHyperlink(link, policy) {
+    link = captureFields(link, ["cell", "target", "tooltip"]);
     cellPosition(link.cell);
     const copied = copyExportLink(link);
     return Object.freeze({ cell: link.cell, target: copied.target,
         ...(copied.tooltip === undefined ? {} : { tooltip: cleanXml(copied.tooltip, policy) }) });
 }
-function copyImage(image, policy) {
+function copyImage(image, policy, checkBytes) {
+    image = captureFields(image, ["data", "row", "column", "width", "height", "description"]);
+    if (image.data instanceof Uint8Array)
+        checkBytes?.(image.data.length);
     if (!(image.data instanceof Uint8Array) || image.data.length < 33 ||
         ![137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82].every((byte, i) => image.data[i] === byte))
         throw new TypeError("Images require PNG bytes with a valid signature and IHDR header.");
     const header = new DataView(image.data.buffer, image.data.byteOffset, image.data.byteLength);
     if (!header.getUint32(16) || !header.getUint32(20))
         throw new RangeError("PNG dimensions must be positive.");
-    if (!Number.isInteger(image.row) || image.row < 1 || image.row > 1048576 || !Number.isInteger(image.column) || image.column < 1 || image.column > 16384)
-        throw new RangeError("Image anchors must be one-based worksheet rows and columns.");
-    for (const size of [image.width, image.height])
-        if (!Number.isFinite(size) || size <= 0 || size > 100000)
-            throw new RangeError("Image display dimensions must be positive and at most 100,000 pixels.");
-    return Object.freeze({ ...image, data: new Uint8Array(image.data),
-        ...(image.description === undefined ? {} : { description: cleanXml(image.description, policy) }) });
+    return Object.freeze({ ...copyDrawingAnchor(image, policy), data: new Uint8Array(image.data) });
 }
 function hyperlinksXml(links, policy, internal = []) {
     return '<hyperlinks>' + links.map((link, i) => '<hyperlink ref="' + link.cell + '" r:id="link' + (i + 1) + '"' +
         (link.tooltip === undefined ? "" : ' tooltip="' + escapeOoxmlAttribute(link.tooltip, policy) + '"') + '/>').join("") +
         internal.map(link => '<hyperlink ref="' + link.cell + '" location="' + escapeOoxmlAttribute(link.location, policy) + '"/>').join("") + '</hyperlinks>';
 }
-function drawingXml(images, policy) {
+/** @internal Package drawing serialization does not form part of the worksheet input contract. */
+function drawingXml(images, policy, charts = []) {
     const ns = "http://schemas.openxmlformats.org/drawingml/2006/";
     return xmlDeclaration + '<xdr:wsDr xmlns:xdr="' + ns + 'spreadsheetDrawing" xmlns:a="' + ns + 'main" xmlns:r="' + officeRelationshipsNamespace + '">' +
         images.map((image, i) => {
@@ -1972,18 +2864,18 @@ function drawingXml(images, policy) {
                 '<xdr:ext' + size + '/><xdr:pic><xdr:nvPicPr><xdr:cNvPr id="' + (i + 1) + '" name="Image ' + (i + 1) + '" descr="' + escapeXml(image.description ?? "", policy) + '"/><xdr:cNvPicPr/></xdr:nvPicPr>' +
                 '<xdr:blipFill><a:blip r:embed="image' + (i + 1) + '"/><a:stretch><a:fillRect/></a:stretch></xdr:blipFill>' +
                 '<xdr:spPr><a:xfrm><a:off x="0" y="0"/><a:ext' + size + '/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></xdr:spPr></xdr:pic><xdr:clientData/></xdr:oneCellAnchor>';
-        }).join("") + '</xdr:wsDr>';
+        }).join("") + charts.map((chart, i) => chartAnchorXml(chart, images.length + i + 1, policy)).join("") + '</xdr:wsDr>';
 }
 const drawingContentType = "application/vnd.openxmlformats-officedocument.drawing+xml";
-const _exports = Object.freeze({ cellPosition: cellPosition, copyHyperlink: copyHyperlink, copyImage: copyImage, hyperlinksXml: hyperlinksXml, drawingXml: drawingXml, drawingContentType: drawingContentType });
-_modules.set("8193451460f632b94935a6a96b293e3bff4434b68eff93b8a45331424b91052d", _exports);
+const _exports = Object.freeze({ copyDrawingAnchor: copyDrawingAnchor, cellPosition: cellPosition, copyHyperlink: copyHyperlink, copyImage: copyImage, hyperlinksXml: hyperlinksXml, drawingXml: drawingXml, drawingContentType: drawingContentType });
+_modules.set("9d4496a1ff3d58ac0b9dcd7304e6861184df30700c344329157899639df7b5e4", _exports);
 return _exports;
 })();
 
-const _m28 = _modules.get("38b2005e8211a5e84d49238c1faf0d830b5ed2ede275f87e2933dfeb3078f78f") ?? (() => {
+const _m39 = _modules.get("4c91e257806f805b473340527db7ce3404c98ac27db0a775ff047dc3dded10cc") ?? (() => {
 const { OfficeIMOError } = _m2;
 
-const { cellPosition } = _m26;
+const { cellPosition } = _m36;
 
 function indexRows(regions) {
     if (!regions.length)
@@ -2081,72 +2973,65 @@ class MergeRegions {
         throw new RangeError("Merged ranges must stay within exported rows."); }
 }
 const _exports = Object.freeze({ MergeRegions: MergeRegions });
-_modules.set("38b2005e8211a5e84d49238c1faf0d830b5ed2ede275f87e2933dfeb3078f78f", _exports);
+_modules.set("4c91e257806f805b473340527db7ce3404c98ac27db0a775ff047dc3dded10cc", _exports);
 return _exports;
 })();
 
-const _m29 = _modules.get("c9fde2c438e186da56f740105fcd41c265fdfdd855a4f1b811d556a02387479b") ?? (() => {
-class NumericAggregate {
-    operation;
-    count = 0;
-    sum = 0;
-    mean = 0;
-    min = Infinity;
-    max = -Infinity;
-    constructor(operation) {
-        this.operation = operation;
+const _m40 = _modules.get("47efdc8f108b0e995accdd63fd1addea0e4de507010cbf0975417e7151636360") ?? (() => {
+const { ExportCell } = _m5;
+
+const { tableSpans } = _m17;
+
+const { copyValue, columnName } = _m32;
+
+/** Bounded heading/footer values and relative merges captured before row production. */
+class StructuredRows {
+    values;
+    ranges;
+    constructor(rows, columns) {
+        const anchors = tableSpans(rows, columns), ranges = [];
+        this.values = anchors.map((row, level) => {
+            const values = Array(columns).fill(undefined);
+            for (const anchor of row) {
+                values[anchor.first] = copyValue(anchor.value);
+                if (anchor.span > 1 || anchor.rowSpan > 1)
+                    ranges.push({ first: anchor.first + 1, last: anchor.first + anchor.span, top: level + 1, bottom: level + anchor.rowSpan });
+            }
+            return Object.freeze(values);
+        });
+        this.ranges = ranges;
     }
-    accept(value) {
-        if (!this.operation || typeof value !== "number" || !Number.isFinite(value))
-            return;
-        this.count++;
-        if (this.operation === "sum") {
-            this.sum += value;
-            if (!Number.isFinite(this.sum))
-                throw new RangeError("Numeric total exceeds finite number range.");
-        }
-        else if (this.operation === "average") {
-            const delta = value - this.mean;
-            this.mean = this.count === 1 ? value : Number.isFinite(delta) ? this.mean + delta / this.count : this.mean * ((this.count - 1) / this.count) + value / this.count;
-        }
-        else if (this.operation === "min")
-            this.min = Math.min(this.min, value);
-        else if (this.operation === "max")
-            this.max = Math.max(this.max, value);
-    }
-    value() {
-        return this.operation === "count" ? this.count : this.operation === "sum" ? this.sum : !this.count ? null : this.operation === "average" ? this.mean : this.operation === "min" ? this.min : this.max;
+    get mergeCount() { return this.ranges.length; }
+    merges(offset) { return this.ranges.map(r => columnName(r.first) + (r.top + offset) + ":" + columnName(r.last) + (r.bottom + offset)); }
+    /** A native filter/table requires one real leaf cell for each declared column. */
+    matchesLeaf(headers) {
+        const last = this.values.length;
+        return !this.ranges.some(r => r.bottom === last) && this.values[last - 1].every((value, index) => (value instanceof ExportCell ? value.value : value) === headers[index]);
     }
 }
-function createTotals(columns, totals = {}) {
-    const keys = columns.map(c => c.key ?? c.header);
-    for (const [key, operation] of Object.entries(totals)) {
-        if (keys.filter(k => k === key).length !== 1)
-            throw new TypeError("Totals need an unambiguous declared column key: " + key);
-        if (!["sum", "count", "average", "min", "max"].includes(operation))
-            throw new TypeError("Invalid total operation.");
-    }
-    return keys.map(key => new NumericAggregate(Object.prototype.hasOwnProperty.call(totals, key) ? totals[key] : undefined));
-}
-const _exports = Object.freeze({ NumericAggregate: NumericAggregate, createTotals: createTotals });
-_modules.set("c9fde2c438e186da56f740105fcd41c265fdfdd855a4f1b811d556a02387479b", _exports);
+const _exports = Object.freeze({ StructuredRows: StructuredRows });
+_modules.set("47efdc8f108b0e995accdd63fd1addea0e4de507010cbf0975417e7151636360", _exports);
 return _exports;
 })();
 
-const _m27 = _modules.get("8c89477c967f5ac6593547229583a6a670c67c5d0aa8e71d28e0e4a4e577597d") ?? (() => {
+const _m38 = _modules.get("23615ba776e7025e5e40cde325ad13799a7eeae6c88cb2ed74395222f91e6a81") ?? (() => {
 const { ExportCell } = _m5;
 
 const { isDate } = _m6;
 
-const { Cell, cellText, columnName } = _m24;
+const { Cell, cellText, columnName } = _m32;
 
-const { escapeOoxmlAttribute } = _m17;
+const { FormulaCell } = _m33;
 
-const { MergeRegions } = _m28;
+const { escapeOoxmlAttribute } = _m25;
+
+const { MergeRegions } = _m39;
 
 const { OfficeIMOError } = _m2;
 
-const { createTotals } = _m29;
+const { createTotals } = _m12;
+
+const { StructuredRows } = _m40;
 
 /** @internal A computed formula with a numeric cache; no public arbitrary-formula input. */
 class ComputedTotal {
@@ -2170,6 +3055,9 @@ class ReportLayout {
     regions;
     widths;
     sampleRows;
+    structuredFooter;
+    footerRows;
+    mergeCount;
     aggregates;
     constructor(columns, options, policy, maximumMerges = 10000, maximumSampleCells = 100000) {
         this.columns = columns;
@@ -2185,36 +3073,54 @@ class ReportLayout {
                 throw new RangeError("Title height must be positive and at most 409 points.");
         }
         const depth = Math.max(0, ...columns.map(c => c.groups?.length ?? 0));
-        if (depth > 16)
-            throw new RangeError("Grouped headings support at most 16 levels.");
-        if (depth && options.includeHeader === false)
-            throw new TypeError("Grouped headings require leaf headers.");
+        if (options.headerRows === undefined) {
+            if (depth > 16)
+                throw new RangeError("Grouped headings support at most 16 levels.");
+            if (depth && options.includeHeader === false)
+                throw new TypeError("Grouped headings require leaf headers.");
+        }
         const headings = [], merges = [];
         if (titleRows && columns.length > 1)
             merges.push("A1:" + columnName(columns.length) + "1");
-        for (let level = 0; level < depth; level++) {
-            const values = columns.map(c => c.groups?.[level] ?? "");
-            for (const value of values)
-                cellText(value, policy);
-            for (let first = 0; first < columns.length;) {
-                let last = first;
-                const prefix = JSON.stringify(columns[first].groups?.slice(0, level + 1));
-                while (last + 1 < columns.length && values[first] && JSON.stringify(columns[last + 1].groups?.slice(0, level + 1)) === prefix)
-                    last++;
-                if (last > first) {
-                    merges.push(columnName(first + 1) + (level + 1 + titleRows) + ":" + columnName(last + 1) + (level + 1 + titleRows));
-                    for (let i = first + 1; i <= last; i++)
-                        values[i] = "";
-                }
-                first = last + 1;
-            }
-            headings.push(values);
+        if (options.headerRows !== undefined && options.includeHeader !== false) {
+            const structured = new StructuredRows(options.headerRows, columns.length);
+            if ((options.table || options.autoFilter) && !structured.matchesLeaf(columns.map(c => c.header)))
+                throw new TypeError("Native tables and autofilters require an unmerged final heading row matching the declared leaf headers.");
+            headings.push(...structured.values);
+            merges.push(...structured.merges(titleRows));
         }
-        this.headerRows = titleRows + (columns.length && options.includeHeader !== false ? depth + 1 : 0);
+        else if (options.includeHeader !== false) {
+            for (let level = 0; level < depth; level++) {
+                const values = columns.map(c => c.groups?.[level] ?? "");
+                for (const value of values)
+                    cellText(value, policy);
+                for (let first = 0; first < columns.length;) {
+                    let last = first;
+                    const prefix = JSON.stringify(columns[first].groups?.slice(0, level + 1));
+                    while (last + 1 < columns.length && values[first] && JSON.stringify(columns[last + 1].groups?.slice(0, level + 1)) === prefix)
+                        last++;
+                    if (last > first) {
+                        merges.push(columnName(first + 1) + (level + 1 + titleRows) + ":" + columnName(last + 1) + (level + 1 + titleRows));
+                        for (let i = first + 1; i <= last; i++)
+                            values[i] = "";
+                    }
+                    first = last + 1;
+                }
+                headings.push(values);
+            }
+            if (columns.length)
+                headings.push(columns.map(c => c.header));
+        }
+        this.headerRows = titleRows + headings.length;
         this.firstHeaderRow = columns.length && options.includeHeader !== false ? titleRows + 1 : 0;
         if (options.mergedCells !== undefined && !Array.isArray(options.mergedCells))
             throw new TypeError("Merged ranges must be an array.");
-        if (options.mergedCells && options.mergedCells.length + merges.length > maximumMerges)
+        if (options.footer?.rows !== undefined && (options.footer.values !== undefined || options.footer.totals !== undefined))
+            throw new TypeError("Structured footer rows cannot accompany footer values or totals.");
+        this.structuredFooter = options.footer?.rows === undefined ? undefined : new StructuredRows(options.footer.rows, columns.length);
+        this.footerRows = this.structuredFooter?.values.length ?? (options.footer ? 1 : 0);
+        this.mergeCount = merges.length + (options.mergedCells?.length ?? 0) + (this.structuredFooter?.mergeCount ?? 0);
+        if (this.mergeCount > maximumMerges)
             throw new OfficeIMOError("RESOURCE_LIMIT", "maxMergedRanges exceeded.");
         this.regions = new MergeRegions([...merges, ...(options.mergedCells ?? [])], columns.length, maximumMerges);
         if (options.table)
@@ -2237,12 +3143,16 @@ class ReportLayout {
         if (options.print)
             validatePrint(options.print, policy);
     }
+    /** Resolve appended footer coordinates only after the streamed data row count is known. */
+    finalRegions(rows, maximumMerges) {
+        return this.structuredFooter ? new MergeRegions([...this.merges, ...this.structuredFooter.merges(this.headerRows + rows)], this.columns.length, maximumMerges) : this.regions;
+    }
     sample(values) {
         const min = this.options.autoSize?.minWidth ?? 8, max = this.options.autoSize?.maxWidth ?? 60;
         values.forEach((value, i) => {
             if (!this.columns[i] || this.columns[i].width !== undefined)
                 return;
-            const raw = value instanceof ExportCell ? value.text ?? value.value : value instanceof Cell ? value.value : value;
+            const raw = value instanceof FormulaCell ? value.cachedValue : value instanceof ExportCell ? value.text ?? value.value : value instanceof Cell ? value.value : value;
             const text = isDate(raw) ? Number.isFinite(raw.getTime()) ? raw.toISOString() : "" : raw == null ? "" : String(raw);
             // Inspect at most a small prefix. A single long value cannot make a huge sampling allocation.
             const length = Math.max(0, ...text.slice(0, Math.ceil(max * 4)).split(/\r?\n/).map(line => [...line].length));
@@ -2301,20 +3211,100 @@ function printXml(options, policy) {
             (options.footer === undefined ? "" : '<oddFooter>' + escapeOoxmlAttribute("&C" + options.footer.replace(/&/g, "&&"), policy) + '</oddFooter>') + '</headerFooter>' : "");
 }
 const _exports = Object.freeze({ ComputedTotal: ComputedTotal, ReportLayout: ReportLayout, totalFormula: totalFormula, printXml: printXml });
-_modules.set("8c89477c967f5ac6593547229583a6a670c67c5d0aa8e71d28e0e4a4e577597d", _exports);
+_modules.set("23615ba776e7025e5e40cde325ad13799a7eeae6c88cb2ed74395222f91e6a81", _exports);
 return _exports;
 })();
 
-const _m30 = _modules.get("6be7521f11c8d1870f52344bbd5c9848d80e06e43d4a79970bd8dd3c2a611d63") ?? (() => {
-const { cleanXml, escapeXml, escapeOoxmlAttribute } = _m17;
+const _m42 = _modules.get("7845d79cd22590bbefc767802abfe3f805e8f68807521cef8d07ecc42db0b491") ?? (() => {
+const { columnName } = _m32;
 
-const { cellPosition } = _m26;
+/** @internal Data-column selectors use stable keys or one-based worksheet columns. */
+function resolveDataColumn(columns, value, context = "Data") {
+    if (typeof value === "string") {
+        const matches = columns.flatMap((column, index) => column.key === value ? [index + 1] : []);
+        if (matches.length !== 1)
+            throw new TypeError(context + " column keys must identify exactly one declared column.");
+        return matches[0];
+    }
+    if (!Number.isInteger(value) || value < 1 || value > columns.length)
+        throw new RangeError(context + " column numbers must be one-based and within declared columns.");
+    return value;
+}
+/** @internal Formula references use literal final worksheet names and finite physical coordinates. */
+function qualifiedColumnRange(sheetName, column, firstRow, rows) {
+    if (!Number.isSafeInteger(firstRow) || firstRow < 1 || !Number.isSafeInteger(rows) || rows < 1 || firstRow + rows - 1 > 1048576)
+        throw new RangeError("A data range must fit within Excel's worksheet rows.");
+    const letter = columnName(column);
+    return "'" + sheetName.replace(/'/g, "''") + "'!$" + letter + "$" + firstRow + ":$" + letter + "$" + (firstRow + rows - 1);
+}
+/** @internal A series header is a single cell rather than a one-cell range. */
+function qualifiedCell(sheetName, column, row) {
+    return qualifiedColumnRange(sheetName, column, row, 1).split(":")[0];
+}
+const _exports = Object.freeze({ resolveDataColumn: resolveDataColumn, qualifiedColumnRange: qualifiedColumnRange, qualifiedCell: qualifiedCell });
+_modules.set("7845d79cd22590bbefc767802abfe3f805e8f68807521cef8d07ecc42db0b491", _exports);
+return _exports;
+})();
 
-const { columnName } = _m24;
+const _m43 = _modules.get("4892a7dafefc4d82567cd2bd4cc8da5470cee4dbf546e6473f782f44bd4bbe35") ?? (() => {
+const { OfficeIMOError } = _m2;
 
-const { colorArgb } = _m22;
+const { columnName } = _m32;
 
-const { fields, optionalBoolean, differentialXml } = _m23;
+const scopes = new WeakMap();
+/** @internal A format adapter owns this bounded list until worksheet completion. */
+function retainDataRowRanges(worksheet, ranges) { scopes.set(worksheet, ranges); }
+/** @internal Ordinary worksheets retain their contiguous data-column contract. */
+function dataRowRanges(worksheet) { return scopes.get(worksheet); }
+/** @internal Count accepted details while preserving physical row counts for native references. */
+function dataRowCount(worksheet, headerRows, serializedRows) {
+    const ranges = scopes.get(worksheet);
+    if (ranges === undefined)
+        return serializedRows;
+    const lastSerialized = headerRows + serializedRows;
+    let rows = 0;
+    for (const range of ranges) {
+        if (range.firstRow > lastSerialized)
+            break;
+        rows += Math.min(range.lastRow, lastSerialized) - range.firstRow + 1;
+    }
+    return rows;
+}
+/** @internal Native editing rules share one finite, bounded space-separated reference. */
+function dataRowReference(firstColumn, lastColumn, headerRows, dataRows, ranges) {
+    if (ranges === undefined)
+        return dataRows ? columnName(firstColumn) + (headerRows + 1) + ":" + columnName(lastColumn) + (headerRows + dataRows) : undefined;
+    const first = columnName(firstColumn), last = columnName(lastColumn);
+    let reference = "", previous = headerRows;
+    for (const range of ranges) {
+        if (!Number.isSafeInteger(range.firstRow) || !Number.isSafeInteger(range.lastRow) || range.firstRow <= previous ||
+            range.lastRow < range.firstRow || range.lastRow > headerRows + dataRows)
+            throw new RangeError("Detail editing ranges must be ordered within serialized worksheet rows.");
+        const next = first + range.firstRow + ":" + last + range.lastRow;
+        if (reference.length + (reference ? 1 : 0) + next.length > 32767)
+            throw new OfficeIMOError("RESOURCE_LIMIT", "Detail editing references exceed 32,767 UTF-16 characters; split the worksheet.");
+        reference += (reference ? " " : "") + next;
+        previous = range.lastRow;
+    }
+    return reference || undefined;
+}
+const _exports = Object.freeze({ retainDataRowRanges: retainDataRowRanges, dataRowRanges: dataRowRanges, dataRowCount: dataRowCount, dataRowReference: dataRowReference });
+_modules.set("4892a7dafefc4d82567cd2bd4cc8da5470cee4dbf546e6473f782f44bd4bbe35", _exports);
+return _exports;
+})();
+
+const _m41 = _modules.get("736b2b2fc3489642263dbaf677544e8a270eea6b8efb0cc26c67346e66cab118") ?? (() => {
+const { cleanXml, escapeXml, escapeOoxmlAttribute } = _m25;
+
+const { cellPosition } = _m36;
+
+const { colorArgb } = _m30;
+
+const { fields, optionalBoolean, differentialXml } = _m31;
+
+const { resolveDataColumn } = _m42;
+
+const { dataRowReference } = _m43;
 
 function target(range, columns) {
     if (typeof range === "string") {
@@ -2327,18 +3317,7 @@ function target(range, columns) {
         return { first: first.column, last: last.column, reference: range, bottom: last.row };
     }
     fields(range, ["column", "through"], "conditional data range");
-    function resolve(value) {
-        if (typeof value === "string") {
-            const matches = columns.flatMap((column, i) => column.key === value ? [i + 1] : []);
-            if (matches.length !== 1)
-                throw new TypeError("Conditional column keys must identify exactly one declared column.");
-            return matches[0];
-        }
-        if (!Number.isInteger(value) || value < 1 || value > columns.length)
-            throw new RangeError("Conditional column numbers must be one-based and within declared columns.");
-        return value;
-    }
-    const first = resolve(range.column), last = range.through === undefined ? first : resolve(range.through);
+    const first = resolveDataColumn(columns, range.column, "Conditional"), last = range.through === undefined ? first : resolveDataColumn(columns, range.through, "Conditional");
     if (last < first)
         throw new RangeError("Conditional data ranges require ordered columns.");
     return { first, last };
@@ -2347,6 +3326,19 @@ function finite(value) {
     if (typeof value !== "number" || !Number.isFinite(value))
         throw new TypeError("Conditional values must be finite numbers.");
     return String(value);
+}
+function comparisonValue(value, operator) {
+    if (typeof value !== "string")
+        return finite(value);
+    if (operator !== "equal" && operator !== "notEqual")
+        throw new TypeError("Text conditional comparisons support only equal and notEqual.");
+    if (value.length > 8190)
+        throw new RangeError("Conditional comparison formulas must fit 8,192 characters including quotes.");
+    cleanXml(value, "reject");
+    const literal = '"' + value.replace(/"/g, '""') + '"';
+    if (literal.length > 8192)
+        throw new RangeError("Conditional comparison formulas must fit 8,192 characters including quotes.");
+    return literal;
 }
 function formula(value) {
     if (typeof value !== "string")
@@ -2417,7 +3409,7 @@ function prepareConditionalFormats(rules, columns, policy) {
                 else {
                     if ("values" in rule || !("value" in rule))
                         throw new TypeError("A conditional comparison requires one value.");
-                    body = '<formula>' + finite(rule.value) + '</formula>';
+                    body = '<formula>' + escapeXml(comparisonValue(rule.value, rule.operator), "reject") + '</formula>';
                 }
                 attributes += ' operator="' + rule.operator + '"';
             }
@@ -2455,54 +3447,168 @@ class ConditionalFormats {
             xml: '<cfRule type="' + rule.type + '" priority="' + (i + 1) + '"' + (rule.style ? ' dxfId="' + differential[styleIndex++] + '"' : "") + rule.attributes + '>' + rule.body + '</cfRule>' }));
     }
     get count() { return this.rules.length; }
-    *xml(headerRows, dataRows, totalRows) {
+    *xml(headerRows, dataRows, totalRows, ranges) {
         for (const rule of this.rules) {
             if (rule.target.bottom !== undefined && rule.target.bottom > totalRows)
                 throw new RangeError("Conditional ranges must stay within exported rows.");
-            if (!rule.target.reference && !dataRows)
+            const reference = rule.target.reference ?? dataRowReference(rule.target.first, rule.target.last, headerRows, dataRows, ranges);
+            if (!reference)
                 continue;
-            const reference = rule.target.reference ?? columnName(rule.target.first) + (headerRows + 1) + ':' + columnName(rule.target.last) + (headerRows + dataRows);
             yield '<conditionalFormatting sqref="' + reference + '">' + rule.xml + '</conditionalFormatting>';
         }
     }
 }
 const _exports = Object.freeze({ prepareConditionalFormats: prepareConditionalFormats, ConditionalFormats: ConditionalFormats });
-_modules.set("6be7521f11c8d1870f52344bbd5c9848d80e06e43d4a79970bd8dd3c2a611d63", _exports);
+_modules.set("736b2b2fc3489642263dbaf677544e8a270eea6b8efb0cc26c67346e66cab118", _exports);
 return _exports;
 })();
 
-const _m25 = _modules.get("4684cb30889805e42995c81f82cc58c91fb5fb9f84d7512e1c4b0131683cbda8") ?? (() => {
+const _m44 = _modules.get("860c88d97ba76e8713c14d56967152e369d2f08f50ffada68827a9c220881c61") ?? (() => {
+const { OfficeIMOError } = _m2;
+
+const { checkAbort } = _m4;
+
+const { cleanXml, escapeOoxmlAttribute, escapeXml } = _m25;
+
+const { fields, optionalBoolean } = _m31;
+
+const { resolveDataColumn } = _m42;
+
+const { dataRowReference } = _m43;
+
+function message(value, maximum, name) {
+    if (value === undefined)
+        return undefined;
+    if (typeof value !== "string")
+        throw new TypeError(name + " must be text.");
+    if (value.length > maximum)
+        throw new RangeError(name + " exceeds " + maximum + " UTF-16 units.");
+    return cleanXml(value, "reject");
+}
+/** @internal Snapshot and validate before any source iteration or workbook registration. */
+function prepareDataValidations(rules, columns, availableCount = 1000, availableText = 1000000, signal) {
+    checkAbort(signal);
+    if (rules === undefined)
+        return Object.freeze({ rules: Object.freeze([]), count: 0, textCharacters: 0 });
+    if (!Array.isArray(rules))
+        throw new TypeError("dataValidation must be an array.");
+    const count = rules.length;
+    if (count > availableCount)
+        throw new OfficeIMOError("RESOURCE_LIMIT", "maxDataValidations exceeded.");
+    const prepared = [];
+    const usedColumns = new Set();
+    let textCharacters = 0;
+    const acceptText = (length) => {
+        if (textCharacters + length > availableText)
+            throw new OfficeIMOError("RESOURCE_LIMIT", "maxValidationTextCharacters exceeded.");
+        textCharacters += length;
+    };
+    for (let index = 0; index < count; index++) {
+        checkAbort(signal);
+        const rule = rules[index];
+        fields(rule, ["type", "column", "items", "allowBlank", "showErrorMessage", "errorStyle", "errorTitle", "errorMessage"], "data validation");
+        const { type, column, items, allowBlank, showErrorMessage, errorStyle, errorTitle, errorMessage } = rule;
+        if (type !== "list")
+            throw new TypeError("Only inline-list data validation is supported.");
+        const selected = resolveDataColumn(columns, column, "Validation");
+        if (usedColumns.has(selected))
+            throw new TypeError("A data column cannot have multiple validation rules.");
+        usedColumns.add(selected);
+        optionalBoolean(allowBlank, "allowBlank");
+        optionalBoolean(showErrorMessage, "showErrorMessage");
+        if (errorStyle !== undefined && !["stop", "warning", "information"].includes(errorStyle))
+            throw new TypeError("Unsupported validation error style.");
+        if (!Array.isArray(items))
+            throw new TypeError("Inline validation lists require a nonempty string array.");
+        // Even empty choices need separators. Bound the loop before observing any item getters.
+        const itemCount = items.length;
+        if (!itemCount)
+            throw new TypeError("Inline validation lists require a nonempty string array.");
+        if (itemCount > 254)
+            throw new RangeError("Inline validation lists must fit 255 UTF-16 units including quotes and separators.");
+        let formula = '"';
+        for (let item = 0; item < itemCount; item++) {
+            checkAbort(signal);
+            const value = items[item];
+            if (typeof value !== "string")
+                throw new TypeError("Inline validation choices must be strings.");
+            if (value.length > 253 || value.includes(","))
+                throw new RangeError("Inline validation choices cannot contain commas and must fit the 255-character list source.");
+            cleanXml(value, "reject");
+            const escaped = value.replace(/"/g, '""');
+            if (formula.length + (item ? 1 : 0) + escaped.length + 1 > 255)
+                throw new RangeError("Inline validation lists must fit 255 UTF-16 units including quotes and separators.");
+            formula += (item ? "," : "") + escaped;
+        }
+        formula += '"';
+        const title = message(errorTitle, 32, "Validation error title"), error = message(errorMessage, 255, "Validation error message");
+        acceptText(formula.length + (title?.length ?? 0) + (error?.length ?? 0));
+        const attributes = ' type="list" allowBlank="' + (allowBlank === false ? 0 : 1) + '" showErrorMessage="' + (showErrorMessage === false ? 0 : 1) +
+            '" errorStyle="' + (errorStyle ?? "stop") + '"' + (title === undefined ? "" : ' errorTitle="' + escapeOoxmlAttribute(title, "reject") + '"') +
+            (error === undefined ? "" : ' error="' + escapeOoxmlAttribute(error, "reject") + '"');
+        prepared.push(Object.freeze({ column: selected, attributes, formula }));
+    }
+    checkAbort(signal);
+    return Object.freeze({ rules: Object.freeze(prepared), count, textCharacters });
+}
+/** @internal Empty sources do not create validation over headings, totals or an artificial blank row. */
+function* dataValidationsXml(prepared, headerRows, dataRows, ranges) {
+    if (!prepared.count || !dataRows || ranges?.length === 0)
+        return;
+    yield '<dataValidations count="' + prepared.count + '">';
+    for (const rule of prepared.rules) {
+        const reference = dataRowReference(rule.column, rule.column, headerRows, dataRows, ranges);
+        yield '<dataValidation' + rule.attributes + ' sqref="' + reference + '"><formula1>' + escapeXml(rule.formula, "reject") + '</formula1></dataValidation>';
+    }
+    yield '</dataValidations>';
+}
+const _exports = Object.freeze({ prepareDataValidations: prepareDataValidations, dataValidationsXml: dataValidationsXml });
+_modules.set("860c88d97ba76e8713c14d56967152e369d2f08f50ffada68827a9c220881c61", _exports);
+return _exports;
+})();
+
+const _m35 = _modules.get("454395d8f7815709eff7e17e49fbf1b8eb6193b33fa4f2db71aac1c1a657236b") ?? (() => {
 const { checkAbort, consumeRows, inputRows, pause, taskYieldDue } = _m4;
 
 const { ChunkedTextSink, BlobByteSink } = _m3;
 
-const { NotSupportedError, OfficeIMOError } = _m2;
+const { OfficeIMOError } = _m2;
 
-const { notifyProgress } = _m8;
+const { notifyProgress } = _m14;
 
 const { copyColumns, createRowProjector } = _m11;
 
-const { EntryWriter } = _m19;
+const { EntryWriter } = _m27;
 
-const { xmlDeclaration } = _m17;
+const { xmlDeclaration } = _m25;
 
-const { officeRelationshipsNamespace } = _m14;
+const { officeRelationshipsNamespace } = _m22;
 
-const { Cell, cellText, columnName, inlineText, excelDate, copyValue } = _m24;
+const { Cell, cellText, columnName, inlineText, excelDate, copyValue } = _m32;
 
-const { spreadsheetNamespace, colorArgb, validateStylePatch, copyStylePatch } = _m21;
+const { spreadsheetNamespace, colorArgb, validateStylePatch, copyStylePatch } = _m29;
 
-const { copyHyperlink, copyImage, hyperlinksXml, cellPosition } = _m26;
+const { copyHyperlink, copyImage, hyperlinksXml, cellPosition } = _m36;
 
 const { ExportCell, assertScalar } = _m5;
 
-const { ReportLayout, ComputedTotal, printXml } = _m27;
+const { ReportLayout, ComputedTotal, printXml } = _m38;
 
-const { cleanXml } = _m17;
+const { cleanXml } = _m25;
 
-const { ConditionalFormats, prepareConditionalFormats } = _m30;
+const { ConditionalFormats, prepareConditionalFormats } = _m41;
 
 const { isDate } = _m6;
+
+const { FormulaCell, formulaXml, isSubtotalFormula } = _m33;
+
+const { prepareDataValidations, dataValidationsXml } = _m44;
+
+const { qualifiedCell, qualifiedColumnRange, resolveDataColumn } = _m42;
+
+const { dataRowRanges, dataRowCount } = _m43;
+
+const { captureColumnOutlines, columnOutlineMap, validateOutlinePositions } = _m34;
 
 const maximumHyperlinks = 65530;
 function checkHyperlinkCount(count) {
@@ -2512,11 +3618,14 @@ function checkHyperlinkCount(count) {
 /** Worksheet rows are written once in order; the model retains compressed output rather than source data. */
 class Worksheet {
     book;
-    name;
     table;
     preserved;
+    chartData;
+    validations;
     columns;
     project;
+    /** Final unique workbook name, captured before row projection begins. */
+    name;
     declared;
     options;
     entry;
@@ -2531,6 +3640,7 @@ class Worksheet {
     count = 0;
     headerRows;
     layout;
+    completedRegions;
     titleStyle;
     pending = [];
     pendingCharacters = 0;
@@ -2539,12 +3649,16 @@ class Worksheet {
     links = [];
     linkedCells = new Set();
     pictures = [];
+    nativeCharts = [];
     conditional;
-    constructor(book, name, options, table, preserved = false, conditional = []) {
+    completed = false;
+    chartSources = [];
+    constructor(book, name, options, table, preserved = false, conditional = [], chartData = false, validations = { rules: [], count: 0, textCharacters: 0 }) {
         this.book = book;
-        this.name = name;
         this.table = table;
         this.preserved = preserved;
+        this.chartData = chartData;
+        this.validations = validations;
         this.columns = copyColumns(options.columns ?? [], true).map(c => Object.freeze(c));
         const alternate = options.alternatingRowStyle;
         this.options = { ...options, ...(options.autoSize ? { autoSize: { ...options.autoSize } } : {}),
@@ -2556,7 +3670,6 @@ class Worksheet {
         this.layout = new ReportLayout(this.columns, this.options, book.settings.invalidCharacterPolicy, book.settings.limits?.maxMergedRanges ?? 10000, book.settings.limits?.maxBufferedCells ?? 100000);
         this.titleStyle = options.title ? book.styles.compose(book.styles.compose(0, { font: { bold: true, size: 18 } }), this.options.title.style ?? {}) : 0;
         this.headerRows = this.layout.headerRows;
-        this.project = createRowProjector(this.columns, { sheetName: this.name, firstDataRow: this.headerRows + 1 }, book.settings.signal, book.valueValidator);
         for (const link of options.hyperlinks ?? []) {
             const copied = copyHyperlink(link, book.settings.invalidCharacterPolicy);
             this.links.push(copied);
@@ -2571,20 +3684,26 @@ class Worksheet {
         // Register conditional styles only after worksheet construction can no longer reject its options.
         this.conditional = new ConditionalFormats(conditional, book.styles);
         book.retainLink(this.links.length);
+        // Application getters may allocate an overflow sheet while metadata is captured.
+        // Resolve the name only after those callbacks, before binding any row context.
+        this.name = typeof name === "function" ? name() : name;
+        this.project = createRowProjector(this.columns, { sheetName: this.name, firstDataRow: this.headerRows + 1 }, book.settings.signal, book.valueValidator);
     }
     /** @internal */
-    static create(book, name, options, table, preserved = false, conditional) { return new Worksheet(book, name, options, table, preserved, conditional); }
+    static create(book, name, options, table, preserved = false, conditional, validations) { return new Worksheet(book, name, options, table, preserved, conditional, false, validations); }
+    /** @internal Generated source cells use the normal worksheet serializer and budgets. */
+    static createChartData(book, chart) {
+        return new Worksheet(book, chart.dataSheetName, { columns: [{ header: "Category" }, ...chart.data.series.map(series => ({ header: series.name, type: "number" }))] }, undefined, false, [], true);
+    }
     /** @internal Validate before allocating native compressor resources or registering the sheet name. */
     static validate(book, options) {
-        for (const feature of ["dataValidation"])
-            if (options[feature] !== undefined)
-                throw new NotSupportedError(feature);
         const columns = copyColumns(options.columns ?? [], true);
+        const validations = prepareDataValidations(options.dataValidation, columns, book.availableDataValidations, book.availableValidationTextCharacters, book.settings.signal);
         book.checkConditionalFormats(options.conditionalFormats?.length ?? 0);
         const conditional = prepareConditionalFormats(options.conditionalFormats, columns, book.settings.invalidCharacterPolicy);
         book.styles.checkDifferentials(conditional.flatMap(rule => rule.style ? [rule.style] : []));
         const layout = new ReportLayout(columns, options, book.settings.invalidCharacterPolicy, book.settings.limits?.maxMergedRanges ?? 10000, book.settings.limits?.maxBufferedCells ?? 100000);
-        book.checkMerges(layout.merges.length);
+        book.checkMerges(layout.mergeCount);
         if (options.title?.style)
             validateStylePatch(options.title.style);
         if (options.title)
@@ -2616,9 +3735,17 @@ class Worksheet {
             book.styles.validateStyle(options.headerStyle);
         if (options.alternatingRowStyle !== undefined)
             book.styles.compose(0, options.alternatingRowStyle);
-        for (const callback of [options.rowStyle, options.cellStyle])
+        for (const callback of [options.rowStyle, options.cellStyle, options.rowOutline])
             if (callback !== undefined && typeof callback !== "function")
-                throw new TypeError("Style callbacks must be functions.");
+                throw new TypeError("Row and style callbacks must be functions.");
+        if (options.maxOutlineLevel !== undefined && (!Number.isInteger(options.maxOutlineLevel) || options.maxOutlineLevel < 0 || options.maxOutlineLevel > 7))
+            throw new RangeError("Maximum outline level must be an integer from zero through seven.");
+        validateOutlinePositions(options);
+        captureColumnOutlines(options.columnOutlines, columns.length);
+        if (options.rowOutline && options.maxOutlineLevel === undefined)
+            throw new TypeError("A row outline callback requires maxOutlineLevel before streamed rows are written.");
+        if (!options.rowOutline && options.maxOutlineLevel !== undefined)
+            throw new TypeError("maxOutlineLevel requires a row outline callback.");
         for (const height of [options.rowHeight, options.headerHeight])
             if (height !== undefined && (!Number.isFinite(height) || height <= 0 || height > 409))
                 throw new RangeError("Row height must be positive and at most 409 points.");
@@ -2641,38 +3768,48 @@ class Worksheet {
             if (c.format !== undefined && (typeof c.format !== "string" || c.format.length > 255))
                 throw new TypeError("Column format must be a string of at most 255 characters.");
         }
-        return conditional;
+        return { conditional, validations };
     }
-    cell(value, i, row, header = false, rowStyle, context, rowStyles, footer = false, title = false) {
+    cell(value, i, row, header = false, rowStyle, context, rowStyles, footer = false, title = false, visible = true) {
         const col = this.declared[i];
         const total = value instanceof ComputedTotal ? value : undefined;
         if (total)
             value = total.value;
+        let formula = value instanceof FormulaCell ? value : undefined;
+        if (formula)
+            value = formula.cachedValue;
         let presentation = value instanceof ExportCell ? value.presentation : undefined;
         let link = value instanceof ExportCell ? value.link : undefined;
         if (value instanceof ExportCell)
             value = value.value;
-        const suppliedStyle = value instanceof Cell ? value.style : undefined;
-        const covered = this.layout.regions.covered(i + 1, row);
+        const suppliedStyle = formula?.style ?? (value instanceof Cell ? value.style : undefined);
+        const covered = (this.completedRegions ?? this.layout.regions).covered(i + 1, row);
         const input = value instanceof Cell ? value.value : value, emptyCovered = covered && (input == null || input === "");
         if (!header && !footer && col.column.type && !emptyCovered) {
             const writer = this.book.writerFor(col.column.type);
-            if (writer)
+            if (writer) {
+                if (formula)
+                    throw new TypeError("An explicit FormulaCell cannot also pass through a custom cell value writer; return it from the writer instead.");
                 value = writer(value instanceof Cell ? value.value : value, { column: col.column, rowIndex: row - this.headerRows - 1, worksheetRow: row, columnIndex: i, sheetName: this.name });
+            }
+        }
+        if (value instanceof FormulaCell) {
+            formula = value;
+            value = formula.cachedValue;
         }
         if (value instanceof ExportCell) {
             presentation = value.presentation;
             link = value.link;
             value = value.value;
         }
-        const explicitStyle = value instanceof Cell ? value.style ?? suppliedStyle : suppliedStyle;
+        const explicitStyle = formula?.style ?? (value instanceof Cell ? value.style ?? suppliedStyle : suppliedStyle);
         if (value instanceof Cell)
             value = value.value;
         assertScalar(value);
         if (covered) {
             if (link)
                 throw new TypeError("Hyperlinks cannot address a covered merged cell.");
-            if (total || (value != null && value !== ""))
+            if (formula || total || (value != null && value !== ""))
                 throw new TypeError("A merged range would hide the value at " + col.letter + row + "; covered cells must be empty.");
             value = undefined; // An empty string in a covered typed column is an empty cell, not a type mismatch.
         }
@@ -2680,6 +3817,8 @@ class Worksheet {
         if (!header && !footer && value != null && col.column.type && !this.book.writerFor(col.column.type) && col.column.type !== type)
             throw new TypeError("Cell " + col.letter + row + " does not match column type " + col.column.type + ".");
         let style = explicitStyle === undefined ? header ? col.headerStyle : total?.operation === "count" ? 0 : type === "date" ? col.dateStyle : col.style : this.book.styles.validateStyle(explicitStyle);
+        if (header && type === "date" && explicitStyle === undefined && this.options.headerStyle === undefined)
+            style = this.book.styles.dateHeader(style, col.dateStyle);
         if (title)
             style = this.titleStyle;
         if (!header && !footer) {
@@ -2712,7 +3851,8 @@ class Worksheet {
             });
         const originalCharacters = typeof value === "string" ? value.length : 0;
         let reservedCharacters = this.preserved || header || footer ? originalCharacters : undefined;
-        if (type === "string" && cleanXml(value, this.book.settings.invalidCharacterPolicy).length > 32767) {
+        // Cleaning removes characters; ordinary strings cannot cross Excel's limit.
+        if (type === "string" && originalCharacters > 32767 && cleanXml(value, this.book.settings.invalidCharacterPolicy).length > 32767) {
             const cell = col.letter + row;
             if (link || this.linkedCells.has(cell))
                 throw new TypeError("A text-preservation cell cannot also have an external hyperlink.");
@@ -2733,10 +3873,17 @@ class Worksheet {
             this.appendHyperlink({ cell: col.letter + row, ...link });
         if (type === "date")
             value = excelDate(value, this.book.settings.dateMode);
-        if (!header && !footer)
+        if (!header && !footer && visible && (!formula || !isSubtotalFormula(formula)))
             this.layout.accept(i, value);
+        if (!header && !footer && this.chartSources.length)
+            for (const binding of this.chartSources)
+                binding.observe(row - this.headerRows - 1, i + 1, value);
         const prefix = '<c r="' + col.letter + row + '" s="' + style + '"';
-        this.book.budget.cell(value, reservedCharacters);
+        if (formula)
+            this.book.retainFormula(formula.formula.length);
+        this.book.budget.cell(formula ? formula.formula : value, reservedCharacters);
+        if (formula)
+            return prefix + (value === null ? ' t="str"' : "") + '>' + formulaXml(formula) + '</c>';
         if (total)
             return prefix + (value === null ? ' t="str"' : "") + '><f>' + total.formula.replace(/"/g, "&quot;") + '</f><v>' + (value ?? "") + '</v></c>';
         if (value == null || (type === "number" && !Number.isFinite(value)))
@@ -2753,16 +3900,38 @@ class Worksheet {
     }
     *rowXml(values, number, header, footer = false, title = false) {
         const height = title ? this.options.title?.height ?? 28 : header ? this.options.headerHeight : this.options.rowHeight;
-        const context = !header && !footer && (this.options.rowStyle || this.options.cellStyle) ? Object.freeze({ rowIndex: number - this.headerRows - 1, worksheetRow: number, sheetName: this.name,
-            values: Object.freeze(this.columns.map((_, i) => values[i] instanceof Cell || values[i] instanceof ExportCell ? values[i].value : values[i])) }) : undefined;
+        const context = !header && !footer && (this.options.rowStyle || this.options.cellStyle || this.options.rowOutline) ? Object.freeze({ rowIndex: number - this.headerRows - 1, worksheetRow: number, sheetName: this.name,
+            values: Object.freeze(this.columns.map((_, i) => values[i] instanceof FormulaCell ? values[i].cachedValue : values[i] instanceof Cell || values[i] instanceof ExportCell ? values[i].value : values[i])) }) : undefined;
         const rowStyle = context && this.options.rowStyle?.(context);
         if (rowStyle !== undefined)
             validateStylePatch(rowStyle);
+        const outline = this.outline(context);
         const rowStyles = !header && (rowStyle || this.options.alternatingRowStyle) ? new Map() : undefined;
-        yield '<row r="' + number + '"' + (height === undefined ? "" : ' ht="' + height + '" customHeight="1"') + '>';
+        yield '<row r="' + number + '"' + (height === undefined ? "" : ' ht="' + height + '" customHeight="1"') +
+            (outline?.level ? ' outlineLevel="' + outline.level + '"' : "") + (outline?.hidden ? ' hidden="1"' : "") + (outline?.collapsed ? ' collapsed="1"' : "") + '>';
         for (let i = 0; i < this.columns.length; i++)
-            yield this.cell(values[i], i, number, header, rowStyle, context, rowStyles, footer, title);
+            yield this.cell(values[i], i, number, header, rowStyle, context, rowStyles, footer, title, outline?.hidden !== true);
         yield '</row>';
+    }
+    outline(context) {
+        if (!context || !this.options.rowOutline)
+            return undefined;
+        const requested = this.options.rowOutline(context);
+        if (requested === undefined)
+            return undefined;
+        if (requested === null || typeof requested !== "object" || Array.isArray(requested))
+            throw new TypeError("Row outline callbacks must return metadata or undefined.");
+        if (typeof requested.then === "function") {
+            void Promise.resolve(requested).catch(() => { });
+            throw new TypeError("Row outline callbacks must return synchronous metadata.");
+        }
+        const { level: requestedLevel, hidden, collapsed } = requested, level = requestedLevel ?? 0;
+        if (!Number.isInteger(level) || level < 0 || level > this.options.maxOutlineLevel)
+            throw new RangeError("Row outline level exceeds the declared maximum.");
+        for (const value of [hidden, collapsed])
+            if (value !== undefined && typeof value !== "boolean")
+                throw new TypeError("Row outline flags must be booleans.");
+        return Object.freeze({ level, ...(hidden === undefined ? {} : { hidden }), ...(collapsed === undefined ? {} : { collapsed }) });
     }
     writeRow(values, number, header, footer = false, title = false) {
         const chunks = this.rowXml(values, number, header, footer, title);
@@ -2821,12 +3990,21 @@ class Worksheet {
                 characters += this.options.title.text.length;
             if (this.layout.firstHeaderRow) {
                 for (const heading of this.layout.headings)
-                    for (const text of heading)
-                        characters += text.length;
-                for (const column of this.columns)
-                    characters += column.header.length;
+                    for (const value of heading) {
+                        const raw = value instanceof ExportCell || value instanceof Cell ? value.value : value;
+                        if (typeof raw === "string")
+                            characters += raw.length;
+                    }
             }
-            if (this.options.footer)
+            if (this.layout.structuredFooter) {
+                for (const row of this.layout.structuredFooter.values)
+                    for (const value of row) {
+                        const raw = value instanceof ExportCell ? value.value : value;
+                        if (typeof raw === "string")
+                            characters += raw.length;
+                    }
+            }
+            else if (this.options.footer)
                 for (let i = 0; i < this.columns.length; i++) {
                     const column = this.columns[i], totals = this.options.footer.totals;
                     if (totals && Object.prototype.hasOwnProperty.call(totals, column.key ?? column.header))
@@ -2835,7 +4013,7 @@ class Worksheet {
                     if (typeof raw === "string")
                         characters += raw.length;
                 }
-            this.book.budget.reserve(this.columns.length * (this.headerRows + (this.options.footer ? 1 : 0)), characters);
+            this.book.budget.reserve(this.columns.length * (this.headerRows + this.layout.footerRows), characters);
         }
         this.reservedLayout = true;
     }
@@ -2848,15 +4026,22 @@ class Worksheet {
         const buffer = this.buffer = new ChunkedTextSink(this.entry, this.book.settings.signal), opts = this.options;
         const x = opts.freezeColumns ?? 0, y = opts.freezeHeader ? this.headerRows : 0;
         const pane = x && y ? "bottomRight" : x ? "topRight" : "bottomLeft", cell = columnName(x + 1) + (y + 1);
-        await buffer.write(xmlDeclaration + '<worksheet xmlns="' + spreadsheetNamespace + '" xmlns:r="' + officeRelationshipsNamespace + '">' + (opts.print ? '<sheetPr><pageSetUpPr fitToPage="1"/></sheetPr>' : "") + '<sheetViews><sheetView workbookViewId="0">' +
-            (x || y ? '<pane' + (x ? ' xSplit="' + x + '"' : "") + (y ? ' ySplit="' + y + '"' : "") + ' topLeftCell="' + cell + '" activePane="' + pane + '" state="frozen"/><selection pane="' + pane + '" activeCell="' + cell + '" sqref="' + cell + '"/>' : "") + '</sheetView></sheetViews>');
+        const outlines = columnOutlineMap(opts.columnOutlines), hasOutline = !!opts.rowOutline || outlines.size > 0;
+        const maxColumnLevel = Math.max(0, ...Array.from(outlines.values(), value => value.level ?? 0));
+        await buffer.write(xmlDeclaration + '<worksheet xmlns="' + spreadsheetNamespace + '" xmlns:r="' + officeRelationshipsNamespace + '">' +
+            (opts.print || hasOutline ? '<sheetPr>' + (hasOutline ? '<outlinePr summaryBelow="' + (opts.outlineSummaryBelow === false ? "0" : "1") + '"' + (opts.outlineSummaryRight === undefined ? "" : ' summaryRight="' + (opts.outlineSummaryRight ? "1" : "0") + '"') + ' showOutlineSymbols="1"/>' : "") + (opts.print ? '<pageSetUpPr fitToPage="1"/>' : "") + '</sheetPr>' : "") + '<sheetViews><sheetView workbookViewId="0">' +
+            (x || y ? '<pane' + (x ? ' xSplit="' + x + '"' : "") + (y ? ' ySplit="' + y + '"' : "") + ' topLeftCell="' + cell + '" activePane="' + pane + '" state="frozen"/><selection pane="' + pane + '" activeCell="' + cell + '" sqref="' + cell + '"/>' : "") + '</sheetView></sheetViews>' +
+            (hasOutline ? '<sheetFormatPr defaultRowHeight="15"' + (opts.rowOutline ? ' outlineLevelRow="' + opts.maxOutlineLevel + '"' : "") + (outlines.size ? ' outlineLevelCol="' + maxColumnLevel + '"' : "") + '/>' : ""));
         const defaultWidth = opts.defaultColumnWidth ?? (this.table ? 20 : undefined);
-        if (this.columns.some((_, i) => this.layout.widths[i] !== undefined || defaultWidth !== undefined)) {
+        if (this.columns.some((_, i) => this.layout.widths[i] !== undefined || defaultWidth !== undefined || outlines.has(i))) {
             await buffer.write('<cols>');
             for (let i = 0; i < this.columns.length; i++) {
-                const width = this.layout.widths[i] ?? defaultWidth;
-                if (width !== undefined)
-                    await buffer.write('<col min="' + (i + 1) + '" max="' + (i + 1) + '" width="' + width + '" customWidth="1"/>');
+                const width = this.layout.widths[i] ?? defaultWidth, outline = outlines.get(i);
+                if (width !== undefined || outline)
+                    await buffer.write('<col min="' + (i + 1) + '" max="' + (i + 1) + '"' +
+                        (width === undefined ? "" : ' width="' + width + '" customWidth="1"') +
+                        (outline?.level ? ' outlineLevel="' + outline.level + '"' : "") + (outline?.hidden ? ' hidden="1"' : "") +
+                        (outline?.collapsed ? ' collapsed="1"' : "") + '/>');
             }
             await buffer.write('</cols>');
         }
@@ -2866,7 +4051,6 @@ class Worksheet {
         if (this.layout.firstHeaderRow) {
             for (let i = 0; i < this.layout.headings.length; i++)
                 await this.writeRow(this.layout.headings[i], i + this.layout.firstHeaderRow, true);
-            await this.writeRow(this.columns.map(c => c.header), this.headerRows, true);
         }
         for (const row of this.pending)
             for (const chunk of row)
@@ -2902,7 +4086,7 @@ class Worksheet {
                 progress();
             };
             await consumeRows(rows, this.book.settings.signal, row => {
-                if (this.count + this.headerRows + (this.options.footer ? 1 : 0) >= 1048576)
+                if (this.count + this.headerRows + this.layout.footerRows >= 1048576)
                     throw new RangeError("Excel supports at most 1,048,576 rows including headers and footers; split the sheet.");
                 this.book.budget.row(this.count + 1);
                 if (!this.columns.length)
@@ -2926,11 +4110,55 @@ class Worksheet {
             this.busy = false;
         }
     }
-    progress() { if (!this.preserved)
-        notifyProgress(this.book.settings.onProgress, { phase: "rows", rows: this.book.rowCount, sheetRows: this.count, sheetName: this.name }); }
+    progress() { if (!this.preserved && !this.chartData)
+        notifyProgress(this.book.settings.onProgress, { phase: "rows", rows: this.book.rowCount, sheetRows: this.reportRowCount, sheetName: this.name }); }
     get rowCount() { return this.count; }
+    /** A finite formula reference to a completed data column, excluding report decorations.
+     * Empty data returns undefined; discontiguous grouped details require explicit detailRanges instead. */
+    dataRange(column) {
+        if (this.failed)
+            throw this.error;
+        if (!this.completed)
+            throw new OfficeIMOError("INVALID_STATE", "Close the worksheet before resolving its data range.");
+        const selected = resolveDataColumn(this.columns, column);
+        const ranges = dataRowRanges(this);
+        if (ranges !== undefined) {
+            if (ranges.length > 1)
+                throw new OfficeIMOError("INVALID_STATE", "Grouped details are discontiguous; use the grouped result's detailRanges for explicit formula references.");
+            const range = ranges[0];
+            return range ? qualifiedColumnRange(this.name, selected, range.firstRow, range.lastRow - range.firstRow + 1) : undefined;
+        }
+        return this.count ? qualifiedColumnRange(this.name, selected, this.headerRows + 1, this.count) : undefined;
+    }
+    /** @internal Immutable schema plus current source timing, used only by workbook-owned chart registration. */
+    get chartBindingMetadata() {
+        const leaf = this.layout.headings.at(-1);
+        return { name: this.name, columns: this.columns, headerRows: this.headerRows, rows: this.count, closed: this.completed || !!this.completion,
+            headerReferences: this.columns.map((column, index) => {
+                const cell = leaf?.[index], raw = cell instanceof ExportCell ? cell.value : cell;
+                return this.layout.firstHeaderRow && raw === column.header && !this.layout.regions.covered(index + 1, this.headerRows)
+                    ? qualifiedCell(this.name, index + 1, this.headerRows) : undefined;
+            }) };
+    }
+    /** @internal Only the workbook may attach a preflighted, bounded source observer. */
+    retainChartBinding(binding) { this.chartSources.push(binding); }
     /** @internal Preservation records are metadata, not report data rows. */
-    get reportRowCount() { return this.preserved ? 0 : this.count; }
+    get reportRowCount() { return this.preserved || this.chartData ? 0 : dataRowCount(this, this.headerRows, this.count); }
+    /** @internal Chart data is editable through Excel's Unhide worksheet command. */
+    get hidden() { return this.chartData; }
+    /** Capture a bounded native chart. Source cells and caches remain independent of later caller mutations. */
+    addChart(chart) {
+        this.book.assertOpen();
+        if (this.completion)
+            throw new OfficeIMOError("INVALID_STATE", "Worksheet is closed.");
+        if (this.failed)
+            throw this.error;
+        this.nativeCharts.push(this.book.registerChart(chart));
+    }
+    /** @internal */
+    get charts() { return this.nativeCharts; }
+    /** @internal Completed chart parts no longer need their source snapshots. */
+    releaseCharts() { this.nativeCharts.length = 0; }
     /** Register a PNG such as a chart; bytes are copied so the caller can reuse its buffer. */
     addImage(image) {
         this.book.assertOpen();
@@ -2938,9 +4166,7 @@ class Worksheet {
             throw new OfficeIMOError("INVALID_STATE", "Worksheet is closed.");
         if (this.failed)
             throw this.error;
-        if (image.data instanceof Uint8Array)
-            this.book.checkImage(image.data.length);
-        const copied = copyImage(image, this.book.settings.invalidCharacterPolicy);
+        const copied = copyImage(image, this.book.settings.invalidCharacterPolicy, bytes => this.book.checkImage(bytes));
         this.book.retainImage(copied.data.length);
         this.pictures.push(copied);
     }
@@ -2978,17 +4204,19 @@ class Worksheet {
     /** @internal */
     get firstHeaderRow() { return this.layout.firstHeaderRow; }
     /** @internal */
-    get mergeCount() { return this.layout.merges.length; }
+    get mergeCount() { return this.layout.mergeCount; }
     /** @internal */
     get conditionalFormatCount() { return this.conditional.count; }
+    /** @internal Captured editing metadata reserves workbook-wide limits even for empty data. */
+    get dataValidations() { return this.validations; }
     /** @internal */
-    get totalRows() { return Math.max(1, this.headerRows + this.count + (this.options.footer ? 1 : 0)); }
+    get totalRows() { return Math.max(1, this.headerRows + this.count + this.layout.footerRows); }
     /** @internal */
     get lastColumn() { return columnName(Math.max(1, this.columns.length)); }
     /** @internal */
     get printSettings() { return this.options.print; }
     /** @internal */
-    get footerSettings() { return this.options.footer; }
+    get footerSettings() { return this.layout.structuredFooter ? undefined : this.options.footer; }
     /** Complete this worksheet. A streamed workbook can then start its next worksheet. */
     async close() {
         this.book.assertOpen();
@@ -3010,11 +4238,17 @@ class Worksheet {
             throw this.error;
         return this.completion = (async () => {
             try {
-                this.layout.regions.validateRows(this.totalRows);
+                const regions = this.completedRegions = this.layout.finalRegions(this.count, this.book.settings.limits?.maxMergedRanges ?? 10000);
+                regions.validateRows(this.totalRows);
+                for (const binding of this.chartSources)
+                    binding.finish();
+                this.chartSources.length = 0;
                 for (const link of this.links) {
                     const position = cellPosition(link.cell);
                     if (position.column > this.columns.length || position.row > this.totalRows)
                         throw new RangeError("Hyperlinks must address cells within the exported rows and columns.");
+                    if (regions.covered(position.column, position.row))
+                        throw new TypeError("Hyperlinks cannot address a covered merged cell.");
                 }
                 await this.start();
                 if (preservedRows)
@@ -3023,19 +4257,26 @@ class Worksheet {
                         await this.writeRow(this.project(row, this.count), this.headerRows + this.count + 1, false);
                         this.count++;
                     }
-                if (this.options.footer)
+                if (this.layout.structuredFooter) {
+                    for (let index = 0; index < this.layout.footerRows; index++)
+                        await this.writeRow(this.layout.structuredFooter.values[index], this.headerRows + this.count + index + 1, false, true);
+                }
+                else if (this.options.footer)
                     await this.writeRow(this.layout.footer(this.count), this.headerRows + this.count + 1, false, true);
                 await this.buffer.write('</sheetData>');
                 if (this.options.autoFilter && this.headerRows && !this.tableDefinition)
                     await this.buffer.write('<autoFilter ref="A' + this.headerRows + ':' + columnName(this.columns.length) + (this.count + this.headerRows) + '"/>');
-                if (this.layout.merges.length)
-                    await this.buffer.write('<mergeCells count="' + this.layout.merges.length + '">' + this.layout.merges.map(ref => '<mergeCell ref="' + ref + '"/>').join("") + '</mergeCells>');
-                for (const xml of this.conditional.xml(this.headerRows, this.count, this.totalRows))
+                if (regions.references.length)
+                    await this.buffer.write('<mergeCells count="' + regions.references.length + '">' + regions.references.map(ref => '<mergeCell ref="' + ref + '"/>').join("") + '</mergeCells>');
+                const detailRanges = dataRowRanges(this);
+                for (const xml of this.conditional.xml(this.headerRows, this.count, this.totalRows, detailRanges))
+                    await this.buffer.write(xml);
+                for (const xml of dataValidationsXml(this.validations, this.headerRows, this.count, detailRanges))
                     await this.buffer.write(xml);
                 if (this.links.length || this.internalLinks.length)
                     await this.buffer.write(hyperlinksXml(this.links, this.book.settings.invalidCharacterPolicy, this.internalLinks));
                 await this.buffer.write(printXml(this.options.print, this.book.settings.invalidCharacterPolicy));
-                if (this.pictures.length)
+                if (this.pictures.length || this.nativeCharts.length)
                     await this.buffer.write('<drawing r:id="drawing"/>');
                 if (this.tableDefinition)
                     await this.buffer.write('<tableParts count="1"><tablePart r:id="table"/></tableParts>');
@@ -3044,6 +4285,7 @@ class Worksheet {
                 const info = await this.entry.close();
                 if (!this.book.settings.sink && !this.failed)
                     this.prepared = { ...info, chunks: this.output.takeChunks() };
+                this.completed = true;
             }
             catch (error) {
                 await this.discard(error);
@@ -3054,25 +4296,25 @@ class Worksheet {
     /** @internal */
     takePrepared() { const prepared = this.prepared; this.prepared = undefined; return prepared; }
     /** @internal */
-    async discard(error) { this.failed = true; this.error = error; this.pending = []; this.pendingCharacters = 0; this.prepared = undefined; this.buffer = undefined; this.output.discard(); await this.entry?.discard(error); }
+    async discard(error) { this.failed = true; this.error = error; this.pending = []; this.pendingCharacters = 0; this.prepared = undefined; this.buffer = undefined; this.nativeCharts.length = 0; this.chartSources.length = 0; this.output.discard(); await this.entry?.discard(error); }
 }
 const _exports = Object.freeze({ Worksheet: Worksheet });
-_modules.set("4684cb30889805e42995c81f82cc58c91fb5fb9f84d7512e1c4b0131683cbda8", _exports);
+_modules.set("454395d8f7815709eff7e17e49fbf1b8eb6193b33fa4f2db71aac1c1a657236b", _exports);
 return _exports;
 })();
 
-const _m31 = _modules.get("68b4cdba5dd9744a718b0493a852ef8dff21613bebb31d0558ad0aa0a65698cf") ?? (() => {
-const { escapeOoxmlAttribute, escapeXml, xmlDeclaration } = _m17;
+const _m45 = _modules.get("7f1b6bb321e8055ba5269c0fe0933cf02f9a4ce269d3b8e4a64cc63d8398954a") ?? (() => {
+const { escapeOoxmlAttribute, escapeXml, xmlDeclaration } = _m25;
 
-const { cellText, columnName } = _m24;
+const { cellText, columnName } = _m32;
 
-const { spreadsheetNamespace } = _m21;
+const { spreadsheetNamespace } = _m29;
 
 const { ExportCell } = _m5;
 
-const { Cell } = _m24;
+const { Cell } = _m32;
 
-const { totalFormula } = _m27;
+const { totalFormula } = _m38;
 
 function defineTable(id, options, columns, policy) {
     const name = options.name ?? "Table" + id;
@@ -3104,14 +4346,14 @@ function tableXml(table, rowCount, policy, headerRow = 1, footer) {
         '" showColumnStripes="' + (options.bandedColumns ? 1 : 0) + '"/></table>';
 }
 const _exports = Object.freeze({ defineTable: defineTable, tableXml: tableXml });
-_modules.set("68b4cdba5dd9744a718b0493a852ef8dff21613bebb31d0558ad0aa0a65698cf", _exports);
+_modules.set("7f1b6bb321e8055ba5269c0fe0933cf02f9a4ce269d3b8e4a64cc63d8398954a", _exports);
 return _exports;
 })();
 
-const _m32 = _modules.get("acd647b6c207dc638a4ab15141efe2d5da2be95107ae7df2a5663352ff5ef604") ?? (() => {
+const _m46 = _modules.get("0c395783b9d7cc62dd39a21adeb698ad4a61e2c89f7b1fc8712e2eb2ccfe9d92") ?? (() => {
 const { OfficeIMOError } = _m2;
 
-const { cleanXml } = _m17;
+const { cleanXml } = _m25;
 
 /** @internal Overflow is deliberately bounded: ZIP worksheet entries cannot be interleaved. */
 class TextOverflow {
@@ -3172,41 +4414,403 @@ function* splitText(text) {
     }
 }
 const _exports = Object.freeze({ TextOverflow: TextOverflow, clipText: clipText });
-_modules.set("acd647b6c207dc638a4ab15141efe2d5da2be95107ae7df2a5663352ff5ef604", _exports);
+_modules.set("0c395783b9d7cc62dd39a21adeb698ad4a61e2c89f7b1fc8712e2eb2ccfe9d92", _exports);
 return _exports;
 })();
 
-const _m13 = _modules.get("0fc69158b36bf3e820ef79f3b6c947d7c4136bdfb0fa601dc5f5ca2983b257fa") ?? (() => {
+const _m47 = _modules.get("477ff98f49343b8ec4213008254b57a60dd42d07cb9843b3791d5e5f8e295865") ?? (() => {
+const { captureFields } = _m10;
+
+/** @internal The workbook owner captures these settings before validation or adapter merging. */
+const workbookOptionFields = ["signal", "onProgress", "limits", "sink", "dateMode", "compression", "invalidCharacterPolicy", "appProperties", "cellValueWriters", "oversizedText", "creator", "title", "subject", "description", "created", "modified"];
+/** @internal Worksheet settings also used by the portable sheet owner. */
+const sheetOptionFields = ["columns", "includeHeader", "headerRows", "freezeHeader", "autoFilter", "boldHeader", "headerFill", "headerStyle", "alternatingRowStyle", "rowStyle", "cellStyle", "rowOutline", "maxOutlineLevel", "outlineSummaryBelow", "outlineSummaryRight", "columnOutlines", "rowHeight", "headerHeight", "defaultColumnWidth", "freezeColumns", "table", "autoSize", "footer", "print", "title", "mergedCells", "hyperlinks", "conditionalFormats", "dataValidation"];
+/** @internal Includes inherited format-specific ceilings before a wrapper combines stream settings. */
+const workbookLimitFields = ["maxRows", "maxCells", "maxTextCharacters", "maxOutputBytes", "maxStyles", "maxSheets", "maxOverflowCharacters", "maxHyperlinks", "maxImageBytes", "maxBufferedCells", "maxBufferedCharacters", "maxMergedRanges", "maxConditionalFormats", "maxDifferentialStyles", "maxCharts", "maxChartPoints", "maxChartTextCharacters", "maxFormulaCharacters", "maxDataValidations", "maxValidationTextCharacters"];
+/** @internal Capture the workbook's known ceilings without dropping supported prototype fields. */
+function captureWorkbookLimits(limits) {
+    return captureFields(limits, workbookLimitFields);
+}
+/** @internal One immutable-input capture for direct workbooks and thin portable writers. */
+function captureWorkbookOptions(options) {
+    const captured = captureFields(options, workbookOptionFields);
+    return { ...captured, ...(captured.limits === undefined ? {} : { limits: captureWorkbookLimits(captured.limits) }) };
+}
+const _exports = Object.freeze({ workbookOptionFields: workbookOptionFields, sheetOptionFields: sheetOptionFields, workbookLimitFields: workbookLimitFields, captureWorkbookLimits: captureWorkbookLimits, captureWorkbookOptions: captureWorkbookOptions });
+_modules.set("477ff98f49343b8ec4213008254b57a60dd42d07cb9843b3791d5e5f8e295865", _exports);
+return _exports;
+})();
+
+const _m49 = _modules.get("35db01801a6b2e3e0c5acd7493e56f04b5b41b1d57afa8be28b8358378ad6494") ?? (() => {
+const { checkAbort } = _m4;
+
+const { NotSupportedError, OfficeIMOError } = _m2;
+
+const { cleanXml } = _m25;
+
+const { captureFields } = _m10;
+
+function record(value, allowed, context) {
+    if (!value || typeof value !== "object" || Array.isArray(value))
+        throw new TypeError(context + " must be an object.");
+    for (const key of Object.keys(value))
+        if (!allowed.includes(key))
+            throw new NotSupportedError(context + "." + key);
+    return captureFields(value, allowed);
+}
+function column(value) {
+    if (typeof value === "string" ? !value.length : typeof value !== "number" || !Number.isInteger(value) || value < 1 || value > 16384)
+        throw new TypeError("Chart columns require a declared key or a one-based column number.");
+}
+/** @internal Capture each caller property once before resolving workbook identities. */
+function captureChartRange(input) {
+    const value = record(input, ["kind", "sheet", "firstRow", "rowCount", "categoryColumn", "series"], "chart.data");
+    if (value.kind !== "range")
+        throw new TypeError("A chart range must declare kind: range.");
+    if (!value.sheet || typeof value.sheet !== "object" || Array.isArray(value.sheet))
+        throw new TypeError("A chart range needs its owning worksheet.");
+    const firstRow = value.firstRow === undefined ? 0 : value.firstRow, rowCount = value.rowCount;
+    if (!Number.isSafeInteger(firstRow) || firstRow < 0 || !Number.isSafeInteger(rowCount) || rowCount < 1 ||
+        firstRow + rowCount > 1048576)
+        throw new RangeError("Chart data rows must form a nonempty finite Excel range.");
+    column(value.categoryColumn);
+    if (!Array.isArray(value.series) || value.series.length < 1 || value.series.length > 255)
+        throw new RangeError("A chart needs from 1 through 255 series.");
+    const series = value.series.map(item => {
+        const copy = record(item, ["column", "name", "color"], "chart.data.series");
+        column(copy.column);
+        if (copy.name !== undefined && typeof copy.name !== "string")
+            throw new TypeError("Chart series name must be a string.");
+        if (copy.color !== undefined && (typeof copy.color !== "string" || !/^#?[0-9a-fA-F]{6}$/.test(copy.color)))
+            throw new TypeError("Chart colors must be opaque six-digit RGB hex values.");
+        return Object.freeze(copy);
+    });
+    return Object.freeze({ kind: "range", sheet: value.sheet, firstRow, rowCount, categoryColumn: value.categoryColumn, series: Object.freeze(series) });
+}
+/**
+ * @internal Retain only the declared finite cache while the owning sheet writes once.
+ * Initial series-name text is returned for registration; category text is charged
+ * before copying through retainText. The workbook resolves source identity and A1.
+ */
+function prepareChartBinding(input, descriptor, budgets, signal, type = "columnClustered") {
+    checkAbort(signal);
+    const count = input.rowCount, first = input.firstRow ?? 0, points = count * input.series.length, categoryColumn = descriptor.categoryColumn;
+    if (points > budgets.availablePoints)
+        throw new OfficeIMOError("RESOURCE_LIMIT", "maxChartPoints exceeded.");
+    if (descriptor.source !== input.sheet || !Number.isInteger(descriptor.headerRows) || descriptor.headerRows < 0 || descriptor.headerRows + first + count > 1048576 ||
+        descriptor.seriesColumns.length !== input.series.length || descriptor.seriesNames.length !== input.series.length ||
+        descriptor.valueFormulas.length !== input.series.length || descriptor.nameFormulas.length !== input.series.length)
+        throw new TypeError("Resolved chart range does not match its declared columns and data rows.");
+    for (const index of [descriptor.categoryColumn, ...descriptor.seriesColumns])
+        if (!Number.isInteger(index) || index < 1 || index > 16384)
+            throw new RangeError("Resolved chart columns must be one-based Excel columns.");
+    if (descriptor.seriesColumns.includes(categoryColumn))
+        throw new TypeError("Chart category and numeric series must use different columns.");
+    let textCharacters = 0;
+    const names = input.series.map((series, i) => {
+        const name = series.name ?? descriptor.seriesNames[i];
+        if (typeof name !== "string" || name.length > 32767)
+            throw new TypeError("Chart series names must fit Excel text cells.");
+        textCharacters += name.length;
+        if (textCharacters > budgets.availableText)
+            throw new OfficeIMOError("RESOURCE_LIMIT", "maxChartTextCharacters exceeded.");
+        return cleanXml(name, budgets.policy);
+    });
+    const colors = input.series.map(series => series.color?.replace(/^#/, "").toUpperCase());
+    const categories = new Array(count), values = input.series.map(() => new Array(count));
+    const captured = input.series.map(() => 0), positive = input.series.map(() => false);
+    let categoryCount = 0, completed;
+    const finish = () => {
+        checkAbort(signal);
+        if (completed)
+            return;
+        if (categoryCount !== count || captured.some(value => value !== count))
+            throw new TypeError("Chart range did not receive every declared data row and numeric value.");
+        if (type === "pie" && !positive[0])
+            throw new RangeError("A pie chart needs at least one positive value.");
+        completed = Object.freeze({ categories: Object.freeze(categories), series: Object.freeze(values.map((points, i) => Object.freeze({
+                name: names[i], values: Object.freeze(points), ...(colors[i] === undefined ? {} : { color: colors[i] })
+            }))) });
+    };
+    const data = Object.freeze({ get categories() { finish(); return completed.categories; }, get series() { finish(); return completed.series; } });
+    const seriesByColumn = new Map();
+    descriptor.seriesColumns.forEach((index, i) => { const indexes = seriesByColumn.get(index) ?? []; indexes.push(i); seriesByColumn.set(index, indexes); });
+    return Object.freeze({ source: descriptor.source, points, textCharacters, data,
+        references: Object.freeze({ categories: descriptor.categoryFormula, values: Object.freeze([...descriptor.valueFormulas]),
+            names: Object.freeze(descriptor.nameFormulas.map((formula, i) => input.series[i].name === undefined ? formula : undefined)) }),
+        observe(dataRowIndex, columnIndex, value) {
+            checkAbort(signal);
+            const position = dataRowIndex - first;
+            if (position < 0 || position >= count)
+                return;
+            if (completed)
+                throw new OfficeIMOError("INVALID_STATE", "Chart cache is already finalized.");
+            if (columnIndex === categoryColumn) {
+                if (typeof value !== "string" || value.length > 32767)
+                    throw new TypeError("Chart category cells must contain strings of at most 32,767 UTF-16 units.");
+                if (categories[position] !== undefined)
+                    throw new OfficeIMOError("INVALID_STATE", "A chart category cell was observed more than once.");
+                budgets.retainText(value.length);
+                categories[position] = cleanXml(value, budgets.policy);
+                categoryCount++;
+            }
+            for (const i of seriesByColumn.get(columnIndex) ?? []) {
+                if (typeof value !== "number" || !Number.isFinite(value))
+                    throw new TypeError("Chart series cells require finite numbers or numeric formula caches.");
+                if (type === "pie" && value < 0)
+                    throw new RangeError("Pie charts require nonnegative values.");
+                if (values[i][position] !== undefined)
+                    throw new OfficeIMOError("INVALID_STATE", "A chart value cell was observed more than once.");
+                values[i][position] = value;
+                captured[i] = captured[i] + 1;
+                if (value > 0)
+                    positive[i] = true;
+            }
+        }, finish });
+}
+const _exports = Object.freeze({ captureChartRange: captureChartRange, prepareChartBinding: prepareChartBinding });
+_modules.set("35db01801a6b2e3e0c5acd7493e56f04b5b41b1d57afa8be28b8358378ad6494", _exports);
+return _exports;
+})();
+
+const _m48 = _modules.get("6ff482aba6cf0b524cf20f6a4f8af16b842a49f36448b14e73beaf838885d219") ?? (() => {
+const { checkAbort } = _m4;
+
+const { NotSupportedError, OfficeIMOError } = _m2;
+
+const { cleanXml } = _m25;
+
+const { copyDrawingAnchor } = _m36;
+
+const { captureFields } = _m10;
+
+const { captureChartRange, prepareChartBinding } = _m49;
+
+function fields(value, allowed, context) {
+    if (!value || typeof value !== "object" || Array.isArray(value))
+        throw new TypeError(context + " must be an object.");
+    for (const key of Object.keys(value))
+        if (!allowed.includes(key))
+            throw new NotSupportedError(context + "." + key);
+}
+function snapshot(value, allowed, context) {
+    fields(value, allowed, context);
+    return captureFields(value, allowed);
+}
+/** @internal Preflight bounds before copying any chart data. Failed registration reserves nothing. */
+function prepareChart(input, policy, availablePoints, availableText, signal, resolveBinding) {
+    checkAbort(signal);
+    input = snapshot(input, ["type", "data", "row", "column", "width", "height", "description", "title", "language", "legend", "dataLabels", "categoryAxis", "valueAxis"], "chart");
+    if (!["columnClustered", "barClustered", "line", "pie"].includes(input.type))
+        throw new NotSupportedError("chart type " + input.type);
+    const type = input.type;
+    const requested = snapshot(input.data, ["kind", "sheet", "firstRow", "rowCount", "categoryColumn", "categories", "series"], "chart.data");
+    const bound = requested.kind === "range" ? captureChartRange(requested) : undefined;
+    if (!bound)
+        fields(requested, ["categories", "series"], "chart.data");
+    const categories = bound ? undefined : requested.categories, series = bound?.series ?? requested.series;
+    if (!bound && !Array.isArray(categories))
+        throw new TypeError("Chart categories must be a nonempty array of strings.");
+    if (!Array.isArray(series))
+        throw new RangeError("A chart needs from 1 through 255 series.");
+    const categoryCount = bound?.rowCount ?? categories.length, seriesCount = series.length;
+    if (!categoryCount)
+        throw new TypeError("Chart categories must be a nonempty array of strings.");
+    if (!seriesCount || seriesCount > 255)
+        throw new RangeError("A chart needs from 1 through 255 series.");
+    if (!bound && categoryCount > 1048575)
+        throw new RangeError("Chart data must fit Excel's rows including its header.");
+    if (type === "pie" && seriesCount !== 1)
+        throw new TypeError("A pie chart supports exactly one series.");
+    const points = categoryCount * seriesCount;
+    if (points > availablePoints)
+        throw new OfficeIMOError("RESOURCE_LIMIT", "maxChartPoints exceeded.");
+    let textCharacters = 0;
+    const text = (value, context) => {
+        if (typeof value !== "string")
+            throw new TypeError(context + " must be a string.");
+        if (value.length > 32767)
+            throw new RangeError(context + " exceeds 32,767 UTF-16 units.");
+        textCharacters += value.length;
+        if (textCharacters > availableText)
+            throw new OfficeIMOError("RESOURCE_LIMIT", "maxChartTextCharacters exceeded.");
+        return cleanXml(value, policy);
+    };
+    const optionalText = (value, context) => value === undefined ? undefined : text(value, context);
+    const title = optionalText(input.title, "Chart title"), description = optionalText(input.description, "Chart description");
+    const requestedLanguage = optionalText(input.language, "Chart language");
+    let language;
+    if (requestedLanguage !== undefined) {
+        try {
+            language = Intl.getCanonicalLocales(requestedLanguage)[0];
+            if (!language)
+                throw new RangeError();
+        }
+        catch {
+            throw new TypeError("Chart language must be a language tag such as pl or pl-PL.");
+        }
+    }
+    const anchor = copyDrawingAnchor({ row: input.row, column: input.column, width: input.width, height: input.height,
+        ...(description === undefined ? {} : { description }) }, policy);
+    if (input.legend !== undefined && input.legend !== false && !["right", "bottom", "left", "top"].includes(input.legend))
+        throw new TypeError("Unsupported chart legend position.");
+    let dataLabels;
+    if (input.dataLabels !== undefined) {
+        const labels = snapshot(input.dataLabels, ["showValue", "showCategoryName", "showSeriesName", "showPercent", "position", "numberFormat"], "chart.dataLabels");
+        for (const key of ["showValue", "showCategoryName", "showSeriesName", "showPercent"])
+            if (labels[key] !== undefined && typeof labels[key] !== "boolean")
+                throw new TypeError("Chart label flags must be booleans.");
+        if (labels.showPercent && type !== "pie")
+            throw new TypeError("Percent data labels require a pie chart.");
+        const positions = type === "pie" ? ["center", "insideEnd", "outsideEnd", "bestFit"] : type === "line" ? ["center", "above", "below", "left", "right"] : ["center", "insideEnd", "outsideEnd"];
+        if (labels.position !== undefined && !positions.includes(labels.position))
+            throw new TypeError("Data label position is unsupported for this chart type.");
+        const numberFormat = optionalText(labels.numberFormat, "Data label number format");
+        if (numberFormat !== undefined && !numberFormat.trim())
+            throw new TypeError("Data label number format cannot be blank.");
+        dataLabels = Object.freeze({ ...labels, ...(numberFormat === undefined ? {} : { numberFormat }) });
+    }
+    if (type === "pie" && (input.categoryAxis !== undefined || input.valueAxis !== undefined))
+        throw new TypeError("Pie charts have no axes.");
+    let categoryAxis, valueAxis;
+    if (input.categoryAxis !== undefined) {
+        const axisTitle = optionalText(snapshot(input.categoryAxis, ["title"], "chart.categoryAxis").title, "Category axis title");
+        categoryAxis = Object.freeze(axisTitle === undefined ? {} : { title: axisTitle });
+    }
+    if (input.valueAxis !== undefined) {
+        const axis = snapshot(input.valueAxis, ["title", "minimum", "maximum", "numberFormat"], "chart.valueAxis");
+        for (const value of [axis.minimum, axis.maximum])
+            if (value !== undefined && !Number.isFinite(value))
+                throw new TypeError("Chart axis bounds must be finite numbers.");
+        if (axis.minimum !== undefined && axis.maximum !== undefined && axis.minimum >= axis.maximum)
+            throw new RangeError("Chart axis minimum must be below its maximum.");
+        const axisTitle = optionalText(axis.title, "Value axis title"), numberFormat = optionalText(axis.numberFormat, "Value axis number format");
+        if (numberFormat !== undefined && !numberFormat.trim())
+            throw new TypeError("Value axis number format cannot be blank.");
+        valueAxis = Object.freeze({ ...axis, ...(axisTitle === undefined ? {} : { title: axisTitle }), ...(numberFormat === undefined ? {} : { numberFormat }) });
+    }
+    const common = { ...anchor, type,
+        ...(language === undefined ? {} : { language }),
+        ...(title === undefined ? {} : { title }), ...(description === undefined ? {} : { description }),
+        ...(input.legend === undefined ? {} : { legend: input.legend }), ...(dataLabels === undefined ? {} : { dataLabels }),
+        ...(categoryAxis === undefined ? {} : { categoryAxis }), ...(valueAxis === undefined ? {} : { valueAxis }) };
+    if (bound) {
+        if (!resolveBinding)
+            throw new TypeError("A chart range must belong to the current workbook.");
+        const { descriptor, retainText } = resolveBinding(bound);
+        const binding = prepareChartBinding(bound, descriptor, { availablePoints, availableText: availableText - textCharacters, retainText, policy }, signal, type);
+        return Object.freeze({ ...common, data: binding.data, binding, points, textCharacters: textCharacters + binding.textCharacters });
+    }
+    // Length budgets precede allocation; each source property/array element is read once.
+    const categoryValues = categories;
+    const copiedCategories = [], copiedSeries = [];
+    for (let i = 0; i < categoryCount; i++) {
+        if ((i & 255) === 0)
+            checkAbort(signal);
+        copiedCategories.push(text(categoryValues[i], "Chart category"));
+    }
+    for (let seriesIndex = 0; seriesIndex < seriesCount; seriesIndex++) {
+        const item = series[seriesIndex];
+        const captured = snapshot(item, ["name", "values", "color"], "chart.series");
+        const name = text(captured.name, "Chart series name"), values = captured.values, color = captured.color;
+        if (!Array.isArray(values) || values.length !== categoryCount)
+            throw new TypeError("Chart series values must match the category count.");
+        if (color !== undefined && (typeof color !== "string" || !/^#?[0-9a-fA-F]{6}$/.test(color)))
+            throw new TypeError("Chart colors must be opaque six-digit RGB hex values.");
+        let positive = false;
+        const copiedValues = [];
+        for (let i = 0; i < categoryCount; i++) {
+            if ((i & 255) === 0)
+                checkAbort(signal);
+            const value = values[i];
+            if (typeof value !== "number" || !Number.isFinite(value))
+                throw new TypeError("Chart values must be finite numbers.");
+            if (type === "pie" && value < 0)
+                throw new RangeError("Pie charts require nonnegative values.");
+            if (value > 0)
+                positive = true;
+            copiedValues.push(value);
+        }
+        if (type === "pie" && !positive)
+            throw new RangeError("A pie chart needs at least one positive value.");
+        copiedSeries.push(Object.freeze({ name, values: Object.freeze(copiedValues), ...(color === undefined ? {} : { color: color.replace(/^#/, "").toUpperCase() }) }));
+    }
+    return Object.freeze({ ...common,
+        data: Object.freeze({ categories: Object.freeze(copiedCategories), series: Object.freeze(copiedSeries) }),
+        points, textCharacters });
+}
+const _exports = Object.freeze({ prepareChart: prepareChart });
+_modules.set("6ff482aba6cf0b524cf20f6a4f8af16b842a49f36448b14e73beaf838885d219", _exports);
+return _exports;
+})();
+
+const _m21 = _modules.get("5efa30acfdd62288728014020dd33887b8458e82a821f28b48684b4ede2cba57") ?? (() => {
 const { beginTask, checkAbort, pause, taskYieldDue } = _m4;
 
 const { OfficeIMOError } = _m2;
 
-const { notifyProgress } = _m8;
+const { notifyProgress } = _m14;
 
 const { ChunkedTextSink } = _m3;
 
-const { ExportBudget } = _m10;
+const { ExportBudget } = _m9;
 
-const { OpcPackage, officeRelationshipsNamespace, relationshipTypes, corePropertiesXml } = _m14;
+const { OpcPackage, officeRelationshipsNamespace, relationshipTypes, corePropertiesXml } = _m22;
 
-const { escapeOoxmlAttribute, cleanXml, xmlDeclaration } = _m17;
+const { escapeOoxmlAttribute, cleanXml, xmlDeclaration } = _m25;
 
-const { StyleRegistry, spreadsheetNamespace } = _m21;
+const { StyleRegistry, spreadsheetNamespace } = _m29;
 
-const { sheetName, assertXlsxValue } = _m24;
+const { sheetName, assertXlsxValue, copyValue } = _m32;
+
+const { copyColumns } = _m11;
+
+const { captureFields } = _m10;
+
+const { captureColumnOutlines } = _m34;
+
+const { captureTableSpans } = _m17;
 
 const { assertExportValue } = _m5;
 
-const { Worksheet } = _m25;
+const { Worksheet } = _m35;
 
-const { defineTable, tableXml } = _m31;
+const { defineTable, tableXml } = _m45;
 
-const { drawingXml, drawingContentType } = _m26;
+const { copyHyperlink, drawingXml, drawingContentType } = _m36;
 
-const { TextOverflow } = _m32;
+const { TextOverflow } = _m46;
+
+const { captureWorkbookOptions, sheetOptionFields } = _m47;
+
+const { prepareChart } = _m48;
+
+const { qualifiedColumnRange, resolveDataColumn } = _m42;
+
+const { chartContentType, writeChartXml } = _m37;
 
 const xlsxMime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 const formatType = (name) => "application/vnd.openxmlformats-officedocument.spreadsheetml." + name + "+xml";
+/** Capture registered worksheet metadata before preflight and construction inspect it. */
+function captureSheet(options, policy) {
+    const captured = captureFields(options, sheetOptionFields);
+    const columns = copyColumns(captured.columns ?? [], true);
+    const footer = captured.footer && captureFields(captured.footer, ["rows", "values", "totals", "style"]);
+    const print = captured.print && captureFields(captured.print, ["paper", "orientation", "fitToWidth", "fitToHeight", "repeatHeaders", "margins", "header", "footer"]);
+    return { ...captured, columns,
+        ...(captured.columnOutlines === undefined ? {} : { columnOutlines: captureColumnOutlines(captured.columnOutlines, columns.length) }),
+        ...(captured.headerRows === undefined ? {} : { headerRows: captureTableSpans(captured.headerRows, columns.length) }),
+        ...(footer ? { footer: { ...footer,
+                ...(footer.rows === undefined ? {} : { rows: captureTableSpans(footer.rows, columns.length) }),
+                ...(footer.values === undefined ? {} : { values: footer.values.map(copyValue) }) } } : {}),
+        ...(captured.table ? { table: captureFields(captured.table, ["name", "style", "bandedRows", "bandedColumns", "firstColumn", "lastColumn"]) } : {}),
+        ...(captured.autoSize ? { autoSize: captureFields(captured.autoSize, ["sampleRows", "minWidth", "maxWidth"]) } : {}),
+        ...(captured.title ? { title: captureFields(captured.title, ["text", "style", "height"]) } : {}),
+        ...(print ? { print: { ...print, ...(print.margins === undefined ? {} : {
+                    margins: captureFields(print.margins, ["left", "right", "top", "bottom", "header", "footer"])
+                }) } } : {}),
+        ...(captured.hyperlinks ? { hyperlinks: captured.hyperlinks.map(link => copyHyperlink(link, policy)) } : {}) };
+}
 /** Streaming writer model; append rows through Worksheets, then finalize once. */
 class Workbook {
     portableValues = false;
@@ -3236,11 +4840,34 @@ class Workbook {
     bufferedBytes = 0;
     mergedRanges = 0;
     conditionalFormats = 0;
+    dataValidationCount = 0;
+    validationTextCharacters = 0;
+    formulaCharacters = 0;
+    hasAuthoredFormulas = false;
+    nativeCharts = [];
+    chartSourceSheets = 0;
+    chartPoints = 0;
+    chartTextCharacters = 0;
+    registering = false;
+    /** Caller-owned property getters may run during capture; they cannot register another workbook object. */
+    registration(action) {
+        this.assertOpen();
+        if (this.registering)
+            throw new OfficeIMOError("INVALID_STATE", "Workbook registrations cannot be reentered from input getters.");
+        this.registering = true;
+        try {
+            return action();
+        }
+        finally {
+            this.registering = false;
+        }
+    }
     /** @internal Shared budget across worksheet headers and data. */
     budget;
     /** @internal Immutable settings used by the worksheet owner. */
     settings;
     constructor(options = {}) {
+        options = captureWorkbookOptions(options);
         const dateMode = options.dateMode ?? "local", compression = options.compression ?? "auto", policy = options.invalidCharacterPolicy ?? "strip";
         if (dateMode !== "local" && dateMode !== "utc")
             throw new RangeError("dateMode must be local or utc.");
@@ -3278,12 +4905,12 @@ class Workbook {
     }
     workbookXml() {
         return xmlDeclaration + '<workbook xmlns="' + spreadsheetNamespace + '" xmlns:r="' + officeRelationshipsNamespace + '"><workbookPr date1904="0"/><bookViews><workbookView/></bookViews><sheets>' +
-            this.sheets.map((s, i) => '<sheet name="' + escapeOoxmlAttribute(s.name, this.settings.invalidCharacterPolicy) + '" sheetId="' + (i + 1) + '" r:id="rId' + (i + 1) + '"/>').join("") + '</sheets>' +
+            this.sheets.map((s, i) => '<sheet name="' + escapeOoxmlAttribute(s.name, this.settings.invalidCharacterPolicy) + '" sheetId="' + (i + 1) + '"' + (s.hidden ? ' state="hidden"' : "") + ' r:id="rId' + (i + 1) + '"/>').join("") + '</sheets>' +
             (this.sheets.some(s => s.printSettings) ? '<definedNames>' + this.sheets.map((s, i) => {
                 const quoted = "'" + s.name.replace(/'/g, "''") + "'!";
                 return s.printSettings ? '<definedName name="_xlnm.Print_Area" localSheetId="' + i + '">' + escapeOoxmlAttribute(quoted + '$A$1:$' + s.lastColumn + '$' + s.totalRows, this.settings.invalidCharacterPolicy) + '</definedName>' +
                     (s.printSettings.repeatHeaders && s.firstHeaderRow ? '<definedName name="_xlnm.Print_Titles" localSheetId="' + i + '">' + escapeOoxmlAttribute(quoted + '$' + s.firstHeaderRow + ':$' + s.headerRowCount, this.settings.invalidCharacterPolicy) + '</definedName>' : "") : "";
-            }).join("") + '</definedNames>' : "") + '</workbook>';
+            }).join("") + '</definedNames>' : "") + (this.hasAuthoredFormulas ? '<calcPr calcMode="auto" fullCalcOnLoad="1" forceFullCalc="1"/>' : "") + '</workbook>';
     }
     /** @internal */
     assertOpen() {
@@ -3306,7 +4933,7 @@ class Workbook {
         if (this.settings.oversizedText !== "preserve")
             throw new RangeError("Excel cell text exceeds 32,767 UTF-16 code units.");
         if (!this.overflow) {
-            this.checkSheetLimit(this.sheets.length + 1);
+            this.checkSheetLimit(this.sheets.length + this.chartSourceSheets + 1);
             this.budget.reserve(5, "SheetCellPartTextParts".length);
             this.overflow = new TextOverflow(sheetName("Text overflow", this.names, this.settings.invalidCharacterPolicy), this.settings.limits?.maxOverflowCharacters ?? 4000000, this.settings.invalidCharacterPolicy, (cells, characters, rows) => { this.budget.row(rows); this.budget.reserve(cells, characters); });
         }
@@ -3343,6 +4970,66 @@ class Workbook {
     /** @internal */
     checkConditionalFormats(count) { if (this.conditionalFormats + count > (this.settings.limits?.maxConditionalFormats ?? 1000))
         throw new OfficeIMOError("RESOURCE_LIMIT", "maxConditionalFormats exceeded."); }
+    /** @internal Remaining immutable editing-rule budgets, checked before capture allocation. */
+    get availableDataValidations() { return (this.settings.limits?.maxDataValidations ?? 1000) - this.dataValidationCount; }
+    /** @internal */
+    get availableValidationTextCharacters() { return (this.settings.limits?.maxValidationTextCharacters ?? 1000000) - this.validationTextCharacters; }
+    /** @internal Authored formula text is counted once when its cell is serialized. */
+    retainFormula(characters) {
+        if (this.formulaCharacters + characters > (this.settings.limits?.maxFormulaCharacters ?? 1000000))
+            throw new OfficeIMOError("RESOURCE_LIMIT", "maxFormulaCharacters exceeded.");
+        this.formulaCharacters += characters;
+        this.hasAuthoredFormulas = true;
+    }
+    checkChartText(characters) {
+        if (this.chartTextCharacters + characters > (this.settings.limits?.maxChartTextCharacters ?? 1000000))
+            throw new OfficeIMOError("RESOURCE_LIMIT", "maxChartTextCharacters exceeded.");
+    }
+    /** @internal Category caches consume the same cumulative budget as chart metadata. */
+    retainChartText(characters) {
+        this.checkChartText(characters);
+        this.chartTextCharacters += characters;
+    }
+    resolveChartBinding(input) {
+        const source = input.sheet;
+        if (!this.sheets.includes(source) || source.hidden)
+            throw new TypeError("Bound charts require a visible worksheet in the same workbook.");
+        const metadata = source.chartBindingMetadata, first = input.firstRow ?? 0;
+        if (source.isBusy || metadata.closed || first < metadata.rows)
+            throw new OfficeIMOError("INVALID_STATE", "Register a chart before its first selected data row is written, while the source worksheet is idle.");
+        const category = resolveDataColumn(metadata.columns, input.categoryColumn, "Chart");
+        const series = input.series.map(item => resolveDataColumn(metadata.columns, item.column, "Chart"));
+        const start = metadata.headerRows + first + 1;
+        return { descriptor: { source, sheetName: metadata.name, headerRows: metadata.headerRows, categoryColumn: category, seriesColumns: series,
+                seriesNames: series.map(column => metadata.columns[column - 1].header),
+                categoryFormula: qualifiedColumnRange(metadata.name, category, start, input.rowCount),
+                valueFormulas: series.map(column => qualifiedColumnRange(metadata.name, column, start, input.rowCount)),
+                nameFormulas: series.map((column, index) => input.series[index].name === undefined
+                    ? metadata.headerReferences[column - 1] : undefined) }, retainText: characters => this.retainChartText(characters) };
+    }
+    /** @internal Reserve chart snapshots and their source-sheet names before any output is generated. */
+    registerChart(input) {
+        return this.registration(() => {
+            if (this.nativeCharts.length >= (this.settings.limits?.maxCharts ?? 100))
+                throw new OfficeIMOError("RESOURCE_LIMIT", "maxCharts exceeded.");
+            const chart = prepareChart(input, this.settings.invalidCharacterPolicy, (this.settings.limits?.maxChartPoints ?? 100000) - this.chartPoints, (this.settings.limits?.maxChartTextCharacters ?? 1000000) - this.chartTextCharacters, this.settings.signal, value => this.resolveChartBinding(value));
+            this.assertOpen();
+            // Input getters may write categories into an existing bound chart's cache.
+            this.checkChartText(chart.textCharacters);
+            // Input getters may append rows to an existing sheet and allocate text preservation.
+            this.checkSheetLimit(this.sheets.length + this.chartSourceSheets + (chart.binding ? 0 : 1) + (this.overflow ? 1 : 0));
+            const registered = Object.freeze({ ...chart, id: this.nativeCharts.length + 1,
+                dataSheetName: chart.binding ? chart.binding.source.name : sheetName("Chart data " + (this.nativeCharts.length + 1), this.names, this.settings.invalidCharacterPolicy) });
+            this.nativeCharts.push(registered);
+            this.chartPoints += chart.points;
+            this.chartTextCharacters += chart.textCharacters;
+            if (chart.binding)
+                chart.binding.source.retainChartBinding(chart.binding);
+            else
+                this.chartSourceSheets++;
+            return registered;
+        });
+    }
     /** @internal Streamed parts cannot interleave. Starting a new sheet completes the preceding one. */
     async openSheet(sheet) {
         if (this.activeSheet && this.activeSheet !== sheet) {
@@ -3360,44 +5047,54 @@ class Workbook {
         await Promise.allSettled(this.sheets.map(sheet => sheet.discard(error)));
         await this.package.discard(error);
         this.overflow?.clear();
+        this.nativeCharts.length = 0;
     }
     get worksheets() { return Object.freeze([...this.sheets]); }
     /** Total report data rows; excludes title/header/footer and preservation records. */
     get rowCount() { return this.sheets.reduce((sum, sheet) => sum + sheet.reportRowCount, 0); }
     addWorksheet(name, options = {}) {
-        this.assertOpen();
-        this.checkSheetLimit(this.sheets.length + 1 + (this.overflow ? 1 : 0));
-        // Validation/serialization use erased column metadata; projection later receives T rows.
-        const metadata = options;
-        const conditional = Worksheet.validate(this, metadata);
-        let tableOptions = options.table;
-        if (tableOptions && tableOptions.name === undefined) {
-            let suffix = this.tableCount + 1;
-            while (this.tableNames.has(("Table" + suffix).toLowerCase()))
-                suffix++;
-            tableOptions = { ...tableOptions, name: "Table" + suffix };
-        }
-        const table = tableOptions ? defineTable(this.tableCount + 1, tableOptions, options.columns ?? [], this.settings.invalidCharacterPolicy) : undefined;
-        if (table && this.tableNames.has(table.name.toLowerCase()))
-            throw new TypeError("Duplicate Excel table name: " + table.name);
-        const sheet = Worksheet.create(this, sheetName(name, this.names, this.settings.invalidCharacterPolicy, false), metadata, table, false, conditional);
-        this.names.add(sheet.name.toLowerCase());
-        this.mergedRanges += sheet.mergeCount;
-        this.conditionalFormats += sheet.conditionalFormatCount;
-        if (table) {
-            this.tableNames.add(table.name.toLowerCase());
-            this.tableCount++;
-        }
-        this.sheets.push(sheet);
-        return sheet;
+        return this.registration(() => {
+            this.checkSheetLimit(this.sheets.length + this.chartSourceSheets + 1 + (this.overflow ? 1 : 0));
+            // Validation/serialization use erased column metadata; projection later receives T rows.
+            const metadata = captureSheet(options, this.settings.invalidCharacterPolicy);
+            const prepared = Worksheet.validate(this, metadata);
+            let tableOptions = metadata.table;
+            if (tableOptions && tableOptions.name === undefined) {
+                let suffix = this.tableCount + 1;
+                while (this.tableNames.has(("Table" + suffix).toLowerCase()))
+                    suffix++;
+                tableOptions = { ...tableOptions, name: "Table" + suffix };
+            }
+            const table = tableOptions ? defineTable(this.tableCount + 1, tableOptions, metadata.columns ?? [], this.settings.invalidCharacterPolicy) : undefined;
+            if (table && this.tableNames.has(table.name.toLowerCase()))
+                throw new TypeError("Duplicate Excel table name: " + table.name);
+            sheetName(name, this.names, this.settings.invalidCharacterPolicy, false);
+            const sheet = Worksheet.create(this, () => sheetName(name, this.names, this.settings.invalidCharacterPolicy, false), metadata, table, false, prepared.conditional, prepared.validations);
+            this.assertOpen();
+            this.checkSheetLimit(this.sheets.length + this.chartSourceSheets + 1 + (this.overflow ? 1 : 0));
+            this.names.add(sheet.name.toLowerCase());
+            this.mergedRanges += sheet.mergeCount;
+            this.conditionalFormats += sheet.conditionalFormatCount;
+            this.dataValidationCount += sheet.dataValidations.count;
+            this.validationTextCharacters += sheet.dataValidations.textCharacters;
+            if (table) {
+                this.tableNames.add(table.name.toLowerCase());
+                this.tableCount++;
+            }
+            this.sheets.push(sheet);
+            return sheet;
+        });
     }
     addPart(part) {
         this.assertOpen();
+        const { uri, contentType, data, relationship } = part;
+        const capturedRelationship = relationship && { id: relationship.id, type: relationship.type, source: relationship.source };
+        this.assertOpen();
         // Reserve now so collisions and invalid names fail at the call site.
-        this.package.addPart(part);
-        if (part.relationship) {
-            const { source, ...rel } = part.relationship;
-            this.package.addRelationship(source ?? "/xl/workbook.xml", { ...rel, target: part.uri });
+        this.package.addPart({ uri, contentType, data });
+        if (capturedRelationship) {
+            const { source, id, type } = capturedRelationship;
+            this.package.addRelationship(source ?? "/xl/workbook.xml", { id, type, target: uri });
         }
     }
     /** Complete the archive and return counts. Does not close or dispose a caller-owned sink. */
@@ -3420,7 +5117,7 @@ class Workbook {
         this.state = "finalizing";
         this.completion = (async () => {
             try {
-                const rows = this.sheets.reduce((sum, s) => sum + s.rowCount, 0);
+                const rows = this.rowCount;
                 for (let i = 0; i < this.sheets.length; i++) {
                     const sheet = this.sheets[i], uri = "/xl/worksheets/sheet" + (i + 1) + ".xml";
                     await sheet.finish();
@@ -3441,9 +5138,9 @@ class Workbook {
                             checkAbort(this.settings.signal);
                         }
                     }
-                    if (sheet.images.length) {
+                    if (sheet.images.length || sheet.charts.length) {
                         const drawingUri = "/xl/drawings/drawing" + (i + 1) + ".xml";
-                        this.addXmlPart(drawingUri, drawingContentType, () => drawingXml(sheet.images, this.settings.invalidCharacterPolicy));
+                        this.addXmlPart(drawingUri, drawingContentType, () => drawingXml(sheet.images, this.settings.invalidCharacterPolicy, sheet.charts));
                         this.package.addRelationship(uri, { id: "drawing", type: officeRelationshipsNamespace + "/drawing", target: drawingUri });
                         for (let j = 0; j < sheet.images.length; j++) {
                             checkAbort(this.settings.signal);
@@ -3454,6 +5151,12 @@ class Workbook {
                                 await pause();
                                 checkAbort(this.settings.signal);
                             }
+                        }
+                        for (const chart of sheet.charts) {
+                            checkAbort(this.settings.signal);
+                            const chartUri = "/xl/charts/chart" + chart.id + ".xml";
+                            this.package.addPart({ uri: chartUri, contentType: chartContentType, data: sink => writeChartXml(chart, sink, this.settings.invalidCharacterPolicy, this.settings.signal) });
+                            this.package.addRelationship(drawingUri, { id: "chart" + chart.id, type: officeRelationshipsNamespace + "/chart", target: chartUri });
                         }
                     }
                 }
@@ -3466,6 +5169,19 @@ class Workbook {
                         this.package.addPrepared("/xl/worksheets/sheet" + this.sheets.length + ".xml", formatType("worksheet"), prepared);
                     this.overflow.clear();
                 }
+                for (const chart of this.nativeCharts) {
+                    checkAbort(this.settings.signal);
+                    if (chart.binding)
+                        continue;
+                    const sheet = Worksheet.createChartData(this, chart);
+                    this.sheets.push(sheet);
+                    function* rows() { for (let i = 0; i < chart.data.categories.length; i++)
+                        yield [chart.data.categories[i], ...chart.data.series.map(series => series.values[i])]; }
+                    await sheet.finish(rows());
+                    const prepared = sheet.takePrepared();
+                    if (prepared)
+                        this.package.addPrepared("/xl/worksheets/sheet" + this.sheets.length + ".xml", formatType("worksheet"), prepared);
+                }
                 this.package.addRelationship("/", { id: "workbook", type: relationshipTypes.officeDocument, target: "/xl/workbook.xml" });
                 for (let i = 0; i < this.sheets.length; i++) {
                     checkAbort(this.settings.signal);
@@ -3477,6 +5193,9 @@ class Workbook {
                 }
                 this.package.addRelationship("/xl/workbook.xml", { id: "styles", type: relationshipTypes.styles, target: "/xl/styles.xml" });
                 const bytes = await this.package.finish();
+                for (const sheet of this.sheets)
+                    sheet.releaseCharts();
+                this.nativeCharts.length = 0;
                 notifyProgress(this.settings.onProgress, { phase: "complete", rows, bytes });
                 checkAbort(this.settings.signal);
                 this.state = "complete";
@@ -3506,12 +5225,16 @@ class Workbook {
     }
 }
 const _exports = Object.freeze({ Workbook: Workbook });
-_modules.set("0fc69158b36bf3e820ef79f3b6c947d7c4136bdfb0fa601dc5f5ca2983b257fa", _exports);
+_modules.set("5efa30acfdd62288728014020dd33887b8458e82a821f28b48684b4ede2cba57", _exports);
 return _exports;
 })();
 
-const _m34 = _modules.get("106a64b0eb7e34dd867571bd2b17df0d203b1c23987d2c08088446037b68c104") ?? (() => {
+const _m51 = _modules.get("a10003e971cd5ec2cee127bc9b029a0aa06fe3d50112838929d7a04a55e177c0") ?? (() => {
 const { ExportCell, assertScalar } = _m5;
+
+const { captureWorkbookOptions, sheetOptionFields } = _m47;
+
+const { captureFields } = _m10;
 
 function style(patch) {
     for (const component of ["font", "fill", "border", "numberFormat"])
@@ -3526,6 +5249,7 @@ function value(result) {
 }
 /** @internal Qualify the portable boundary before source/destination activity. */
 function portableSheet(options = {}) {
+    options = captureFields(options, sheetOptionFields);
     if (options.headerStyle !== undefined)
         throw new TypeError("Workbook-local header styles require the advanced Workbook API; use boldHeader and headerFill.");
     style(options.alternatingRowStyle);
@@ -3541,6 +5265,7 @@ function portableSheet(options = {}) {
 }
 /** @internal Keep custom writers inside the same portable value contract. */
 function portableWorkbook(options = {}) {
+    options = captureWorkbookOptions(options);
     const writers = options.cellValueWriters;
     if (!writers)
         return options;
@@ -3553,22 +5278,27 @@ function portableWorkbook(options = {}) {
     return { ...options, cellValueWriters: wrapped };
 }
 const _exports = Object.freeze({ portableSheet: portableSheet, portableWorkbook: portableWorkbook });
-_modules.set("106a64b0eb7e34dd867571bd2b17df0d203b1c23987d2c08088446037b68c104", _exports);
+_modules.set("a10003e971cd5ec2cee127bc9b029a0aa06fe3d50112838929d7a04a55e177c0", _exports);
 return _exports;
 })();
 
-const _m33 = _modules.get("888714f81880e3832111a1a56ffc94359939fccd64a8facf60d7ff555e4f6ac0") ?? (() => {
+const _m50 = _modules.get("232bc60be18b4056ca843542b704b0b972aaee15eb75a77cadc46268a7f73f83") ?? (() => {
 const { withDestination } = _m3;
 
 const { copyColumns } = _m11;
 
-const { Workbook } = _m13;
+const { Workbook } = _m21;
 
-const { portableSheet, portableWorkbook } = _m34;
+const { portableSheet, portableWorkbook } = _m51;
+
+const { captureFields } = _m10;
+
+const { sheetOptionFields, workbookOptionFields } = _m47;
 
 function prepare(options) {
-    const columns = copyColumns(options?.columns);
-    return { ...portableWorkbook(options), columns, sheet: { ...portableSheet(options.sheet), ...(options.sheet?.name === undefined ? {} : { name: options.sheet.name }) } };
+    options = captureFields(options, [...workbookOptionFields, "columns", "sheet"]);
+    const columns = copyColumns(options.columns), sheet = options.sheet && captureFields(options.sheet, [...sheetOptionFields, "name"]);
+    return { ...portableWorkbook(options), columns, sheet: { ...portableSheet(sheet), ...(sheet?.name === undefined ? {} : { name: sheet.name }) } };
 }
 function worksheet(book, options) {
     const { name = "Data", ...sheet } = options.sheet ?? {};
@@ -3607,69 +5337,291 @@ async function writeXlsxTo(rows, destination, configuration) {
     });
 }
 const _exports = Object.freeze({ writeXlsx: writeXlsx, writeXlsxTo: writeXlsxTo });
-_modules.set("888714f81880e3832111a1a56ffc94359939fccd64a8facf60d7ff555e4f6ac0", _exports);
+_modules.set("232bc60be18b4056ca843542b704b0b972aaee15eb75a77cadc46268a7f73f83", _exports);
 return _exports;
 })();
 
-const _m12 = _modules.get("679f5bc526287a62ec916dccb80e4351ce1008d15ff3804233ebda01c0adce9f") ?? (() => {
+const _m53 = _modules.get("451f527f4bb2baa127fe9d7bf743d191de75adc0a74857cb6143f9702697d22b") ?? (() => {
+const { assertGroupedReportSource } = _m8;
 
-const _exports = Object.freeze({ Workbook: _m13.Workbook, writeXlsx: _m33.writeXlsx, writeXlsxTo: _m33.writeXlsxTo, Worksheet: _m25.Worksheet, Cell: _m24.Cell, StyleRegistry: _m21.StyleRegistry, NumberFormats: _m21.NumberFormats, saveBlob: _m1.saveBlob, ExportCell: _m5.ExportCell });
-_modules.set("679f5bc526287a62ec916dccb80e4351ce1008d15ff3804233ebda01c0adce9f", _exports);
-return _exports;
-})();
+const { captureFields } = _m10;
 
-const _m38 = _modules.get("fae7226e22e925cccd060708e85a5ac9e0812d86b7e27d0c1f29cf6a6a7e9074") ?? (() => {
-const { assertExportValue } = _m5;
-
-/** Validate one small, rectangular heading/footer matrix before any drawing. */
-function tableSpans(rows, columns) {
-    if (!Array.isArray(rows) || !rows.length || rows.length > 16)
-        throw new RangeError("Spanned headings/footers need from 1 through 16 rows.");
-    const covered = Array.from({ length: rows.length }, () => new Uint8Array(columns));
-    return rows.map((row, level) => {
-        if (!Array.isArray(row) || row.length !== columns)
-            throw new TypeError("Spanned rows must have the declared column count.");
-        const anchors = [];
-        for (let first = 0; first < columns; first++) {
-            const cell = row[first];
-            if (covered[level][first]) {
-                if (cell !== null)
-                    throw new TypeError("Covered heading/footer cells must be null.");
-                continue;
-            }
-            if (!cell || typeof cell !== "object")
-                throw new TypeError("Uncovered heading/footer cells need an anchor value.");
-            const span = cell.columnSpan ?? 1, rowSpan = cell.rowSpan ?? 1;
-            if (!Number.isInteger(span) || !Number.isInteger(rowSpan) || span < 1 || rowSpan < 1 || first + span > columns || level + rowSpan > rows.length)
-                throw new RangeError("Heading/footer spans must stay inside the declared matrix.");
-            assertExportValue(cell.value);
-            for (let r = level; r < level + rowSpan; r++)
-                for (let c = first; c < first + span; c++) {
-                    if (covered[r][c])
-                        throw new TypeError("Heading/footer spans overlap.");
-                    if ((r !== level || c !== first) && rows[r]?.[c] !== null)
-                        throw new TypeError("Covered heading/footer cells must be null.");
-                    covered[r][c] = 1;
-                }
-            anchors.push(Object.freeze({ first, span, rowSpan, value: cell.value }));
-        }
-        return Object.freeze(anchors);
-    });
-}
-const _exports = Object.freeze({ tableSpans: tableSpans });
-_modules.set("fae7226e22e925cccd060708e85a5ac9e0812d86b7e27d0c1f29cf6a6a7e9074", _exports);
-return _exports;
-})();
-
-const _m37 = _modules.get("feed007d46e8aa0d2174a2cb49fb25a6888b7a6c4281386138429c90b0c17cb6") ?? (() => {
 const { OfficeIMOError } = _m2;
 
-const { ExportBudget } = _m10;
+const { fields } = _m31;
 
-const { copyColumns } = _m11;
+const { sheetOptionFields } = _m47;
 
-const { tableSpans } = _m38;
+const { portableSheet } = _m51;
 
+const { resolveDataColumn } = _m42;
+
+const { copyStylePatch } = _m29;
+
+/** @internal */
+const groupedOptionFields = ["labelColumn", "subtotalLabel", "grandTotalLabel", "includeGrandTotal", "collapseGroups", "sheet", "groupStyle", "subtotalStyle", "grandTotalStyle", "conditionalFormats", "dataValidation"];
+const unsupported = ["columns", "headerRows", "footer", "table", "mergedCells", "hyperlinks", "conditionalFormats", "dataValidation", "rowStyle", "cellStyle", "rowOutline", "maxOutlineLevel"];
+function detailColumn(report, selector) {
+    return resolveDataColumn(report.columns, selector, "Grouped detail") + 1;
+}
+function conditionalRules(report, rules, maximum) {
+    if (rules === undefined)
+        return undefined;
+    if (!Array.isArray(rules))
+        throw new TypeError("conditionalFormats must be an array.");
+    if (rules.length > maximum)
+        throw new OfficeIMOError("RESOURCE_LIMIT", "maxConditionalFormats exceeded.");
+    return rules.map(input => {
+        const rule = captureFields(input, ["type", "range", "style", "stopIfTrue", "operator", "value", "values", "formula", "stops", "color", "minimum", "maximum", "showValue"]);
+        const inputRange = rule.range;
+        if (typeof inputRange === "string")
+            throw new TypeError("Grouped conditional formats require detail-column selectors rather than A1 or generated-row ranges.");
+        fields(inputRange, ["column", "through"], "grouped conditional range");
+        const range = captureFields(inputRange, ["column", "through"]);
+        return { ...rule, range: { column: detailColumn(report, range.column), ...(range.through === undefined ? {} : { through: detailColumn(report, range.through) }) } };
+    });
+}
+function validationRules(report, rules, maximum) {
+    if (rules === undefined)
+        return undefined;
+    if (!Array.isArray(rules))
+        throw new TypeError("dataValidation must be an array.");
+    if (rules.length > maximum)
+        throw new OfficeIMOError("RESOURCE_LIMIT", "maxDataValidations exceeded.");
+    return rules.map(input => {
+        const rule = captureFields(input, ["type", "column", "items", "allowBlank", "showErrorMessage", "errorStyle", "errorTitle", "errorMessage"]);
+        return { ...rule, column: detailColumn(report, rule.column) };
+    });
+}
+/** @internal Capture options before creating a worksheet or touching a one-pass source. */
+function prepareGroupedSheet(report, configuration, maxConditionalFormats = 1000, maxDataValidations = 1000) {
+    assertGroupedReportSource(report);
+    if (!configuration || typeof configuration !== "object")
+        throw new TypeError("Grouped XLSX options require host-authored labels.");
+    const options = captureFields(configuration, groupedOptionFields);
+    const sheet = captureFields(options.sheet ?? {}, [...sheetOptionFields, "name"]);
+    if (!options.labelColumn || typeof options.labelColumn !== "object")
+        throw new TypeError("Grouped XLSX needs a leading label column.");
+    const labelColumn = captureFields(options.labelColumn, ["header", "width", "wrapText", "alignment"]);
+    if (typeof labelColumn.header !== "string")
+        throw new TypeError("The leading label column needs a string header.");
+    for (const label of [options.subtotalLabel, options.grandTotalLabel])
+        if (typeof label !== "function")
+            throw new TypeError("Grouped summary labels must be functions.");
+    for (const flag of [options.includeGrandTotal, options.collapseGroups])
+        if (flag !== undefined && typeof flag !== "boolean")
+            throw new TypeError("Grouped XLSX flags must be booleans.");
+    for (const key of unsupported)
+        if (sheet[key] !== undefined)
+            throw new TypeError("Grouped XLSX owns worksheet " + key + ".");
+    if (sheet.autoFilter !== undefined && sheet.autoFilter !== false)
+        throw new TypeError("Grouped summary rows cannot use a native table or autofilter.");
+    for (const style of [options.groupStyle, options.subtotalStyle, options.grandTotalStyle])
+        if (style !== undefined)
+            portableSheet({ alternatingRowStyle: style });
+    for (const column of report.columns)
+        if (Object.prototype.hasOwnProperty.call(report.totals, column.key) && column.type !== "number")
+            throw new TypeError("Editable grouped totals require explicitly numeric columns.");
+    const conditionalFormats = conditionalRules(report, options.conditionalFormats, maxConditionalFormats), dataValidation = validationRules(report, options.dataValidation, maxDataValidations);
+    return { ...options, labelColumn, sheet: portableSheet(sheet),
+        ...(conditionalFormats === undefined ? {} : { conditionalFormats }), ...(dataValidation === undefined ? {} : { dataValidation }),
+        ...(options.groupStyle ? { groupStyle: copyStylePatch(options.groupStyle) } : {}),
+        ...(options.subtotalStyle ? { subtotalStyle: copyStylePatch(options.subtotalStyle) } : {}),
+        ...(options.grandTotalStyle ? { grandTotalStyle: copyStylePatch(options.grandTotalStyle) } : {}) };
+}
+const _exports = Object.freeze({ groupedOptionFields: groupedOptionFields, prepareGroupedSheet: prepareGroupedSheet });
+_modules.set("451f527f4bb2baa127fe9d7bf743d191de75adc0a74857cb6143f9702697d22b", _exports);
+return _exports;
+})();
+
+const _m52 = _modules.get("024c5ef9e659f66ebb241058f56d5dc18f7e23a8a6b5f32c104d5d323ac443e0") ?? (() => {
+const { groupedReportOperation } = _m8;
+
+const { checkAbort, withAbort } = _m4;
+
+const { withDestination } = _m3;
+
+const { captureFields } = _m10;
+
+const { Workbook } = _m21;
+
+const { FormulaCell } = _m33;
+
+const { columnName } = _m32;
+
+const { captureWorkbookLimits, workbookOptionFields } = _m47;
+
+const { retainDataRowRanges } = _m43;
+
+const { groupedOptionFields, prepareGroupedSheet } = _m53;
+
+const subtotalOperations = { average: 1, count: 2, max: 4, min: 5, sum: 9 };
+function label(value) {
+    if (typeof value?.then === "function")
+        void Promise.resolve(value).catch(() => { });
+    if (typeof value !== "string")
+        throw new TypeError("Grouped summary labels must return strings.");
+    return value;
+}
+/** SUBTOTAL ignores nested subtotal expressions; functions 1..11 include collapsed outline details. */
+function subtotal(operation, letter, first, last, cached) {
+    const range = letter + first + ":" + letter + last;
+    const expression = "SUBTOTAL(" + subtotalOperations[operation] + "," + range + ")";
+    return new FormulaCell(operation === "average" || operation === "min" || operation === "max"
+        ? "IF(SUBTOTAL(2," + range + ")=0,\"\"," + expression + ")" : expression, cached, operation === "count" ? 0 : undefined);
+}
+async function append(book, report, options, operation, accepted) {
+    checkAbort(operation.signal);
+    const { labelColumn, subtotalLabel, grandTotalLabel, includeGrandTotal, collapseGroups, sheet: sheetOptions, groupStyle, subtotalStyle, grandTotalStyle, conditionalFormats, dataValidation } = options;
+    let rows = 0, current;
+    const groups = [], stack = [], detailRanges = [];
+    let firstDetail = 0, lastDetail = 0, grandTotalRow;
+    let grandSummary;
+    const { name = "Data", ...sheetSettings } = sheetOptions ?? {};
+    const columns = [{ ...labelColumn, type: "string" }, ...report.columns];
+    const styles = { groupStart: groupStyle ?? { font: { bold: true } }, groupEnd: subtotalStyle ?? { font: { bold: true } }, complete: grandTotalStyle ?? { font: { bold: true } } };
+    const sheet = book.addWorksheet(name, { boldHeader: true, autoSize: { minWidth: 6, maxWidth: 54 }, ...sheetSettings, columns,
+        ...(conditionalFormats === undefined ? {} : { conditionalFormats }), ...(dataValidation === undefined ? {} : { dataValidation }),
+        maxOutlineLevel: report.groupBy.length,
+        rowStyle: () => current && current.kind !== "row" ? styles[current.kind] : undefined,
+        rowOutline: () => {
+            if (!current || current.kind === "complete")
+                return undefined;
+            const level = current.kind === "row" ? current.path.length : current.level;
+            return { level, hidden: !!collapseGroups && level > 0, collapsed: !!collapseGroups && current.kind === "groupEnd" };
+        } });
+    retainDataRowRanges(sheet, detailRanges);
+    const operations = report.columns.map(column => Object.prototype.hasOwnProperty.call(report.totals, column.key) ? report.totals[column.key] : undefined);
+    async function* values() {
+        for await (const event of operation.events) {
+            current = event;
+            const worksheetRow = sheet.rowCount + sheet.headerRowCount + 1;
+            if (event.kind === "groupStart") {
+                const group = { groupIndex: event.groupIndex, level: event.level, key: event.key, label: event.label, path: event.path,
+                    rows: 0, totals: Object.freeze([]), startRow: worksheetRow, firstDetailRow: 0, lastDetailRow: 0, summaryRow: 0 };
+                groups.push(group);
+                stack.push(group);
+                yield [event.label, ...report.columns.map(() => null)];
+            }
+            else if (event.kind === "row") {
+                rows++;
+                accepted?.(rows);
+                firstDetail ||= worksheetRow;
+                lastDetail = worksheetRow;
+                const previous = detailRanges.at(-1);
+                if (previous && previous.lastRow + 1 === worksheetRow)
+                    previous.lastRow = worksheetRow;
+                else
+                    detailRanges.push({ firstRow: worksheetRow, lastRow: worksheetRow });
+                for (const group of stack) {
+                    group.firstDetailRow ||= worksheetRow;
+                    group.lastDetailRow = worksheetRow;
+                }
+                yield [null, ...event.values];
+            }
+            else if (event.kind === "groupEnd") {
+                const group = stack.pop();
+                group.summaryRow = worksheetRow;
+                group.rows = event.rows;
+                group.totals = event.totals;
+                yield [label(subtotalLabel(event)), ...operations.map((operation, index) => operation
+                        ? subtotal(operation, columnName(index + 2), group.firstDetailRow, group.lastDetailRow, event.totals[index]) : null)];
+            }
+            else {
+                grandSummary = Object.freeze({ rows: event.rows, groups: event.groups, totals: event.totals });
+                if (includeGrandTotal !== false) {
+                    grandTotalRow = worksheetRow;
+                    // An empty source still retains numeric sum/count and blank average/min/max.
+                    yield [label(grandTotalLabel(event)), ...operations.map((operation, index) => operation
+                            ? firstDetail ? subtotal(operation, columnName(index + 2), firstDetail, lastDetail, event.totals[index]) : event.totals[index] : null)];
+                }
+            }
+        }
+    }
+    try {
+        checkAbort(operation.signal);
+        await withAbort(sheet.addRows(values()), operation.signal);
+        // Grouped coordinates and native editing ranges cannot change after the result is returned.
+        await withAbort(sheet.close(), operation.signal);
+        return Object.freeze({ worksheet: sheet, rows, columns: columns.length,
+            detailRanges: Object.freeze(detailRanges.map(range => Object.freeze({ ...range }))),
+            groups: Object.freeze(groups.map(group => Object.freeze({ ...group }))), grandSummary: grandSummary,
+            ...(grandTotalRow === undefined ? {} : { grandTotalRow }) });
+    }
+    catch (error) {
+        await book.discard(error);
+        throw error;
+    }
+}
+/** Add one ordered analysis worksheet, preserving the workbook's styles, budgets, destination and sibling sheets.
+ * The returned worksheet is closed; finalize the workbook only after adding any remaining sheets. */
+async function addGroupedXlsx(book, report, options) {
+    const prepared = prepareGroupedSheet(report, options, book.settings.limits?.maxConditionalFormats ?? 1000, book.availableDataValidations), operation = groupedReportOperation(report, book.settings.signal);
+    try {
+        return await append(book, report, prepared, operation);
+    }
+    finally {
+        operation.dispose();
+    }
+}
+function prepare(report, configuration) {
+    if (!configuration || typeof configuration !== "object")
+        throw new TypeError("Grouped XLSX options require host-authored labels.");
+    const options = captureFields(configuration, [...workbookOptionFields, ...groupedOptionFields]);
+    if (options.sink !== undefined || options.cellValueWriters !== undefined)
+        throw new TypeError("Grouped XLSX owns its destination and uses already resolved source values.");
+    const limits = options.limits === undefined ? undefined : captureWorkbookLimits(options.limits);
+    return { ...options, ...(limits === undefined ? {} : { limits }),
+        ...prepareGroupedSheet(report, options, limits?.maxConditionalFormats ?? 1000, limits?.maxDataValidations ?? 1000) };
+}
+async function write(report, options, sink) {
+    const { labelColumn: _labelColumn, subtotalLabel: _subtotalLabel, grandTotalLabel: _grandTotalLabel, includeGrandTotal: _includeGrandTotal, collapseGroups: _collapseGroups, sheet: _sheet, groupStyle: _groupStyle, subtotalStyle: _subtotalStyle, grandTotalStyle: _grandTotalStyle, conditionalFormats: _conditionalFormats, dataValidation: _dataValidation, onProgress, ...settings } = options;
+    const operation = groupedReportOperation(report, settings.signal);
+    let rows = 0, book;
+    const progress = onProgress ? (event) => onProgress({ ...event, rows, ...(event.sheetRows === undefined ? {} : { sheetRows: rows }) }) : undefined;
+    try {
+        book = new Workbook({ ...settings, ...(operation.signal ? { signal: operation.signal } : {}), ...(progress ? { onProgress: progress } : {}), ...(sink ? { sink } : {}) });
+        const result = await append(book, report, options, operation, accepted => { rows = accepted; });
+        if (sink) {
+            const completion = await book.finish();
+            return { result: { rows, columns: result.columns, bytes: completion.bytes } };
+        }
+        const blob = await book.toBlob();
+        return { blob, result: { rows, columns: result.columns, bytes: blob.size } };
+    }
+    catch (error) {
+        await book?.discard(error);
+        throw error;
+    }
+    finally {
+        operation.dispose();
+    }
+}
+/** Write one ordered grouped source to editable Excel outlines and finite native SUBTOTAL formulas. */
+async function writeGroupedXlsx(report, options) {
+    return (await write(report, prepare(report, options))).blob;
+}
+/** Await accepted bytes; the caller retains its sink, partial bytes and stream lifetime. Counts exclude generated summary rows. */
+async function writeGroupedXlsxTo(report, destination, options) {
+    const prepared = prepare(report, options);
+    return withDestination(destination, async (sink) => (await write(report, prepared, sink)).result);
+}
+const _exports = Object.freeze({ addGroupedXlsx: addGroupedXlsx, writeGroupedXlsx: writeGroupedXlsx, writeGroupedXlsxTo: writeGroupedXlsxTo });
+_modules.set("024c5ef9e659f66ebb241058f56d5dc18f7e23a8a6b5f32c104d5d323ac443e0", _exports);
+return _exports;
+})();
+
+const _m20 = _modules.get("bb87644dc43e7d204c6d0b54a078bb86334627b47ecc7b1398a77e407b4512fa") ?? (() => {
+
+const _exports = Object.freeze({ Workbook: _m21.Workbook, writeXlsx: _m50.writeXlsx, writeXlsxTo: _m50.writeXlsxTo, writeGroupedXlsx: _m52.writeGroupedXlsx, writeGroupedXlsxTo: _m52.writeGroupedXlsxTo, addGroupedXlsx: _m52.addGroupedXlsx, createGroupedReport: _m8.createGroupedReport, Worksheet: _m35.Worksheet, Cell: _m32.Cell, FormulaCell: _m33.FormulaCell, StyleRegistry: _m29.StyleRegistry, NumberFormats: _m29.NumberFormats, saveBlob: _m1.saveBlob, ExportCell: _m5.ExportCell });
+_modules.set("bb87644dc43e7d204c6d0b54a078bb86334627b47ecc7b1398a77e407b4512fa", _exports);
+return _exports;
+})();
+
+const _m58 = _modules.get("49927994ccf68595c9211828bccb16a874fa149bda2ea904d369d9943e93bc58") ?? (() => {
+const { captureFields } = _m10;
+
+/** Pure validation shared by document settings and named paragraph styles. */
 function positive(value, name, max = 14400) {
     if (!Number.isFinite(value) || value <= 0 || value > max)
         throw new RangeError(name + " must be positive and at most " + max + ".");
@@ -3684,7 +5636,7 @@ function color(value) {
 function presentation(value = {}) {
     if (!value || typeof value !== "object")
         throw new TypeError("PDF presentation must be an object.");
-    const snapshot = { ...value };
+    const snapshot = captureFields(value, ["background", "color", "numberFormat", "bold", "italic", "wrapText", "alignment"]);
     if (snapshot.background !== undefined)
         color(snapshot.background);
     if (snapshot.color !== undefined)
@@ -3696,38 +5648,237 @@ function presentation(value = {}) {
         throw new TypeError("PDF table alignment supports left, center and right.");
     return Object.freeze(snapshot);
 }
+const _exports = Object.freeze({ positive: positive, color: color, presentation: presentation });
+_modules.set("49927994ccf68595c9211828bccb16a874fa149bda2ea904d369d9943e93bc58", _exports);
+return _exports;
+})();
+
+const _m57 = _modules.get("278e6adc6a5d4491e688589ef165bd1aa9cc74f557da6f9d6bdf53ecc0c6df47") ?? (() => {
+const { OfficeIMOError } = _m2;
+
+const { positive, presentation } = _m58;
+
+const fields = ["fontSize", "presentation", "keepTogether", "keepWithNext", "spaceBefore", "spaceAfter"];
+const presentationFields = ["bold", "italic", "color", "alignment"];
+/** @internal Copy only paragraph appearance and keep rules, without semantics or an inheritance graph. */
+function captureParagraphStyle(input) {
+    if (input && typeof input.then === "function") {
+        void Promise.resolve(input).catch(() => { });
+        throw new TypeError("PDF paragraph styles must be synchronous objects.");
+    }
+    if (!input || typeof input !== "object" || Array.isArray(input) || Object.keys(input).some(key => !fields.includes(key)))
+        throw new TypeError("PDF paragraph styles support fontSize, presentation, keepTogether, keepWithNext, spaceBefore and spaceAfter.");
+    const { fontSize, presentation: inputPresentation, keepTogether, keepWithNext, spaceBefore, spaceAfter } = input;
+    if (fontSize !== undefined)
+        positive(fontSize, "Paragraph font size", 144);
+    for (const [name, flag] of [["keepTogether", keepTogether], ["keepWithNext", keepWithNext]])
+        if (flag !== undefined && typeof flag !== "boolean")
+            throw new TypeError("Paragraph " + name + " must be boolean.");
+    for (const value of [spaceBefore, spaceAfter])
+        if (value !== undefined && (!Number.isFinite(value) || value < 0 || value > 14400))
+            throw new RangeError("Paragraph spacing must be from zero through 14,400 points.");
+    if (inputPresentation !== undefined && (!inputPresentation || typeof inputPresentation !== "object" || Array.isArray(inputPresentation) ||
+        Object.keys(inputPresentation).some(key => !presentationFields.includes(key))))
+        throw new TypeError("PDF paragraph presentation supports bold, italic, color and alignment.");
+    return Object.freeze({
+        ...(fontSize === undefined ? {} : { fontSize }),
+        ...(inputPresentation === undefined ? {} : { presentation: presentation(inputPresentation) }),
+        ...(keepTogether === undefined ? {} : { keepTogether }), ...(keepWithNext === undefined ? {} : { keepWithNext }),
+        ...(spaceBefore === undefined ? {} : { spaceBefore }), ...(spaceAfter === undefined ? {} : { spaceAfter })
+    });
+}
+/** @internal Snapshot a bounded own-property registry before any report source is enumerated. */
+function captureParagraphStyles(input, maximum) {
+    if (!Number.isSafeInteger(maximum) || maximum < 0)
+        throw new RangeError("maxParagraphStyles must be a nonnegative safe integer.");
+    const result = Object.create(null);
+    if (input === undefined)
+        return Object.freeze(result);
+    if (input && typeof input.then === "function") {
+        void Promise.resolve(input).catch(() => { });
+        throw new TypeError("paragraphStyles must be a synchronous record.");
+    }
+    if (!input || typeof input !== "object" || Array.isArray(input))
+        throw new TypeError("paragraphStyles must be a record of named paragraph styles.");
+    const names = Object.keys(input);
+    if (names.length > maximum)
+        throw new OfficeIMOError("RESOURCE_LIMIT", "maxParagraphStyles exceeded.");
+    for (const name of names) {
+        if (!name.trim())
+            throw new TypeError("Paragraph style names must be nonempty text.");
+        result[name] = captureParagraphStyle(input[name]);
+    }
+    return Object.freeze(result);
+}
+/** @internal Explicit values win; member-wise presentation preserves the remaining named appearance. */
+function resolveParagraphStyle(name, overrides, styles) {
+    let named = {};
+    if (name !== undefined) {
+        if (typeof name !== "string" || !Object.prototype.hasOwnProperty.call(styles, name))
+            throw new TypeError("Unknown PDF paragraph style: " + String(name));
+        named = styles[name];
+    }
+    const captured = captureParagraphStyle(overrides);
+    return Object.freeze({ ...named, ...captured,
+        ...(named.presentation || captured.presentation ? { presentation: Object.freeze({ ...named.presentation, ...captured.presentation }) } : {}) });
+}
+const _exports = Object.freeze({ captureParagraphStyle: captureParagraphStyle, captureParagraphStyles: captureParagraphStyles, resolveParagraphStyle: resolveParagraphStyle });
+_modules.set("278e6adc6a5d4491e688589ef165bd1aa9cc74f557da6f9d6bdf53ecc0c6df47", _exports);
+return _exports;
+})();
+
+const _m56 = _modules.get("4a089607f7cbe50e13d4382d1cc4e5f6ce32c5773bbec2df84178710f54d9a38") ?? (() => {
+const { OfficeIMOError } = _m2;
+
+const { ExportBudget } = _m9;
+
+const { copyColumns } = _m11;
+
+const { captureTableSpans } = _m17;
+
+const { copyExportValue } = _m13;
+
+const { captureFields } = _m10;
+
+const { captureParagraphStyles } = _m57;
+
+const { captureBooleanText } = _m18;
+
+const { positive, color, presentation } = _m58;
+
+
+
 const sizes = {
     A3: { width: 841.89, height: 1190.551 }, A4: { width: 595.276, height: 841.89 }, A5: { width: 419.528, height: 595.276 },
     LETTER: { width: 612, height: 792 }, LEGAL: { width: 612, height: 1008 }, TABLOID: { width: 792, height: 1224 }
 };
-function settings(configuration, document = false) {
-    const columns = copyColumns(configuration?.columns).map(c => Object.freeze(c));
+/** @internal Shared capture schema for thin format adapters and the grouped writer. */
+const pdfOptionFields = ["columns", "signal", "onProgress", "limits", "textShaper", "textDirection", "pageSize", "orientation", "margins", "fonts", "tagged", "fontSize",
+    "title", "messageTop", "messageBottom", "includeHeader", "headerRows", "footer", "headerPresentation", "footerPresentation", "alternateRowColor", "padding",
+    "columnWidths", "wideTable", "pageHeader", "pageFooter", "pageNumbers", "pageNumberLabels", "booleanText", "formatValue", "formatRuns", "compression", "paragraphStyles"];
+/** @internal Complete PDF limit schema used when a host combines format and shared limits. */
+const pdfLimitFields = ["maxRows", "maxCells", "maxTextCharacters", "maxOutputBytes", "maxPages", "maxColumns", "maxTableBands", "maxTableWindowRows", "maxCellCharacters", "maxTextRuns", "maxGroupBlocks", "maxRowLines",
+    "maxFontBytes", "maxPageBytes", "maxHyperlinks", "maxImageBytes", "maxImagePixels", "maxImageWorkingBytes", "maxVectorCommands", "maxDrawingElements", "maxStructureElements",
+    "maxMarkedContentReferences", "maxSections", "maxBookmarks", "maxListItems", "maxParagraphStyles"];
+/** @internal Capture supported structural properties once, including class-based options with prototype accessors. */
+function capturePdfOptions(input) {
+    if (!input || typeof input !== "object" || Array.isArray(input))
+        throw new TypeError("PDF options must be an object.");
+    const captured = captureFields(input, pdfOptionFields);
+    const policy = captured.wideTable;
+    return { ...captured, ...(policy === undefined ? {} : { wideTable: captureWideTable(policy) }) };
+}
+/** @internal Capture the complete PDF budget before an adapter adds its shared row/output limits. */
+function capturePdfLimits(input) {
+    if (!input || typeof input !== "object" || Array.isArray(input))
+        throw new TypeError("PDF limits must be an object.");
+    const captured = captureFields(input, pdfLimitFields);
+    for (const [key, value] of Object.entries(captured))
+        if (value !== undefined && (!Number.isSafeInteger(value) || value < 0))
+            throw new RangeError(key + " must be a nonnegative safe integer.");
+    return Object.freeze(captured);
+}
+function captureFooter(input, columns) {
+    if (!input || typeof input !== "object" || Array.isArray(input))
+        throw new TypeError("PDF footer must be an object.");
+    const { values, totals, rows } = input;
+    if (values !== undefined && !Array.isArray(values))
+        throw new TypeError("PDF footer values must be an array.");
+    return Object.freeze({ ...(values === undefined ? {} : { values: Object.freeze(values.map(copyExportValue)) }),
+        ...(totals === undefined ? {} : { totals: Object.freeze({ ...totals }) }),
+        ...(rows === undefined ? {} : { rows: captureTableSpans(rows, columns) }) });
+}
+/** @internal Capture a band policy and its array before asynchronous layout or row production. */
+function captureWideTable(input) {
+    if (input === undefined || input === "fit" || input === "reject")
+        return input;
+    if (!input || typeof input !== "object" || Array.isArray(input) || Object.keys(input).some(key => !["mode", "minimumColumnWidth", "repeatColumns"].includes(key)))
+        throw new TypeError("wideTable must be fit, reject or a bands policy.");
+    const { mode, minimumColumnWidth, repeatColumns } = input;
+    if (mode !== "bands")
+        throw new TypeError("wideTable.mode must be bands.");
+    if (minimumColumnWidth !== undefined)
+        positive(minimumColumnWidth, "Minimum PDF column width");
+    if (repeatColumns !== undefined && !Array.isArray(repeatColumns))
+        throw new TypeError("repeatColumns must be an array.");
+    const repeats = repeatColumns === undefined ? [] : [...repeatColumns];
+    if (repeats.some(value => typeof value === "number" ? !Number.isSafeInteger(value) || value < 0 : typeof value !== "string" || !value.length))
+        throw new RangeError("repeatColumns must contain nonnegative indices or nonempty stable keys.");
+    if (repeats.every(value => typeof value === "number") && repeats.some((value, index) => index > 0 && value <= repeats[index - 1]))
+        throw new RangeError("Numeric repeatColumns must contain sorted unique nonnegative indices.");
+    return Object.freeze({ mode, ...(minimumColumnWidth === undefined ? {} : { minimumColumnWidth }), repeatColumns: Object.freeze(repeats) });
+}
+/** Resolve identities against this table's captured selection, without consulting a grid or opening its rows. */
+function repeatedColumns(policy, columns) {
+    if (typeof policy !== "object")
+        return Object.freeze([]);
+    const selected = new Set();
+    for (const selector of policy.repeatColumns ?? []) {
+        let position;
+        if (typeof selector === "number")
+            position = selector;
+        else {
+            position = columns.findIndex(column => column.key === selector);
+            if (position < 0 || columns.some((column, index) => index !== position && column.key === selector))
+                throw new TypeError("repeatColumns requires an unambiguous selected column key: " + selector);
+        }
+        if (position >= columns.length)
+            throw new RangeError("repeatColumns index exceeds the declared columns.");
+        if (selected.has(position))
+            throw new TypeError("repeatColumns selects the same column more than once.");
+        selected.add(position);
+    }
+    return Object.freeze([...selected].sort((left, right) => left - right));
+}
+function settings(input, document = false) {
+    const configuration = { ...capturePdfOptions(input) };
+    configuration.booleanText = captureBooleanText(configuration.booleanText);
+    if (configuration.limits !== undefined)
+        configuration.limits = capturePdfLimits(configuration.limits);
+    if (configuration.pageSize && typeof configuration.pageSize === "object")
+        configuration.pageSize = Object.freeze(captureFields(configuration.pageSize, ["width", "height"]));
+    if (configuration.margins && typeof configuration.margins === "object")
+        configuration.margins = Object.freeze(captureFields(configuration.margins, ["top", "right", "bottom", "left"]));
+    if (configuration.pageNumberLabels !== undefined) {
+        const labels = configuration.pageNumberLabels;
+        if (!labels || typeof labels !== "object" || Array.isArray(labels))
+            throw new TypeError("pageNumberLabels must provide literal text.");
+        const { prefix = "Page ", separator = " of ", suffix = "" } = labels;
+        if ([prefix, separator, suffix].some(value => typeof value !== "string"))
+            throw new TypeError("Page-number labels must be text.");
+        configuration.pageNumberLabels = Object.freeze({ prefix, separator, suffix });
+    }
+    const textShaper = configuration.textShaper, shapeLine = textShaper?.shapeLine;
+    if (textShaper !== undefined && (!textShaper || typeof shapeLine !== "function"))
+        throw new TypeError("textShaper must provide shapeLine.");
+    if (configuration.textDirection !== undefined && !["auto", "ltr", "rtl"].includes(configuration.textDirection))
+        throw new TypeError("textDirection must be auto, ltr or rtl.");
+    const columns = document ? [] : copyColumns(configuration.columns).map(c => Object.freeze(c));
+    if (document)
+        configuration.includeHeader = false;
     if (!columns.length && !document)
         throw new TypeError("PDF tables need at least one declared column.");
-    function copySpans(rows) {
-        tableSpans(rows, columns.length);
-        return Object.freeze(rows.map(row => Object.freeze(row.map(cell => cell ? Object.freeze({ ...cell }) : null))));
-    }
+    const capturedFonts = configuration.fonts === undefined ? undefined : captureFields(configuration.fonts, ["regular", "bold", "italic", "boldItalic"]);
     const options = { ...configuration, columns,
-        ...(configuration.tagged ? { tagged: Object.freeze({ ...configuration.tagged }) } : {}),
-        ...(configuration.headerRows ? { headerRows: copySpans(configuration.headerRows) } : {}),
-        ...(configuration.fonts ? { fonts: Object.freeze({ ...configuration.fonts }) } : {}),
+        ...(textShaper ? { textShaper: Object.freeze({ shapeLine: shapeLine.bind(textShaper) }) } : {}),
+        ...(configuration.tagged ? { tagged: Object.freeze(captureFields(configuration.tagged, ["language"])) } : {}),
+        ...(configuration.headerRows ? { headerRows: captureTableSpans(configuration.headerRows, columns.length) } : {}),
+        ...(capturedFonts ? { fonts: Object.freeze(capturedFonts) } : {}),
         ...(configuration.columnWidths ? { columnWidths: Object.freeze([...configuration.columnWidths]) } : {}),
-        ...(configuration.footer ? { footer: Object.freeze({ ...configuration.footer,
-                ...(configuration.footer.rows ? { rows: copySpans(configuration.footer.rows) } : {}),
-                ...(configuration.footer.values ? { values: Object.freeze([...configuration.footer.values]) } : {}),
-                ...(configuration.footer.totals ? { totals: Object.freeze({ ...configuration.footer.totals }) } : {}) }) } : {}),
-        headerPresentation: presentation({ background: "e7edf5", bold: true, ...configuration.headerPresentation }),
-        footerPresentation: presentation({ background: "eef2f6", bold: true, ...configuration.footerPresentation }) };
+        ...(configuration.footer === undefined ? {} : { footer: captureFooter(configuration.footer, columns.length) }),
+        headerPresentation: Object.freeze({ background: "e7edf5", bold: true, ...presentation(configuration.headerPresentation) }),
+        footerPresentation: Object.freeze({ background: "eef2f6", bold: true, ...presentation(configuration.footerPresentation) }) };
     const budget = new ExportBudget(options.limits);
-    const limits = { maxPages: 10000, maxColumns: 1024, maxCellCharacters: 1000000, maxRowLines: 100000, maxFontBytes: 16 * 1024 * 1024, maxPageBytes: 8 * 1024 * 1024, maxHyperlinks: 100000,
+    const limits = { maxPages: 10000, maxColumns: 1024, maxTableBands: 64, maxTableWindowRows: 256, maxCellCharacters: 1000000, maxTextRuns: 10000, maxGroupBlocks: 256, maxRowLines: 100000, maxFontBytes: 16 * 1024 * 1024, maxPageBytes: 8 * 1024 * 1024, maxHyperlinks: 100000,
         maxImageBytes: 32 * 1024 * 1024, maxImagePixels: 16 * 1024 * 1024, maxVectorCommands: 100000, maxDrawingElements: 100000,
-        maxStructureElements: 1000000, maxMarkedContentReferences: 2000000 };
+        maxStructureElements: 1000000, maxMarkedContentReferences: 2000000,
+        maxListItems: 100000, maxParagraphStyles: 256, maxSections: 1000, maxBookmarks: 10000 };
     for (const key of Object.keys(limits)) {
         const override = options.limits?.[key];
         if (override !== undefined)
             limits[key] = override;
     }
+    const paragraphStyles = captureParagraphStyles(options.paragraphStyles, limits.maxParagraphStyles);
     if (columns.length > limits.maxColumns)
         throw new OfficeIMOError("RESOURCE_LIMIT", "maxColumns exceeded.");
     const size = typeof options.pageSize === "string" || options.pageSize === undefined ? sizes[options.pageSize ?? "A4"] : options.pageSize;
@@ -3747,16 +5898,15 @@ function settings(configuration, document = false) {
     const fontSize = positive(options.fontSize ?? 9, "Font size", 144), padding = options.padding ?? 4;
     if (!Number.isFinite(padding) || padding < 0 || padding > 72)
         throw new RangeError("PDF padding must be from 0 through 72 points.");
-    if (options.wideTable !== undefined && !["fit", "reject"].includes(options.wideTable))
-        throw new TypeError("wideTable must be fit or reject.");
     for (const key of ["title", "messageTop", "messageBottom"])
         if (options[key] !== undefined && typeof options[key] !== "string")
             throw new TypeError(key + " must be text.");
     for (const key of ["pageHeader", "pageFooter"])
         if (options[key] !== undefined && typeof options[key] !== "string" && typeof options[key] !== "function")
             throw new TypeError(key + " must be text or a synchronous callback.");
-    if (options.formatValue !== undefined && typeof options.formatValue !== "function")
-        throw new TypeError("formatValue must be a synchronous function.");
+    for (const key of ["formatValue", "formatRuns"])
+        if (options[key] !== undefined && typeof options[key] !== "function")
+            throw new TypeError(key + " must be a synchronous function.");
     for (const key of ["compression", "includeHeader", "pageNumbers"])
         if (options[key] !== undefined && typeof options[key] !== "boolean")
             throw new TypeError(key + " must be boolean.");
@@ -3778,21 +5928,81 @@ function settings(configuration, document = false) {
         catch {
             throw new TypeError("tagged.language must be a language tag such as en or en-US.");
         }
-        if (options.headerRows || columns.some(column => column.groups?.length) || options.footer?.rows)
-            throw new TypeError("Tagged PDF supports leaf column headings and ordinary footer cells; grouped headings and span matrices are unsupported.");
     }
-    return { options, page, margins, fontSize, padding, limits, budget };
+    const maxImageWorkingBytes = options.limits?.maxImageWorkingBytes;
+    return { options: { ...options, paragraphStyles }, paragraphStyles, page, margins, fontSize, padding,
+        repeatedColumns: document ? Object.freeze([]) : repeatedColumns(options.wideTable, columns),
+        limits: { ...limits, ...(maxImageWorkingBytes === undefined ? {} : { maxImageWorkingBytes }) }, budget };
 }
-const _exports = Object.freeze({ positive: positive, color: color, presentation: presentation, settings: settings });
-_modules.set("feed007d46e8aa0d2174a2cb49fb25a6888b7a6c4281386138429c90b0c17cb6", _exports);
+const _exports = Object.freeze({ positive: _m58.positive, color: _m58.color, presentation: _m58.presentation, pdfOptionFields: pdfOptionFields, pdfLimitFields: pdfLimitFields, capturePdfOptions: capturePdfOptions, capturePdfLimits: capturePdfLimits, captureWideTable: captureWideTable, settings: settings });
+_modules.set("4a089607f7cbe50e13d4382d1cc4e5f6ce32c5773bbec2df84178710f54d9a38", _exports);
 return _exports;
 })();
 
-const _m40 = _modules.get("26fe24e1d11237562f07204e0c1a6ff3b1c06546f7fc3e9e5f35e53636dd6d56") ?? (() => {
+const _m61 = _modules.get("e3d39f39aebcbaf063fd8221df0d9cb5902ad2545a9d9e474bb59d47f15e2c01") ?? (() => {
+/** @internal One type byte, an eight-byte offset/container number and a two-byte generation/index. */
+const pdfXrefEntryBytes = 11;
+function unsigned(bytes, offset, value, width) {
+    if (!Number.isSafeInteger(value) || value < 0 || value >= 2 ** (width * 8))
+        throw new RangeError("Invalid PDF cross-reference field.");
+    // Bitwise shifts truncate to 32 bits. Arithmetic preserves every supported byte offset.
+    for (let index = width - 1; index >= 0; index--) {
+        bytes[offset + index] = value % 256;
+        value = Math.floor(value / 256);
+    }
+}
+/** @internal Stream a complete single-section xref, including its own ordinary-object entry.
+ * A defined member index means that the location is an object-stream number rather than a byte offset. */
+function* pdfXrefChunks(locations, indices) {
+    if (locations.length !== indices.length)
+        throw new Error("PDF cross-reference locations must align.");
+    const perChunk = Math.floor(32768 / pdfXrefEntryBytes);
+    for (let first = 0; first < locations.length; first += perChunk) {
+        const count = Math.min(perChunk, locations.length - first), bytes = new Uint8Array(count * pdfXrefEntryBytes);
+        for (let index = 0; index < count; index++) {
+            const id = first + index, position = index * pdfXrefEntryBytes, location = locations[id], member = indices.at(id);
+            if (location === undefined)
+                throw new Error("PDF contains unwritten objects.");
+            bytes[position] = id === 0 ? 0 : member === undefined ? 1 : 2;
+            unsigned(bytes, position + 1, location, 8);
+            unsigned(bytes, position + 9, id === 0 ? 65535 : member ?? 0, 2);
+        }
+        yield bytes;
+    }
+}
+const _exports = Object.freeze({ pdfXrefEntryBytes: pdfXrefEntryBytes, pdfXrefChunks: pdfXrefChunks });
+_modules.set("e3d39f39aebcbaf063fd8221df0d9cb5902ad2545a9d9e474bb59d47f15e2c01", _exports);
+return _exports;
+})();
+
+const _m60 = _modules.get("e716b8b1da464094622f5f671518493c78e63ff22a029d61544d2d193b63ce8f") ?? (() => {
 const { checkAbort, withAbort, pause, taskYieldDue } = _m4;
 
 const { OfficeIMOError } = _m2;
 
+const { pdfXrefChunks, pdfXrefEntryBytes } = _m61;
+
+const compactObjectCount = 256, compactObjectBytes = 32768;
+const compactIndexChunkEntries = 4096;
+/** Lazy Uint16 chunks store compact membership; untouched zero slots denote ordinary objects. */
+class PdfCompactIndices {
+    count;
+    chunks = [];
+    constructor(count) {
+        this.count = count;
+    }
+    get length() { return this.count; }
+    reserve() { this.count++; }
+    set(id, member) {
+        const chunk = this.chunks[Math.floor(id / compactIndexChunkEntries)] ??= new Uint16Array(compactIndexChunkEntries);
+        // The current batch cap permits indices 0..255; adding one preserves index 255 as 256.
+        chunk[id % compactIndexChunkEntries] = member + 1;
+    }
+    at(id) {
+        const encoded = this.chunks[Math.floor(id / compactIndexChunkEntries)]?.[id % compactIndexChunkEntries] ?? 0;
+        return encoded ? encoded - 1 : undefined;
+    }
+}
 function pdfNumber(value) {
     if (!Number.isFinite(value) || Math.abs(value) > 1e9)
         throw new RangeError("PDF coordinates and metrics must be finite and bounded.");
@@ -3809,25 +6019,33 @@ function unicodeHex(text) {
     }
     return hex;
 }
-/** @internal Forward-only PDF objects. Only xref offsets and page references survive a completed page. */
+/** @internal Forward-only PDF objects. Completed objects retain only their xref location. */
 class PdfObjects {
     sink;
     signal;
     maxBytes;
+    compressObjects;
     offsets = [0];
+    // A defined index changes the corresponding full-width offset into an object-stream number.
+    // Membership chunks are allocated only when a compact member needs their ID range.
+    compactIndices;
+    compactBatch;
+    compactArena;
+    compactUnavailable = false;
     encoder = new TextEncoder();
     buffer = new Uint8Array(32768);
     buffered = 0;
     bytes = 0;
-    constructor(sink, signal, maxBytes = Number.MAX_SAFE_INTEGER) {
+    constructor(sink, signal, maxBytes = Number.MAX_SAFE_INTEGER, compressObjects = false) {
         this.sink = sink;
         this.signal = signal;
         this.maxBytes = maxBytes;
+        this.compressObjects = compressObjects;
     }
-    reserve() { this.offsets.push(undefined); return this.offsets.length - 1; }
+    reserve() { this.offsets.push(undefined); this.compactIndices?.reserve(); return this.offsets.length - 1; }
     async raw(bytes) {
         checkAbort(this.signal);
-        if (this.bytes + bytes.length > this.maxBytes)
+        if (!Number.isSafeInteger(this.bytes + bytes.length) || this.bytes + bytes.length > this.maxBytes)
             throw new OfficeIMOError("RESOURCE_LIMIT", "maxOutputBytes exceeded.");
         this.bytes += bytes.length;
         for (let offset = 0; offset < bytes.length;) {
@@ -3836,78 +6054,229 @@ class PdfObjects {
             offset += n;
             this.buffered += n;
             if (this.buffered === this.buffer.length)
-                await this.flush();
+                await this.flushBytes();
         }
     }
     async text(text) { await this.raw(this.encoder.encode(text)); }
     async flush() {
+        await this.flushCompact();
+        await this.flushBytes();
+    }
+    /** Publish completed page bytes without forcing a partial structure container to end. */
+    async flushBytes() {
         if (this.buffered) {
             const bytes = this.buffer.subarray(0, this.buffered);
             await withAbort(Promise.resolve(this.sink.write(bytes)), this.signal);
-            this.buffer = new Uint8Array(32768);
+            // The sink borrows this view until acceptance; failed or cancelled writes must not reuse it.
             this.buffered = 0;
         }
         if (taskYieldDue())
             await pause();
         checkAbort(this.signal);
     }
+    /** @internal Append only when an existing compact batch can accept a member without async work. */
+    tryCompactObject(id, body) {
+        checkAbort(this.signal);
+        this.validateObject(id);
+        const batch = this.compactBatch;
+        if (!batch || !this.compressObjects || this.compactUnavailable || typeof CompressionStream !== "function" ||
+            body.length > compactObjectBytes || batch.ids.length + 1 >= compactObjectCount)
+            return false;
+        const indexBytes = String(id).length + String(batch.bodyBytes).length + 2;
+        const written = this.encodeCompactBody(body, batch.bodyBytes, compactObjectBytes - batch.indexBytes - indexBytes - batch.bodyBytes - 2);
+        if (written === undefined)
+            return false;
+        this.storeCompactBody(batch, id, written);
+        return true;
+    }
+    /** Small logical structure values share one bounded object-stream container. Other callers keep
+     * ordinary objects; unavailable deflate preserves the classic representation before packing starts. */
+    async compactObject(id, body) {
+        checkAbort(this.signal);
+        this.validateObject(id);
+        if (!this.compressObjects || this.compactUnavailable || body.length > compactObjectBytes)
+            return this.object(id, body);
+        if (typeof CompressionStream !== "function") {
+            if (this.compactIndices)
+                throw new Error("PDF object compression became unavailable.");
+            this.compactUnavailable = true;
+            return this.object(id, body);
+        }
+        const firstIndexBytes = String(id).length + 4;
+        let batch = this.compactBatch;
+        const indexBytes = String(id).length + String(batch?.bodyBytes ?? 0).length + 2;
+        let written = batch && batch.ids.length < compactObjectCount ? this.encodeCompactBody(body, batch.bodyBytes, compactObjectBytes - batch.indexBytes - indexBytes - batch.bodyBytes - 2) : undefined;
+        if (batch && written === undefined) {
+            // Partial encodings only touch the uncommitted suffix. Flush the committed prefix and retry
+            // the whole string so a multibyte scalar is never split between containers.
+            await this.flushCompact();
+            batch = undefined;
+            checkAbort(this.signal);
+        }
+        if (!batch) {
+            written = this.encodeCompactBody(body, 0, compactObjectBytes - firstIndexBytes - 1);
+            if (written === undefined)
+                return this.object(id, body);
+            let compressor;
+            // Probe before selecting the compact representation. Later batches need no idle native
+            // codec while they accumulate, including while ordinary page streams are compressed.
+            if (!this.compactIndices) {
+                try {
+                    compressor = new CompressionStream("deflate");
+                }
+                catch {
+                    this.compactUnavailable = true;
+                    return this.object(id, body);
+                }
+            }
+            batch = { id: this.reserve(), compressor, ids: [], bodyOffsets: [], bodyBytes: 0, indexBytes: 1 };
+            this.compactIndices ??= new PdfCompactIndices(this.offsets.length);
+            this.compactBatch = batch;
+        }
+        this.storeCompactBody(batch, id, written);
+        if (batch.ids.length === compactObjectCount)
+            await this.flushCompact();
+    }
+    storeCompactBody(batch, id, written) {
+        this.offsets[id] = batch.id;
+        this.compactIndices.set(id, batch.ids.length);
+        batch.indexBytes += String(id).length + String(batch.bodyBytes).length + 2;
+        batch.ids.push(id);
+        batch.bodyOffsets.push(batch.bodyBytes);
+        this.compactArena[batch.bodyBytes + written] = 10;
+        batch.bodyBytes += written + 1;
+    }
+    /** An incomplete encoding leaves only scratch bytes beyond the committed batch prefix. */
+    encodeCompactBody(body, offset, available) {
+        if (available < 0)
+            return undefined;
+        const destination = (this.compactArena ??= new Uint8Array(compactObjectBytes)).subarray(offset, offset + available);
+        if (typeof this.encoder.encodeInto === "function") {
+            const result = this.encoder.encodeInto(body, destination);
+            return result.read === body.length ? result.written : undefined;
+        }
+        // Preserve TextEncoder implementations that only expose encode().
+        const bytes = this.encoder.encode(body);
+        if (bytes.length > available)
+            return undefined;
+        destination.set(bytes);
+        return bytes.length;
+    }
+    async flushCompact() {
+        const batch = this.compactBatch;
+        if (!batch)
+            return;
+        this.compactBatch = undefined;
+        let index = "";
+        for (let member = 0; member < batch.ids.length; member++)
+            index += batch.ids[member] + " " + batch.bodyOffsets[member] + " ";
+        const header = this.encoder.encode(index + "\n"), count = batch.ids.length;
+        // Keep the index separate from the arena. Reuse waits for the compressed read or all raw
+        // writes below, so later members cannot overwrite a borrowed batch body.
+        const body = this.compactArena.subarray(0, batch.bodyBytes);
+        batch.ids.length = 0;
+        batch.bodyOffsets.length = 0;
+        if (batch.compressor) {
+            await this.compressedStream(batch.id, body, "/Type /ObjStm /N " + count + " /First " + header.length, batch.compressor, header);
+        }
+        else {
+            this.start(batch.id);
+            await this.text(batch.id + " 0 obj\n<< /Length " + (header.length + body.length) + " /Type /ObjStm /N " + count + " /First " + header.length + " >>\nstream\n");
+            await this.raw(header);
+            await this.raw(body);
+            await this.text("\nendstream\nendobj\n");
+        }
+    }
     async object(id, body) {
         this.start(id);
-        await this.text(id + " 0 obj\n" + body + "\nendobj\n");
+        if (typeof body === "string") {
+            await this.text(id + " 0 obj\n" + body + "\nendobj\n");
+            return;
+        }
+        // Logical parent arrays can be large. Coalesce small tokens without materializing the whole object.
+        let chunk = id + " 0 obj\n";
+        for (const part of body) {
+            for (let offset = 0; offset < part.length;) {
+                const end = Math.min(part.length, offset + 32768 - chunk.length);
+                chunk += part.slice(offset, end);
+                offset = end;
+                if (chunk.length === 32768) {
+                    // Keep a trailing high surrogate with the next token, matching one-shot UTF-8 encoding.
+                    const code = chunk.charCodeAt(chunk.length - 1), length = code >= 0xd800 && code <= 0xdbff ? chunk.length - 1 : chunk.length;
+                    await this.text(chunk.slice(0, length));
+                    chunk = chunk.slice(length);
+                }
+            }
+        }
+        await this.text(chunk + "\nendobj\n");
+    }
+    validateObject(id) {
+        if (!Number.isSafeInteger(id) || id <= 0 || id >= this.offsets.length || this.offsets[id] !== undefined)
+            throw new Error("Invalid PDF object state.");
     }
     start(id) {
-        if (!Number.isInteger(id) || id <= 0 || id >= this.offsets.length || this.offsets[id] !== undefined)
-            throw new Error("Invalid PDF object state.");
+        this.validateObject(id);
         this.offsets[id] = this.bytes;
     }
-    async stream(id, source, dictionary = "", compression = true) {
-        let bytes = typeof source === "string" ? this.encoder.encode(source) : source, compressed = false;
+    async stream(id, source, dictionary = "", compression = true, owned = false) {
+        const bytes = typeof source === "string" ? this.encoder.encode(source) : source;
+        let compressor;
         if (compression && typeof CompressionStream === "function" && bytes.length) {
-            let compressor;
             try {
                 compressor = new CompressionStream("deflate");
             }
             catch { /* PDF streams can remain uncompressed. */ }
-            if (compressor) {
-                const sourceBytes = new Uint8Array(bytes);
-                const input = new ReadableStream({ start(controller) { controller.enqueue(sourceBytes); controller.close(); } });
-                const reader = input.pipeThrough(compressor).getReader(), chunks = [];
-                let length = 0, complete = false;
-                try {
-                    while (true) {
-                        const next = await withAbort(reader.read(), this.signal);
-                        if (next.done) {
-                            complete = true;
-                            break;
-                        }
-                        chunks.push(next.value);
-                        length += next.value.length;
-                    }
-                }
-                finally {
-                    if (!complete)
-                        void reader.cancel(this.signal?.reason).catch(() => { });
-                    reader.releaseLock();
-                }
-                bytes = new Uint8Array(length);
-                let offset = 0;
-                for (const chunk of chunks) {
-                    bytes.set(chunk, offset);
-                    offset += chunk.length;
-                }
-                compressed = true;
-            }
         }
-        this.start(id);
-        await this.text(id + " 0 obj\n<< /Length " + bytes.length + (compressed ? " /Filter /FlateDecode" : "") + " " + dictionary + " >>\nstream\n");
-        await this.raw(bytes);
-        await this.text("\nendstream\nendobj\n");
+        if (!compressor) {
+            this.start(id);
+            await this.text(id + " 0 obj\n<< /Length " + bytes.length + " " + dictionary + " >>\nstream\n");
+            await this.raw(bytes);
+            await this.text("\nendstream\nendobj\n");
+            return;
+        }
+        // Verified internal producers can transfer immutable ownership; other byte sources retain the defensive snapshot.
+        const sourceBytes = typeof source === "string" || owned ? bytes : new Uint8Array(bytes);
+        await this.compressedStream(id, sourceBytes, dictionary, compressor);
+    }
+    async compressedStream(id, sourceBytes, dictionary, compressor, prefix) {
+        const input = new ReadableStream({ start(controller) {
+                if (prefix)
+                    controller.enqueue(prefix);
+                controller.enqueue(sourceBytes);
+                controller.close();
+            } });
+        const reader = input.pipeThrough(compressor).getReader(), lengthId = this.reserve();
+        let length = 0, complete = false;
+        try {
+            this.start(id);
+            await this.text(id + " 0 obj\n<< /Length " + lengthId + " 0 R /Filter /FlateDecode " + dictionary + " >>\nstream\n");
+            while (true) {
+                const next = await withAbort(reader.read(), this.signal);
+                if (next.done) {
+                    complete = true;
+                    break;
+                }
+                length += next.value.length;
+                await this.raw(next.value);
+            }
+            await this.text("\nendstream\nendobj\n");
+            await this.object(lengthId, String(length));
+        }
+        finally {
+            if (!complete)
+                void reader.cancel(this.signal?.reason).catch(() => { });
+            reader.releaseLock();
+        }
     }
     async finish(root, info) {
-        if (this.offsets.slice(1).some(offset => offset === undefined))
-            throw new Error("PDF contains unwritten objects.");
+        await this.flushCompact();
+        for (let id = 1; id < this.offsets.length; id++)
+            if (this.offsets[id] === undefined)
+                throw new Error("PDF contains unwritten objects.");
         if (this.bytes > 9999999999)
             throw new OfficeIMOError("RESOURCE_LIMIT", "PDF exceeds classic cross-reference offset capacity.");
+        if (this.compactIndices)
+            return this.finishCompact(root, info);
         const start = this.bytes;
         await this.text("xref\n0 " + this.offsets.length + "\n0000000000 65535 f \n");
         for (let i = 1; i < this.offsets.length; i++)
@@ -3915,13 +6284,27 @@ class PdfObjects {
         await this.text("trailer\n<< /Size " + this.offsets.length + " /Root " + root + " 0 R /Info " + info + " 0 R >>\nstartxref\n" + start + "\n%%EOF\n");
         await this.flush();
     }
+    /** Xref payloads have a known length and are emitted in bounded chunks, without another copy
+     * of the document's random-access location arrays or a whole-xref compression buffer. */
+    async finishCompact(root, info) {
+        const id = this.reserve(), start = this.bytes, length = this.offsets.length * pdfXrefEntryBytes;
+        if (!Number.isSafeInteger(length))
+            throw new OfficeIMOError("RESOURCE_LIMIT", "PDF cross-reference stream is too large.");
+        this.start(id);
+        await this.text(id + " 0 obj\n<< /Type /XRef /Size " + this.offsets.length + " /W [1 8 2] /Root " + root + " 0 R /Info " + info +
+            " 0 R /Length " + length + " >>\nstream\n");
+        for (const chunk of pdfXrefChunks(this.offsets, this.compactIndices))
+            await this.raw(chunk);
+        await this.text("\nendstream\nendobj\nstartxref\n" + start + "\n%%EOF\n");
+        await this.flushBytes();
+    }
 }
 const _exports = Object.freeze({ pdfNumber: pdfNumber, unicodeHex: unicodeHex, PdfObjects: PdfObjects });
-_modules.set("26fe24e1d11237562f07204e0c1a6ff3b1c06546f7fc3e9e5f35e53636dd6d56", _exports);
+_modules.set("e716b8b1da464094622f5f671518493c78e63ff22a029d61544d2d193b63ce8f", _exports);
 return _exports;
 })();
 
-const _m44 = _modules.get("1e169e6ecdeceff319b5da4bf01f4c653c1a3d9e8ad696b141bf8ac52d9f446c") ?? (() => {
+const _m65 = _modules.get("1e169e6ecdeceff319b5da4bf01f4c653c1a3d9e8ad696b141bf8ac52d9f446c") ?? (() => {
 /** @internal Bounded big-endian reader used for caller-provided TrueType programs. */
 class FontReader {
     bytes;
@@ -3951,14 +6334,42 @@ _modules.set("1e169e6ecdeceff319b5da4bf01f4c653c1a3d9e8ad696b141bf8ac52d9f446c",
 return _exports;
 })();
 
-const _m45 = _modules.get("0c9db038dc71b0dce6cef9061dd2dc0c1d699a1ce737d8d41b818996d47acf5e") ?? (() => {
-const { align4, checksum } = _m44;
+const _m66 = _modules.get("ecf6c6ab2f9c5f747338d0d59d9f2cae0b006d9d2a210bcb1545db1f046eb80c") ?? (() => {
+const { align4 } = _m65;
+
+const { checkAbort, pause, taskYieldDue } = _m4;
 
 /** Preserve glyph IDs and complete composite dependencies, as in OfficeIMO.Pdf's native subsetter. */
 function subsetTrueType(font, requested, characters) {
+    const scanner = subsetSteps(font, requested, characters);
+    while (true) {
+        const next = scanner.next();
+        if (next.done)
+            return next.value;
+    }
+}
+/** Build the same font bytes with cancellation and bounded cooperative scans. */
+async function subsetTrueTypeCooperatively(font, requested, characters, signal) {
+    checkAbort(signal);
+    const scanner = subsetSteps(font, requested, characters);
+    while (true) {
+        const next = scanner.next();
+        if (next.done) {
+            checkAbort(signal);
+            return next.value;
+        }
+        if (taskYieldDue())
+            await pause();
+        checkAbort(signal);
+    }
+}
+function* subsetSteps(font, requested, characters) {
     const glyphs = new Set([0, ...requested]), glyfTable = font.table("glyf"), queue = [...glyphs];
     const dependencies = new Map();
+    let scanned = 0;
     for (let i = 0; i < queue.length; i++) {
+        if ((++scanned & 1023) === 0)
+            yield;
         const glyph = queue[i];
         if (!Number.isInteger(glyph) || glyph < 0 || glyph >= font.glyphCount)
             throw new TypeError("Invalid subset glyph.");
@@ -3981,6 +6392,8 @@ function subsetTrueType(font, requested, characters) {
             if (component >= font.glyphCount)
                 throw new TypeError("Invalid TrueType composite dependency.");
             children.push(component);
+            if ((++scanned & 1023) === 0)
+                yield;
             if (!glyphs.has(component)) {
                 glyphs.add(component);
                 queue.push(component);
@@ -3996,7 +6409,9 @@ function subsetTrueType(font, requested, characters) {
     }
     // A malformed caller-provided font must not export recursive composite glyphs.
     const visited = new Set(), visiting = new Set();
-    function visit(glyph, depth) {
+    function* visit(glyph, depth) {
+        if ((++scanned & 1023) === 0)
+            yield;
         if (visiting.has(glyph))
             throw new TypeError("Cyclic TrueType composite dependency.");
         if (depth > 64)
@@ -4005,37 +6420,49 @@ function subsetTrueType(font, requested, characters) {
             return;
         visiting.add(glyph);
         for (const child of dependencies.get(glyph) ?? [])
-            visit(child, depth + 1);
+            yield* visit(child, depth + 1);
         visiting.delete(glyph);
         visited.add(glyph);
     }
     for (const glyph of glyphs)
-        visit(glyph, 0);
+        yield* visit(glyph, 0);
     const offsets = new Uint32Array(font.glyphCount + 1);
     let length = 0;
     for (let glyph = 0; glyph < font.glyphCount; glyph++) {
         offsets[glyph] = length;
         if (glyphs.has(glyph))
             length += align4(font.offsets[glyph + 1] - font.offsets[glyph]);
+        if ((glyph & 1023) === 1023)
+            yield;
     }
     offsets[font.glyphCount] = length;
     const glyf = new Uint8Array(length);
-    for (const glyph of glyphs)
-        glyf.set(font.bytes.subarray(glyfTable.offset + font.offsets[glyph], glyfTable.offset + font.offsets[glyph + 1]), offsets[glyph]);
+    for (const glyph of glyphs) {
+        yield* copyBytes(font.bytes.subarray(glyfTable.offset + font.offsets[glyph], glyfTable.offset + font.offsets[glyph + 1]), glyf, offsets[glyph]);
+        if ((++scanned & 1023) === 0)
+            yield;
+    }
     const loca = new Uint8Array(offsets.length * 4), locaView = new DataView(loca.buffer);
-    for (let i = 0; i < offsets.length; i++)
+    for (let i = 0; i < offsets.length; i++) {
         locaView.setUint32(i * 4, offsets[i]);
+        if ((i & 1023) === 1023)
+            yield;
+    }
     const retained = new Set(["OS/2", "cmap", "cvt ", "fpgm", "gasp", "glyf", "head", "hhea", "hmtx", "loca", "maxp", "name", "post", "prep"]);
-    const cmap = subsetCmap(characters), hmtx = subsetMetrics(font, glyphs);
-    const tables = [...font.tables].filter(([tag]) => retained.has(tag)).sort(([a], [b]) => a < b ? -1 : 1).map(([tag, table]) => {
-        const bytes = tag === "glyf" ? glyf : tag === "loca" ? loca : tag === "cmap" ? cmap : tag === "hmtx" ? hmtx : font.bytes.slice(table.offset, table.offset + table.length);
+    const cmap = yield* subsetCmap(characters), hmtx = yield* subsetMetrics(font, glyphs);
+    const tables = [];
+    for (const [tag, table] of [...font.tables].filter(([tag]) => retained.has(tag)).sort(([a], [b]) => a < b ? -1 : 1)) {
+        const existing = tag === "glyf" ? glyf : tag === "loca" ? loca : tag === "cmap" ? cmap : tag === "hmtx" ? hmtx : undefined;
+        const bytes = existing ?? new Uint8Array(table.length);
+        if (!existing)
+            yield* copyBytes(font.bytes.subarray(table.offset, table.offset + table.length), bytes);
         if (tag === "head") {
             const view = new DataView(bytes.buffer);
             view.setUint32(8, 0);
             view.setInt16(50, 1);
         }
-        return { tag, bytes };
-    });
+        tables.push({ tag, bytes });
+    }
     const size = 12 + tables.length * 16 + tables.reduce((n, t) => n + align4(t.bytes.length), 0), output = new Uint8Array(size), view = new DataView(output.buffer);
     view.setUint32(0, 0x10000);
     view.setUint16(4, tables.length);
@@ -4044,27 +6471,31 @@ function subsetTrueType(font, requested, characters) {
     view.setUint16(8, Math.log2(power));
     view.setUint16(10, tables.length * 16 - power * 16);
     let cursor = 12 + tables.length * 16, head = 0;
-    tables.forEach((table, i) => {
+    for (let i = 0; i < tables.length; i++) {
+        const table = tables[i];
         const p = 12 + i * 16;
         for (let j = 0; j < 4; j++)
             output[p + j] = table.tag.charCodeAt(j);
-        view.setUint32(p + 4, checksum(table.bytes));
+        view.setUint32(p + 4, yield* checksumSteps(table.bytes));
         view.setUint32(p + 8, cursor);
         view.setUint32(p + 12, table.bytes.length);
-        output.set(table.bytes, cursor);
+        yield* copyBytes(table.bytes, output, cursor);
         if (table.tag === "head")
             head = cursor;
         cursor += align4(table.bytes.length);
-    });
-    view.setUint32(head + 8, (0xb1b0afba - checksum(output)) >>> 0);
+    }
+    view.setUint32(head + 8, (0xb1b0afba - (yield* checksumSteps(output))) >>> 0);
     return output;
 }
 /** Keep original glyph IDs, advance widths and bearings for every selected/composite glyph.
  * Empty glyph slots have no outline; their unused metrics need not inflate the compressed subset. */
-function subsetMetrics(font, glyphs) {
+function* subsetMetrics(font, glyphs) {
+    let scanned = 0;
     const metrics = font.u16(font.table("hhea").offset + 34), table = font.table("hmtx");
     const result = new Uint8Array(metrics * 4 + (font.glyphCount - metrics) * 2);
     for (const glyph of glyphs) {
+        if ((++scanned & 1023) === 0)
+            yield;
         const first = glyph < metrics ? glyph * 4 : metrics * 4 + (glyph - metrics) * 2, length = glyph < metrics ? 4 : 2;
         result.set(font.bytes.subarray(table.offset + first, table.offset + first + length), first);
         if (glyph >= metrics) {
@@ -4076,9 +6507,12 @@ function subsetMetrics(font, glyphs) {
     return result;
 }
 /** One Unicode format-12 map covers BMP and supplementary scalars without retaining unused coverage. */
-function subsetCmap(characters) {
+function* subsetCmap(characters) {
+    let scanned = 0;
     const entries = [...characters].sort(([a], [b]) => a - b), groups = [];
     for (const [scalar, glyph] of entries) {
+        if ((++scanned & 1023) === 0)
+            yield;
         const previous = groups.at(-1);
         if (previous && scalar === previous.last + 1 && glyph === previous.glyph + scalar - previous.first)
             previous.last = scalar;
@@ -4093,29 +6527,50 @@ function subsetCmap(characters) {
     view.setUint16(12, 12);
     view.setUint32(16, result.length - 12);
     view.setUint32(24, groups.length);
-    groups.forEach((group, i) => {
+    for (let i = 0; i < groups.length; i++) {
+        const group = groups[i];
         const p = 28 + i * 12;
         view.setUint32(p, group.first);
         view.setUint32(p + 4, group.last);
         view.setUint32(p + 8, group.glyph);
-    });
+        if ((i & 1023) === 1023)
+            yield;
+    }
     return result;
 }
-const _exports = Object.freeze({ subsetTrueType: subsetTrueType });
-_modules.set("0c9db038dc71b0dce6cef9061dd2dc0c1d699a1ce737d8d41b818996d47acf5e", _exports);
+/** Copy owned font tables without one long native copy between cancellation points. */
+function* copyBytes(source, target, offset = 0) {
+    for (let first = 0; first < source.length; first += 65536) {
+        target.set(source.subarray(first, Math.min(source.length, first + 65536)), offset + first);
+        yield;
+    }
+}
+function* checksumSteps(bytes) {
+    let sum = 0;
+    for (let i = 0; i < bytes.length; i += 4) {
+        sum = (sum + (((bytes[i] ?? 0) * 0x1000000) + ((bytes[i + 1] ?? 0) << 16) + ((bytes[i + 2] ?? 0) << 8) + (bytes[i + 3] ?? 0))) >>> 0;
+        if ((i & 65535) === 65532)
+            yield;
+    }
+    return sum;
+}
+const _exports = Object.freeze({ subsetTrueType: subsetTrueType, subsetTrueTypeCooperatively: subsetTrueTypeCooperatively });
+_modules.set("ecf6c6ab2f9c5f747338d0d59d9f2cae0b006d9d2a210bcb1545db1f046eb80c", _exports);
 return _exports;
 })();
 
-const _m43 = _modules.get("0c236a8c52738a1e0a5bdca1281d82c8e187e06dffd8f8d75cdb9b07f490c9a3") ?? (() => {
+const _m64 = _modules.get("2e1fa1582af797386e2e2914c0a27237309b1692a3cc2be688f46590eb74480d") ?? (() => {
 const { NotSupportedError } = _m2;
 
-const { FontReader } = _m44;
+const { FontReader } = _m65;
 
-const { subsetTrueType } = _m45;
+const { subsetTrueType, subsetTrueTypeCooperatively } = _m66;
+
+const { checkAbort, pause, taskYieldDue } = _m4;
 
 /** @internal Native TrueType outline profile shared with the C# PDF writer's glyph-preserving subset design. */
 class TrueTypeFont extends FontReader {
-    tables = new Map();
+    tables;
     glyphCount;
     units;
     ascent;
@@ -4125,102 +6580,43 @@ class TrueTypeFont extends FontReader {
     offsets;
     canSubset;
     cmaps;
-    constructor(bytes) {
+    constructor(bytes, prepared) {
         super(bytes);
-        if (this.u32(0) !== 0x10000)
-            throw new NotSupportedError("PDF fonts require a static TrueType .ttf with glyf outlines; collections, CFF and WOFF are unsupported.");
-        const count = this.u16(4);
-        if (!count || count > 256)
-            throw new TypeError("Invalid TrueType table count.");
-        this.range(12, count * 16);
-        for (let i = 0; i < count; i++) {
-            const p = 12 + i * 16, tag = this.tag(p), offset = this.u32(p + 8), length = this.u32(p + 12);
-            this.range(offset, length);
-            if (this.tables.has(tag))
-                throw new TypeError("Duplicate TrueType table: " + tag);
-            this.tables.set(tag, { offset, length });
-        }
-        if (this.tables.has("fvar"))
-            throw new NotSupportedError("Instantiate a variable font as a static TrueType font before PDF export.");
-        const head = this.table("head", 54), maxp = this.table("maxp", 6), hhea = this.table("hhea", 36), os2 = this.table("OS/2", 10);
-        if (this.u32(head.offset + 12) !== 0x5f0f3cf5)
-            throw new TypeError("Invalid TrueType head magic.");
-        this.glyphCount = this.u16(maxp.offset + 4);
-        this.units = this.u16(head.offset + 18);
-        if (!this.glyphCount || this.units < 16 || this.units > 16384)
-            throw new TypeError("Invalid TrueType metrics.");
-        const fsType = this.u16(os2.offset + 8);
-        if (fsType & 0x202)
-            throw new NotSupportedError("The font's embedding permissions prohibit outline embedding.");
-        this.canSubset = !(fsType & 0x100);
-        const scale = 1000 / this.units;
-        this.ascent = this.i16(hhea.offset + 4) * scale;
-        this.descent = this.i16(hhea.offset + 6) * scale;
-        this.bbox = [36, 38, 40, 42].map(p => this.i16(head.offset + p) * scale);
-        const metrics = this.u16(hhea.offset + 34);
-        if (!metrics || metrics > this.glyphCount)
-            throw new TypeError("Invalid TrueType horizontal metric count.");
-        const hmtx = this.table("hmtx", metrics * 4 + (this.glyphCount - metrics) * 2);
-        this.widths = Array.from({ length: this.glyphCount }, (_, i) => this.u16(hmtx.offset + Math.min(i, metrics - 1) * 4) * scale);
-        const format = this.i16(head.offset + 50);
-        if (format !== 0 && format !== 1)
-            throw new TypeError("Unsupported TrueType loca index.");
-        const loca = this.table("loca", (this.glyphCount + 1) * (format ? 4 : 2)), glyf = this.table("glyf");
-        this.offsets = Array.from({ length: this.glyphCount + 1 }, (_, i) => format ? this.u32(loca.offset + i * 4) : this.u16(loca.offset + i * 2) * 2);
-        for (let i = 0; i <= this.glyphCount; i++)
-            if (this.offsets[i] > glyf.length || (i && this.offsets[i] < this.offsets[i - 1]))
-                throw new TypeError("Invalid TrueType glyph offsets.");
-        const cmap = this.table("cmap", 4), maps = [], validated = new Set();
-        const encodings = this.u16(cmap.offset + 2);
-        if (4 + encodings * 8 > cmap.length)
-            throw new TypeError("Invalid TrueType cmap directory.");
-        for (let i = 0; i < encodings; i++) {
-            const p = cmap.offset + 4 + i * 8, platform = this.u16(p), encoding = this.u16(p + 2), relative = this.u32(p + 4);
-            if (platform !== 0 && !(platform === 3 && (encoding === 1 || encoding === 10)))
-                continue;
-            if (relative + 4 > cmap.length)
-                throw new TypeError("Invalid cmap subtable offset.");
-            const offset = cmap.offset + relative, type = this.u16(offset);
-            if (type !== 4 && type !== 12)
-                continue;
-            // Encoding records may share a Unicode subtable; validate its contents once.
-            if (validated.has(offset))
-                continue;
-            if (type === 12 && relative + 16 > cmap.length)
-                throw new TypeError("Truncated cmap format 12.");
-            const length = type === 12 ? this.u32(offset + 4) : this.u16(offset + 2);
-            if (length < (type === 12 ? 16 : 16) || relative + length > cmap.length)
-                throw new TypeError("Invalid cmap length.");
-            if (type === 12) {
-                const groups = this.u32(offset + 12);
-                if (16 + groups * 12 > length)
-                    throw new TypeError("Invalid cmap groups.");
-                let previous = -1;
-                for (let j = 0; j < groups; j++) {
-                    const q = offset + 16 + j * 12, start = this.u32(q), end = this.u32(q + 4), glyph = this.u32(q + 8);
-                    if (start <= previous || start > end || end > 0x10ffff || glyph + end - start >= this.glyphCount)
-                        throw new TypeError("Invalid cmap scalar/glyph group.");
-                    previous = end;
+        const scanner = parseFont(this);
+        let data = prepared;
+        if (!data)
+            while (true) {
+                const next = scanner.next();
+                if (next.done) {
+                    data = next.value;
+                    break;
                 }
             }
-            else {
-                const segments = this.u16(offset + 6) / 2;
-                if (!Number.isInteger(segments) || !segments || 16 + segments * 8 > length)
-                    throw new TypeError("Invalid cmap segments.");
-                let previous = -1;
-                for (let j = 0; j < segments; j++) {
-                    const end = this.u16(offset + 14 + j * 2), start = this.u16(offset + 16 + segments * 2 + j * 2);
-                    if (end <= previous || start > end)
-                        throw new TypeError("Invalid cmap segment ordering.");
-                    previous = end;
-                }
+        this.tables = data.tables;
+        this.glyphCount = data.glyphCount;
+        this.units = data.units;
+        this.ascent = data.ascent;
+        this.descent = data.descent;
+        this.bbox = data.bbox;
+        this.widths = data.widths;
+        this.offsets = data.offsets;
+        this.canSubset = data.canSubset;
+        this.cmaps = data.cmaps;
+    }
+    /** Parse an owned immutable snapshot while allowing cancellation and host events between bounded scans. */
+    static async create(bytes, signal) {
+        checkAbort(signal);
+        const scanner = parseFont(new FontReader(bytes));
+        while (true) {
+            const next = scanner.next();
+            if (next.done) {
+                checkAbort(signal);
+                return new TrueTypeFont(bytes, next.value);
             }
-            validated.add(offset);
-            maps.push({ offset, length });
+            if (taskYieldDue())
+                await pause();
+            checkAbort(signal);
         }
-        this.cmaps = maps.sort((a, b) => this.u16(b.offset) - this.u16(a.offset));
-        if (!maps.length)
-            throw new NotSupportedError("TrueType font needs a Unicode cmap format 4 or 12.");
     }
     table(tag, minimum = 0) {
         const table = this.tables.get(tag);
@@ -4279,14 +6675,139 @@ class TrueTypeFont extends FontReader {
         return 0;
     }
     subset(glyphs, characters) { return this.canSubset ? subsetTrueType(this, glyphs, characters) : this.bytes; }
+    async subsetCooperatively(glyphs, characters, signal) {
+        checkAbort(signal);
+        return this.canSubset ? subsetTrueTypeCooperatively(this, glyphs, characters, signal) : this.bytes;
+    }
+}
+/** One parser serves synchronous construction and cooperative preparation. */
+function* parseFont(reader) {
+    const tables = new Map();
+    const table = (tag, minimum = 0) => {
+        const result = tables.get(tag);
+        if (!result || result.length < minimum)
+            throw new TypeError("Missing or truncated TrueType table: " + tag);
+        return result;
+    };
+    if (reader.u32(0) !== 0x10000)
+        throw new NotSupportedError("PDF fonts require a static TrueType .ttf with glyf outlines; collections, CFF and WOFF are unsupported.");
+    const count = reader.u16(4);
+    if (!count || count > 256)
+        throw new TypeError("Invalid TrueType table count.");
+    reader.range(12, count * 16);
+    for (let i = 0; i < count; i++) {
+        const p = 12 + i * 16, tag = reader.tag(p), offset = reader.u32(p + 8), length = reader.u32(p + 12);
+        reader.range(offset, length);
+        if (tables.has(tag))
+            throw new TypeError("Duplicate TrueType table: " + tag);
+        tables.set(tag, { offset, length });
+    }
+    if (tables.has("fvar"))
+        throw new NotSupportedError("Instantiate a variable font as a static TrueType font before PDF export.");
+    const head = table("head", 54), maxp = table("maxp", 6), hhea = table("hhea", 36), os2 = table("OS/2", 10);
+    if (reader.u32(head.offset + 12) !== 0x5f0f3cf5)
+        throw new TypeError("Invalid TrueType head magic.");
+    const glyphCount = reader.u16(maxp.offset + 4);
+    const units = reader.u16(head.offset + 18);
+    if (!glyphCount || units < 16 || units > 16384)
+        throw new TypeError("Invalid TrueType metrics.");
+    const fsType = reader.u16(os2.offset + 8);
+    if (fsType & 0x202)
+        throw new NotSupportedError("The font's embedding permissions prohibit outline embedding.");
+    const canSubset = !(fsType & 0x100);
+    const scale = 1000 / units;
+    const ascent = reader.i16(hhea.offset + 4) * scale;
+    const descent = reader.i16(hhea.offset + 6) * scale;
+    const bbox = [36, 38, 40, 42].map(p => reader.i16(head.offset + p) * scale);
+    const metrics = reader.u16(hhea.offset + 34);
+    if (!metrics || metrics > glyphCount)
+        throw new TypeError("Invalid TrueType horizontal metric count.");
+    const hmtx = table("hmtx", metrics * 4 + (glyphCount - metrics) * 2);
+    const widths = [];
+    for (let i = 0; i < glyphCount; i++) {
+        widths.push(reader.u16(hmtx.offset + Math.min(i, metrics - 1) * 4) * scale);
+        if ((i & 1023) === 1023)
+            yield;
+    }
+    const format = reader.i16(head.offset + 50);
+    if (format !== 0 && format !== 1)
+        throw new TypeError("Unsupported TrueType loca index.");
+    const loca = table("loca", (glyphCount + 1) * (format ? 4 : 2)), glyf = table("glyf");
+    const offsets = [];
+    for (let i = 0; i <= glyphCount; i++) {
+        offsets.push(format ? reader.u32(loca.offset + i * 4) : reader.u16(loca.offset + i * 2) * 2);
+        if ((i & 1023) === 1023)
+            yield;
+    }
+    for (let i = 0; i <= glyphCount; i++)
+        if (offsets[i] > glyf.length || (i && offsets[i] < offsets[i - 1]))
+            throw new TypeError("Invalid TrueType glyph offsets.");
+    const cmap = table("cmap", 4), maps = [], validated = new Set();
+    const encodings = reader.u16(cmap.offset + 2);
+    if (4 + encodings * 8 > cmap.length)
+        throw new TypeError("Invalid TrueType cmap directory.");
+    for (let i = 0; i < encodings; i++) {
+        const p = cmap.offset + 4 + i * 8, platform = reader.u16(p), encoding = reader.u16(p + 2), relative = reader.u32(p + 4);
+        if (platform !== 0 && !(platform === 3 && (encoding === 1 || encoding === 10)))
+            continue;
+        if (relative + 4 > cmap.length)
+            throw new TypeError("Invalid cmap subtable offset.");
+        const offset = cmap.offset + relative, type = reader.u16(offset);
+        if (type !== 4 && type !== 12)
+            continue;
+        // Encoding records may share a Unicode subtable; validate its contents once.
+        if (validated.has(offset))
+            continue;
+        if (type === 12 && relative + 16 > cmap.length)
+            throw new TypeError("Truncated cmap format 12.");
+        const length = type === 12 ? reader.u32(offset + 4) : reader.u16(offset + 2);
+        if (length < (type === 12 ? 16 : 16) || relative + length > cmap.length)
+            throw new TypeError("Invalid cmap length.");
+        if (type === 12) {
+            const groups = reader.u32(offset + 12);
+            if (16 + groups * 12 > length)
+                throw new TypeError("Invalid cmap groups.");
+            let previous = -1;
+            for (let j = 0; j < groups; j++) {
+                const q = offset + 16 + j * 12, start = reader.u32(q), end = reader.u32(q + 4), glyph = reader.u32(q + 8);
+                if (start <= previous || start > end || end > 0x10ffff || glyph + end - start >= glyphCount)
+                    throw new TypeError("Invalid cmap scalar/glyph group.");
+                previous = end;
+                if ((j & 1023) === 1023)
+                    yield;
+            }
+        }
+        else {
+            const segments = reader.u16(offset + 6) / 2;
+            if (!Number.isInteger(segments) || !segments || 16 + segments * 8 > length)
+                throw new TypeError("Invalid cmap segments.");
+            let previous = -1;
+            for (let j = 0; j < segments; j++) {
+                const end = reader.u16(offset + 14 + j * 2), start = reader.u16(offset + 16 + segments * 2 + j * 2);
+                if (end <= previous || start > end)
+                    throw new TypeError("Invalid cmap segment ordering.");
+                previous = end;
+                if ((j & 1023) === 1023)
+                    yield;
+            }
+        }
+        validated.add(offset);
+        maps.push({ offset, length });
+    }
+    const cmaps = maps.sort((a, b) => reader.u16(b.offset) - reader.u16(a.offset));
+    if (!maps.length)
+        throw new NotSupportedError("TrueType font needs a Unicode cmap format 4 or 12.");
+    return { tables, glyphCount, units, ascent, descent, bbox, widths, offsets, canSubset, cmaps };
 }
 const _exports = Object.freeze({ TrueTypeFont: TrueTypeFont });
-_modules.set("0c236a8c52738a1e0a5bdca1281d82c8e187e06dffd8f8d75cdb9b07f490c9a3", _exports);
+_modules.set("2e1fa1582af797386e2e2914c0a27237309b1692a3cc2be688f46590eb74480d", _exports);
 return _exports;
 })();
 
-const _m42 = _modules.get("9cc6382549c3b9917a9f7cf097b1e7d178b9f12bf443f1b05d95ae077d2ed8de") ?? (() => {
-const { TrueTypeFont } = _m43;
+const _m63 = _modules.get("d9c1509dff0538488752433e47cd0927ece5f93c559ad0e32dc56602dfd44596") ?? (() => {
+const { TrueTypeFont } = _m64;
+
+const { beginTask, checkAbort } = _m4;
 
 const programs = new WeakMap();
 const fontBrand = Symbol.for("@evotecit/officeimo/PdfFont");
@@ -4318,15 +6839,36 @@ class PdfFont {
         Object.defineProperty(this, fontBrand, { value: true });
         Object.freeze(this);
     }
+    /** Prepare the same immutable font with cooperative parsing and cancellation.
+     * The bounded source snapshot is synchronous so later host mutation cannot change the prepared font. */
+    static async create(bytes, options = {}) {
+        checkAbort(options.signal);
+        if (!(bytes instanceof Uint8Array))
+            throw new TypeError("PdfFont requires TrueType bytes as a Uint8Array.");
+        const maximum = options.maxBytes ?? 16 * 1024 * 1024;
+        if (!Number.isSafeInteger(maximum) || maximum < 0 || maximum > 64 * 1024 * 1024)
+            throw new RangeError("Font preparation maxBytes must be a nonnegative safe integer at most 64 MiB.");
+        if (bytes.length > maximum)
+            throw new RangeError("TrueType font exceeds the preparation byte limit.");
+        beginTask();
+        const program = await TrueTypeFont.create(new Uint8Array(bytes), options.signal);
+        checkAbort(options.signal);
+        const font = Object.create(PdfFont.prototype);
+        programs.set(font, program);
+        Object.defineProperty(font, "brand", { value: true });
+        Object.defineProperty(font, fontBrand, { value: true });
+        Object.freeze(font);
+        return font;
+    }
     /** Return an independent copy, for storage or delivery to another worker. */
     toBytes() { return fontProgram(this).bytes.slice(); }
 }
 const _exports = Object.freeze({ fontProgram: fontProgram, PdfFont: PdfFont });
-_modules.set("9cc6382549c3b9917a9f7cf097b1e7d178b9f12bf443f1b05d95ae077d2ed8de", _exports);
+_modules.set("d9c1509dff0538488752433e47cd0927ece5f93c559ad0e32dc56602dfd44596", _exports);
 return _exports;
 })();
 
-const _m47 = _modules.get("1ed4965a6e2963a91190baa8a58ada8ce0edde8fe653bcb6609002e872af0d61") ?? (() => {
+const _m68 = _modules.get("1ed4965a6e2963a91190baa8a58ada8ce0edde8fe653bcb6609002e872af0d61") ?? (() => {
 // Generated by scripts/pdf-widths.mjs from OfficeIMO.Pdf's Adobe AFM-derived metrics.
 const helveticaWidths = new Map([
     [32, [278, 278]],
@@ -4649,12 +7191,12 @@ _modules.set("1ed4965a6e2963a91190baa8a58ada8ce0edde8fe653bcb6609002e872af0d61",
 return _exports;
 })();
 
-const _m46 = _modules.get("af08c33f2b8793684df240352e41b36b6091f4e0801ba12227a883fd41ed9ae4") ?? (() => {
+const _m67 = _modules.get("59911f0fe023545e9e97521b268551078bdc4c5f303e446a13b7d52f905e8070") ?? (() => {
 const { OfficeIMOError } = _m2;
 
-const { PdfFont, fontProgram } = _m42;
+const { PdfFont, fontProgram } = _m63;
 
-const { helveticaWidths } = _m47;
+const { helveticaWidths } = _m68;
 
 const winAnsiExtras = new Map([0x20ac, 0, 0x201a, 0x192, 0x201e, 0x2026, 0x2020, 0x2021, 0x2c6, 0x2030, 0x160, 0x2039, 0x152, 0, 0x17d, 0, 0, 0x2018, 0x2019, 0x201c, 0x201d, 0x2022, 0x2013, 0x2014, 0x2dc, 0x2122, 0x161, 0x203a, 0x153, 0, 0x17e, 0x178].map((cp, i) => [cp, i + 128]));
 /** @internal Called after scalar support succeeds when encoding a standard-font run. */
@@ -4714,24 +7256,30 @@ function selectFont(fonts, bold, italic) {
     return { font, syntheticBold: !!font && bold && !exact, syntheticItalic: !!font && italic && !exact };
 }
 const _exports = Object.freeze({ standardCode: standardCode, resolveScalar: resolveScalar, validateFonts: validateFonts, selectFont: selectFont });
-_modules.set("af08c33f2b8793684df240352e41b36b6091f4e0801ba12227a883fd41ed9ae4", _exports);
+_modules.set("59911f0fe023545e9e97521b268551078bdc4c5f303e446a13b7d52f905e8070", _exports);
 return _exports;
 })();
 
-const _m41 = _modules.get("4bab4e4c237c983023083ad7aa6de8a74808726c6aa568a1391e9647a378477a") ?? (() => {
+const _m62 = _modules.get("4d4736e6b8e2aaecc6f6c1b124b7e6bc0a5e141dcc725edf0ad4847d87fca1b3") ?? (() => {
 const { NotSupportedError, OfficeIMOError } = _m2;
 
-const { fontProgram } = _m42;
+const { fontProgram } = _m63;
 
-const { resolveScalar, selectFont, standardCode, validateFonts } = _m46;
+const { resolveScalar, selectFont, standardCode, validateFonts } = _m67;
 
-const { pdfNumber, unicodeHex } = _m40;
+const { pdfNumber, unicodeHex } = _m60;
 
+const { checkAbort, pause, taskYieldDue } = _m4;
+
+const hexBytes = Object.freeze(Array.from({ length: 256 }, (_, byte) => byte.toString(16).padStart(2, "0")));
+function cidHex(cid) { return hexBytes[cid >>> 8] + hexBytes[cid & 255]; }
 class PdfFontResource {
     index;
     bold;
     italic;
+    font;
     shared;
+    signal;
     name;
     object;
     program;
@@ -4739,11 +7287,13 @@ class PdfFontResource {
     syntheticItalic;
     mappings = new Map();
     standardWidths = new Map();
-    constructor(index, bold, italic, font, objects, syntheticBold, syntheticItalic, shared) {
+    constructor(index, bold, italic, font, objects, syntheticBold, syntheticItalic, shared, signal) {
         this.index = index;
         this.bold = bold;
         this.italic = italic;
+        this.font = font;
         this.shared = shared;
+        this.signal = signal;
         this.name = shared?.name ?? "F" + index;
         this.object = shared?.object ?? objects.reserve();
         this.program = font ? fontProgram(font) : undefined;
@@ -4753,12 +7303,16 @@ class PdfFontResource {
     width(scalar) {
         if (this.shared)
             return this.shared.width(scalar);
-        const existing = this.mappings.get(scalar);
-        if (existing)
-            return existing.width;
-        const standard = this.standardWidths.get(scalar);
-        if (standard !== undefined)
-            return standard;
+        if (this.program) {
+            const existing = this.mappings.get(scalar);
+            if (existing)
+                return existing.width;
+        }
+        else {
+            const standard = this.standardWidths.get(scalar);
+            if (standard !== undefined)
+                return standard;
+        }
         const resolved = resolveScalar(scalar, this.program, this.bold);
         if (!resolved.supported) {
             if (resolved.code === "unpaired-surrogate")
@@ -4771,7 +7325,8 @@ class PdfFontResource {
         }
         if (this.mappings.size >= 65535)
             throw new OfficeIMOError("RESOURCE_LIMIT", "A PDF font supports at most 65,535 distinct Unicode scalars.");
-        const mapping = { cid: this.mappings.size + 1, glyph: resolved.glyph, width: resolved.width };
+        const cid = this.mappings.size + 1;
+        const mapping = { cid, hex: cidHex(cid), glyph: resolved.glyph, width: resolved.width, text: String.fromCodePoint(scalar) };
         this.mappings.set(scalar, mapping);
         return mapping.width;
     }
@@ -4784,12 +7339,42 @@ class PdfFontResource {
         let hex = "";
         for (const char of text) {
             const cp = char.codePointAt(0);
-            this.width(cp);
-            hex += (this.program ? this.mappings.get(cp).cid : standardCode(cp)).toString(16).padStart(this.program ? 4 : 2, "0");
+            if (this.program) {
+                let mapping = this.mappings.get(cp);
+                // Layout normally registered the scalar already; validate only a newly painted scalar.
+                if (!mapping) {
+                    this.width(cp);
+                    mapping = this.mappings.get(cp);
+                }
+                hex += mapping.hex;
+            }
+            else {
+                if (!this.standardWidths.has(cp))
+                    this.width(cp);
+                hex += hexBytes[standardCode(cp)];
+            }
         }
         return "<" + hex + ">";
     }
+    /** Register an already validated shaped glyph. A glyph may need distinct CIDs for different logical clusters. */
+    encodeGlyph(glyph, text) {
+        if (this.shared)
+            return this.shared.encodeGlyph(glyph, text);
+        if (!this.program || !Number.isSafeInteger(glyph) || glyph <= 0 || glyph >= this.program.glyphCount)
+            throw new TypeError("Invalid shaped TrueType glyph.");
+        const key = glyph + ":" + text;
+        let mapping = this.mappings.get(key);
+        if (!mapping) {
+            if (this.mappings.size >= 65535)
+                throw new OfficeIMOError("RESOURCE_LIMIT", "A PDF font supports at most 65,535 distinct CID mappings.");
+            const cid = this.mappings.size + 1;
+            mapping = { cid, hex: cidHex(cid), glyph, width: this.program.widths[glyph], text };
+            this.mappings.set(key, mapping);
+        }
+        return "<" + mapping.hex + ">";
+    }
     async write(objects, compression) {
+        checkAbort(this.signal);
         if (!this.program) {
             const name = "Helvetica" + (this.bold && this.italic ? "-BoldOblique" : this.bold ? "-Bold" : this.italic ? "-Oblique" : "");
             await objects.object(this.object, "<< /Type /Font /Subtype /Type1 /BaseFont /" + name + " /Encoding /WinAnsiEncoding >>");
@@ -4798,24 +7383,48 @@ class PdfFontResource {
         const program = this.program, entries = [...this.mappings], glyphs = new Set(entries.map(([, m]) => m.glyph));
         const fontName = (program.canSubset ? "OIMOAA+" : "") + "OfficeIMOFont" + this.index;
         const file = objects.reserve(), descriptor = objects.reserve(), cidFont = objects.reserve(), map = objects.reserve(), unicode = objects.reserve();
-        const subset = program.subset(glyphs, new Map(entries.map(([scalar, mapping]) => [scalar, mapping.glyph])));
-        await objects.stream(file, subset, "/Length1 " + subset.length, compression);
+        const characters = new Map();
+        for (const [key, mapping] of entries) {
+            if (typeof key === "number")
+                characters.set(key, mapping.glyph);
+            else
+                for (const character of mapping.text) {
+                    const scalar = character.codePointAt(0), glyph = program.glyph(scalar);
+                    if (glyph) {
+                        characters.set(scalar, glyph);
+                        glyphs.add(glyph);
+                    }
+                }
+        }
+        const subset = await program.subsetCooperatively(glyphs, characters, this.signal);
+        await objects.stream(file, subset, "/Length1 " + subset.length, compression, true);
         await objects.object(descriptor, "<< /Type /FontDescriptor /FontName /" + fontName + " /Flags 32 /FontBBox [" + program.bbox.map(pdfNumber).join(" ") +
             "] /ItalicAngle 0 /Ascent " + pdfNumber(program.ascent) + " /Descent " + pdfNumber(program.descent) + " /CapHeight " + pdfNumber(program.ascent) + " /StemV 80 /FontFile2 " + file + " 0 R >>");
         const mapping = new Uint8Array((entries.length + 1) * 2), view = new DataView(mapping.buffer);
-        for (const [, entry] of entries)
+        for (let i = 0; i < entries.length; i++) {
+            const entry = entries[i][1];
             view.setUint16(entry.cid * 2, entry.glyph);
-        await objects.stream(map, mapping, "", compression);
+            if ((i & 1023) === 1023) {
+                if (taskYieldDue())
+                    await pause();
+                checkAbort(this.signal);
+            }
+        }
+        await objects.stream(map, mapping, "", compression, true);
         await objects.object(cidFont, "<< /Type /Font /Subtype /CIDFontType2 /BaseFont /" + fontName +
             " /CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> /FontDescriptor " + descriptor + " 0 R /CIDToGIDMap " + map + " 0 R" +
             (entries.length ? " /W [1 [" + entries.map(([, m]) => pdfNumber(m.width)).join(" ") + "]]" : "") + " >>");
         let cmap = "/CIDInit /ProcSet findresource begin\n12 dict begin\nbegincmap\n/CIDSystemInfo << /Registry (Adobe) /Ordering (UCS) /Supplement 0 >> def\n/CMapName /OfficeIMOUnicode def\n/CMapType 2 def\n1 begincodespacerange\n<0000> <FFFF>\nendcodespacerange\n";
-        for (let i = 0; i < entries.length; i += 100) {
-            const batch = entries.slice(i, i + 100);
+        const mapped = entries.filter(([, mapping]) => mapping.text.length);
+        for (let i = 0; i < mapped.length; i += 100) {
+            const batch = mapped.slice(i, i + 100);
             cmap += batch.length + " beginbfchar\n";
-            for (const [cp, m] of batch)
-                cmap += "<" + m.cid.toString(16).padStart(4, "0") + "> <" + unicodeHex(String.fromCodePoint(cp)) + ">\n";
+            for (const [, m] of batch)
+                cmap += "<" + m.hex + "> <" + unicodeHex(m.text) + ">\n";
             cmap += "endbfchar\n";
+            if (taskYieldDue())
+                await pause();
+            checkAbort(this.signal);
         }
         cmap += "endcmap\nCMapName currentdict /CMap defineresource pop\nend\nend\n";
         await objects.stream(unicode, cmap, "", compression);
@@ -4825,37 +7434,65 @@ class PdfFontResource {
 class PdfFontResources {
     objects;
     fonts;
+    maxBytes;
+    signal;
     resources = [];
     selections = new Map();
     programs = new Map();
-    constructor(objects, fonts, maxBytes = 16 * 1024 * 1024) {
+    explicitSelections = new Map();
+    registered = new Set();
+    fontBytes = 0;
+    constructor(objects, fonts, maxBytes = 16 * 1024 * 1024, signal) {
         this.objects = objects;
         this.fonts = fonts;
+        this.maxBytes = maxBytes;
+        this.signal = signal;
         validateFonts(fonts, maxBytes);
+        for (const font of Object.values(fonts ?? {}))
+            this.registerFont(font);
     }
-    select(bold = false, italic = false) {
-        const key = String(bold) + String(italic), existing = this.selections.get(key);
+    /** The same operation budget covers unused declared faces and every explicit run face, once per identity. */
+    registerFont(font) {
+        if (this.registered.has(font))
+            return;
+        const bytes = fontProgram(font).bytes.length;
+        if (this.fontBytes + bytes > this.maxBytes)
+            throw new OfficeIMOError("RESOURCE_LIMIT", "maxFontBytes exceeded.");
+        this.fontBytes += bytes;
+        this.registered.add(font);
+    }
+    select(bold = false, italic = false, explicit) {
+        if (explicit)
+            this.registerFont(explicit);
+        let selections = this.selections;
+        if (explicit) {
+            const found = this.explicitSelections.get(explicit);
+            selections = found ?? new Map();
+            if (!found)
+                this.explicitSelections.set(explicit, selections);
+        }
+        const key = (bold ? 2 : 0) | (italic ? 1 : 0), existing = selections.get(key);
         if (existing)
             return existing;
-        const { font, syntheticBold, syntheticItalic } = selectFont(this.fonts, bold, italic);
+        const { font, syntheticBold, syntheticItalic } = explicit ? { font: explicit, syntheticBold: bold, syntheticItalic: italic } : selectFont(this.fonts, bold, italic);
         const shared = font ? this.programs.get(font) : undefined;
-        const resource = new PdfFontResource(this.resources.length + 1, bold, italic, font, this.objects, syntheticBold, syntheticItalic, shared);
+        const resource = new PdfFontResource(this.resources.length + 1, bold, italic, font, this.objects, syntheticBold, syntheticItalic, shared, this.signal);
         if (!shared) {
             this.resources.push(resource);
             if (font)
                 this.programs.set(font, resource);
         }
-        this.selections.set(key, resource);
+        selections.set(key, resource);
         return resource;
     }
     dictionary() { return "<< " + this.resources.map(f => "/" + f.name + " " + f.object + " 0 R").join(" ") + " >>"; }
 }
 const _exports = Object.freeze({ PdfFontResource: PdfFontResource, PdfFontResources: PdfFontResources });
-_modules.set("4bab4e4c237c983023083ad7aa6de8a74808726c6aa568a1391e9647a378477a", _exports);
+_modules.set("4d4736e6b8e2aaecc6f6c1b124b7e6bc0a5e141dcc725edf0ad4847d87fca1b3", _exports);
 return _exports;
 })();
 
-const _m49 = _modules.get("40f564b2595a245a2f77d25abfdb6d388118781cfd1da73ec9c9655dd1bd42b3") ?? (() => {
+const _m70 = _modules.get("253db2c0eab1f298fda61fb40a5ddaacbf6ad12a7408ee3d8c12d27f88e7ca27") ?? (() => {
 const { OfficeIMOError } = _m2;
 
 const { ExportCell, assertExportValue } = _m5;
@@ -4864,6 +7501,13 @@ const { checkAbort, pause, taskYieldDue } = _m4;
 
 const { isDate } = _m6;
 
+const { defaultBooleanText } = _m18;
+
+/** @internal Charge displayed characters: tabs paint four spaces, while CR/LF only separate lines.
+ * Raw text remains authoritative for input limits and layout. Skip normalization when no text ceiling observes it. */
+function pdfBudgetText(text, budget) {
+    return budget.limits.maxTextCharacters === undefined ? text : text.replace(/[\t\r\n]/g, character => character === "\t" ? "    " : "");
+}
 function synchronousText(value, name) {
     if (typeof value === "string")
         return value;
@@ -4878,7 +7522,7 @@ function displayText(value, options, context) {
     const raw = value instanceof ExportCell ? value.value : value;
     if (options.formatValue)
         return synchronousText(options.formatValue(raw, context), "formatValue");
-    return raw == null ? "" : isDate(raw) ? Number.isFinite(raw.getTime()) ? raw.toISOString() : "" : typeof raw === "number" && !Number.isFinite(raw) ? "" : typeof raw === "boolean" ? raw ? "True" : "False" : String(raw);
+    return raw == null ? "" : isDate(raw) ? Number.isFinite(raw.getTime()) ? raw.toISOString() : "" : typeof raw === "number" && !Number.isFinite(raw) ? "" : typeof raw === "boolean" ? (options.booleanText ?? defaultBooleanText)[raw ? "true" : "false"] : String(raw);
 }
 /** Greedy word boundaries, then scalar boundaries. No character, whitespace or long-word truncation. */
 function wrapText(text, font, size, width, maxCharacters, maxLines, wrap = true) {
@@ -4955,45 +7599,565 @@ function* wrapSteps(text, font, size, width, maxCharacters, maxLines, wrap) {
     }
     return lines;
 }
-const _exports = Object.freeze({ synchronousText: synchronousText, displayText: displayText, wrapText: wrapText, wrapTextCooperatively: wrapTextCooperatively });
-_modules.set("40f564b2595a245a2f77d25abfdb6d388118781cfd1da73ec9c9655dd1bd42b3", _exports);
+const _exports = Object.freeze({ pdfBudgetText: pdfBudgetText, synchronousText: synchronousText, displayText: displayText, wrapText: wrapText, wrapTextCooperatively: wrapTextCooperatively });
+_modules.set("253db2c0eab1f298fda61fb40a5ddaacbf6ad12a7408ee3d8c12d27f88e7ca27", _exports);
 return _exports;
 })();
 
-const _m48 = _modules.get("cb8af6422bb915f9b410c7fc9d4385323967b6bd47dc228e201a66cf3d1914ca") ?? (() => {
+const _m72 = _modules.get("8be3fb029e08d100ce8ffcf50916d5ba7f7bc00d62156cc33815fd58554a9ed6") ?? (() => {
+const { NotSupportedError, OfficeIMOError } = _m2;
+
+const { checkAbort, pause, taskYieldDue, withAbort } = _m4;
+
+const boundary = (text, at) => at === 0 || at === text.length || !(text.charCodeAt(at) >= 0xdc00 && text.charCodeAt(at) <= 0xdfff && text.charCodeAt(at - 1) >= 0xd800 && text.charCodeAt(at - 1) <= 0xdbff);
+/** Normalize physical line breaks/tabs with the scalar writer's semantics, retaining presentation ownership. */
+function parts(captured, maxLines) {
+    const result = [{ text: "", owners: [] }];
+    let owner = 0, end = captured.runs[0]?.text.length ?? 0;
+    for (let offset = 0; offset < captured.text.length;) {
+        while (offset >= end && owner < captured.runs.length - 1)
+            end += captured.runs[++owner].text.length;
+        const scalar = captured.text.codePointAt(offset), character = String.fromCodePoint(scalar);
+        offset += character.length;
+        if (scalar >= 0xd800 && scalar <= 0xdfff)
+            throw new TypeError("PDF text contains an unpaired UTF-16 surrogate.");
+        if (offset > end && owner < captured.runs.length - 1)
+            throw new NotSupportedError("A shaped presentation boundary cannot split a UTF-16 scalar.");
+        if (character === "\n" || character === "\r") {
+            if (character === "\r" && captured.text[offset] === "\n")
+                offset++;
+            if (result.length >= maxLines)
+                throw new OfficeIMOError("RESOURCE_LIMIT", "maxRowLines exceeded.");
+            result.push({ text: "", owners: [] });
+            continue;
+        }
+        if (scalar < 32 && scalar !== 9 || scalar >= 127 && scalar < 160)
+            throw new NotSupportedError("PDF text contains an unsupported control character.");
+        const value = character === "\t" ? "    " : character, part = result.at(-1);
+        if (part.text.length + value.length > 4096)
+            throw new OfficeIMOError("RESOURCE_LIMIT", "Shaped PDF text supports at most 4,096 UTF-16 units per physical paragraph.");
+        part.text += value;
+        for (let i = 0; i < value.length; i++)
+            part.owners.push(owner);
+    }
+    return result;
+}
+/** Validate a replaceable provider without trusting its font, glyph, metric or source-range claims. */
+function validate(output, part, start, end, faces, captured) {
+    if (!Array.isArray(output) || output.length > 32768)
+        throw new TypeError("Invalid shaped run array.");
+    let count = 0, width = 0;
+    const covered = new Uint8Array(end - start), intervals = new Map(), advances = new Map();
+    const copied = [];
+    for (const run of output) {
+        if (!run || !Array.isArray(run.glyphs) || !faces.some(face => face.font === run.font))
+            throw new TypeError("Shaping must use an exact registered PdfFont identity.");
+        count += run.glyphs.length;
+        if (count > 32768)
+            throw new OfficeIMOError("RESOURCE_LIMIT", "Shaped PDF text exceeded 32,768 glyphs.");
+        const glyphs = [];
+        for (const glyph of run.glyphs) {
+            const { id, clusterStart: a, clusterEnd: b, xAdvance, yAdvance, xOffset, yOffset } = glyph ?? {};
+            const face = faces[part.owners[a] ?? -1];
+            if (!face || face.font !== run.font || !face.program || !Number.isSafeInteger(id) || id <= 0 || id >= face.program.glyphCount)
+                throw new TypeError("Shaping returned an invalid glyph or font identity.");
+            if (!Number.isSafeInteger(a) || !Number.isSafeInteger(b) || a < start || b <= a || b > end || !boundary(part.text, a) || !boundary(part.text, b))
+                throw new TypeError("Shaping returned an invalid UTF-16 cluster range.");
+            if (![xAdvance, yAdvance, xOffset, yOffset].every(value => Number.isFinite(value) && Math.abs(value) <= 100000) || xAdvance < 0 || yAdvance !== 0)
+                throw new TypeError("Shaping requires finite bounded horizontal glyph metrics.");
+            const first = captured.runs[part.owners[a]];
+            for (let i = a; i < b; i++) {
+                const other = captured.runs[part.owners[i]];
+                if (faces[part.owners[i]].font !== run.font || first.style.bold !== other.style.bold || first.style.italic !== other.style.italic || first.style.color !== other.style.color || first.link !== other.link)
+                    throw new NotSupportedError("A PDF presentation, font or link boundary cannot split an indivisible shaped cluster.");
+                covered[i - start] = 1;
+            }
+            const previous = intervals.get(a);
+            if (previous !== undefined && previous !== b)
+                throw new TypeError("Inconsistent shaped cluster ranges.");
+            intervals.set(a, b);
+            advances.set(a, (advances.get(a) ?? 0) + xAdvance);
+            width += xAdvance;
+            glyphs.push(Object.freeze({ id, clusterStart: a, clusterEnd: b, xAdvance, yAdvance, xOffset, yOffset }));
+        }
+        copied.push(Object.freeze({ font: run.font, glyphs: Object.freeze(glyphs) }));
+    }
+    if (covered.some(value => !value))
+        throw new TypeError("Shaping omitted logical source text.");
+    const sorted = [...intervals].sort((a, b) => a[0] - b[0]);
+    let cursor = start;
+    for (const [a, b] of sorted) {
+        if (a !== cursor)
+            throw new TypeError("Shaped clusters overlap or leave a logical gap.");
+        cursor = b;
+    }
+    return { runs: copied, boundaries: sorted.map(([, b]) => b), advances, width };
+}
+/** Core-owned bounded line flow. Shape finalized lines again so Arabic joining reflects the actual break. */
+async function wrapShapedPdfText(captured, fonts, size, width, settings, wrap) {
+    const faces = captured.runs.map(run => fonts.select(run.style.bold, run.style.italic, run.font)), fallback = fonts.select();
+    if (faces.some((face, i) => !face.font && captured.runs[i].text.length))
+        throw new NotSupportedError("Shaped PDF text requires explicit embedded TrueType fonts.");
+    const lines = [], provider = settings.options.textShaper, signal = settings.options.signal;
+    const emit = (part, start, end, shaped) => {
+        if (lines.length >= settings.limits.maxRowLines)
+            throw new OfficeIMOError("RESOURCE_LIMIT", "maxRowLines exceeded.");
+        const segments = [];
+        let lineHeight = fallback.lineHeight(size), ascent = (fallback.program?.ascent ?? 800) * size / 1000;
+        const seen = new Set();
+        let owner = -1, segmentFont, glyphs = [], segmentWidth = 0;
+        const flush = () => {
+            if (owner < 0 || !segmentFont)
+                return;
+            const run = captured.runs[owner];
+            const logical = glyphs.filter(glyph => glyph.logicalText).sort((a, b) => a.clusterStart - b.clusterStart);
+            const actualText = logical.map(glyph => glyph.logicalText).join("");
+            segments.push({ text: actualText, actualText, logicalStart: Math.min(...glyphs.map(glyph => glyph.clusterStart)), width: segmentWidth * size / 1000, font: segmentFont, glyphs,
+                ...(run.style.color === undefined ? {} : { color: run.style.color }), ...(run.link ? { link: run.link } : {}) });
+            glyphs = [];
+            segmentWidth = 0;
+        };
+        for (const run of shaped?.runs ?? [])
+            for (const glyph of run.glyphs) {
+                const nextOwner = part.owners[glyph.clusterStart], face = faces[nextOwner];
+                if (owner !== nextOwner || segmentFont !== face) {
+                    flush();
+                    owner = nextOwner;
+                    segmentFont = face;
+                }
+                const logicalText = seen.has(glyph.clusterStart) ? "" : part.text.slice(glyph.clusterStart, glyph.clusterEnd);
+                seen.add(glyph.clusterStart);
+                glyphs.push({ ...glyph, logicalText });
+                segmentWidth += glyph.xAdvance;
+                lineHeight = Math.max(lineHeight, face.lineHeight(size));
+                ascent = Math.max(ascent, face.program.ascent * size / 1000);
+            }
+        flush();
+        const text = part.text.slice(start, end);
+        lines.push({ text, actualText: text, segments, width: (shaped?.width ?? 0) * size / 1000, lineHeight, ascent });
+    };
+    for (const part of parts(captured, settings.limits.maxRowLines)) {
+        checkAbort(signal);
+        if (!part.text) {
+            emit(part, 0, 0);
+            continue;
+        }
+        const runs = [];
+        for (let start = 0; start < part.text.length;) {
+            const owner = part.owners[start];
+            let end = start + 1;
+            while (end < part.text.length && part.owners[end] === owner)
+                end++;
+            runs.push(Object.freeze({ start, end, font: faces[owner].font }));
+            start = end;
+        }
+        Object.freeze(runs);
+        let calls = 0;
+        const shape = async (start, end) => {
+            if (++calls > 16385)
+                throw new OfficeIMOError("RESOURCE_LIMIT", "Shaped line fitting exceeded its bounded work limit.");
+            if (taskYieldDue())
+                await pause();
+            checkAbort(signal);
+            const output = await withAbort(Promise.resolve(provider.shapeLine(Object.freeze({ text: part.text, start, end, runs,
+                direction: settings.options.textDirection ?? "auto", ...(signal ? { signal } : {}) }))), signal);
+            checkAbort(signal);
+            return validate(output, part, start, end, faces, captured);
+        };
+        const initial = await shape(0, part.text.length), boundaries = initial.boundaries;
+        if (!wrap) {
+            if (initial.width * size / 1000 > width + .001)
+                throw new RangeError("Unwrapped PDF cell exceeds its column width.");
+            emit(part, 0, part.text.length, initial);
+            continue;
+        }
+        let from = 0;
+        while (from < boundaries.length) {
+            const start = from ? boundaries[from - 1] : 0;
+            let to = from, measured = 0, space = -1;
+            while (to < boundaries.length) {
+                const at = to ? boundaries[to - 1] : 0, advance = initial.advances.get(at) * size / 1000;
+                if (measured + advance > width + .001 && to > from)
+                    break;
+                measured += advance;
+                if (part.text[boundaries[to] - 1] === " ")
+                    space = to + 1;
+                to++;
+                if (measured > width + .001)
+                    break;
+            }
+            if (to < boundaries.length && space > from)
+                to = space;
+            let final = start === 0 && to === boundaries.length ? initial : await shape(start, boundaries[to - 1]);
+            if (final.width * size / 1000 > width + .001) {
+                let low = from + 1, high = to - 1, best, bestEnd = 0;
+                while (low <= high) {
+                    const mid = Math.floor((low + high) / 2), candidate = await shape(start, boundaries[mid - 1]);
+                    if (candidate.width * size / 1000 <= width + .001) {
+                        best = candidate;
+                        bestEnd = mid;
+                        low = mid + 1;
+                    }
+                    else
+                        high = mid - 1;
+                }
+                if (!best)
+                    throw new RangeError("PDF column is too narrow for an indivisible shaped cluster.");
+                final = best;
+                to = bestEnd;
+            }
+            emit(part, start, boundaries[to - 1], final);
+            from = to;
+        }
+    }
+    return lines;
+}
+const _exports = Object.freeze({ wrapShapedPdfText: wrapShapedPdfText });
+_modules.set("8be3fb029e08d100ce8ffcf50916d5ba7f7bc00d62156cc33815fd58554a9ed6", _exports);
+return _exports;
+})();
+
+const _m71 = _modules.get("0a1c79b51ac9a164b86197239117df6497f45ca2892b423b1ec77a663ccc1c47") ?? (() => {
+const { NotSupportedError, OfficeIMOError } = _m2;
+
+const { copyExportLink } = _m7;
+
+const { checkAbort, pause, taskYieldDue } = _m4;
+
+const { presentation, color } = _m56;
+
+const { wrapShapedPdfText } = _m72;
+
+const { PdfFont } = _m63;
+
+const { pdfBudgetText } = _m70;
+
+/** @internal Callers supply an owned, validated, frozen base presentation. A run list is a PDF presentation value, never an alternate shared table value model. */
+function capturePdfText(value, base, settings, fonts, countEmpty = true, reserveBudget = true) {
+    if (typeof value === "string") {
+        if (value.length > settings.limits.maxCellCharacters)
+            throw new OfficeIMOError("RESOURCE_LIMIT", "maxCellCharacters exceeded.");
+        if (reserveBudget && (value.length || countEmpty))
+            settings.budget.reserve(1, pdfBudgetText(value, settings.budget).length);
+        return Object.freeze({ text: value, runs: Object.freeze([Object.freeze({ text: value, style: base })]) });
+    }
+    const input = value;
+    if (!Array.isArray(input)) {
+        if (input && typeof input.then === "function")
+            void Promise.resolve(input).catch(() => { });
+        throw new TypeError("PDF text must be a string or a synchronous array of text runs.");
+    }
+    if (input.length > settings.limits.maxTextRuns)
+        throw new OfficeIMOError("RESOURCE_LIMIT", "maxTextRuns exceeded.");
+    let characters = 0, budgetCharacters = 0;
+    const runs = [];
+    for (const run of input) {
+        if (!run || typeof run !== "object" || Object.keys(run).some(key => !["text", "bold", "italic", "color", "link", "font"].includes(key)))
+            throw new TypeError("PDF text runs support text, bold, italic, color, link and font.");
+        const { text, bold, italic, color, link, font } = run;
+        if (typeof text !== "string")
+            throw new TypeError("PDF run text must be a string.");
+        if (font !== undefined) {
+            if (!(font instanceof PdfFont))
+                throw new TypeError("A PDF run font must be a PdfFont.");
+            fonts.registerFont(font);
+        }
+        characters += text.length;
+        if (characters > settings.limits.maxCellCharacters)
+            throw new OfficeIMOError("RESOURCE_LIMIT", "maxCellCharacters exceeded.");
+        if (reserveBudget)
+            budgetCharacters += pdfBudgetText(text, settings.budget).length;
+        const style = presentation({ ...base, ...(bold === undefined ? {} : { bold }), ...(italic === undefined ? {} : { italic }), ...(color === undefined ? {} : { color }) });
+        if (settings.options.tagged && link !== undefined && text.length && !text.trim())
+            throw new TypeError("Tagged PDF inline links require nonempty displayed text.");
+        runs.push(Object.freeze({ text, style, ...(font === undefined ? {} : { font }), ...(link === undefined ? {} : { link: copyExportLink(link) }) }));
+    }
+    // Reserve before allocating a joined rich-text value or retaining it in a kept paragraph chain.
+    if (reserveBudget && (characters || countEmpty))
+        settings.budget.reserve(1, budgetCharacters);
+    return Object.freeze({ text: runs.map(run => run.text).join(""), runs: Object.freeze(runs) });
+}
+/** @internal Greedy wrapping over the continuous text stream, preserving run emphasis and URI geometry. */
+async function wrapPdfText(captured, fonts, size, width, settings, wrap = true) {
+    if (settings.options.textShaper)
+        return wrapShapedPdfText(captured, fonts, size, width, settings, wrap);
+    const { signal } = settings.options, { text, runs } = captured;
+    checkAbort(signal);
+    // Keep font-selection order while deferring a single-run face array until wrapping needs it.
+    const single = runs.length === 1 ? runs[0] : undefined;
+    const singleFace = single && fonts.select(single.style.bold, single.style.italic, single.font);
+    const selectedFaces = singleFace ? undefined : runs.map(run => fonts.select(run.style.bold, run.style.italic, run.font));
+    const fallback = fonts.select();
+    // Short fitting runs need no per-character layout arrays. Longer text keeps the existing
+    // cooperative checkpoints; controls or the first overflowing advance use the general path.
+    if (single && text.length > 0 && text.length < 4096) {
+        const run = single, font = singleFace;
+        let widthSoFar = 0, fits = true;
+        for (let offset = 0; offset < text.length;) {
+            const scalar = text.codePointAt(offset);
+            if (scalar === 9 || scalar === 10 || scalar === 13) {
+                fits = false;
+                break;
+            }
+            const advance = font.width(scalar) * size / 1000;
+            if (advance > width + .001 || widthSoFar + advance > width + .001) {
+                fits = false;
+                break;
+            }
+            widthSoFar += advance;
+            offset += scalar > 0xffff ? 2 : 1;
+        }
+        if (fits) {
+            if (settings.limits.maxRowLines < 1)
+                throw new OfficeIMOError("RESOURCE_LIMIT", "maxRowLines exceeded.");
+            return [{ text, width: widthSoFar, segments: [{ text, width: widthSoFar, font,
+                            ...(run.style.color === undefined ? {} : { color: run.style.color }), ...(run.link ? { link: run.link } : {}) }],
+                    lineHeight: font.lineHeight(size), ascent: Math.max(0, (font.program?.ascent ?? 800) * size / 1000) }];
+        }
+    }
+    const faces = selectedFaces ?? [singleFace], lines = [];
+    let chars = [], advances = [], owners = [], measured = 0, breakAt = -1;
+    let runIndex = 0, runEnd = runs[0]?.text.length ?? 0, scanned = 0;
+    const emit = (count) => {
+        if (lines.length >= settings.limits.maxRowLines)
+            throw new OfficeIMOError("RESOURCE_LIMIT", "maxRowLines exceeded.");
+        const segments = [];
+        let lineWidth = 0, lineHeight = 0, ascent = 0;
+        for (let begin = 0; begin < count;) {
+            const owner = owners[begin], run = runs[owner], font = faces[owner];
+            let end = begin + 1;
+            while (end < count && owners[end] === owner)
+                end++;
+            const segmentWidth = advances.slice(begin, end).reduce((total, advance) => total + advance, 0);
+            segments.push({ text: chars.slice(begin, end).join(""), width: segmentWidth, font,
+                ...(run.style.color === undefined ? {} : { color: run.style.color }), ...(run.link ? { link: run.link } : {}) });
+            lineWidth += segmentWidth;
+            lineHeight = Math.max(lineHeight, font.lineHeight(size));
+            ascent = Math.max(ascent, (font.program?.ascent ?? 800) * size / 1000);
+            begin = end;
+        }
+        // Empty physical lines remain observable line breaks without creating zero-area links.
+        if (!segments.length) {
+            const font = faces[0] ?? fallback;
+            segments.push({ text: "", width: 0, font, ...(runs[0]?.style.color === undefined ? {} : { color: runs[0].style.color }) });
+            lineHeight = font.lineHeight(size);
+            ascent = (font.program?.ascent ?? 800) * size / 1000;
+        }
+        lines.push({ text: chars.slice(0, count).join(""), width: lineWidth, segments, lineHeight, ascent });
+        chars = chars.slice(count);
+        advances = advances.slice(count);
+        owners = owners.slice(count);
+        measured = advances.reduce((total, advance) => total + advance, 0);
+        breakAt = -1;
+        for (let i = 0; i < chars.length; i++)
+            if (chars[i] === " ")
+                breakAt = i;
+    };
+    const append = (character, owner) => {
+        const advance = faces[owner].width(character.codePointAt(0)) * size / 1000;
+        if (advance > width + .001)
+            throw new RangeError("PDF column is too narrow for a glyph. Increase page/column width or reduce padding/font size.");
+        if (measured + advance > width + .001) {
+            if (!wrap)
+                throw new RangeError("Unwrapped PDF cell exceeds its column width.");
+            emit(breakAt >= 0 ? breakAt + 1 : chars.length);
+            if (measured + advance > width + .001)
+                emit(chars.length);
+        }
+        chars.push(character);
+        advances.push(advance);
+        owners.push(owner);
+        measured += advance;
+        if (character === " ")
+            breakAt = chars.length - 1;
+    };
+    for (let offset = 0; offset < text.length;) {
+        while (offset >= runEnd && runIndex < runs.length - 1)
+            runEnd += runs[++runIndex].text.length;
+        const owner = runIndex, scalar = text.codePointAt(offset), character = String.fromCodePoint(scalar);
+        if (offset + character.length > runEnd && runIndex < runs.length - 1) {
+            let next = runIndex + 1;
+            while (!runs[next].text.length)
+                next++;
+            const first = runs[owner], other = runs[next], firstFace = faces[owner], nextFace = faces[next];
+            const sameFace = firstFace.font === nextFace.font && (firstFace.font ?
+                firstFace.syntheticBold === nextFace.syntheticBold && firstFace.syntheticItalic === nextFace.syntheticItalic :
+                firstFace.bold === nextFace.bold && firstFace.italic === nextFace.italic);
+            if (!sameFace || color(first.style.color ?? "111827") !== color(other.style.color ?? "111827") ||
+                first.link?.target !== other.link?.target || first.link?.tooltip !== other.link?.tooltip)
+                throw new NotSupportedError("A PDF presentation boundary cannot split a UTF-16 scalar.");
+        }
+        offset += character.length;
+        if (character === "\r" || character === "\n") {
+            if (character === "\r" && text[offset] === "\n")
+                offset++;
+            emit(chars.length);
+        }
+        else if (character === "\t") {
+            for (let i = 0; i < 4; i++)
+                append(" ", owner);
+        }
+        else
+            append(character, owner);
+        if ((++scanned & 4095) === 0) {
+            if (taskYieldDue())
+                await pause();
+            checkAbort(signal);
+        }
+    }
+    emit(chars.length);
+    return lines;
+}
+const _exports = Object.freeze({ capturePdfText: capturePdfText, wrapPdfText: wrapPdfText });
+_modules.set("0a1c79b51ac9a164b86197239117df6497f45ca2892b423b1ec77a663ccc1c47", _exports);
+return _exports;
+})();
+
+const _m73 = _modules.get("2f40af05ba09102fe440c1d46385b64cecdd233371771796c9ae4e8d523f2cea") ?? (() => {
+const { OfficeIMOError } = _m2;
+
+const { wrapPdfText } = _m71;
+
+/** Plan without opening a source. Exact column widths never shrink in band mode. */
+function planTableBands(widths, settings) {
+    const policy = settings.options.wideTable;
+    if (typeof policy !== "object")
+        return undefined;
+    const available = settings.page.width - settings.margins.left - settings.margins.right, repeats = settings.repeatedColumns;
+    const repeated = new Set(repeats), rest = widths.map((_, index) => index).filter(index => !repeated.has(index));
+    const prefix = repeats.reduce((sum, index) => sum + widths[index], 0);
+    if (prefix > available + .001)
+        throw new RangeError("Repeated PDF columns exceed the printable width.");
+    const groups = [];
+    let current = [...repeats], used = prefix;
+    for (const index of rest) {
+        const width = widths[index];
+        if (prefix + width > available + .001)
+            throw new RangeError("A PDF column and its repeated identifiers cannot fit a band.");
+        if (used + width > available + .001) {
+            groups.push(current);
+            current = [...repeats];
+            used = prefix;
+        }
+        current.push(index);
+        used += width;
+    }
+    if (current.length)
+        groups.push(current);
+    if (groups.length > settings.limits.maxTableBands)
+        throw new OfficeIMOError("RESOURCE_LIMIT", "maxTableBands exceeded.");
+    if (settings.limits.maxTableWindowRows < 1)
+        throw new OfficeIMOError("RESOURCE_LIMIT", "maxTableWindowRows must allow at least one row fragment.");
+    return Object.freeze(groups.map(columns => {
+        let x = settings.margins.left;
+        const lefts = columns.map(index => { const left = x; x += widths[index]; return left; });
+        return Object.freeze({ columns: Object.freeze(columns), lefts: Object.freeze(lefts) });
+    }));
+}
+/** A span crossing a band boundary repeats its captured text at each visible intersection.
+ * Runs/formatters are never recaptured, and vertical spans retain their original row ownership. */
+async function projectBandRows(rows, band, widths, settings, fonts) {
+    const result = [];
+    for (const row of rows) {
+        const cells = [];
+        for (const cell of row.cells) {
+            // Ordinary data and leaf headings keep their captured width and lines in every band.
+            // Look up their physical position without allocating another per-row column index.
+            if (cell.span === 1) {
+                const first = band.columns.indexOf(cell.first);
+                if (first >= 0)
+                    cells.push({ ...cell, source: cell.source ?? cell, first });
+                continue;
+            }
+            for (let first = 0; first < band.columns.length;) {
+                const source = band.columns[first];
+                if (source < cell.first || source >= cell.first + cell.span) {
+                    first++;
+                    continue;
+                }
+                let end = first + 1;
+                while (end < band.columns.length && band.columns[end] === band.columns[end - 1] + 1 && band.columns[end] < cell.first + cell.span)
+                    end++;
+                const width = band.columns.slice(first, end).reduce((sum, index) => sum + widths[index], 0);
+                const lines = await wrapPdfText(cell.captured, fonts, settings.fontSize, width - settings.padding * 2, settings, cell.style.wrapText !== false);
+                cells.push({ ...cell, source: cell.source ?? cell, first, span: end - first, width, lines,
+                    lineHeight: lines.reduce((height, line) => Math.max(height, line.lineHeight), cell.font.lineHeight(settings.fontSize)) });
+                first = end;
+            }
+        }
+        cells.sort((a, b) => a.first - b.first);
+        result.push({ ...row, source: row.source ?? row, cells });
+    }
+    return result;
+}
+/** Equal row heights across every physical band keep structured headings and row windows aligned. */
+function alignBandBlocks(bands, settings) {
+    if (!bands.length || !bands[0].length)
+        return bands;
+    const rows = bands[0].length;
+    const heights = Array.from({ length: rows }, (_, index) => Math.max(...bands.map(band => Math.max(settings.padding * 2 + band[index].lineHeight, ...band[index].cells.filter(cell => (cell.rowSpan ?? 1) === 1).map(cell => cell.lines.length * cell.lineHeight + settings.padding * 2)))));
+    for (const band of bands)
+        for (const [index, row] of band.entries())
+            for (const cell of row.cells) {
+                const span = cell.rowSpan ?? 1, height = heights.slice(index, index + span).reduce((sum, value) => sum + value, 0), needed = cell.lines.length * cell.lineHeight + settings.padding * 2;
+                if (needed > height)
+                    for (let i = index; i < index + span; i++)
+                        heights[i] += (needed - height) / span;
+            }
+    return bands.map(band => band.map((row, index) => ({ ...row, structured: true, height: heights[index],
+        cells: row.cells.map(cell => ({ ...cell, height: heights.slice(index, index + (cell.rowSpan ?? 1)).reduce((sum, value) => sum + value, 0) })) })));
+}
+const _exports = Object.freeze({ planTableBands: planTableBands, projectBandRows: projectBandRows, alignBandBlocks: alignBandBlocks });
+_modules.set("2f40af05ba09102fe440c1d46385b64cecdd233371771796c9ae4e8d523f2cea", _exports);
+return _exports;
+})();
+
+const _m69 = _modules.get("ad81357e627d3100e1068a8ce521aa1c1cd65de5c6c6ab36f807a3e5da50d874") ?? (() => {
 const { ExportCell } = _m5;
 
 const { copyExportLink } = _m7;
 
-const { tableSpans } = _m38;
+const { tableSpans } = _m17;
 
-const { createTotals } = _m29;
+const { createTotals } = _m12;
 
-const { presentation, positive } = _m37;
+const { presentation, positive } = _m56;
 
-const { displayText, wrapTextCooperatively } = _m49;
+const { displayText, pdfBudgetText } = _m70;
+
+const { capturePdfText, wrapPdfText } = _m71;
+
+const { planTableBands, projectBandRows, alignBandBlocks } = _m73;
 
 class PdfTableLayout {
     settings;
     fonts;
+    bands;
     widths;
     lefts;
     lineHeight;
     headings;
     totals;
+    repeatedColumns;
+    structuredBandRows = new WeakMap();
+    /** Plain/alternate ordinary-data defaults, validated only when a column first needs them. */
+    dataPresentations = [];
     constructor(settings, fonts) {
         this.settings = settings;
         this.fonts = fonts;
         const { options, padding, fontSize, page, margins } = settings, columns = options.columns, available = page.width - margins.left - margins.right;
+        this.repeatedColumns = new Set(settings.repeatedColumns);
         let digit;
         if (options.columnWidths && options.columnWidths.length !== columns.length)
             throw new RangeError("columnWidths must declare one point width per column.");
-        const widths = columns.map((column, i) => positive(options.columnWidths?.[i] ?? (column.width === undefined ? available / columns.length :
+        const minimum = typeof options.wideTable === "object" ? options.wideTable.minimumColumnWidth ?? 72 : 0;
+        const widths = columns.map((column, i) => positive(options.columnWidths?.[i] ?? Math.max(minimum, column.width === undefined ? available / columns.length :
             positive(column.width, "Column width", 255) * (digit ??= fonts.select().width(48) * fontSize / 1000) + padding * 2), "PDF column width"));
         const sum = widths.reduce((n, w) => n + w, 0);
         if (sum > available + .001 && options.wideTable === "reject")
             throw new RangeError("Table widths exceed the printable page width.");
-        this.widths = sum > available ? widths.map(w => w * available / sum) : widths;
+        this.bands = planTableBands(widths, settings);
+        this.widths = !this.bands && sum > available ? widths.map(w => w * available / sum) : widths;
         let left = margins.left;
         this.lefts = this.widths.map(width => { const position = left; left += width; return position; });
         if (this.widths.some(w => w <= padding * 2))
@@ -5023,23 +8187,57 @@ class PdfTableLayout {
         this.headings = headings;
         this.totals = createTotals(columns, options.footer?.totals);
     }
-    async cell(value, first, span, row, style) {
-        const { options, padding, fontSize, budget, limits } = this.settings, column = options.columns[first];
+    async cell(value, first, span, row, style, ordinaryData = false) {
+        const { options, padding, fontSize, budget } = this.settings, column = options.columns[first];
         const own = value instanceof ExportCell ? value.presentation : undefined;
-        if (options.tagged && value instanceof ExportCell && value.link)
-            throw new TypeError("Tagged PDF link annotations are unsupported; use plain text cells.");
-        const combined = presentation({ ...(column.alignment === undefined ? {} : { alignment: column.alignment }),
-            ...(column.wrapText === undefined ? {} : { wrapText: column.wrapText }), ...style, ...own });
-        const font = this.fonts.select(combined.bold, combined.italic), width = this.widths.slice(first, first + span).reduce((n, w) => n + w, 0);
-        const text = displayText(value, options, { rowIndex: row, columnIndex: first, column });
-        budget.cell(text);
-        return { first, span, width, font, style: combined, lineHeight: font.lineHeight(fontSize),
-            ...(value instanceof ExportCell && value.link ? { link: copyExportLink(value.link) } : {}),
-            lines: await wrapTextCooperatively(text, font, fontSize, width - padding * 2, limits.maxCellCharacters, limits.maxRowLines, combined.wrapText !== false, options.signal) };
+        const link = value instanceof ExportCell && value.link ? copyExportLink(value.link) : undefined;
+        const alternate = ordinaryData && row % 2 && options.alternateRowColor ? options.alternateRowColor : undefined;
+        const slot = first * 2 + (alternate ? 1 : 0), reusable = ordinaryData && own === undefined;
+        let combined = reusable ? this.dataPresentations[slot] : undefined;
+        if (!combined) {
+            const rowStyle = ordinaryData ? alternate ? { background: alternate } : {} : style;
+            combined = presentation({ ...(column.alignment === undefined ? {} : { alignment: column.alignment }),
+                ...(column.wrapText === undefined ? {} : { wrapText: column.wrapText }), ...rowStyle, ...own });
+            // Validate only the first reached default; an authored cell may override invalid column defaults.
+            if (reusable)
+                this.dataPresentations[slot] = combined;
+        }
+        const font = this.fonts.select(combined.bold, combined.italic), width = span === 1 ? this.widths[first] : this.widths.slice(first, first + span).reduce((n, w) => n + w, 0);
+        const context = { rowIndex: row, columnIndex: first, column }, raw = value instanceof ExportCell ? value.value : value;
+        let text;
+        if (options.formatRuns && row >= 0 && !(value instanceof ExportCell && value.text !== undefined)) {
+            const runs = options.formatRuns(raw, context);
+            if (!Array.isArray(runs)) {
+                if (runs && typeof runs.then === "function")
+                    void Promise.resolve(runs).catch(() => { });
+                throw new TypeError("formatRuns must return a synchronous array of PDF text runs.");
+            }
+            text = runs;
+        }
+        else
+            text = displayText(value, options, context);
+        const captured = capturePdfText(text, combined, this.settings, this.fonts);
+        if (options.tagged && link && !captured.text.trim())
+            throw new TypeError("Tagged PDF cell links require nonempty displayed text.");
+        if (link && captured.runs.some(run => run.link))
+            throw new TypeError("A PDF cell link cannot be combined with inline run links.");
+        const budgetText = pdfBudgetText(captured.text, budget);
+        if (this.bands)
+            budget.release(1, budgetText.length);
+        else
+            budget.cell(budgetText, budgetText.length);
+        const lines = await wrapPdfText(captured, this.fonts, fontSize, width - padding * 2, this.settings, combined.wrapText !== false);
+        return { first, span, width, font, style: combined, lineHeight: lines.reduce((height, line) => Math.max(height, line.lineHeight), font.lineHeight(fontSize)),
+            ...(link ? { link } : {}), ...(this.bands ? { captured } : {}),
+            lines };
     }
     row(cells) {
-        const lines = Math.max(1, ...cells.map(c => c.lines.length));
-        const lineHeight = Math.max(this.lineHeight, ...cells.map(c => c.lineHeight));
+        let lines = 1, lineHeight = this.lineHeight;
+        for (let index = 0; index < cells.length; index++) {
+            const cell = cells[index];
+            lines = Math.max(lines, cell.lines.length);
+            lineHeight = Math.max(lineHeight, cell.lineHeight);
+        }
         return { cells, lines, lineHeight, height: lines * lineHeight + this.settings.padding * 2 };
     }
     async headers() {
@@ -5080,6 +8278,49 @@ class PdfTableLayout {
         return cells.map((row, r) => ({ cells: row.map(c => ({ ...c, height: heights.slice(r, r + c.rowSpan).reduce((n, h) => n + h, 0) })),
             lines: Math.max(1, Math.ceil((heights[r] - this.settings.padding * 2) / this.lineHeight)), lineHeight: this.lineHeight, height: heights[r], structured: true }));
     }
+    /** Repeated identifiers stay complete on every vertical fragment at the row's shared line height. */
+    minimumRowLines(row) {
+        let lines = 1;
+        if (this.bands)
+            for (const cell of row.cells)
+                if (this.repeatedColumns.has(cell.first))
+                    lines = Math.max(lines, cell.lines.length);
+        return lines;
+    }
+    minimumRowHeight(row) { return this.minimumRowLines(row) * row.lineHeight + this.settings.padding * 2; }
+    repeatedColumn(index) { return this.repeatedColumns.has(index); }
+    /** Measure the physical block before kept content is painted. Structured band projections are
+     * shared with the painter, so measurement cannot disagree with narrower span intersections. */
+    async blockHeight(rows) {
+        const physical = this.bands ? (await this.bandRows(rows, true))[0] : rows;
+        return physical.reduce((height, row) => height + row.height, 0);
+    }
+    /** Project already captured cells. Cache only bounded structured headings/footer matrices;
+     * ordinary data windows remain owned and released by PdfTableBandFlow. */
+    async bandRows(rows, structured = false) {
+        if (!this.bands)
+            throw new Error("Horizontal bands were not planned.");
+        if (!structured)
+            return this.projectBandRows(rows, false);
+        let prepared = this.structuredBandRows.get(rows);
+        if (!prepared) {
+            prepared = this.projectBandRows(rows, true);
+            this.structuredBandRows.set(rows, prepared);
+        }
+        return prepared;
+    }
+    async projectBandRows(rows, structured) {
+        const projected = [], seen = new Set();
+        for (const band of this.bands) {
+            const physical = await projectBandRows(rows, band, this.widths, this.settings, this.fonts);
+            projected.push(physical.map(row => ({ ...row, cells: row.cells.map(cell => {
+                    const source = cell.source, repeated = seen.has(source);
+                    seen.add(source);
+                    return repeated ? { ...cell, semanticArtifact: true } : cell;
+                }) })));
+        }
+        return structured ? alignBandBlocks(projected, this.settings) : projected;
+    }
     async data(values, index, footer = false) {
         const { options } = this.settings;
         const cells = [];
@@ -5087,8 +8328,8 @@ class PdfTableLayout {
             const value = values[column], raw = value instanceof ExportCell ? value.value : value;
             if (!footer)
                 this.totals[column].accept(raw);
-            const style = footer ? options.footerPresentation ?? {} : index % 2 && options.alternateRowColor ? { background: options.alternateRowColor } : {};
-            cells.push(await this.cell(value, column, 1, index, style));
+            const cell = await this.cell(value, column, 1, index, footer ? options.footerPresentation ?? {} : undefined, !footer);
+            cells.push(!footer && options.columns[column].rowHeader ? { ...cell, rowHeader: true } : cell);
         }
         return this.row(cells);
     }
@@ -5102,20 +8343,278 @@ class PdfTableLayout {
     }
 }
 const _exports = Object.freeze({ PdfTableLayout: PdfTableLayout });
-_modules.set("cb8af6422bb915f9b410c7fc9d4385323967b6bd47dc228e201a66cf3d1914ca", _exports);
+_modules.set("ad81357e627d3100e1068a8ce521aa1c1cd65de5c6c6ab36f807a3e5da50d874", _exports);
 return _exports;
 })();
 
-const _m51 = _modules.get("ba335bb5f54ae99287c54a4f4e9eba2206b1cf7afb56db6ec7470c4715bb4837") ?? (() => {
+const _m75 = _modules.get("9ea74d93c18250e809a7be745444b886bcd5ec924a78e6ab004d649789db1f72") ?? (() => {
 const { OfficeIMOError } = _m2;
 
-const { pdfNumber, unicodeHex } = _m40;
+const { checkAbort } = _m4;
+
+/** One source pass and one bounded window. A slow sink is awaited before accepting further source rows.
+ * Data projection, formatting and numeric totals belong to the logical layout, never the physical bands. */
+class PdfTableBandFlow {
+    layout;
+    headings;
+    painter;
+    caption;
+    continuation;
+    entries = [];
+    height = 0;
+    count = 0;
+    firstWindow = true;
+    firstCapacity;
+    painted = false;
+    constructor(layout, headings, painter, caption, continuation) {
+        this.layout = layout;
+        this.headings = headings;
+        this.painter = painter;
+        this.caption = caption;
+        this.continuation = continuation;
+        this.firstCapacity = painter.firstCapacity;
+    }
+    get capacity() { return this.firstWindow ? this.firstCapacity : this.painter.continuationCapacity; }
+    async accept(entry) {
+        if (this.entries.length && (this.height + entry.height > this.capacity + .001 || this.count + entry.count > this.layout.settings.limits.maxTableWindowRows))
+            await this.flush();
+        if (this.firstWindow && !this.entries.length && entry.height > this.capacity + .001 && entry.height <= this.painter.firstFullCapacity + .001) {
+            await this.painter.moveFirstToFreshPage();
+            this.firstCapacity = this.painter.firstFullCapacity;
+        }
+        if (entry.height > this.capacity + .001)
+            throw new RangeError("PDF band window cannot fit the requested table fragment.");
+        this.entries.push(entry);
+        this.height += entry.height;
+        this.count += entry.count;
+        if (this.count >= this.layout.settings.limits.maxTableWindowRows)
+            await this.flush();
+    }
+    async row(row, allowFirstFragment = false) {
+        const { padding, fontSize, options } = this.layout.settings, minimumLines = this.layout.minimumRowLines(row), minimumHeight = minimumLines * row.lineHeight + padding * 2;
+        if (minimumHeight > this.painter.firstFullCapacity + .001 || minimumHeight > this.painter.continuationCapacity + .001)
+            throw new RangeError("Repeated PDF identifiers must fit intact below the first and continued band headings/context.");
+        // Keep ordinary rows intact when they fit fresh. A kept heading/caption can deliberately
+        // retain the first fragment here instead of being orphaned by a later table-only page move.
+        if (this.entries.length && row.height <= this.painter.continuationCapacity + .001 && row.height > this.capacity - this.height + .001)
+            await this.flush();
+        if (!allowFirstFragment && this.firstWindow && !this.entries.length && row.height > this.capacity + .001 && row.height <= this.painter.firstFullCapacity + .001) {
+            await this.painter.moveFirstToFreshPage();
+            this.firstCapacity = this.painter.firstFullCapacity;
+        }
+        await this.painter.prepareRow?.(row);
+        let first = 0;
+        while (first < row.lines) {
+            checkAbort(options.signal);
+            if (this.entries.length && this.capacity - this.height + .001 < minimumHeight)
+                await this.flush();
+            if (this.firstWindow && !this.entries.length && this.capacity + .001 < minimumHeight) {
+                await this.painter.moveFirstToFreshPage();
+                this.firstCapacity = this.painter.firstFullCapacity;
+            }
+            if (this.capacity - this.height + .001 < minimumHeight)
+                throw new RangeError("PDF band window cannot fit its complete repeated identifiers.");
+            const lines = Math.min(row.lines - first, Math.floor((this.capacity - this.height - padding * 2 + .001) / row.lineHeight));
+            if (lines < 1)
+                throw new RangeError("PDF page cannot fit a table line below horizontal band headings.");
+            // Reserve one shared logical fragment, but paint only each band's visible cell geometry.
+            const reservedLines = Math.max(lines, minimumLines), height = reservedLines * row.lineHeight + padding * 2;
+            const projected = await this.layout.bandRows([row]);
+            const exhaustedBands = [];
+            const fragments = projected.map((rows, index) => {
+                let remaining = false;
+                const cells = rows[0].cells.map(cell => {
+                    const source = this.layout.bands[index].columns[cell.first];
+                    const repeated = this.layout.repeatedColumn(source), reusable = cell.span === 1 && (cell.source?.span ?? 1) === 1 && (cell.rowSpan ?? 1) === 1 &&
+                        cell.height === undefined && first === 0 && (repeated || lines >= cell.lines.length);
+                    const visible = repeated || reusable ? cell.lines : cell.lines.slice(first, first + lines);
+                    if (!repeated && (visible.length > 0 || cell.link !== undefined))
+                        remaining = true;
+                    // A complete first fragment already owns these lines and their maximum font metrics.
+                    if (reusable)
+                        return cell;
+                    const { height: _height, ...plain } = cell;
+                    return { ...plain, lines: visible,
+                        lineHeight: visible.reduce((value, line) => Math.max(value, line.lineHeight), cell.font.lineHeight(fontSize)),
+                        ...(first > 0 && repeated ? { semanticArtifact: true } : {}) };
+                });
+                const fragmentLines = Math.max(1, ...cells.map(cell => cell.lines.length));
+                const lineHeight = Math.max(this.layout.lineHeight, ...cells.filter(cell => cell.lines.length > 0).map(cell => cell.lineHeight));
+                // Never omit an initial/new row, a structured block, or a nonrepeated link obligation.
+                exhaustedBands.push(first > 0 && !remaining);
+                return [{ ...rows[0], cells, lines: fragmentLines, lineHeight, height: fragmentLines * lineHeight + padding * 2 }];
+            });
+            await this.accept({ rows: fragments, height, count: 1, completed: first + lines >= row.lines ? [row] : [], exhaustedBands });
+            first += lines;
+            if (first < row.lines)
+                await this.flush();
+        }
+    }
+    async block(rows) {
+        const projected = await this.layout.bandRows(rows, true), height = projected[0].reduce((sum, row) => sum + row.height, 0);
+        if (rows.length > this.layout.settings.limits.maxTableWindowRows)
+            throw new OfficeIMOError("RESOURCE_LIMIT", "A structured PDF block exceeds maxTableWindowRows.");
+        for (const row of rows)
+            await this.painter.prepareRow?.(row);
+        await this.accept({ rows: projected, height, count: rows.length, completed: rows, exhaustedBands: projected.map(() => false) });
+    }
+    async keptRows(rows, allowFirstFragment = false) {
+        const height = rows.reduce((sum, row) => sum + row.height, 0), fits = height <= this.painter.continuationCapacity + .001;
+        if (this.entries.length && fits && height > this.capacity - this.height + .001)
+            await this.flush();
+        for (const [index, row] of rows.entries())
+            await this.row(row, !fits && index === 0 && allowFirstFragment);
+    }
+    async flush(forceHeadings = false) {
+        if (!this.entries.length && (!forceHeadings || this.painted || !this.headings.some(rows => rows.length)))
+            return;
+        for (let band = 0; band < this.layout.bands.length; band++) {
+            checkAbort(this.layout.settings.options.signal);
+            if (!this.firstWindow && this.entries.length > 0 && this.entries.every(entry => entry.exhaustedBands[band]))
+                continue;
+            await this.painter.paint(band, this.headings[band], this.entries.flatMap(entry => entry.rows[band]), this.firstWindow ? this.caption : this.continuation, this.firstWindow, band === 0);
+        }
+        for (const entry of this.entries)
+            for (const row of entry.completed)
+                await this.painter.completeRow?.(row);
+        this.entries = [];
+        this.height = 0;
+        this.count = 0;
+        this.firstWindow = false;
+        this.painted = true;
+    }
+}
+const _exports = Object.freeze({ PdfTableBandFlow: PdfTableBandFlow });
+_modules.set("9ea74d93c18250e809a7be745444b886bcd5ec924a78e6ab004d649789db1f72", _exports);
+return _exports;
+})();
+
+const _m76 = _modules.get("9deed79565a5da5009f7a01579df8d6a3f019b78eb7b17d831c7964840e9a6bf") ?? (() => {
+/** @internal Source-cell identities survive page fragments and horizontal band projections.
+ * Only column headers and still-owned row objects remain reachable from this table owner. */
+class PdfTableStructure {
+    structure;
+    table;
+    headers;
+    cells = new WeakMap();
+    rows = new WeakMap();
+    columnHeaders = [];
+    /** Ordinary cells without row headers share immutable dictionary references, bounded by column count. */
+    ordinaryAttributes = [];
+    headerCount = 0;
+    headersPrepared = false;
+    constructor(structure, table, headers) {
+        this.structure = structure;
+        this.table = table;
+        this.headers = headers;
+    }
+    /** Allocate the complete logical header grid before its first visual band is painted. */
+    async prepareHeaders() {
+        if (this.headersPrepared)
+            return;
+        for (let rowIndex = 0; rowIndex < this.headers.length; rowIndex++) {
+            const row = this.headers[rowIndex], parent = this.structure.element("TR", this.table);
+            this.rows.set(row, parent);
+            for (const cell of row.cells) {
+                const header = cell.lines.some(line => line.text.trim().length > 0);
+                const associations = this.associations(cell, rowIndex);
+                const id = this.structure.element(header ? "TH" : "TD", parent, this.attributes(cell, associations, header ? "Column" : undefined));
+                this.cells.set(cell, id);
+                if (header) {
+                    const heading = { row: rowIndex, order: this.headerCount++, identifier: await this.structure.identifier(id) };
+                    for (let column = cell.first; column < cell.first + cell.span; column++)
+                        (this.columnHeaders[column] ??= []).push(heading);
+                }
+            }
+        }
+        this.headersPrepared = true;
+    }
+    /** Call after every initial physical band; repeated visual headings then become artifacts. */
+    async completeHeaders() {
+        for (const row of this.headers)
+            await this.completeRow(row);
+    }
+    /** Register one original row before projecting or painting it. Summary label headings are explicit. */
+    async prepareRow(row, _kind = "data", parent = this.table, rowHeaderIndex) {
+        const existing = this.rows.get(row);
+        if (existing !== undefined)
+            return row.cells.map(cell => this.cells.get(cell));
+        const rowId = this.structure.element("TR", parent);
+        this.rows.set(row, rowId);
+        // Allocate in source order, then resolve every row header before associating even earlier data cells.
+        // Generated summary labels override detail roles so numeric subtotal cells never become row headers.
+        const ids = row.cells.map((cell, index) => {
+            const header = rowHeaderIndex === undefined ? cell.rowHeader === true : index === rowHeaderIndex;
+            const id = this.structure.element(header ? "TH" : "TD", rowId);
+            this.cells.set(cell, id);
+            return id;
+        });
+        let rowHeaders;
+        for (let index = 0; index < ids.length; index++)
+            if (rowHeaderIndex === undefined ? row.cells[index].rowHeader === true : index === rowHeaderIndex)
+                (rowHeaders ??= []).push(await this.structure.identifier(ids[index]));
+        for (let index = 0; index < row.cells.length; index++) {
+            const cell = row.cells[index];
+            if (!rowHeaders && cell.span === 1 && (cell.rowSpan ?? 1) === 1) {
+                const attributes = this.ordinaryAttributes[cell.first] ??=
+                    await this.structure.attributeReference(this.attributeDictionary(cell, this.associations(cell)));
+                this.structure.setAttributes(ids[index], attributes);
+                continue;
+            }
+            const associations = this.associations(cell);
+            const header = rowHeaderIndex === undefined ? cell.rowHeader === true : index === rowHeaderIndex;
+            if (!header && rowHeaders)
+                associations.push(...rowHeaders);
+            this.structure.setAttributes(ids[index], this.attributes(cell, associations, header ? "Row" : undefined));
+        }
+        return ids;
+    }
+    owner(cell) { return this.cells.get(cell); }
+    async completeRow(row) {
+        await this.structure.complete(this.rows.get(row));
+    }
+    async finish() {
+        await this.completeHeaders();
+        await this.structure.complete(this.table);
+    }
+    associations(cell, beforeRow = Number.POSITIVE_INFINITY) {
+        // Ordinary cells visit only their heading depth, independent of the table's width.
+        if (cell.span === 1)
+            return (this.columnHeaders[cell.first] ?? []).filter(header => header.row < beforeRow).map(header => header.identifier);
+        const headers = new Set();
+        for (let column = cell.first; column < cell.first + cell.span; column++)
+            for (const header of this.columnHeaders[column] ?? [])
+                if (header.row < beforeRow)
+                    headers.add(header);
+        // Spans can encounter a shared ancestor through several columns. Preserve logical allocation
+        // order, rather than column visitation order, and name that ancestor exactly once.
+        return [...headers].sort((left, right) => left.order - right.order).map(header => header.identifier);
+    }
+    attributes(cell, headers, scope) {
+        return " /A " + this.attributeDictionary(cell, headers, scope);
+    }
+    attributeDictionary(cell, headers, scope) {
+        return "<< /O /Table" + (scope === undefined ? "" : " /Scope /" + scope) +
+            (cell.span > 1 ? " /ColSpan " + cell.span : "") + ((cell.rowSpan ?? 1) > 1 ? " /RowSpan " + cell.rowSpan : "") +
+            (headers.length ? " /Headers [" + headers.map(id => "(" + id + ")").join(" ") + "]" : "") + " >>";
+    }
+}
+const _exports = Object.freeze({ PdfTableStructure: PdfTableStructure });
+_modules.set("9deed79565a5da5009f7a01579df8d6a3f019b78eb7b17d831c7964840e9a6bf", _exports);
+return _exports;
+})();
+
+const _m77 = _modules.get("09c712096a1028af340e275d5a273e870546413797e71ed709657ad0482ea170") ?? (() => {
+const { OfficeIMOError } = _m2;
+
+const { pdfNumber, unicodeHex } = _m60;
 
 const encoder = new TextEncoder();
 /** @internal URI actions are byte strings; tooltips are Unicode PDF text strings. */
-function linkAnnotation(link, x, bottom, width, height, maxBytes) {
+function linkAnnotation(link, x, bottom, width, height, maxBytes, structParent, page) {
     const prefix = "<< /Type /Annot /Subtype /Link /F 4 /Border [0 0 0] /Rect [" +
-        [x, bottom, x + width, bottom + height].map(pdfNumber).join(" ") + "] /A << /S /URI /URI <";
+        [x, bottom, x + width, bottom + height].map(pdfNumber).join(" ") + "]" +
+        (structParent === undefined ? "" : " /StructParent " + structParent) + (page === undefined ? "" : " /P " + page + " 0 R") + " /A << /S /URI /URI <";
     const suffix = "> >>" + (link.tooltip === undefined ? "" : " /Contents <feff") + " >>";
     const fixedBytes = prefix.length + suffix.length + (link.tooltip === undefined ? 0 : link.tooltip.length * 4 + 1);
     const limit = () => { throw new OfficeIMOError("RESOURCE_LIMIT", "maxPageBytes exceeded."); };
@@ -5147,37 +8646,115 @@ function linkAnnotation(link, x, bottom, width, height, maxBytes) {
         (link.tooltip === undefined ? "" : " /Contents <feff" + unicodeHex(link.tooltip) + ">") + " >>";
 }
 const _exports = Object.freeze({ linkAnnotation: linkAnnotation });
-_modules.set("ba335bb5f54ae99287c54a4f4e9eba2206b1cf7afb56db6ec7470c4715bb4837", _exports);
+_modules.set("09c712096a1028af340e275d5a273e870546413797e71ed709657ad0482ea170", _exports);
 return _exports;
 })();
 
-const _m50 = _modules.get("a4f0f1bd720d45f050b08151420d0025a5d2e48eb210998b38703468fd6770d1") ?? (() => {
+const _m78 = _modules.get("c68d18d668366fb9b96d1b53c79dc6305f84cb83c05e4942fcf1cdf96ed1a73f") ?? (() => {
+const { OfficeIMOError } = _m2;
+
+const { unicodeHex } = _m60;
+
+const { captureFields } = _m10;
+
+/** @internal Capture bookmark metadata before source enumeration or cooperative layout. */
+function captureBookmark(value, settings) {
+    if (value === undefined)
+        return undefined;
+    if (!value || typeof value !== "object")
+        throw new TypeError("PDF bookmark must provide a title and optional level.");
+    const { title, level = 1 } = value;
+    if (typeof title !== "string" || !title.trim())
+        throw new TypeError("PDF bookmark title must be nonempty text.");
+    if (title.length > settings.limits.maxCellCharacters)
+        throw new OfficeIMOError("RESOURCE_LIMIT", "maxCellCharacters exceeded by bookmark title.");
+    if (!Number.isInteger(level) || level < 1 || level > 6)
+        throw new TypeError("PDF bookmark level must be an integer from 1 through 6.");
+    unicodeHex(title);
+    return Object.freeze({ title, level });
+}
+/** @internal Sections capture only geometry/decorations; fonts, styles and resource policy remain document-owned. */
+function captureSection(block, settings) {
+    if (!block || block.kind !== "section")
+        throw new TypeError("PDF section boundary required.");
+    if (Object.keys(block).some(key => !["kind", "title", "level", "includeHeading", "bookmark", "headingStyle", "pageSize", "orientation", "margins", "pageHeader", "pageFooter", "pageNumbers"].includes(key)))
+        throw new TypeError("PDF sections support title, heading/bookmark controls, page geometry and decorations only.");
+    const { title, level, includeHeading = true, bookmark = true, headingStyle, pageSize, orientation, margins, pageHeader, pageFooter, pageNumbers } = block;
+    const checked = captureBookmark({ title, ...(level === undefined ? {} : { level }) }, settings);
+    for (const [name, value] of [["includeHeading", includeHeading], ["bookmark", bookmark], ["pageNumbers", pageNumbers]])
+        if (value !== undefined && typeof value !== "boolean")
+            throw new TypeError("PDF section " + name + " must be boolean.");
+    if (headingStyle !== undefined && (typeof headingStyle !== "string" || !headingStyle.trim()))
+        throw new TypeError("PDF section headingStyle must be nonempty text.");
+    return Object.freeze({ kind: "section", title: checked.title, level: checked.level, includeHeading, bookmark,
+        ...(headingStyle === undefined ? {} : { headingStyle }),
+        ...(pageSize === undefined ? {} : { pageSize: typeof pageSize === "object" ? Object.freeze(captureFields(pageSize, ["width", "height"])) : pageSize }),
+        ...(orientation === undefined ? {} : { orientation }),
+        ...(margins === undefined ? {} : { margins: typeof margins === "object" ? Object.freeze(captureFields(margins, ["top", "right", "bottom", "left"])) : margins }),
+        ...(pageHeader === undefined ? {} : { pageHeader }), ...(pageFooter === undefined ? {} : { pageFooter }),
+        ...(pageNumbers === undefined ? {} : { pageNumbers }) });
+}
+const _exports = Object.freeze({ captureBookmark: captureBookmark, captureSection: captureSection });
+_modules.set("c68d18d668366fb9b96d1b53c79dc6305f84cb83c05e4942fcf1cdf96ed1a73f", _exports);
+return _exports;
+})();
+
+const _m79 = _modules.get("a66257a32f03d958aa57be4de9da7f80b708cebca26b5cc6404de0ee11bfe052") ?? (() => {
+const { settings } = _m56;
+
+/** @internal Every section derives from captured document defaults, never the preceding section. */
+function sectionSettings(base, section) {
+    const { pageSize, orientation, margins, pageHeader, pageFooter, pageNumbers } = section;
+    const options = { ...base.options,
+        ...(pageSize === undefined ? {} : { pageSize }), ...(orientation === undefined ? {} : { orientation }),
+        ...(margins === undefined ? {} : { margins }), ...(pageHeader === undefined ? {} : { pageHeader }),
+        ...(pageFooter === undefined ? {} : { pageFooter }), ...(pageNumbers === undefined ? {} : { pageNumbers }) };
+    // Reuse the existing public normalizer; section changes cannot acquire new limits or reset counters.
+    const derived = settings(options, true);
+    return { ...base, page: derived.page, margins: derived.margins, options };
+}
+const _exports = Object.freeze({ sectionSettings: sectionSettings });
+_modules.set("a66257a32f03d958aa57be4de9da7f80b708cebca26b5cc6404de0ee11bfe052", _exports);
+return _exports;
+})();
+
+const _m74 = _modules.get("3ed7114181be5a3066742336da574fef7f2fc04ee6dfc5e64211f3bedad4cab9") ?? (() => {
 const { OfficeIMOError } = _m2;
 
 const { checkAbort } = _m4;
 
-const { pdfNumber } = _m40;
+const { pdfNumber } = _m60;
 
-const { color } = _m37;
+const { color } = _m56;
 
-const { wrapText, wrapTextCooperatively, synchronousText } = _m49;
+const { PdfTableBandFlow } = _m75;
 
-const { linkAnnotation } = _m51;
+const { PdfTableStructure } = _m76;
 
-const { unicodeHex } = _m40;
+const { wrapText, wrapTextCooperatively, synchronousText, pdfBudgetText } = _m70;
+
+const { linkAnnotation } = _m77;
+
+const { unicodeHex } = _m60;
+
+const { captureSection, captureBookmark } = _m78;
+
+const { sectionSettings } = _m79;
 
 /** @internal One page of drawing commands and O(page count) references, never the complete report body. */
 class PdfPages {
     objects;
-    settings;
+    baseSettings;
     fonts;
     parent;
     resources;
     layout;
     structure;
+    outlines;
     references = [];
     current = 0;
-    commands = [];
+    commands = "";
+    commandParts = [];
     commandBytes = 0;
     annotations = [];
     hyperlinks = 0;
@@ -5185,34 +8762,89 @@ class PdfPages {
     dataTop = 0;
     continuationTop = 0;
     totalPages;
-    pageNumberWidth;
+    numberSettings;
+    activeSettings;
+    pendingPage;
+    bodyAdded = false;
+    sectionCount = 0;
+    sectionPages = 0;
+    sectionTitle;
+    pendingBookmarks = [];
+    pageNumberWidth = 0;
     colors = new Map();
+    textFont;
+    textSize = 0;
+    textColor = "";
+    textPrefix = "";
+    rectangleLefts;
+    rectangleColumns = [];
     externalObjects = new Map();
+    bandFlow;
+    bandCellBudget = false;
     tableElement;
-    tableHeadingsDrawn = false;
-    constructor(objects, settings, fonts, parent, resources, layout, structure) {
+    tableStructure;
+    activeHeadings;
+    paintedHeaderCells = new WeakSet();
+    paintedHeaderBudgetCells = new WeakSet();
+    summaryRows = new WeakSet();
+    groups = [];
+    continuationCaption;
+    tableCaptionOwner;
+    continuationCaptionPaints = 0;
+    constructor(objects, baseSettings, fonts, parent, resources, layout, structure, outlines) {
         this.objects = objects;
-        this.settings = settings;
+        this.baseSettings = baseSettings;
         this.fonts = fonts;
         this.parent = parent;
         this.resources = resources;
         this.layout = layout;
         this.structure = structure;
-        this.totalPages = settings.options.pageNumbers === false ? undefined : objects.reserve();
-        this.pageNumberWidth = 0;
-        if (this.totalPages && settings.limits.maxPages > 0) {
-            const font = fonts.select(), max = settings.limits.maxPages;
-            const digitWidth = Math.max(...Array.from({ length: Math.min(10, max) }, (_, i) => font.width(max < 10 ? 49 + i : 48 + i)));
-            const countWidth = digitWidth * String(max).length * settings.fontSize / 1000;
-            const literals = wrapText("Page  of ", font, settings.fontSize, settings.page.width, 128, 1, false)[0].width;
-            this.pageNumberWidth = literals + countWidth * 2 + 2;
-            if (this.pageNumberWidth > settings.page.width - settings.margins.left - settings.margins.right)
-                throw new RangeError("Page is too narrow for page numbers at the declared maxPages and font size.");
+        this.outlines = outlines;
+        this.activeSettings = baseSettings;
+    }
+    measurePageNumbers() {
+        const settings = this.settings, font = this.fonts.select(), max = settings.limits.maxPages;
+        const digitWidth = Math.max(...Array.from({ length: Math.min(10, max) }, (_, i) => font.width(max < 10 ? 49 + i : 48 + i)));
+        const countWidth = digitWidth * String(max).length * settings.fontSize / 1000;
+        const labels = settings.options.pageNumberLabels;
+        const literals = wrapText((labels?.prefix ?? "Page ") + (labels?.separator ?? " of ") + (labels?.suffix ?? ""), font, settings.fontSize, Number.MAX_SAFE_INTEGER, settings.limits.maxCellCharacters, 1, false)[0].width;
+        return literals + countWidth * 2 + 2;
+    }
+    get settings() { return this.activeSettings; }
+    async ensureStarted() { if (!this.current)
+        await this.start(false); }
+    /** Section changes consume no rows and do not manufacture an empty transition page. */
+    async beginSection(block) {
+        const captured = captureSection(block, this.baseSettings), active = sectionSettings(this.baseSettings, captured);
+        if (++this.sectionCount > this.baseSettings.limits.maxSections)
+            throw new OfficeIMOError("RESOURCE_LIMIT", "maxSections exceeded.");
+        if (this.current) {
+            if (this.bodyAdded)
+                await this.finishPage();
+            else {
+                this.pendingPage = this.current;
+                this.current = 0;
+            }
         }
+        this.activeSettings = active;
+        this.sectionPages = 0;
+        this.sectionTitle = captured.title;
+        await this.structure?.beginSection();
+        return captured;
+    }
+    addBookmark(bookmark) {
+        const captured = captureBookmark(bookmark, this.settings);
+        if ((this.outlines?.count ?? 0) + this.pendingBookmarks.length >= this.settings.limits.maxBookmarks)
+            throw new OfficeIMOError("RESOURCE_LIMIT", "maxBookmarks exceeded.");
+        this.settings.budget.cell(captured.title);
+        if (this.current)
+            this.outlines?.add(captured, this.current, this.y);
+        else
+            this.pendingBookmarks.push(captured);
     }
     add(command) {
         this.retainPageBytes(command.length);
-        this.commands.push(command);
+        this.commands += command;
     }
     retainPageBytes(length) {
         this.commandBytes += length;
@@ -5232,105 +8864,219 @@ class PdfPages {
         return this.structure ? "/Artifact << /Type /" + type + " >> BDC\n" + command + "EMC\n" : command;
     }
     text(text, font, size, x, baseline, foreground = "111827", element) {
-        const n = pdfNumber, shear = font.syntheticItalic ? .2126 : 0;
-        const command = "q " + this.rgb(foreground) + " rg " + this.rgb(foreground) + " RG\nBT /" + font.name + " " + n(size) + " Tf " +
-            (font.syntheticBold ? n(size * .025) + " w 2 Tr " : "0 Tr ") + "1 0 " + n(shear) + " 1 " + n(x) + " " + n(baseline) + " Tm " + font.encode(text) + " Tj ET Q\n";
+        const n = pdfNumber;
+        if (font !== this.textFont || size !== this.textSize || foreground !== this.textColor) {
+            const shear = font.syntheticItalic ? .213 : 0, rgb = this.rgb(foreground);
+            // Keep one prefix, independent of report size. Resource identity includes synthetic styling.
+            this.textPrefix = "q " + rgb + " rg " + rgb + " RG\nBT /" + font.name + " " + n(size) + " Tf " +
+                (font.syntheticBold ? n(size * .025) + " w 2 Tr " : "0 Tr ") + "1 0 " + n(shear) + " 1 ";
+            this.textFont = font;
+            this.textSize = size;
+            this.textColor = foreground;
+        }
+        const command = this.textPrefix + n(x) + " " + n(baseline) + " Tm " + font.encode(text) + " Tj ET Q\n";
         this.add(this.structure && element !== undefined ? this.structure.mark(element) + command + "EMC\n" : this.artifact(command, "Pagination"));
+    }
+    link(link, x, bottom, width, height, element) {
+        if (width <= 0)
+            return;
+        if (++this.hyperlinks > this.settings.limits.maxHyperlinks)
+            throw new OfficeIMOError("RESOURCE_LIMIT", "maxHyperlinks exceeded.");
+        const id = this.objects.reserve();
+        const parentKey = this.structure && element !== undefined ? this.structure.annotation(element, id) : undefined;
+        const annotation = linkAnnotation(link, x, bottom, width, height, this.settings.limits.maxPageBytes - this.commandBytes, parentKey, this.structure ? this.current : undefined);
+        this.retainPageBytes(annotation.length);
+        this.annotations.push({ id, body: annotation });
+    }
+    inline(line, size, x, baseline, element, annotationParent = element) {
+        const lineActualText = !this.structure && line.actualText !== undefined && line.actualText.length > 0;
+        if (lineActualText)
+            this.add("/Span << /ActualText <FEFF" + unicodeHex(line.actualText) + "> >> BDC\n");
+        let marks;
+        if (line.actualText !== undefined && this.structure && element !== undefined) {
+            marks = new Map();
+            // Allocate MCIDs/Link children in logical order, then paint the independently positioned visual order.
+            for (const segment of [...line.segments].sort((a, b) => (a.logicalStart ?? 0) - (b.logicalStart ?? 0))) {
+                const owner = segment.link ? this.structure.link(element, segment.link) : element;
+                marks.set(segment, { owner, mark: this.structure.mark(owner, segment.actualText) });
+            }
+        }
+        for (const segment of line.segments) {
+            const registered = marks?.get(segment), owner = registered?.owner ?? (segment.link && this.structure && element !== undefined ? this.structure.link(element, segment.link) : element);
+            if (segment.glyphs) {
+                const font = segment.font, n = pdfNumber, shear = font.syntheticItalic ? .213 : 0, rgb = this.rgb(segment.color ?? "111827");
+                let cursor = x, command = "q " + rgb + " rg " + rgb + " RG\nBT /" + font.name + " " + n(size) + " Tf " +
+                    (font.syntheticBold ? n(size * .025) + " w 2 Tr " : "0 Tr ");
+                for (const glyph of segment.glyphs) {
+                    command += "1 0 " + n(shear) + " 1 " + n(cursor + (glyph.xOffset + shear * glyph.yOffset) * size / 1000) + " " + n(baseline + glyph.yOffset * size / 1000) + " Tm " + font.encodeGlyph(glyph.id, glyph.logicalText) + " Tj\n";
+                    cursor += glyph.xAdvance * size / 1000;
+                }
+                command += "ET Q\n";
+                this.add(this.structure && owner !== undefined ? (registered?.mark ?? this.structure.mark(owner, segment.actualText)) + command + "EMC\n" : this.artifact(command, "Pagination"));
+            }
+            else
+                this.text(segment.text, segment.font, size, x, baseline, segment.color, owner);
+            if (segment.link) {
+                const ascent = (segment.font.program?.ascent ?? 800) * size / 1000;
+                const descent = (segment.font.program?.descent ?? -200) * size / 1000;
+                const annotationOwner = owner ?? (this.structure && annotationParent !== undefined ? this.structure.link(annotationParent, segment.link) : undefined);
+                this.link(segment.link, x, baseline + descent, segment.width, ascent - descent, annotationOwner);
+            }
+            x += segment.width;
+        }
+        if (lineActualText)
+            this.add("EMC\n");
     }
     decorationText(value) {
         if (value === undefined)
             return "";
         checkAbort(this.settings.options.signal);
-        return synchronousText(typeof value === "function" ? value({ pageNumber: this.references.length }) : value, "Page header/footer");
+        return synchronousText(typeof value === "function" ? value(Object.freeze({ pageNumber: this.references.length, sectionNumber: this.sectionCount || 1, sectionPageNumber: this.sectionPages, ...(this.sectionTitle === undefined ? {} : { sectionTitle: this.sectionTitle }) })) : value, "Page header/footer");
     }
     decoration(text, x, y, width) {
         if (!text)
             return;
-        this.settings.budget.cell(text);
+        this.settings.budget.cell(pdfBudgetText(text, this.settings.budget));
         const font = this.fonts.select(), lines = wrapText(text, font, this.settings.fontSize, width, this.settings.limits.maxCellCharacters, 1, false);
         this.text(lines[0].text, font, this.settings.fontSize, x, y);
     }
     async start(tableHeadings = true, preparedHeadings) {
-        if (this.references.length >= this.settings.limits.maxPages)
+        if (this.pendingPage === undefined && this.references.length >= this.settings.limits.maxPages)
             throw new OfficeIMOError("RESOURCE_LIMIT", "maxPages exceeded.");
         const { page, margins, options, fontSize } = this.settings;
         const lineHeight = this.fonts.select().lineHeight(fontSize);
-        this.current = this.objects.reserve();
-        this.references.push(this.current);
-        this.commands = [];
+        if (this.pendingPage !== undefined) {
+            this.current = this.pendingPage;
+            this.pendingPage = undefined;
+        }
+        else {
+            this.current = this.objects.reserve();
+            this.references.push(this.current);
+        }
+        this.commands = "";
+        this.commandParts = [];
+        this.annotations = [];
         this.commandBytes = 0;
+        this.bodyAdded = false;
+        this.sectionPages++;
+        if (options.pageNumbers !== false) {
+            this.totalPages ??= this.objects.reserve();
+            this.numberSettings ??= this.settings;
+            if (!this.pageNumberWidth)
+                this.pageNumberWidth = this.measurePageNumbers();
+            if (this.pageNumberWidth > page.width - margins.left - margins.right)
+                throw new RangeError("Page is too narrow for page numbers at the declared maxPages and font size.");
+        }
         this.structure?.beginPage(this.current);
         this.y = page.height - margins.top;
         const header = this.decorationText(options.pageHeader), footer = this.decorationText(options.pageFooter);
         if (header && margins.top < lineHeight + 4)
             throw new RangeError("Top margin is too small for a page header.");
-        if ((footer || this.totalPages) && margins.bottom < lineHeight + 4)
+        if ((footer || options.pageNumbers !== false) && margins.bottom < lineHeight + 4)
             throw new RangeError("Bottom margin is too small for page decorations.");
         const font = this.fonts.select(), centerOffset = ((font.program?.ascent ?? 800) + (font.program?.descent ?? -200)) * fontSize / 2000;
         this.decoration(header, margins.left, page.height - margins.top / 2 - centerOffset, page.width - margins.left - margins.right);
-        const footerWidth = page.width - margins.left - margins.right - (this.totalPages ? this.pageNumberWidth + this.settings.padding * 2 : 0);
+        const footerWidth = page.width - margins.left - margins.right - (options.pageNumbers !== false ? this.pageNumberWidth + this.settings.padding * 2 : 0);
         if (footerWidth <= 0 && footer)
             throw new RangeError("Page is too narrow for both footer text and page numbers.");
         this.decoration(footer, margins.left, margins.bottom / 2 - centerOffset, footerWidth);
-        if (this.totalPages) {
-            const x = page.width - margins.right - this.pageNumberWidth + 1, y = margins.bottom / 2 - centerOffset, label = "Page " + this.references.length + " of ";
-            const line = wrapText(label, font, fontSize, this.pageNumberWidth, 128, 1, false)[0];
-            this.settings.budget.cell(label);
+        if (options.pageNumbers !== false) {
+            const labels = options.pageNumberLabels, suffix = labels?.suffix ?? "";
+            const x = page.width - margins.right - this.pageNumberWidth + 1, y = margins.bottom / 2 - centerOffset, label = (labels?.prefix ?? "Page ") + this.references.length + (labels?.separator ?? " of ");
+            const line = wrapText(label, font, fontSize, this.pageNumberWidth, this.settings.limits.maxCellCharacters, 1, false)[0];
+            this.settings.budget.cell(label + suffix);
             this.text(label, font, fontSize, x, y);
             this.add(this.artifact("q 1 0 0 1 " + pdfNumber(x + line.width) + " " + pdfNumber(y) + " cm /TotalPages Do Q\n", "Pagination"));
         }
+        for (const bookmark of this.pendingBookmarks.splice(0))
+            this.outlines?.add(bookmark, this.current, this.y);
         if (this.references.length === 1) {
             if (options.title)
                 await this.paragraph(options.title, { bold: true }, fontSize * 1.5, false, 1);
             if (options.messageTop)
                 await this.paragraph(options.messageTop, {}, fontSize, false);
         }
-        const headers = preparedHeadings ?? (tableHeadings && this.layout ? await this.layout.headers() : []), headerHeight = headers.reduce((n, h) => n + h.height, 0);
-        this.continuationTop = page.height - margins.top - headerHeight;
+        const headers = preparedHeadings ?? (tableHeadings && this.layout ? this.activeHeadings ??= await this.layout.headers() : []), headerHeight = headers.reduce((n, h) => n + h.height, 0), continuation = tableHeadings && this.layout ? this.continuationCaption : undefined;
+        if (continuation?.lines.length) {
+            if (this.continuationCaptionPaints++ === 0)
+                this.tableCaptionOwner = this.captionAnnotations(continuation, this.tableCaptionOwner);
+            await this.paragraphs([continuation], headerHeight + lineHeight + this.settings.padding * 2, true, { artifact: true, ...(this.tableCaptionOwner === undefined ? {} : { annotationParent: this.tableCaptionOwner }) });
+        }
+        this.continuationTop = page.height - margins.top - headerHeight - (continuation?.height ?? 0);
         if (this.y - headerHeight - lineHeight - this.settings.padding * 2 < margins.bottom)
             throw new RangeError("PDF title and repeated headings leave no room for a data line.");
-        if (tableHeadings && this.layout && this.structure && this.tableElement === undefined)
-            this.tableElement = this.structure.element("Table");
-        this.drawHeadings(headers);
+        if (tableHeadings && this.layout && this.structure && this.tableElement === undefined) {
+            this.tableElement = this.structure.element("Table", this.groupParent);
+            this.tableStructure = new PdfTableStructure(this.structure, this.tableElement, headers);
+            await this.tableStructure.prepareHeaders();
+        }
+        await this.drawHeadings(headers);
         this.dataTop = this.y;
     }
-    drawHeadings(headers) {
+    async drawHeadings(headers) {
         for (const header of headers) {
-            const elements = this.structure && this.tableElement !== undefined && !this.tableHeadingsDrawn ?
-                this.structure.tableRow(this.tableElement, header.cells.map(cell => cell.lines.some(line => line.text.trim().length > 0))) : undefined;
-            this.draw(header, 0, header.lines, elements);
+            // Prepared headings can be reused by continuation pages and several logical summary tables.
+            // Charge physical repeats without recapturing callbacks or making them semantic duplicates.
+            for (const cell of header.cells)
+                if (!this.bandCellBudget && this.paintedHeaderBudgetCells.has(cell.source ?? cell))
+                    this.settings.budget.cell(this.settings.budget.limits.maxTextCharacters === undefined ? "" : cell.lines.map(line => line.text).join(""));
+            const elements = this.tableStructure ? header.cells.map(cell => this.tableStructure.owner(cell.source ?? cell)) : undefined;
+            const repeated = header.cells.map(cell => this.paintedHeaderCells.has(cell.source ?? cell));
+            this.draw(header, 0, header.lines, elements, repeated);
+            for (const cell of header.cells) {
+                this.paintedHeaderCells.add(cell.source ?? cell);
+                this.paintedHeaderBudgetCells.add(cell.source ?? cell);
+            }
         }
-        if (headers.length)
-            this.tableHeadingsDrawn = true;
     }
-    rowElements(row) {
-        return this.structure && this.tableElement !== undefined ? this.structure.tableRow(this.tableElement, row.cells.map(() => false)) : undefined;
+    async rowElements(row) {
+        const source = row.source ?? row;
+        return this.tableStructure?.prepareRow(source, "data", this.tableElement, this.summaryRows.has(source) ? 0 : undefined);
     }
-    draw(row, firstLine, lineCount, elements) {
+    draw(row, firstLine, lineCount, elements, repeated = []) {
         if (!this.layout)
             throw new Error("A table layout is required before drawing rows.");
-        const { padding, fontSize } = this.settings, n = pdfNumber, height = lineCount * row.lineHeight + padding * 2;
+        this.bodyAdded = true;
+        const { padding, fontSize } = this.settings, n = pdfNumber, height = lineCount * row.lineHeight + padding * 2, lefts = this.layout.lefts;
+        // One geometry token per active physical column; table/band changes release the old tokens.
+        if (this.rectangleLefts !== lefts) {
+            this.rectangleLefts = lefts;
+            this.rectangleColumns = [];
+        }
+        let rectangleHeight, rectangleBottom = "", rectangleHeightText = "";
         for (const [index, cell] of row.cells.entries()) {
-            const x = this.layout.lefts[cell.first], cellHeight = cell.height ?? height;
-            if (cell.style.background)
-                this.add(this.artifact("q " + this.rgb(cell.style.background) + " rg " + n(x) + " " + n(this.y - cellHeight) + " " + n(cell.width) + " " + n(cellHeight) + " re f Q\n"));
-            this.add(this.artifact("q 0.82 0.85 0.89 RG 0.4 w " + n(x) + " " + n(this.y - cellHeight) + " " + n(cell.width) + " " + n(cellHeight) + " re S Q\n"));
-            if (cell.link) {
-                if (++this.hyperlinks > this.settings.limits.maxHyperlinks)
-                    throw new OfficeIMOError("RESOURCE_LIMIT", "maxHyperlinks exceeded.");
-                const annotation = linkAnnotation(cell.link, x, this.y - cellHeight, cell.width, cellHeight, this.settings.limits.maxPageBytes - this.commandBytes);
-                this.retainPageBytes(annotation.length);
-                this.annotations.push(annotation);
+            if (this.bandCellBudget)
+                this.settings.budget.cell(this.settings.budget.limits.maxTextCharacters === undefined ? "" :
+                    (cell.height === undefined ? cell.lines.slice(firstLine, firstLine + lineCount) : cell.lines).map(line => line.text).join(""));
+            const x = lefts[cell.first], cellHeight = cell.height ?? height;
+            if (cellHeight !== rectangleHeight) {
+                rectangleBottom = n(this.y - cellHeight);
+                rectangleHeightText = n(cellHeight);
+                rectangleHeight = cellHeight;
             }
+            let horizontal = this.rectangleColumns[cell.first];
+            if (!horizontal || horizontal.x !== x || horizontal.width !== cell.width) {
+                horizontal = { x, width: cell.width, left: n(x), widthText: n(cell.width) };
+                this.rectangleColumns[cell.first] = horizontal;
+            }
+            const rectangle = horizontal.left + " " + rectangleBottom + " " + horizontal.widthText + " " + rectangleHeightText;
+            if (cell.style.background)
+                this.add(this.artifact("q " + this.rgb(cell.style.background) + " rg " + rectangle + " re f Q\n"));
+            this.add(this.artifact("q 0.82 0.85 0.89 RG 0.4 w " + rectangle + " re S Q\n"));
+            const element = elements?.[index], artifact = cell.semanticArtifact || repeated[index], owner = cell.link && this.structure && element !== undefined ? this.structure.link(element, cell.link) : element;
             for (let line = firstLine; line < Math.min(cell.lines.length, cell.height ? cell.lines.length : firstLine + lineCount); line++) {
                 const text = cell.lines[line], left = cell.style.alignment === "right" ? cell.width - padding - text.width : cell.style.alignment === "center" ? (cell.width - text.width) / 2 : padding;
-                const ascent = (cell.font.program?.ascent ?? 800) * fontSize / 1000;
-                this.text(text.text, cell.font, fontSize, x + left, this.y - padding - ascent - (line - firstLine) * (row.structured ? cell.lineHeight : row.lineHeight), cell.style.color, elements?.[index]);
+                this.inline(text, fontSize, x + left, this.y - padding - text.ascent - (line - firstLine) * (row.structured ? cell.lineHeight : row.lineHeight), artifact ? undefined : owner, owner);
             }
+            if (cell.link)
+                this.link(cell.link, x, this.y - cellHeight, cell.width, cellHeight, owner);
         }
         this.y -= row.structured ? row.height : height;
+        this.sealCommands();
     }
     async block(rows) {
+        if (this.bandFlow)
+            return this.bandFlow.block(rows);
         const height = rows.reduce((n, row) => n + row.height, 0), bottom = this.settings.margins.bottom;
         if (height > this.y - bottom) {
             await this.finishPage();
@@ -5338,13 +9084,18 @@ class PdfPages {
         }
         if (height > this.dataTop - bottom)
             throw new RangeError("A structured footer must fit on one page below the repeated headings.");
-        for (const row of rows)
-            this.draw(row, 0, row.lines, this.rowElements(row));
+        for (const row of rows) {
+            const elements = await this.rowElements(row);
+            this.draw(row, 0, row.lines, elements);
+            await this.tableStructure?.completeRow(row.source ?? row);
+        }
     }
-    async row(row) {
-        const elements = this.rowElements(row);
+    async row(row, allowFirstFragment = false) {
+        if (this.bandFlow)
+            return this.bandFlow.row(row, allowFirstFragment);
+        const elements = await this.rowElements(row);
         const { margins, padding } = this.settings, full = this.continuationTop - margins.bottom;
-        if (row.height <= full + .001 && row.height > this.y - margins.bottom + .001) {
+        if (!allowFirstFragment && row.height <= full + .001 && row.height > this.y - margins.bottom + .001) {
             await this.finishPage();
             await this.start();
         }
@@ -5365,10 +9116,26 @@ class PdfPages {
                 await this.start();
             }
         }
+        await this.tableStructure?.completeRow(row.source ?? row);
+    }
+    /** Keep a last detail row and its closing subtotals together when the complete bundle fits below
+     * fresh repeated context/headings. Oversized bundles deliberately use ordinary row splitting. */
+    async keptRows(rows, allowFirstFragment = false) {
+        if (this.bandFlow)
+            return this.bandFlow.keptRows(rows, allowFirstFragment);
+        const height = rows.reduce((total, row) => total + row.height, 0), bottom = this.settings.margins.bottom;
+        const fits = height <= this.continuationTop - bottom + .001;
+        if (fits && height > this.y - bottom + .001) {
+            await this.finishPage();
+            await this.start();
+        }
+        for (const [index, row] of rows.entries())
+            await this.row(row, !fits && index === 0 && allowFirstFragment);
     }
     async paragraph(text, style = {}, size = this.settings.fontSize, paginate = true, headingLevel) {
+        await this.ensureStarted();
         const { margins, page, limits } = this.settings, font = this.fonts.select(style.bold, style.italic), lineHeight = font.lineHeight(size);
-        this.settings.budget.cell(text);
+        this.settings.budget.cell(pdfBudgetText(text, this.settings.budget));
         const lines = await wrapTextCooperatively(text, font, size, page.width - margins.left - margins.right, limits.maxCellCharacters, limits.maxRowLines, true, this.settings.options.signal);
         if (lineHeight > page.height - margins.top - margins.bottom)
             throw new RangeError("PDF page cannot fit a paragraph line at the selected font metrics.");
@@ -5381,51 +9148,276 @@ class PdfPages {
                 await this.start(false);
             }
             const x = style.alignment === "right" ? page.width - margins.right - line.width : style.alignment === "center" ? margins.left + (page.width - margins.left - margins.right - line.width) / 2 : margins.left;
+            this.bodyAdded = true;
             this.text(line.text, font, size, x, this.y - (font.program?.ascent ?? 800) * size / 1000, style.color, element);
             this.y -= lineHeight;
         }
         this.y -= 8;
+        await this.structure?.complete(element);
     }
-    /** Begin an independent table on the current page, retaining its headings on continuation pages. */
-    async beginTable(layout) {
+    /** Reserve a meaningful next fragment before painting a kept heading; never buffer a table. */
+    async reserveSpace(height, label = "Kept PDF content") {
+        await this.ensureStarted();
+        const { page, margins } = this.settings, full = page.height - margins.top - margins.bottom;
+        if (height > full + .001)
+            throw new RangeError(label + " exceeds a fresh page's content area.");
+        if (height > this.y - margins.bottom + .001)
+            await this.pageBreak();
+    }
+    /** Paint bounded paragraphs with their captured layout and a measured next-block fragment. */
+    async paragraphs(paragraphs, nextHeight = 0, keepTogether = false, frame = {}) {
+        const visible = paragraphs.filter(paragraph => paragraph.lines.length > 0);
+        if (!visible.length)
+            return;
+        await this.ensureStarted();
+        const reservations = new Array(visible.length).fill(0);
+        for (let i = visible.length - 1; i >= 0; i--) {
+            const paragraph = visible[i], next = visible[i + 1];
+            reservations[i] = paragraph.keepWithNext ? next ? next.keepTogether || next.keepWithNext ? next.height + reservations[i + 1] : next.firstHeight : nextHeight : 0;
+        }
+        if (keepTogether && visible.length)
+            await this.reserveSpace(visible.reduce((height, paragraph) => height + paragraph.height, 0) + reservations.at(-1), "Kept PDF paragraph group");
+        for (const [index, paragraph] of visible.entries()) {
+            if (paragraph.budgetOnPaint)
+                this.settings.budget.cell(pdfBudgetText(paragraph.text.text, this.settings.budget));
+            if (paragraph.keepTogether || paragraph.keepWithNext)
+                await this.reserveSpace(paragraph.height + reservations[index], "Kept PDF paragraph chain");
+            const { margins, page } = this.settings;
+            if (paragraph.firstHeight > page.height - margins.top - margins.bottom + .001)
+                throw new RangeError("PDF page cannot fit a paragraph line and its leading spacing.");
+            if (this.y - paragraph.firstHeight < margins.bottom)
+                await this.pageBreak();
+            this.y -= paragraph.spaceBefore;
+            if (paragraph.bookmark)
+                this.addBookmark(paragraph.bookmark);
+            const element = frame.artifact ? undefined : frame.owner ?? this.structure?.element(frame.role ?? (paragraph.headingLevel ? "H" + paragraph.headingLevel : "P"), frame.parent ?? this.groupParent);
+            let firstLine = true;
+            for (const line of paragraph.lines) {
+                if (line.lineHeight > page.height - margins.top - margins.bottom + .001)
+                    throw new RangeError("PDF page cannot fit a paragraph line at the selected font metrics.");
+                if (this.y - line.lineHeight < margins.bottom)
+                    await this.pageBreak();
+                const left = margins.left + (frame.indent ?? 0), width = page.width - margins.right - left;
+                const x = paragraph.style.alignment === "right" ? page.width - margins.right - line.width : paragraph.style.alignment === "center" ? left + (width - line.width) / 2 : left;
+                if (firstLine && frame.marker)
+                    this.inline(frame.marker.line, paragraph.size, left - frame.marker.gap - frame.marker.line.width, this.y - line.ascent, frame.marker.owner);
+                this.bodyAdded = true;
+                this.inline(line, paragraph.size, x, this.y - line.ascent, element, frame.annotationParent ?? element);
+                this.y -= line.lineHeight;
+                firstLine = false;
+            }
+            this.y -= paragraph.spaceAfter;
+            if (!frame.keepOpen)
+                await this.structure?.complete(element);
+        }
+    }
+    get groupParent() { return this.groups.at(-1)?.element; }
+    /** Nest a real report group around its visible heading, tables and closing summary. */
+    async beginGroup(level, heading, minimumNextHeight) {
+        if (level !== this.groups.length)
+            throw new Error("PDF analytical groups must open in hierarchical order.");
+        await this.ensureStarted();
+        const element = this.structure?.element("Sect", this.groupParent);
+        this.groups.push({ level, headingLevel: heading.headingLevel ?? level + 2, element });
+        await this.paragraphs([heading], minimumNextHeight, true, { role: "H" + (heading.headingLevel ?? level + 2), ...(element === undefined ? {} : { parent: element }) });
+    }
+    async endGroup(level) {
+        const current = this.groups.at(-1);
+        if (!current || current.level !== level)
+            throw new Error("PDF analytical groups must close in hierarchical order.");
+        await this.structure?.complete(current.element);
+        this.outlines?.closeGroup(current.headingLevel);
+        this.groups.pop();
+    }
+    /** The generated summary label is a row heading; no localized text/style inference is used. */
+    summary(row) { this.summaryRows.add(row); }
+    /** Begin an independent table on the current page, retaining its headings on continuation pages.
+     * Group context uses captionArtifact: it stays visually complete without duplicating logical headings.
+     * An already-painted opening path only suppresses its artifact caption on that existing page. */
+    async beginTable(layout, preparedHeadings, minimumDataHeight = layout.lineHeight + this.settings.padding * 2, caption, continuationCaption, headingsOnNewPageOnly = false, captionArtifact = false, openingContextAlreadyPainted = false) {
+        if (layout.bands)
+            return this.beginBands(layout, preparedHeadings, minimumDataHeight, caption, continuationCaption, captionArtifact, openingContextAlreadyPainted);
+        await this.ensureStarted();
         this.layout = layout;
-        this.tableElement = this.structure?.element("Table");
-        this.tableHeadingsDrawn = false;
-        const headings = await layout.headers(), height = headings.reduce((n, row) => n + row.height, 0);
-        if (this.y - height - layout.lineHeight - this.settings.padding * 2 < this.settings.margins.bottom) {
+        this.paintedHeaderCells = new WeakSet();
+        this.continuationCaption = continuationCaption;
+        this.continuationCaptionPaints = 0;
+        this.tableCaptionOwner = undefined;
+        this.tableElement = this.structure?.element("Table", this.groupParent);
+        const headings = preparedHeadings ?? await layout.headers();
+        this.activeHeadings = headings;
+        // A closing summary can share the preceding table's headings on the current page.
+        // Its own headings remain available when it moves or splits onto a fresh page.
+        const initialHeadings = headingsOnNewPageOnly && this.bodyAdded && !this.structure ? [] : headings;
+        const height = initialHeadings.reduce((n, row) => n + row.height, 0);
+        if (caption && !(captionArtifact && openingContextAlreadyPainted)) {
+            await this.reserveSpace(caption.height + height + minimumDataHeight, "Kept PDF table caption and first data fragment");
+            this.tableCaptionOwner = captionArtifact ? this.captionAnnotations(caption)
+                : caption.lines.length ? this.structure?.element("Caption", this.tableElement) : undefined;
+            await this.paragraphs([caption], height + minimumDataHeight, true, captionArtifact
+                ? { artifact: true, ...(this.tableCaptionOwner === undefined ? {} : { annotationParent: this.tableCaptionOwner }) }
+                : { role: "Caption", keepOpen: true, ...(this.tableCaptionOwner === undefined ? {} : { owner: this.tableCaptionOwner }) });
+        }
+        if (this.structure) {
+            this.tableStructure = new PdfTableStructure(this.structure, this.tableElement, headings);
+            await this.tableStructure.prepareHeaders();
+        }
+        if (this.y - height - minimumDataHeight < this.settings.margins.bottom) {
             await this.finishPage();
             await this.start(true, headings);
             return;
         }
-        this.continuationTop = this.settings.page.height - this.settings.margins.top - height;
-        this.drawHeadings(headings);
+        this.continuationTop = this.settings.page.height - this.settings.margins.top - headings.reduce((n, row) => n + row.height, 0) - (continuationCaption?.height ?? 0);
+        await this.drawHeadings(initialHeadings);
         this.dataTop = this.y;
     }
-    endTable() { this.layout = undefined; this.tableElement = undefined; this.tableHeadingsDrawn = false; this.y -= 8; }
-    async pageBreak() { await this.finishPage(); await this.start(false); }
+    /** Bind the bounded logical-window owner to the existing physical page painter. */
+    async beginBands(layout, preparedHeadings, minimumDataHeight, caption, continuation, captionArtifact, openingContextAlreadyPainted) {
+        await this.ensureStarted();
+        const logicalHeadings = preparedHeadings ?? await layout.headers(), headings = await layout.bandRows(logicalHeadings, true);
+        const headerHeight = headings[0].reduce((sum, row) => sum + row.height, 0), { page, margins, padding } = this.settings;
+        const firstFullCapacity = page.height - margins.top - margins.bottom - headerHeight - (caption?.height ?? 0);
+        const minimum = minimumDataHeight <= firstFullCapacity + .001 ? minimumDataHeight : layout.lineHeight + padding * 2;
+        const continuationCapacity = page.height - margins.top - margins.bottom - headerHeight - (continuation?.height ?? 0);
+        if (continuationCapacity + .001 < layout.lineHeight + padding * 2)
+            throw new RangeError("PDF band headings and continuation context leave no room for a data line.");
+        let openingContextPainted = captionArtifact && openingContextAlreadyPainted;
+        if (this.y - margins.bottom - headerHeight - (openingContextPainted ? 0 : caption?.height ?? 0) + .001 < minimum) {
+            await this.pageBreak();
+            openingContextPainted = false;
+        }
+        const firstCapacity = this.y - margins.bottom - headerHeight - (openingContextPainted ? 0 : caption?.height ?? 0);
+        if (firstCapacity + .001 < minimum)
+            throw new RangeError("PDF band caption and headings leave no room for a data line.");
+        let continuationPaints = 0;
+        this.tableElement = this.structure?.element("Table", this.groupParent);
+        this.paintedHeaderCells = new WeakSet();
+        let captionElement = this.structure && caption?.lines.length ? captionArtifact ? this.captionAnnotations(caption)
+            : this.structure.element("Caption", this.tableElement) : undefined;
+        if (this.structure) {
+            this.tableStructure = new PdfTableStructure(this.structure, this.tableElement, logicalHeadings);
+        }
+        this.layout = undefined;
+        this.continuationCaption = undefined;
+        this.activeHeadings = undefined;
+        this.bandFlow = new PdfTableBandFlow(layout, headings, { firstCapacity, firstFullCapacity, continuationCapacity,
+            prepareRow: async (row) => { await this.tableStructure?.prepareHeaders(); await this.rowElements(row); },
+            completeRow: async (row) => { await this.tableStructure?.completeRow(row.source ?? row); },
+            moveFirstToFreshPage: async () => { await this.pageBreak(); openingContextPainted = false; },
+            paint: async (band, headers, rows, currentCaption, firstWindow, firstBand) => {
+                if (!(firstWindow && firstBand))
+                    await this.pageBreak();
+                const frame = layout.bands[band];
+                this.layout = { lefts: frame.lefts, lineHeight: layout.lineHeight, headers: async () => headers };
+                this.bandCellBudget = true;
+                try {
+                    if (currentCaption?.lines.length && !(firstWindow && firstBand && openingContextPainted)) {
+                        if (!firstWindow && continuationPaints++ === 0)
+                            captionElement = this.captionAnnotations(currentCaption, captionElement);
+                        const annotationParent = captionElement;
+                        await this.paragraphs([currentCaption], headerHeight + minimum, true, firstWindow && firstBand && !captionArtifact ? { role: "Caption", keepOpen: true, ...(captionElement === undefined ? {} : { owner: captionElement }) }
+                            : { artifact: true, ...(annotationParent === undefined ? {} : { annotationParent }) });
+                    }
+                    await this.tableStructure?.prepareHeaders();
+                    await this.drawHeadings(headers);
+                    this.dataTop = this.y;
+                    for (const row of rows) {
+                        checkAbort(this.settings.options.signal);
+                        const elements = this.tableStructure ? row.cells.map(cell => this.tableStructure.owner(cell.source ?? cell)) : undefined;
+                        this.draw(row, 0, row.lines, elements);
+                    }
+                }
+                finally {
+                    this.bandCellBudget = false;
+                }
+            }
+        }, caption, continuation);
+    }
+    async endTable() {
+        if (this.bandFlow) {
+            const flow = this.bandFlow;
+            await flow.flush(true);
+            this.bandFlow = undefined;
+        }
+        await this.tableStructure?.finish();
+        this.layout = undefined;
+        this.tableElement = undefined;
+        this.tableStructure = undefined;
+        this.activeHeadings = undefined;
+        this.continuationCaption = undefined;
+        this.tableCaptionOwner = undefined;
+        this.continuationCaptionPaints = 0;
+        this.y -= 8;
+    }
+    /** Repeated context stays an artifact; its interactive links retain one authored label/owner. */
+    captionAnnotations(caption, existingOwner) {
+        if (!this.structure || !caption.text.runs.some(run => run.link && run.text.trim()))
+            return existingOwner;
+        const owner = existingOwner ?? this.structure.element("Caption", this.tableElement);
+        for (const run of caption.text.runs)
+            if (run.link && run.text.trim())
+                this.structure.link(owner, run.link, run.text);
+        return owner;
+    }
+    async pageBreak() { await this.ensureStarted(); await this.finishPage(); await this.start(false); }
     registerXObject(name, id) { this.externalObjects.set(name, id); }
+    /** Height after the existing fit-to-page graphic policy, used by heading keep constraints. */
+    graphicHeight(width, height) {
+        const { page, margins } = this.settings;
+        return height * Math.min(1, (page.width - margins.left - margins.right) / width, (page.height - margins.top - margins.bottom) / height);
+    }
     /** Place an indivisible graphic, preserving aspect ratio and scaling down to page bounds. */
-    async graphic(width, height, alignment, paint, alternativeText) {
+    async graphic(width, height, alignment, paint, alternativeText, caption) {
+        await this.ensureStarted();
         const { page, margins } = this.settings, available = page.width - margins.left - margins.right;
         const scale = Math.min(1, available / width, (page.height - margins.top - margins.bottom) / height);
         width *= scale;
         height *= scale;
+        const element = this.structure && alternativeText !== undefined ? this.structure.element("Figure", undefined, " /Alt <feff" + unicodeHex(alternativeText) + ">") : undefined;
+        if (caption) {
+            if (alternativeText === undefined)
+                throw new TypeError("A captioned PDF graphic requires alternativeText and cannot be decorative.");
+            await this.reserveSpace(caption.height + height, "Kept PDF graphic and caption");
+            await this.paragraphs([caption], height, true, { role: "Caption", ...(element === undefined ? {} : { parent: element }) });
+        }
         if (this.y - height < margins.bottom)
             await this.pageBreak();
         const left = alignment === "right" ? page.width - margins.right - width : alignment === "center" ? margins.left + (available - width) / 2 : margins.left;
         const command = paint(left, this.y - height, width, height);
-        const element = this.structure && alternativeText !== undefined ? this.structure.element("Figure", this.structure.document, " /Alt <feff" + unicodeHex(alternativeText) + ">") : undefined;
+        this.bodyAdded = true;
         this.add(this.structure && element !== undefined ? this.structure.mark(element) + command + "EMC\n" : this.artifact(command));
         this.y -= height + 8;
+        await this.structure?.complete(element);
+    }
+    async listItem(item, listOwner) {
+        await this.ensureStarted();
+        if (this.structure && listOwner === undefined)
+            throw new Error("A tagged list item requires a logical list owner.");
+        const li = this.structure?.element("LI", listOwner), label = li === undefined ? undefined : this.structure.element("Lbl", li), body = li === undefined ? undefined : this.structure.element("LBody", li);
+        await this.paragraphs([item.paragraph], 0, false, { ...(body === undefined ? {} : { parent: body }), role: "P", indent: item.indent,
+            marker: { line: item.marker, gap: item.markerGap, ...(label === undefined ? {} : { owner: label }) } });
+        await this.structure?.complete(li);
+    }
+    sealCommands() {
+        if (this.commands) {
+            this.commandParts.push(this.commands);
+            this.commands = "";
+        }
+    }
+    takeCommands() {
+        this.sealCommands();
+        const content = this.commandParts.join("");
+        // Encoding and awaited delivery own the page value; the next page starts independently.
+        this.commandParts = [];
+        return content;
     }
     async finishPage() {
         const contents = this.objects.reserve(), { page, options } = this.settings;
-        await this.objects.stream(contents, this.commands.join(""), "", options.compression !== false);
+        await this.objects.stream(contents, this.takeCommands(), "", options.compression !== false);
         const annotations = [];
         for (const annotation of this.annotations) {
-            const id = this.objects.reserve();
-            annotations.push(id);
-            await this.objects.object(id, annotation);
+            annotations.push(annotation.id);
+            await this.objects.object(annotation.id, annotation.body);
         }
         await this.objects.object(this.current, "<< /Type /Page /Parent " + this.parent + " 0 R /MediaBox [0 0 " + pdfNumber(page.width) + " " + pdfNumber(page.height) +
             "] /Resources " + this.resources + " 0 R /Contents " + contents + " 0 R" +
@@ -5433,18 +9425,25 @@ class PdfPages {
             (annotations.length ? " /Annots [" + annotations.map(id => id + " 0 R").join(" ") + "]" : "") + " >>");
         if (this.structure)
             await this.structure.finishPage();
-        this.commands = [];
         this.annotations = [];
         this.commandBytes = 0;
-        await this.objects.flush();
+        this.current = 0;
+        await this.objects.flushBytes();
     }
     async finish() {
+        if (this.bandFlow) {
+            const flow = this.bandFlow;
+            await flow.flush(true);
+            this.bandFlow = undefined;
+        }
+        await this.ensureStarted();
+        await this.tableStructure?.finish();
         await this.finishPage();
         if (this.totalPages) {
-            const font = this.fonts.select(), text = String(this.references.length), size = this.settings.fontSize;
-            this.settings.budget.cell(text);
+            const font = this.fonts.select(), count = String(this.references.length), text = count + (this.numberSettings.options.pageNumberLabels?.suffix ?? ""), size = this.numberSettings.fontSize;
+            this.settings.budget.cell(count);
             const content = "BT /" + font.name + " " + pdfNumber(size) + " Tf 1 0 0 1 0 0 Tm " + font.encode(text) + " Tj ET\n";
-            const width = wrapText(text, font, size, this.settings.page.width, 128, 1, false)[0].width;
+            const width = wrapText(text, font, size, this.numberSettings.page.width, this.settings.limits.maxCellCharacters, 1, false)[0].width;
             const bottom = (font.program?.bbox[1] ?? -250) * size / 1000 - 1, top = (font.program?.bbox[3] ?? 1000) * size / 1000 + 1;
             await this.objects.stream(this.totalPages, content, "/Type /XObject /Subtype /Form /BBox [-1 " + pdfNumber(bottom) + " " + pdfNumber(width + 1) + " " + pdfNumber(top) + "] /Resources << /Font " + this.fonts.dictionary() + " >>", this.settings.options.compression !== false);
         }
@@ -5457,18 +9456,164 @@ class PdfPages {
     }
 }
 const _exports = Object.freeze({ PdfPages: PdfPages });
-_modules.set("a4f0f1bd720d45f050b08151420d0025a5d2e48eb210998b38703468fd6770d1", _exports);
+_modules.set("3ed7114181be5a3066742336da574fef7f2fc04ee6dfc5e64211f3bedad4cab9", _exports);
 return _exports;
 })();
 
-const _m52 = _modules.get("02f5ec56b90e06e48c50b3843923c25999514fcf5341c6a187495a3e7e1455e8") ?? (() => {
+const _m81 = _modules.get("7a58e8ccb5164de51db14e39ca9695af6487c354df909509f0ae6bfac8ae3887") ?? (() => {
+/** @internal Incremental PDF number tree: at most 64 entries/children per retained level. */
+class PdfParentTree {
+    objects;
+    root;
+    entries = [];
+    levels = [];
+    lastKey = -1;
+    constructor(objects, root) {
+        this.objects = objects;
+        this.root = root;
+    }
+    async append(key, value) {
+        if (key <= this.lastKey)
+            throw new Error("PDF ParentTree keys must be appended in increasing order.");
+        this.lastKey = key;
+        this.entries.push({ key, value });
+        if (this.entries.length === 64)
+            await this.leaf();
+    }
+    async leaf() {
+        if (!this.entries.length)
+            return;
+        const id = this.objects.reserve(), first = this.entries[0].key, last = this.entries.at(-1).key;
+        const body = "<< /Limits [" + first + " " + last + "] /Nums [" + this.entries.map(entry => entry.key + " " + entry.value + " 0 R").join(" ") + "] >>";
+        this.entries.length = 0;
+        await this.objects.object(id, body);
+        await this.node({ id, first, last }, 0);
+    }
+    async node(node, level) {
+        const nodes = this.levels[level] ??= [];
+        nodes.push(node);
+        if (nodes.length === 64) {
+            const parent = await this.branch(nodes);
+            nodes.length = 0;
+            await this.node(parent, level + 1);
+        }
+    }
+    async branch(nodes) {
+        const id = this.objects.reserve(), first = nodes[0].first, last = nodes.at(-1).last;
+        await this.objects.object(id, "<< /Limits [" + first + " " + last + "] /Kids [" + nodes.map(node => node.id + " 0 R").join(" ") + "] >>");
+        return { id, first, last };
+    }
+    async finish() {
+        await this.leaf();
+        // Lower levels contain the newest tail; combine it upward after all older siblings.
+        for (let level = 0; level < this.levels.length - 1; level++) {
+            const nodes = this.levels[level];
+            if (nodes.length) {
+                const parent = await this.branch(nodes);
+                nodes.length = 0;
+                await this.node(parent, level + 1);
+            }
+        }
+        const nodes = this.levels.at(-1) ?? [];
+        await this.objects.object(this.root, nodes.length ? "<< /Kids [" + nodes.map(node => node.id + " 0 R").join(" ") + "] >>" : "<< /Nums [] >>");
+    }
+}
+const _exports = Object.freeze({ PdfParentTree: PdfParentTree });
+_modules.set("7a58e8ccb5164de51db14e39ca9695af6487c354df909509f0ae6bfac8ae3887", _exports);
+return _exports;
+})();
+
+const _m80 = _modules.get("1c1828a3d6dfc2edda674566203e7aa8e97c984114b7928df13cb373859977d0") ?? (() => {
 const { OfficeIMOError } = _m2;
 
 const { checkAbort } = _m4;
 
-const { unicodeHex } = _m40;
+const { unicodeHex } = _m60;
 
-/** @internal Logical elements outlive page painting so split paragraphs/cells keep one identity. */
+const { PdfParentTree } = _m81;
+
+/** Same-page marked content uses integer K; cross-page MCR and annotation OBJR stay explicit. */
+function structureChild(child) {
+    return typeof child === "number" ? (child < 0 ? -child - 1 + " " : child + " 0 R ") : child + " ";
+}
+function structurePrefix(element) {
+    return "<< /Type /StructElem /S /" + element.role + " /P " + element.parent + " 0 R" +
+        (element.markedPage === undefined ? "" : " /Pg " + element.markedPage + " 0 R") +
+        (element.identifier === undefined ? "" : " /ID (" + element.identifier + ")") + " /K [";
+}
+/** Keep the same bounded small-object representation for both completion paths. */
+function compactStructureBody(element, prefix) {
+    const remaining = 32768 - prefix.length - element.attributes.length - 4;
+    if (remaining < 0)
+        return undefined;
+    let children = "";
+    for (const child of element.children) {
+        const token = structureChild(child);
+        if (children.length + token.length > remaining)
+            return undefined;
+        children += token;
+    }
+    return prefix + children + "]" + element.attributes + " >>";
+}
+/** A sorted name tree retains only a small open leaf and branch at each level. */
+class PdfStructureIds {
+    objects;
+    root;
+    entries = [];
+    levels = [];
+    lastKey = "";
+    constructor(objects, root) {
+        this.objects = objects;
+        this.root = root;
+    }
+    async append(key, value) {
+        if (key <= this.lastKey)
+            throw new Error("PDF structure IDs must be appended in increasing order.");
+        this.lastKey = key;
+        this.entries.push({ key, value });
+        if (this.entries.length === 64)
+            await this.leaf();
+    }
+    async leaf() {
+        if (!this.entries.length)
+            return;
+        const id = this.objects.reserve(), first = this.entries[0].key, last = this.entries.at(-1).key;
+        const body = "<< /Limits [(" + first + ") (" + last + ")] /Names [" +
+            this.entries.map(entry => "(" + entry.key + ") " + entry.value + " 0 R").join(" ") + "] >>";
+        this.entries.length = 0;
+        await this.objects.object(id, body);
+        await this.node({ id, first, last }, 0);
+    }
+    async node(node, level) {
+        const nodes = this.levels[level] ??= [];
+        nodes.push(node);
+        if (nodes.length === 64) {
+            const parent = await this.branch(nodes);
+            nodes.length = 0;
+            await this.node(parent, level + 1);
+        }
+    }
+    async branch(nodes) {
+        const id = this.objects.reserve(), first = nodes[0].first, last = nodes.at(-1).last;
+        await this.objects.object(id, "<< /Limits [(" + first + ") (" + last + ")] /Kids [" +
+            nodes.map(node => node.id + " 0 R").join(" ") + "] >>");
+        return { id, first, last };
+    }
+    async finish() {
+        await this.leaf();
+        for (let level = 0; level < this.levels.length - 1; level++) {
+            const nodes = this.levels[level];
+            if (nodes.length) {
+                const parent = await this.branch(nodes);
+                nodes.length = 0;
+                await this.node(parent, level + 1);
+            }
+        }
+        const nodes = this.levels.at(-1) ?? [];
+        await this.objects.object(this.root, nodes.length ? "<< /Kids [" + nodes.map(node => node.id + " 0 R").join(" ") + "] >>" : "<< /Names [] >>");
+    }
+}
+/** @internal Only open logical elements retain content; completed subtrees retain compact parent references. */
 class PdfStructure {
     objects;
     settings;
@@ -5476,61 +9621,193 @@ class PdfStructure {
     document;
     parentTree;
     elements = new Map();
-    pageEntries = [];
+    parentTreeWriter;
+    annotations = [];
+    links = new WeakMap();
+    identifiers;
     pageParents = [];
     pageId = 0;
-    pageCount = 0;
+    pageKey = 0;
+    nextParentKey = 0;
     references = 0;
+    allocated = 0;
+    section;
     constructor(objects, settings) {
         this.objects = objects;
         this.settings = settings;
         this.root = objects.reserve();
         this.parentTree = objects.reserve();
+        this.parentTreeWriter = new PdfParentTree(objects, this.parentTree);
         this.document = this.element("Document", this.root);
     }
-    element(role, parent = this.document, attributes = "") {
+    element(role, parent = this.section ?? this.document, attributes = "") {
         checkAbort(this.settings.options.signal);
-        if (this.elements.size >= this.settings.limits.maxStructureElements)
+        if (++this.allocated > this.settings.limits.maxStructureElements)
             throw new OfficeIMOError("RESOURCE_LIMIT", "maxStructureElements exceeded.");
         const id = this.objects.reserve(), element = { id, parent, role, children: [], attributes };
         this.elements.set(id, element);
-        this.elements.get(parent)?.children.push(id + " 0 R");
+        const owner = this.elements.get(parent);
+        // A continuation-only linked caption is discovered during painting, after rows may exist.
+        // Its one logical Caption still precedes the Table's rows; other owners retain source order.
+        if (role === "Caption" && owner?.role === "Table")
+            owner.children.unshift(id);
+        else
+            owner?.children.push(id);
         return id;
     }
-    tableRow(table, headers) {
-        const row = this.element("TR", table);
-        return headers.map(header => this.element(header ? "TH" : "TD", row, header ? " /A << /O /Table /Scope /Column >>" : ""));
+    /** Attach resolved table associations while a source-ordered logical element is still open. */
+    setAttributes(elementId, attributes) {
+        const element = this.elements.get(elementId);
+        if (!element)
+            throw new Error("PDF structure attributes require an open logical owner.");
+        element.attributes = attributes;
     }
-    beginPage(pageId) { this.pageId = pageId; this.pageParents = []; this.pageCount++; }
+    /** Write one immutable attribute dictionary. Its caller owns the bounded scope of reference reuse. */
+    async attributeReference(dictionary) {
+        checkAbort(this.settings.options.signal);
+        const id = this.objects.reserve();
+        await this.objects.object(id, dictionary);
+        return " /A " + id + " 0 R";
+    }
+    /** Flat visual sections share the same logical Document and cumulative resource policy. */
+    async beginSection() {
+        await this.complete(this.section);
+        this.section = this.element("Sect", this.document);
+    }
+    /** Register an explicit header identity in allocation order, without retaining completed headers. */
+    async identifier(elementId) {
+        checkAbort(this.settings.options.signal);
+        const element = this.elements.get(elementId);
+        if (!element)
+            throw new Error("PDF structure IDs require an open logical owner.");
+        if (element.identifier !== undefined)
+            return element.identifier;
+        // Object numbers increase monotonically. Fixed-width ASCII preserves name-tree lexical ordering.
+        const identifier = "e" + String(elementId).padStart(16, "0");
+        this.identifiers ??= new PdfStructureIds(this.objects, this.objects.reserve());
+        await this.identifiers.append(identifier, elementId);
+        element.identifier = identifier;
+        return identifier;
+    }
+    beginPage(pageId) { this.pageId = pageId; this.pageParents = []; this.pageKey = this.nextParentKey++; }
+    /** A source link retains one logical identity when its text/annotation continues on another page. */
+    link(parent, identity, alternativeText) {
+        let parents = this.links.get(identity);
+        if (!parents) {
+            parents = new Map();
+            this.links.set(identity, parents);
+        }
+        const existing = parents.get(parent);
+        if (existing !== undefined)
+            return existing;
+        const id = this.element("Link", parent, alternativeText === undefined ? "" : " /Alt <feff" + unicodeHex(alternativeText) + ">");
+        parents.set(parent, id);
+        const owner = this.elements.get(parent);
+        (owner.linkIdentities ??= []).push(identity);
+        return id;
+    }
+    /** Associate a native annotation in both directions: OBJR child and annotation ParentTree entry. */
+    annotation(elementId, annotationId) {
+        checkAbort(this.settings.options.signal);
+        const element = this.elements.get(elementId);
+        if (!element || element.role !== "Link")
+            throw new Error("Tagged link annotations require a logical Link owner.");
+        const key = this.nextParentKey++;
+        element.children.push("<< /Type /OBJR /Obj " + annotationId + " 0 R /Pg " + this.pageId + " 0 R >>");
+        this.annotations.push({ key, owner: elementId });
+        return key;
+    }
     /** Every MCID is local to its page; its parent entry points back to the owning logical element. */
-    mark(elementId) {
+    mark(elementId, actualText) {
         if (++this.references > this.settings.limits.maxMarkedContentReferences)
             throw new OfficeIMOError("RESOURCE_LIMIT", "maxMarkedContentReferences exceeded.");
         const element = this.elements.get(elementId);
+        if (!element)
+            throw new Error("Marked content requires an open logical owner.");
         const mcid = this.pageParents.length;
         this.pageParents.push(elementId);
-        element.children.push("<< /Type /MCR /Pg " + this.pageId + " 0 R /MCID " + mcid + " >>");
-        return "/" + element.role + " << /MCID " + mcid + " >> BDC\n";
+        element.markedPage ??= this.pageId;
+        element.children.push(element.markedPage === this.pageId ? -(mcid + 1) :
+            "<< /Type /MCR /Pg " + this.pageId + " 0 R /MCID " + mcid + " >>");
+        return "/" + element.role + " << /MCID " + mcid + (actualText === undefined ? "" : " /ActualText <FEFF" + unicodeHex(actualText) + ">") + " >> BDC\n";
     }
-    get pageDictionary() { return " /StructParents " + (this.pageCount - 1) + " /Tabs /S"; }
+    get pageDictionary() { return " /StructParents " + this.pageKey + " /Tabs /S"; }
     get catalogDictionary() {
         return " /MarkInfo << /Marked true >> /Lang <feff" + unicodeHex(this.settings.options.tagged.language) + "> /StructTreeRoot " + this.root + " 0 R";
     }
     async finishPage() {
         const array = this.objects.reserve();
         await this.objects.object(array, "[" + this.pageParents.map(id => id + " 0 R").join(" ") + "]");
-        this.pageEntries.push((this.pageCount - 1) + " " + array + " 0 R");
+        await this.parentTreeWriter.append(this.pageKey, array);
+        for (const annotation of this.annotations)
+            await this.parentTreeWriter.append(annotation.key, annotation.owner);
+        this.annotations.length = 0;
         this.pageParents = [];
     }
-    async finish() {
-        for (const element of this.elements.values()) {
-            checkAbort(this.settings.options.signal);
-            await this.objects.object(element.id, "<< /Type /StructElem /S /" + element.role + " /P " + element.parent +
-                " 0 R /K [" + element.children.join(" ") + "]" + element.attributes + " >>");
+    /** Complete only after the last fragment/annotation; split content keeps the same owner until then. */
+    async complete(id) {
+        if (id === undefined)
+            return;
+        const element = this.elements.get(id);
+        if (!element)
+            return;
+        for (const child of element.children)
+            if (typeof child === "number" && child > 0 && !this.completeBuffered(child))
+                await this.complete(child);
+        checkAbort(this.settings.options.signal);
+        const prefix = structurePrefix(element), body = compactStructureBody(element, prefix);
+        // Most table cells/rows fit in one encoding. Large parents and alternatives remain streamed.
+        if (body !== undefined) {
+            if (!this.objects.tryCompactObject(id, body))
+                await this.objects.compactObject(id, body);
         }
-        await this.objects.object(this.parentTree, "<< /Nums [" + this.pageEntries.join(" ") + "] >>");
+        else
+            await this.objects.object(id, this.body(element, prefix));
+        this.releaseElement(element);
+    }
+    /** Close already-bufferable children without creating an async chain per leaf. A false result
+     * leaves the current owner open for the existing awaited flush or ordinary-object path. */
+    completeBuffered(id) {
+        const element = this.elements.get(id);
+        if (!element)
+            return true;
+        for (const child of element.children)
+            if (typeof child === "number" && child > 0 && !this.completeBuffered(child))
+                return false;
+        checkAbort(this.settings.options.signal);
+        const body = compactStructureBody(element, structurePrefix(element));
+        if (body === undefined || !this.objects.tryCompactObject(id, body))
+            return false;
+        this.releaseElement(element);
+        return true;
+    }
+    releaseElement(element) {
+        if (element.linkIdentities)
+            for (const identity of element.linkIdentities) {
+                const parents = this.links.get(identity);
+                parents?.delete(element.id);
+                if (!parents?.size)
+                    this.links.delete(identity);
+            }
+        this.elements.delete(element.id);
+    }
+    *body(element, prefix) {
+        yield prefix;
+        for (const child of element.children)
+            yield structureChild(child);
+        yield "]" + element.attributes + " >>";
+    }
+    async completeRow(cells) {
+        if (cells?.length)
+            await this.complete(this.elements.get(cells[0])?.parent);
+    }
+    async finish() {
+        await this.complete(this.document);
+        await this.parentTreeWriter.finish();
+        await this.identifiers?.finish();
         await this.objects.object(this.root, "<< /Type /StructTreeRoot /K [" + this.document + " 0 R] /ParentTree " +
-            this.parentTree + " 0 R /ParentTreeNextKey " + this.pageCount + " >>");
+            this.parentTree + " 0 R /ParentTreeNextKey " + this.nextParentKey +
+            (this.identifiers ? " /IDTree " + this.identifiers.root + " 0 R" : "") + " >>");
     }
 }
 /** Validate author intent even in untagged output so a later opt-in cannot silently change meaning. */
@@ -5554,20 +9831,86 @@ function graphicAlternative(value, settings) {
     return alternativeText;
 }
 const _exports = Object.freeze({ PdfStructure: PdfStructure, graphicAlternative: graphicAlternative });
-_modules.set("02f5ec56b90e06e48c50b3843923c25999514fcf5341c6a187495a3e7e1455e8", _exports);
+_modules.set("1c1828a3d6dfc2edda674566203e7aa8e97c984114b7928df13cb373859977d0", _exports);
 return _exports;
 })();
 
-const _m39 = _modules.get("ad774d489a449828908a0071c4cdc800350f8af0fccf1eaeb3c52c4890797833") ?? (() => {
-const { PdfObjects, unicodeHex } = _m40;
+const _m82 = _modules.get("52c78ca6833cee7e5a96b657e2c00172d550176daf2c95e742692f8416977bea") ?? (() => {
+const { OfficeIMOError } = _m2;
 
-const { PdfFontResources } = _m41;
+const { checkAbort } = _m4;
 
-const { PdfTableLayout } = _m48;
+const { pdfNumber, unicodeHex } = _m60;
 
-const { PdfPages } = _m50;
+/** @internal Bounded native bookmarks; destinations are captured only when their content is painted. */
+class PdfOutlines {
+    objects;
+    settings;
+    root;
+    items = [];
+    top = [];
+    stack = [];
+    constructor(objects, settings) {
+        this.objects = objects;
+        this.settings = settings;
+    }
+    add(bookmark, page, y) {
+        checkAbort(this.settings.options.signal);
+        if (this.items.length >= this.settings.limits.maxBookmarks)
+            throw new OfficeIMOError("RESOURCE_LIMIT", "maxBookmarks exceeded.");
+        this.root ??= this.objects.reserve();
+        const level = bookmark.level ?? 1;
+        while (this.stack.length && this.stack.at(-1).level >= level)
+            this.stack.pop();
+        const parent = this.stack.at(-1), siblings = parent?.children ?? this.top, previous = siblings.at(-1);
+        const item = { id: this.objects.reserve(), title: bookmark.title, page, y, level,
+            parent: parent?.id ?? this.root, children: [], previous: previous?.id, next: undefined };
+        if (previous)
+            previous.next = item.id;
+        siblings.push(item);
+        this.items.push(item);
+        this.stack.push(item);
+    }
+    get count() { return this.items.length; }
+    /** A completed analytical group cannot parent later groups, including unnamed ones. */
+    closeGroup(level) {
+        while (this.stack.length && this.stack.at(-1).level >= level)
+            this.stack.pop();
+    }
+    get catalogDictionary() { return this.root === undefined ? "" : " /Outlines " + this.root + " 0 R"; }
+    async finish() {
+        if (this.root === undefined)
+            return;
+        const descendants = new Map();
+        for (const item of [...this.items].reverse())
+            descendants.set(item.id, item.children.reduce((n, child) => n + 1 + descendants.get(child.id), 0));
+        for (const item of this.items) {
+            checkAbort(this.settings.options.signal);
+            await this.objects.object(item.id, "<< /Title <feff" + unicodeHex(item.title) + "> /Parent " + item.parent + " 0 R" +
+                (item.previous === undefined ? "" : " /Prev " + item.previous + " 0 R") + (item.next === undefined ? "" : " /Next " + item.next + " 0 R") +
+                (item.children.length ? " /First " + item.children[0].id + " 0 R /Last " + item.children.at(-1).id + " 0 R /Count " + descendants.get(item.id) : "") +
+                " /Dest [" + item.page + " 0 R /XYZ null " + pdfNumber(item.y) + " null] >>");
+        }
+        await this.objects.object(this.root, "<< /Type /Outlines /First " + this.top[0].id + " 0 R /Last " + this.top.at(-1).id + " 0 R /Count " + this.items.length + " >>");
+    }
+}
+const _exports = Object.freeze({ PdfOutlines: PdfOutlines });
+_modules.set("52c78ca6833cee7e5a96b657e2c00172d550176daf2c95e742692f8416977bea", _exports);
+return _exports;
+})();
 
-const { PdfStructure } = _m52;
+const _m59 = _modules.get("afdad27eb363e8de0c3bd69ebf358860eb76f5c6fb29f43a87635807cb7fc273") ?? (() => {
+const { PdfObjects, unicodeHex } = _m60;
+
+const { PdfFontResources } = _m62;
+
+const { PdfTableLayout } = _m69;
+
+const { PdfPages } = _m74;
+
+const { PdfStructure } = _m80;
+
+const { PdfOutlines } = _m82;
 
 /** One resource/catalog owner shared by table convenience exports and composed documents. */
 class PdfWriteSession {
@@ -5577,26 +9920,31 @@ class PdfWriteSession {
     pages;
     layout;
     structure;
+    outlines;
     root;
     parent;
     resources;
     info;
     constructor(sink, settings, table = false) {
         this.settings = settings;
-        this.objects = new PdfObjects(sink, settings.options.signal, settings.options.limits?.maxOutputBytes);
+        this.objects = new PdfObjects(sink, settings.options.signal, settings.budget.limits.maxOutputBytes, settings.options.compression !== false);
         this.root = this.objects.reserve();
         this.parent = this.objects.reserve();
         this.resources = this.objects.reserve();
         this.info = this.objects.reserve();
         this.structure = settings.options.tagged ? new PdfStructure(this.objects, settings) : undefined;
-        this.fonts = new PdfFontResources(this.objects, settings.options.fonts, settings.limits.maxFontBytes);
+        this.outlines = new PdfOutlines(this.objects, settings);
+        this.fonts = new PdfFontResources(this.objects, settings.options.fonts, settings.limits.maxFontBytes, settings.options.signal);
         this.layout = table ? new PdfTableLayout(settings, this.fonts) : undefined;
-        this.pages = new PdfPages(this.objects, settings, this.fonts, this.parent, this.resources, this.layout, this.structure);
+        this.pages = new PdfPages(this.objects, settings, this.fonts, this.parent, this.resources, this.layout, this.structure, this.outlines);
     }
     async start() {
         await this.objects.text("%PDF-1.7\n");
         await this.objects.raw(Uint8Array.of(0x25, 0xe2, 0xe3, 0xcf, 0xd3, 0x0a));
-        await this.pages.start(this.layout !== undefined);
+        if (this.layout?.bands)
+            await this.pages.beginTable(this.layout);
+        else if (this.layout)
+            await this.pages.start(true);
     }
     async finish() {
         const { options } = this.settings, { objects, fonts, pages } = this;
@@ -5607,28 +9955,29 @@ class PdfWriteSession {
         await objects.object(this.parent, "<< /Type /Pages /Count " + pages.references.length + " /Kids [" + pages.references.map(id => id + " 0 R").join(" ") + "] >>");
         if (this.structure)
             await this.structure.finish();
-        await objects.object(this.root, "<< /Type /Catalog /Pages " + this.parent + " 0 R" + (this.structure?.catalogDictionary ?? "") + " >>");
+        await this.outlines.finish();
+        await objects.object(this.root, "<< /Type /Catalog /Pages " + this.parent + " 0 R" + (this.structure?.catalogDictionary ?? "") + this.outlines.catalogDictionary + " >>");
         await objects.object(this.info, "<< /Producer (OfficeIMO.js)" + (options.title === undefined ? "" : " /Title <feff" + unicodeHex(options.title) + ">") + " >>");
         await objects.finish(this.root, this.info);
     }
 }
 const _exports = Object.freeze({ PdfWriteSession: PdfWriteSession });
-_modules.set("ad774d489a449828908a0071c4cdc800350f8af0fccf1eaeb3c52c4890797833", _exports);
+_modules.set("afdad27eb363e8de0c3bd69ebf358860eb76f5c6fb29f43a87635807cb7fc273", _exports);
 return _exports;
 })();
 
-const _m36 = _modules.get("4969bbb2096ba0eeccc8a9d16cd29b5d46af6bc204f03d80e6f058d62eef1779") ?? (() => {
+const _m55 = _modules.get("45cf9fd6b6293c1a83bc8554e1bcb5cf119f44701fbad7849f39a712cab5074b") ?? (() => {
 const { BlobByteSink, withDestination } = _m3;
 
 const { beginTask, checkAbort, consumeRows, pause, taskYieldDue } = _m4;
 
-const { notifyProgress } = _m8;
+const { notifyProgress } = _m14;
 
 const { createRowProjector } = _m11;
 
-const { settings } = _m37;
+const { settings } = _m56;
 
-const { PdfWriteSession } = _m39;
+const { PdfWriteSession } = _m59;
 
 async function writePdf(rows, configuration) {
     const sink = new BlobByteSink();
@@ -5671,6 +10020,8 @@ async function writePdfTo(rows, destination, configuration) {
             else
                 await pages.row(footer[0]);
         }
+        if (layout.bands)
+            await pages.endTable();
         if (options.messageBottom)
             await pages.paragraph(options.messageBottom);
         await session.finish();
@@ -5680,23 +10031,27 @@ async function writePdfTo(rows, destination, configuration) {
     });
 }
 const _exports = Object.freeze({ writePdf: writePdf, writePdfTo: writePdfTo });
-_modules.set("4969bbb2096ba0eeccc8a9d16cd29b5d46af6bc204f03d80e6f058d62eef1779", _exports);
+_modules.set("45cf9fd6b6293c1a83bc8554e1bcb5cf119f44701fbad7849f39a712cab5074b", _exports);
 return _exports;
 })();
 
-const _m55 = _modules.get("19f325186cdc3272e443cab61ed42b88c8c88b629c0e9c36090f0359c1aa267b") ?? (() => {
+const _m86 = _modules.get("749d1ec5422c0087787f525ef42e3b8d3a94d2b70eb5e42d2e3723a870777ad6") ?? (() => {
 const { NotSupportedError, OfficeIMOError } = _m2;
 
 const { checkAbort, pause, taskYieldDue, withAbort } = _m4;
 
-const { Crc32 } = _m20;
+const { Crc32 } = _m28;
 
 const signature = [137, 80, 78, 71, 13, 10, 26, 10];
 const unsupportedChunks = new Set(["PLTE", "tRNS", "iCCP", "sRGB", "gAMA", "cHRM", "cICP", "mDCV", "cLLI", "sBIT", "eXIf", "acTL", "fcTL", "fdAT"]);
 /** Decode the static unprofiled 8-bit RGB/RGBA profile without canvas or a second compression engine. */
-async function pngPixels(inputSource, maxPixels, signal) {
+async function pngPixels(inputSource, maxPixels, signal, maxWorkingBytes) {
     checkAbort(signal);
     const shape = pngShape(inputSource, maxPixels);
+    const imagePixels = shape.width * shape.height;
+    const workingBytes = inputSource.length + imagePixels * shape.components + (shape.components === 4 ? shape.width * 8 : 0);
+    if (maxWorkingBytes !== undefined && workingBytes > maxWorkingBytes)
+        throw new OfficeIMOError("RESOURCE_LIMIT", "maxImageWorkingBytes exceeded by PNG source, image planes and scanlines.");
     const source = new Uint8Array(inputSource);
     const header = await pngHeader(source, shape, signal);
     checkAbort(signal);
@@ -5714,26 +10069,12 @@ async function pngPixels(inputSource, maxPixels, signal) {
     // All dimensions and the exact filtered length are bounded before allocating decoded pixels.
     if (!Number.isSafeInteger(expected) || expected > 0x7fffffff)
         throw new OfficeIMOError("RESOURCE_LIMIT", "PNG filtered data exceeds the supported decoded byte length.");
-    const pixels = new Uint8Array(rowBytes * height), view = new DataView(source.buffer, source.byteOffset, source.byteLength);
-    let chunk = header.firstData, position = chunk + 8, end = position + view.getUint32(chunk);
-    const input = new ReadableStream({ pull(controller) {
-            checkAbort(signal);
-            while (position === end && chunk < header.dataEnd) {
-                chunk = end + 4;
-                if (chunk === header.dataEnd) {
-                    controller.close();
-                    return;
-                }
-                position = chunk + 8;
-                end = position + view.getUint32(chunk);
-            }
-            // Limit the input given to the platform inflater between downstream length checks.
-            const next = Math.min(end, position + 4096);
-            controller.enqueue(source.subarray(position, next));
-            position = next;
-        } }, { highWaterMark: 0 });
-    const reader = input.pipeThrough(stream).getReader();
-    let inflated = 0, output = 0, column = 0, filter = 0;
+    // RGBA is reconstructed one scanline at a time directly into PDF RGB/alpha planes.
+    // It never retains an additional full interleaved RGBA image.
+    const pixels = new Uint8Array(width * height * 3), alpha = components === 4 ? new Uint8Array(imagePixels) : undefined;
+    let previous = components === 4 ? new Uint8Array(rowBytes) : undefined, current = components === 4 ? new Uint8Array(rowBytes) : undefined;
+    const reader = pngCompressedInput(source, header, signal).pipeThrough(stream).getReader();
+    let inflated = 0, output = 0, rgbOutput = 0, alphaOutput = 0, column = 0, filter = 0;
     try {
         while (true) {
             const item = await withAbort(reader.read(), signal).catch(cause => {
@@ -5753,13 +10094,44 @@ async function pngPixels(inputSource, maxPixels, signal) {
                         throw new TypeError("Invalid PNG scanline filter.");
                 }
                 else {
-                    const left = column > components ? pixels[output - components] : 0;
-                    const up = output >= rowBytes ? pixels[output - rowBytes] : 0;
-                    const upperLeft = column > components && output >= rowBytes ? pixels[output - rowBytes - components] : 0;
-                    pixels[output++] = value + (filter === 0 ? 0 : filter === 1 ? left : filter === 2 ? up :
-                        filter === 3 ? Math.floor((left + up) / 2) : paeth(left, up, upperLeft));
+                    const index = column - 1;
+                    let decoded = value;
+                    if (filter !== 0) {
+                        const left = column > components ? current ? current[index - components] : pixels[output - components] : 0;
+                        const up = previous ? previous[index] : output >= rowBytes ? pixels[output - rowBytes] : 0;
+                        const upperLeft = column > components ? previous ? previous[index - components] : output >= rowBytes ? pixels[output - rowBytes - components] : 0 : 0;
+                        decoded = (value + (filter === 1 ? left : filter === 2 ? up :
+                            filter === 3 ? Math.floor((left + up) / 2) : paeth(left, up, upperLeft))) & 255;
+                    }
+                    if (current)
+                        current[index] = decoded;
+                    else
+                        pixels[output] = decoded;
+                    output++;
                 }
-                column = column === rowBytes ? 0 : column + 1;
+                if (column === rowBytes) {
+                    column = 0;
+                    if (current && alpha) {
+                        // Split each completed row once: no per-byte division or channel dispatch,
+                        // and filter reconstruction still uses only these same two scanlines.
+                        for (let c = 0; c < rowBytes; c += 4) {
+                            pixels[rgbOutput++] = current[c];
+                            pixels[rgbOutput++] = current[c + 1];
+                            pixels[rgbOutput++] = current[c + 2];
+                            alpha[alphaOutput++] = current[c + 3];
+                            if ((c & 16383) === 16380) {
+                                if (taskYieldDue())
+                                    await pause();
+                                checkAbort(signal);
+                            }
+                        }
+                        const completed = current;
+                        current = previous;
+                        previous = completed;
+                    }
+                }
+                else
+                    column++;
                 if ((p & 16383) === 16383) {
                     if (taskYieldDue())
                         await pause();
@@ -5773,7 +10145,8 @@ async function pngPixels(inputSource, maxPixels, signal) {
         }
         if (inflated !== expected)
             throw new TypeError("PNG inflated bytes must match the exact IHDR scanline length.");
-        return { width, height, components, data: pixels };
+        await verifyPngZlibEnd(source, header, expected, signal);
+        return { width, height, components: 3, data: pixels, ...(alpha ? { alpha } : {}) };
     }
     catch (error) {
         void reader.cancel(error).catch(() => { });
@@ -5783,10 +10156,70 @@ async function pngPixels(inputSource, maxPixels, signal) {
         reader.releaseLock();
     }
 }
+/** Feed bounded IDAT slices without retaining another copy of the compressed image. */
+function pngCompressedInput(source, header, signal, changeLastByte = false) {
+    const view = new DataView(source.buffer, source.byteOffset, source.byteLength);
+    let chunk = header.firstData, position = chunk + 8, end = position + view.getUint32(chunk);
+    return new ReadableStream({ pull(controller) {
+            checkAbort(signal);
+            while (position === end) {
+                chunk = end + 4;
+                if (chunk === header.dataEnd) {
+                    controller.close();
+                    return;
+                }
+                position = chunk + 8;
+                end = position + view.getUint32(chunk);
+            }
+            if (changeLastByte && position === header.lastDataByte) {
+                controller.enqueue(Uint8Array.of(source[position++] ^ 1));
+                return;
+            }
+            const next = Math.min(end, position + 4096, changeLastByte && position < header.lastDataByte ? header.lastDataByte : end);
+            controller.enqueue(source.subarray(position, next));
+            position = next;
+        } }, { highWaterMark: 0 });
+}
+/** A complete zlib stream must consume its final Adler-32 byte. Older native inflaters
+ * silently ignore trailing input. Change only the final IDAT byte and require rejection:
+ * an ignored suffix still succeeds, whereas a consumed checksum byte cannot remain valid.
+ * The second native pass discards bounded output; it never allocates another image plane. */
+async function verifyPngZlibEnd(source, header, expected, signal) {
+    const reader = pngCompressedInput(source, header, signal, true).pipeThrough(new DecompressionStream("deflate")).getReader();
+    let rejected = false, output = 0;
+    try {
+        while (true) {
+            let item;
+            try {
+                item = await withAbort(reader.read(), signal);
+            }
+            catch {
+                checkAbort(signal);
+                rejected = true;
+                break;
+            }
+            checkAbort(signal);
+            if (item.done)
+                break;
+            output += item.value.length;
+            if (output > expected)
+                throw new TypeError("Invalid PNG zlib image data.");
+            if (taskYieldDue())
+                await pause();
+            checkAbort(signal);
+        }
+        if (!rejected)
+            throw new TypeError("Invalid PNG zlib image data: trailing bytes after the checksum.");
+    }
+    finally {
+        void reader.cancel().catch(() => { });
+        reader.releaseLock();
+    }
+}
 /** Verify the complete source and critical chunk order before any decompressed image allocation. */
 async function pngHeader(source, shape, signal) {
     const view = new DataView(source.buffer, source.byteOffset, source.byteLength);
-    let firstData = 0, dataEnd = 0, dataClosed = false;
+    let firstData = 0, dataEnd = 0, lastDataByte = -1, dataClosed = false;
     for (let offset = 8; offset < source.length;) {
         checkAbort(signal);
         if (offset + 12 > source.length)
@@ -5817,6 +10250,8 @@ async function pngHeader(source, shape, signal) {
                 throw new TypeError("PNG IDAT chunks must be consecutive.");
             firstData ||= offset;
             dataEnd = end;
+            if (length)
+                lastDataByte = end - 5;
         }
         else {
             if (firstData)
@@ -5824,7 +10259,7 @@ async function pngHeader(source, shape, signal) {
             if (type === "IEND") {
                 if (length !== 0 || !firstData || end !== source.length)
                     throw new TypeError("PNG requires a final empty IEND after IDAT.");
-                return { ...shape, firstData, dataEnd };
+                return { ...shape, firstData, dataEnd, lastDataByte };
             }
             if (unsupportedChunks.has(type))
                 throw new NotSupportedError("PNG chunk " + type + "; normalize color, orientation, transparency or animation first");
@@ -5864,16 +10299,16 @@ function paeth(left, up, upperLeft) {
     return a <= b && a <= c ? left : b <= c ? up : upperLeft;
 }
 const _exports = Object.freeze({ pngPixels: pngPixels });
-_modules.set("19f325186cdc3272e443cab61ed42b88c8c88b629c0e9c36090f0359c1aa267b", _exports);
+_modules.set("749d1ec5422c0087787f525ef42e3b8d3a94d2b70eb5e42d2e3723a870777ad6", _exports);
 return _exports;
 })();
 
-const _m54 = _modules.get("c1e06f6e69cd688f1c733486c493fa2a33192559cf35815cd836500ee1e31146") ?? (() => {
+const _m85 = _modules.get("7dca2d9ca5c43893abdaf86df5b1bcb1f3de3d5d33532d082fdfe04711999d21") ?? (() => {
 const { NotSupportedError, OfficeIMOError } = _m2;
 
 const { checkAbort, pause, taskYieldDue } = _m4;
 
-const { pngPixels } = _m55;
+const { pngPixels } = _m86;
 
 /** Shared document image resources; source objects are captured on first consumption. */
 class PdfDocumentImages {
@@ -5898,9 +10333,10 @@ class PdfDocumentImages {
         const byteLength = data.length;
         if (this.bytes + byteLength > limits.maxImageBytes)
             throw new OfficeIMOError("RESOURCE_LIMIT", "maxImageBytes exceeded.");
-        let width, height, components, decoded;
+        let width, height, components, decoded, decodedAlpha;
+        const maximumWorkingBytes = limits.maxImageWorkingBytes;
         if (format === "png")
-            ({ width, height, components, data: decoded } = await pngPixels(data, limits.maxImagePixels, options.signal));
+            ({ width, height, components, data: decoded, alpha: decodedAlpha } = await pngPixels(data, limits.maxImagePixels, options.signal, maximumWorkingBytes));
         else if (format === "jpeg")
             ({ width, height, components } = jpegSize(data));
         else if (format === "rgb" || format === "rgba") {
@@ -5914,14 +10350,17 @@ class PdfDocumentImages {
             throw new OfficeIMOError("RESOURCE_LIMIT", "Image dimensions must be positive integers within maxImagePixels.");
         if ((format === "rgb" || format === "rgba") && byteLength !== width * height * components)
             throw new RangeError("Raw image bytes must match width × height × channels exactly.");
+        if (format !== "png" && maximumWorkingBytes !== undefined && byteLength + (components === 4 ? width * height : 0) > maximumWorkingBytes)
+            throw new OfficeIMOError("RESOURCE_LIMIT", "maxImageWorkingBytes exceeded by image snapshot and alpha plane.");
         checkAbort(options.signal);
         const id = this.objects.reserve(), name = "Image" + (this.images.size + 1);
         this.bytes += byteLength;
         const captured = decoded ?? new Uint8Array(data);
-        let pixels = captured, mask;
+        let pixels = captured, alpha = decodedAlpha, mask;
         if (components === 4) {
-            pixels = new Uint8Array(width * height * 3);
-            const alpha = new Uint8Array(width * height);
+            // Compact the owned RGBA snapshot in place. Forward writes never overwrite unread channels.
+            pixels = captured.subarray(0, width * height * 3);
+            alpha = new Uint8Array(width * height);
             for (let p = 0; p < alpha.length; p++) {
                 pixels[p * 3] = captured[p * 4];
                 pixels[p * 3 + 1] = captured[p * 4 + 1];
@@ -5933,13 +10372,15 @@ class PdfDocumentImages {
                     checkAbort(options.signal);
                 }
             }
+        }
+        if (alpha) {
             mask = this.objects.reserve();
-            await this.objects.stream(mask, alpha, "/Type /XObject /Subtype /Image /Width " + width + " /Height " + height + " /ColorSpace /DeviceGray /BitsPerComponent 8", options.compression !== false);
+            await this.objects.stream(mask, alpha, "/Type /XObject /Subtype /Image /Width " + width + " /Height " + height + " /ColorSpace /DeviceGray /BitsPerComponent 8", options.compression !== false, true);
         }
         const dictionary = "/Type /XObject /Subtype /Image /Width " + width + " /Height " + height + " /ColorSpace /" +
             (components === 1 ? "DeviceGray" : "DeviceRGB") + " /BitsPerComponent 8" + (mask ? " /SMask " + mask + " 0 R" : "") +
             (format === "jpeg" ? " /Filter /DCTDecode" : "");
-        await this.objects.stream(id, pixels, dictionary, format === "jpeg" ? false : options.compression !== false);
+        await this.objects.stream(id, pixels, dictionary, format === "jpeg" ? false : options.compression !== false, true);
         const resource = { name, id, width, height };
         this.images.set(image, resource);
         return resource;
@@ -5992,18 +10433,18 @@ function jpegSize(bytes) {
     throw new TypeError("JPEG image has no complete frame and scan.");
 }
 const _exports = Object.freeze({ PdfDocumentImages: PdfDocumentImages });
-_modules.set("c1e06f6e69cd688f1c733486c493fa2a33192559cf35815cd836500ee1e31146", _exports);
+_modules.set("7dca2d9ca5c43893abdaf86df5b1bcb1f3de3d5d33532d082fdfe04711999d21", _exports);
 return _exports;
 })();
 
-const _m56 = _modules.get("2908c4b401414c852357df4b0792e2b68a1508c821a2aea6ee9772d6f94562a7") ?? (() => {
+const _m87 = _modules.get("3290c84fdf80725af802f497d947bc088aa8d93d9db0a33f6f829f9153aa6fd6") ?? (() => {
 const { OfficeIMOError } = _m2;
 
 const { checkAbort, pause, taskYieldDue } = _m4;
 
-const { color, positive } = _m37;
+const { color, positive } = _m56;
 
-const { pdfNumber: n } = _m40;
+const { pdfNumber: n } = _m60;
 
 /** Capture and serialize one bounded display path, with no markup parser or resource loading. */
 async function vectorCommands(block, settings, used) {
@@ -6079,18 +10520,18 @@ async function vectorCommands(block, settings, used) {
             commands.join("") + (fill !== undefined && stroke !== undefined ? "B" : fill !== undefined ? "f" : "S") + (fill !== undefined && fillRule === "evenodd" ? "*" : "") + "\n" };
 }
 const _exports = Object.freeze({ vectorCommands: vectorCommands });
-_modules.set("2908c4b401414c852357df4b0792e2b68a1508c821a2aea6ee9772d6f94562a7", _exports);
+_modules.set("3290c84fdf80725af802f497d947bc088aa8d93d9db0a33f6f829f9153aa6fd6", _exports);
 return _exports;
 })();
 
-const _m57 = _modules.get("2369ea1b72551c804d95e7d3f89bbece1fe7e7c7503345451879ef877b4b90f0") ?? (() => {
+const _m88 = _modules.get("da9ad00f94b9ae28e2e3de796928ff0c4eab1d73382b1441e7d779fad4278ef7") ?? (() => {
 const { NotSupportedError, OfficeIMOError } = _m2;
 
 const { checkAbort, pause, taskYieldDue } = _m4;
 
-const { color, positive } = _m37;
+const { color, positive } = _m56;
 
-const { pdfNumber: n } = _m40;
+const { pdfNumber: n } = _m60;
 
 /** Portable drawings are an exact schema: unsupported data must never be silently discarded. */
 function record(value, keys, name) {
@@ -6099,7 +10540,7 @@ function record(value, keys, name) {
     return value;
 }
 function checkDrawingBlock(value) {
-    record(value, ["kind", "drawing", "alignment", "alternativeText", "decorative"], "drawing block");
+    record(value, ["kind", "drawing", "alignment", "alternativeText", "decorative", "caption"], "drawing block");
 }
 function coordinate(value) {
     if (typeof value !== "number" || !Number.isFinite(value) || Math.abs(value) > 1000000)
@@ -6326,39 +10767,502 @@ async function prepareDrawing(drawing, settings, fonts, used) {
     return { width: captured.width, height: captured.height, content: fragments.join(""), commands: captured.commands, elements: captured.elements };
 }
 const _exports = Object.freeze({ checkDrawingBlock: checkDrawingBlock, prepareDrawing: prepareDrawing });
-_modules.set("2369ea1b72551c804d95e7d3f89bbece1fe7e7c7503345451879ef877b4b90f0", _exports);
+_modules.set("da9ad00f94b9ae28e2e3de796928ff0c4eab1d73382b1441e7d779fad4278ef7", _exports);
 return _exports;
 })();
 
-const _m53 = _modules.get("2e94c07f933c8e8c042005e935e0b0a3a8bd782b815220f8863be728570e5981") ?? (() => {
+const _m89 = _modules.get("5e4503b77b357ee6d9fad1f52690085b0f0b140cd3b550b63c5100ed95a92f88") ?? (() => {
+const { OfficeIMOError } = _m2;
+
+const { capturePdfText, wrapPdfText } = _m71;
+
+const { positive } = _m56;
+
+const { resolveParagraphStyle } = _m57;
+
+const { captureBookmark } = _m78;
+
+const { captureFields } = _m10;
+
+const { pdfBudgetText } = _m70;
+
+/** @internal Copy public paragraph input before any cooperative layout or source enumeration. */
+function captureParagraph(block, settings, fonts, budgetOnPaint = false) {
+    if (!block || block.kind !== "paragraph")
+        throw new TypeError("PDF paragraph groups accept paragraph blocks only.");
+    const { text, headingLevel, presentation: inputStyle, fontSize, keepTogether, keepWithNext, spaceBefore, spaceAfter, style: styleName, bookmark: inputBookmark } = block;
+    if (headingLevel !== undefined && (!Number.isInteger(headingLevel) || headingLevel < 1 || headingLevel > 6))
+        throw new TypeError("Paragraph headingLevel must be an integer from 1 through 6.");
+    const resolved = resolveParagraphStyle(styleName, {
+        ...(fontSize === undefined ? {} : { fontSize }), ...(inputStyle === undefined ? {} : { presentation: inputStyle }),
+        ...(keepTogether === undefined ? {} : { keepTogether }), ...(keepWithNext === undefined ? {} : { keepWithNext }),
+        ...(spaceBefore === undefined ? {} : { spaceBefore }), ...(spaceAfter === undefined ? {} : { spaceAfter })
+    }, settings.paragraphStyles);
+    const style = resolved.presentation ?? Object.freeze({}), size = positive(resolved.fontSize ?? settings.fontSize, "Paragraph font size", 144);
+    const bookmark = captureBookmark(inputBookmark, settings);
+    return Object.freeze({ text: capturePdfText(text, style, settings, fonts, false, !budgetOnPaint), style, size,
+        ...(budgetOnPaint ? { budgetOnPaint: true } : {}),
+        ...(headingLevel === undefined ? {} : { headingLevel }), ...(bookmark === undefined ? {} : { bookmark }),
+        keepTogether: resolved.keepTogether ?? false, keepWithNext: resolved.keepWithNext ?? false,
+        spaceBefore: resolved.spaceBefore ?? 0, spaceAfter: resolved.spaceAfter ?? 8 });
+}
+/** @internal Captions reuse rich text layout while their actual table/figure supplies the semantic owner. */
+function captureCaption(caption, settings, fonts) {
+    if (!caption || typeof caption !== "object" || Array.isArray(caption) ||
+        Object.keys(caption).some(key => !["text", "style", "fontSize", "presentation", "spaceBefore", "spaceAfter"].includes(key)))
+        throw new TypeError("PDF captions support text, style, fontSize, presentation, spaceBefore and spaceAfter.");
+    return captureParagraph({ ...captureFields(caption, ["text", "style", "fontSize", "presentation", "spaceBefore", "spaceAfter"]),
+        kind: "paragraph", keepTogether: true, keepWithNext: true }, settings, fonts, true);
+}
+/** @internal Layout is bounded by the same per-cell text and wrapped-line limits as table cells. */
+async function prepareParagraph(captured, settings, fonts, width = settings.page.width - settings.margins.left - settings.margins.right) {
+    if (!captured.text.text)
+        return { ...captured, lines: [], height: 0, firstHeight: 0 };
+    if (!captured.budgetOnPaint) {
+        const budgetText = pdfBudgetText(captured.text.text, settings.budget);
+        settings.budget.cell(budgetText, budgetText.length);
+    }
+    const lines = await wrapPdfText(captured.text, fonts, captured.size, positive(width, "Paragraph width"), settings);
+    return { ...captured, lines, height: captured.spaceBefore + lines.reduce((height, line) => height + line.lineHeight, 0) + captured.spaceAfter,
+        firstHeight: captured.spaceBefore + lines[0].lineHeight };
+}
+/** @internal Pending keep chains/groups cannot retain an unbounded report or consume a table source. */
+function checkParagraphBuffer(paragraphs, settings) {
+    if (paragraphs.length > settings.limits.maxGroupBlocks)
+        throw new OfficeIMOError("RESOURCE_LIMIT", "maxGroupBlocks exceeded.");
+    let characters = 0, runs = 0;
+    for (const paragraph of paragraphs) {
+        characters += paragraph.text.text.length;
+        runs += paragraph.text.runs.length;
+        if (characters > settings.limits.maxCellCharacters)
+            throw new OfficeIMOError("RESOURCE_LIMIT", "maxCellCharacters exceeded by a paragraph group or keep chain.");
+        if (runs > settings.limits.maxTextRuns)
+            throw new OfficeIMOError("RESOURCE_LIMIT", "maxTextRuns exceeded by a paragraph group or keep chain.");
+    }
+}
+/** @internal Minimum leading fragment compatible with the first visible paragraph's own keep requests. */
+function paragraphStartHeight(paragraphs) {
+    const visible = paragraphs.filter(paragraph => paragraph.lines.length > 0);
+    let required = 0;
+    for (let i = visible.length - 1; i >= 0; i--) {
+        const paragraph = visible[i];
+        required = paragraph.keepWithNext ? paragraph.height + required : paragraph.keepTogether ? paragraph.height : paragraph.firstHeight;
+    }
+    return required;
+}
+const _exports = Object.freeze({ captureParagraph: captureParagraph, captureCaption: captureCaption, prepareParagraph: prepareParagraph, checkParagraphBuffer: checkParagraphBuffer, paragraphStartHeight: paragraphStartHeight });
+_modules.set("5e4503b77b357ee6d9fad1f52690085b0f0b140cd3b550b63c5100ed95a92f88", _exports);
+return _exports;
+})();
+
+const _m90 = _modules.get("1d57c429705ae0cbc14d98dcfef4c8a6c2df06f391c8f58e99cacb02f2d1cbc7") ?? (() => {
+const { capturePdfText, wrapPdfText } = _m71;
+
+const { captureParagraph, prepareParagraph } = _m89;
+
+const { resolveParagraphStyle } = _m57;
+
+function captureListOptions(block, settings) {
+    const { items, ordered = false, start: inputStart, itemStyle, indent, markerGap } = block;
+    const start = inputStart === undefined ? 1 : inputStart;
+    if (typeof ordered !== "boolean")
+        throw new TypeError("PDF list ordered must be boolean.");
+    if (!Number.isSafeInteger(start) || start < 1)
+        throw new RangeError("PDF list start must be a positive safe integer.");
+    if (!ordered && inputStart !== undefined)
+        throw new TypeError("PDF list start requires ordered:true.");
+    for (const [name, value] of [["indent", indent], ["markerGap", markerGap]])
+        if (value !== undefined && (!Number.isFinite(value) || value < 0 || value > 14400))
+            throw new RangeError("PDF list " + name + " must be from zero through 14,400 points.");
+    if (resolveParagraphStyle(itemStyle, {}, settings.paragraphStyles).keepWithNext)
+        throw new TypeError("PDF list item styles cannot use keepWithNext.");
+    return Object.freeze({ items, ordered, start, ...(itemStyle === undefined ? {} : { itemStyle }),
+        ...(indent === undefined ? {} : { indent }), ...(markerGap === undefined ? {} : { markerGap }) });
+}
+/** Capture the whole rich item before layout can yield; marker and body share fonts, bounds and cancellation. */
+async function prepareListItem(item, index, options, settings, fonts) {
+    if (!item || typeof item !== "object" || Array.isArray(item) || Object.keys(item).some(key => !["text", "style", "keepTogether"].includes(key)))
+        throw new TypeError("PDF list items support text, style and keepTogether.");
+    if (!Number.isSafeInteger(index) || index < 0 || !Number.isSafeInteger(options.start + index))
+        throw new RangeError("PDF list numbering must remain within positive safe integers.");
+    const { text, style = options.itemStyle, keepTogether } = item;
+    const captured = captureParagraph({ kind: "paragraph", text, ...(style === undefined ? {} : { style }),
+        ...(keepTogether === undefined ? {} : { keepTogether }) }, settings, fonts);
+    if (captured.keepWithNext)
+        throw new TypeError("PDF list item styles cannot use keepWithNext.");
+    if (!captured.text.text.trim().length)
+        throw new TypeError("PDF list items require nonempty text.");
+    const markerText = options.ordered ? String(options.start + index) + "." : "•";
+    const capturedMarker = capturePdfText(markerText, captured.style, settings, fonts);
+    settings.budget.cell(markerText, markerText.length);
+    const width = settings.page.width - settings.margins.left - settings.margins.right;
+    const marker = (await wrapPdfText(capturedMarker, fonts, captured.size, width, settings, false))[0];
+    const markerGap = options.markerGap ?? captured.size / 2, indent = options.indent ?? Math.max(captured.size * 2, marker.width + markerGap);
+    if (marker.width + markerGap > indent + .001)
+        throw new RangeError("PDF list indent cannot fit its marker and gap.");
+    if (indent >= width)
+        throw new RangeError("PDF list indent leaves no body text area.");
+    const paragraph = await prepareParagraph(captured, settings, fonts, width - indent), first = paragraph.lines[0];
+    const lineHeight = Math.max(first.lineHeight, marker.lineHeight), ascent = Math.max(first.ascent, marker.ascent);
+    return { marker, indent, markerGap, paragraph: { ...paragraph,
+            lines: [{ ...first, lineHeight, ascent }, ...paragraph.lines.slice(1)],
+            height: paragraph.height + lineHeight - first.lineHeight, firstHeight: paragraph.spaceBefore + lineHeight } };
+}
+const _exports = Object.freeze({ captureListOptions: captureListOptions, prepareListItem: prepareListItem });
+_modules.set("1d57c429705ae0cbc14d98dcfef4c8a6c2df06f391c8f58e99cacb02f2d1cbc7", _exports);
+return _exports;
+})();
+
+const _m92 = _modules.get("d04686d2c067355dfd215333b83eb5f79f96e9e4be49f942e050f21ac0795343") ?? (() => {
+const { assertGroupedReportSource } = _m8;
+
+const { captureFields } = _m10;
+
+const { captureWideTable } = _m56;
+
+const { presentation } = _m58;
+
+/** @internal Capture schemas shared by the block factory and standalone convenience writers. */
+const groupedPdfLabelFields = ["labelColumn", "subtotalLabel", "grandTotalLabel", "includeGrandTotal", "continuationLabel", "groupHeadingLevel"];
+/** @internal A grouped table may override presentation but not its document's resource/lifetime policy. */
+const groupedPdfTableFields = ["includeHeader", "headerPresentation", "footerPresentation", "alternateRowColor", "columnWidths", "wideTable", "formatValue", "formatRuns", ...groupedPdfLabelFields];
+/** Capture an analytical table without opening its row iterator or attaching cancellation listeners.
+ * Ownership begins when the document reaches the block; unused blocks leave their sources unconsumed. */
+function pdfGroupedTable(report, options) {
+    assertGroupedReportSource(report);
+    return Object.freeze({ kind: "groupedTable", report, options: captureGroupedPdfTableOptions(options) });
+}
+/** @internal Capture the same public table contract for factory-created and structural document blocks. */
+function captureGroupedPdfTableOptions(configuration) {
+    if (!configuration || typeof configuration !== "object" || Array.isArray(configuration) ||
+        Object.keys(configuration).some(key => !groupedPdfTableFields.includes(key)))
+        throw new TypeError("Grouped PDF table options support table presentation and labels; document settings belong on writePdfDocument.");
+    const captured = captureFields(configuration, groupedPdfTableFields);
+    const { labelColumn, subtotalLabel, grandTotalLabel, includeGrandTotal, continuationLabel, groupHeadingLevel } = captured;
+    if (!labelColumn || typeof labelColumn !== "object")
+        throw new TypeError("Grouped PDF needs a leading labelColumn.");
+    const { header, width } = labelColumn;
+    if (typeof header !== "string")
+        throw new TypeError("The grouped label column header must be text.");
+    for (const [name, value] of [["subtotalLabel", subtotalLabel], ["grandTotalLabel", grandTotalLabel]])
+        if (typeof value !== "function")
+            throw new TypeError(name + " must be a synchronous text callback.");
+    if (continuationLabel !== undefined && typeof continuationLabel !== "function")
+        throw new TypeError("continuationLabel must be a synchronous text callback.");
+    if (includeGrandTotal !== undefined && typeof includeGrandTotal !== "boolean")
+        throw new TypeError("includeGrandTotal must be boolean.");
+    if (groupHeadingLevel !== undefined && (!Number.isInteger(groupHeadingLevel) || groupHeadingLevel < 1 || groupHeadingLevel > 6))
+        throw new TypeError("groupHeadingLevel must be an integer from 1 through 6.");
+    return Object.freeze({ ...captured, ...(captured.wideTable === undefined ? {} : { wideTable: captureWideTable(captured.wideTable) }), labelColumn: Object.freeze({ header, ...(width === undefined ? {} : { width }) }),
+        ...(captured.columnWidths === undefined ? {} : { columnWidths: Object.freeze([...captured.columnWidths]) }),
+        ...(captured.headerPresentation === undefined ? {} : { headerPresentation: presentation(captured.headerPresentation) }),
+        ...(captured.footerPresentation === undefined ? {} : { footerPresentation: presentation(captured.footerPresentation) }) });
+}
+const _exports = Object.freeze({ groupedPdfLabelFields: groupedPdfLabelFields, groupedPdfTableFields: groupedPdfTableFields, pdfGroupedTable: pdfGroupedTable, captureGroupedPdfTableOptions: captureGroupedPdfTableOptions });
+_modules.set("d04686d2c067355dfd215333b83eb5f79f96e9e4be49f942e050f21ac0795343", _exports);
+return _exports;
+})();
+
+const _m91 = _modules.get("289fa3a052c7fbab2a3ca0fb91fb9974db709d24b7d850f1175810258f0409a0") ?? (() => {
+const { assertGroupedReportSource, groupedReportOperation } = _m8;
+
+const { consumeRows } = _m4;
+
+const { ExportCell } = _m5;
+
+const { captureGroupedPdfTableOptions } = _m92;
+
+const { settings } = _m56;
+
+const { PdfTableLayout } = _m69;
+
+const { captureCaption, captureParagraph, prepareParagraph } = _m89;
+
+const { synchronousText } = _m70;
+
+/** @internal Render one analytical source in the existing document session. Retain one detail row and
+ * at most four closing subtotals. All captions, rows, pages, bytes and fonts use the document owners. */
+async function renderGroupedPdfTable(block, context) {
+    const { report } = block, { pages, fonts, prepared, controller } = context;
+    assertGroupedReportSource(report);
+    const semantic = prepared.options.tagged !== undefined;
+    const captured = captureGroupedPdfTableOptions(block.options);
+    const { labelColumn, subtotalLabel, grandTotalLabel, includeGrandTotal = true, continuationLabel, groupHeadingLevel = 2, ...input } = captured;
+    const columns = Object.freeze([Object.freeze({ ...labelColumn }), ...report.columns]);
+    let rowIndex = -1;
+    const sourceContext = (value) => ({ rowIndex,
+        columnIndex: value.columnIndex - 1, column: report.columns[value.columnIndex - 1] });
+    const table = settings({ ...pages.settings.options, ...input, columns, includeHeader: input.includeHeader ?? true,
+        ...(input.formatValue === undefined ? {} : { formatValue: (value, position) => input.formatValue(value, sourceContext(position)) }),
+        ...(input.formatRuns === undefined ? {} : { formatRuns: (value, position) => input.formatRuns(value, sourceContext(position)) }) });
+    const sharedTable = { ...table, budget: prepared.budget }, layout = new PdfTableLayout(sharedTable, fonts);
+    context.acceptColumns(columns.length);
+    const operation = groupedReportOperation(report, controller.signal), abort = () => controller.abort(operation.signal?.reason);
+    operation.signal?.addEventListener("abort", abort, { once: true });
+    if (operation.signal?.aborted)
+        abort();
+    try {
+        const headings = await layout.headers(), headingHeight = await layout.blockHeight(headings);
+        let path = [], started = false, firstFragment = false, firstBundleOversized = false, semanticDepth = 0;
+        const continuationLabels = new WeakMap();
+        let pending;
+        const closing = [];
+        const aggregatePositions = report.columns.flatMap((column, index) => Object.hasOwn(report.totals, column.key) ? [index] : []);
+        const summaryValues = (label, values, positions) => Object.freeze([
+            new ExportCell(label, { text: label, presentation: table.options.footerPresentation }),
+            ...(positions ? positions.map(index => values[index]) : values).map(value => new ExportCell(value, { presentation: table.options.footerPresentation }))
+        ]);
+        // Independent summaries have no detail values in non-aggregate columns. Project their
+        // declared operations, including zero/null results, rather than emitting label-only bands.
+        // Keep callback positions in the original source model after this physical projection.
+        const summaryLayouts = new Map();
+        const summaryLayout = (grand) => {
+            const existing = summaryLayouts.get(grand);
+            if (existing)
+                return existing;
+            const positions = [0, ...aggregatePositions.map(index => index + 1)];
+            const projected = positions.map(position => {
+                const column = columns[position];
+                if (!grand)
+                    return column;
+                const { groups: _groups, ...leaf } = column;
+                return leaf;
+            });
+            const originalPosition = (position) => {
+                const columnIndex = positions[position.columnIndex];
+                return { ...position, columnIndex, column: columns[columnIndex] };
+            };
+            const repeatColumns = positions.flatMap((position, index) => position === 0 || table.repeatedColumns.includes(position) ? [index] : []);
+            const wideTable = table.options.wideTable;
+            const projectedSettings = { ...sharedTable,
+                repeatedColumns: Object.freeze(repeatColumns), options: { ...table.options, columns: projected,
+                    ...(table.options.columnWidths === undefined ? {} : { columnWidths: positions.map(position => table.options.columnWidths[position]) }),
+                    ...(typeof wideTable !== "object" ? {} : { wideTable: { ...wideTable, repeatColumns } }),
+                    ...(table.options.formatValue === undefined ? {} : { formatValue: (value, position) => table.options.formatValue(value, originalPosition(position)) }),
+                    ...(table.options.formatRuns === undefined ? {} : { formatRuns: (value, position) => table.options.formatRuns(value, originalPosition(position)) })
+                } };
+            const projectedLayout = new PdfTableLayout(projectedSettings, fonts);
+            summaryLayouts.set(grand, projectedLayout);
+            return projectedLayout;
+        };
+        const prepareGroupContext = async () => {
+            const caption = await prepareParagraph(captureCaption({ text: path.map(group => group.label).join("\n"),
+                presentation: { bold: true }, spaceAfter: 4 }, pages.settings, fonts), pages.settings, fonts);
+            const continuation = await prepareParagraph(captureCaption({ text: path.map(group => {
+                    if (continuationLabel === undefined)
+                        return group.label;
+                    const existing = semantic ? continuationLabels.get(group) : undefined;
+                    if (existing !== undefined)
+                        return existing;
+                    const label = synchronousText(continuationLabel(group), "continuationLabel");
+                    if (semantic)
+                        continuationLabels.set(group, label);
+                    return label;
+                }).join("\n"), presentation: { bold: true }, spaceAfter: 4 }, pages.settings, fonts), pages.settings, fonts);
+            return { caption, continuation };
+        };
+        const flushLastDetail = async () => {
+            if (pending) {
+                if (!started)
+                    await startLeaf(pending);
+                if (closing.length && !firstBundleOversized)
+                    await pages.keptRows([pending, ...closing], firstFragment);
+                else if (closing.length) {
+                    await pages.row(pending, firstFragment);
+                    for (const row of closing)
+                        await pages.row(row);
+                }
+                else
+                    await pages.row(pending, firstFragment);
+            }
+            else
+                for (const row of closing)
+                    await pages.row(row);
+            pending = undefined;
+            closing.length = 0;
+            firstFragment = false;
+            firstBundleOversized = false;
+        };
+        const finishLeaf = async () => {
+            if (!started && !pending)
+                return;
+            await flushLastDetail();
+            await pages.endTable();
+            started = false;
+        };
+        const startLeaf = async (row) => {
+            const { caption, continuation } = await prepareGroupContext();
+            const bundleHeight = row.height + closing.reduce((height, summary) => height + summary.height, 0);
+            const available = table.page.height - table.margins.top - table.margins.bottom - headingHeight - Math.max(caption?.height ?? 0, continuation.height);
+            firstBundleOversized = closing.length > 0 && bundleHeight > available + .001;
+            const minimum = closing.length > 0 && !firstBundleOversized ? bundleHeight : layout.minimumRowHeight(row);
+            // Defer new group headings until their first real row is known. The complete, at-most-four
+            // heading chain stays with a meaningful first table fragment without retaining a group body.
+            const groupHeadings = [];
+            if (semantic)
+                for (const group of path.slice(semanticDepth))
+                    groupHeadings.push(await prepareParagraph(captureParagraph({
+                        kind: "paragraph", text: group.label.trim() ? group.label : "", headingLevel: (groupHeadingLevel + group.level),
+                        presentation: { bold: true }, keepTogether: true, keepWithNext: true, spaceAfter: 4,
+                        ...(group.label.trim() ? { bookmark: { title: group.label, level: (groupHeadingLevel + group.level) } } : {})
+                    }, pages.settings, fonts), pages.settings, fonts));
+            const groupHeight = groupHeadings.reduce((height, heading) => height + heading.height, 0);
+            // Newly opened semantic headings already paint the end of this path. Only the open
+            // ancestor prefix needs an artifact here; later physical bands still paint the full path.
+            const ancestorCaption = semantic && semanticDepth > 0 ? await prepareParagraph(captureCaption({
+                text: path.slice(0, semanticDepth).map(group => group.label).join("\n"), presentation: { bold: true }, spaceAfter: 4
+            }, pages.settings, fonts), pages.settings, fonts) : undefined;
+            const openingHeight = semantic ? (ancestorCaption?.height ?? 0) + groupHeight : caption.height;
+            await context.flushParagraphs(openingHeight + headingHeight + minimum);
+            if (ancestorCaption)
+                await pages.paragraphs([ancestorCaption], groupHeight + headingHeight + minimum, true, { artifact: true });
+            let followingHeight = groupHeight + (semantic ? 0 : caption.height) + headingHeight + minimum;
+            for (const heading of groupHeadings) {
+                followingHeight -= heading.height;
+                await pages.beginGroup(semanticDepth++, heading, followingHeight);
+            }
+            await pages.beginTable(layout, headings, minimum, caption, continuation, false, semantic, semantic);
+            started = true;
+            firstFragment = (caption?.lines.length ?? 0) > 0 || groupHeadings.some(heading => heading.lines.length > 0);
+        };
+        const semanticSubtotal = async (row, level, values) => {
+            if (level === report.groupBy.length - 1) {
+                // A leaf's own subtotal shares its detail table and header identities. Keep the last
+                // detail/summary bundle when it fits; the existing flow owns continuation and limits.
+                pages.summary(row);
+                closing.push(row);
+                await finishLeaf();
+                await pages.endGroup(level);
+                semanticDepth = level;
+                path = path.slice(0, level);
+                return;
+            }
+            await finishLeaf();
+            const { caption, continuation } = await prepareGroupContext();
+            const projected = summaryLayout(false), summaryHeadings = await projected.headers();
+            const summaryRow = await projected.data(values, 0, true), minimum = projected.minimumRowHeight(summaryRow);
+            await context.flushParagraphs(caption.height + await projected.blockHeight(summaryHeadings) + minimum);
+            // An ancestor subtotal belongs to that ancestor's section, never the final child's table.
+            // Its own visible column headings keep the separate logical summary table truthful.
+            await pages.beginTable(projected, summaryHeadings, minimum, caption, continuation, false, true);
+            pages.summary(summaryRow);
+            await pages.row(summaryRow, caption.lines.length > 0 || summaryHeadings.length > 0);
+            await pages.endTable();
+            await pages.endGroup(level);
+            semanticDepth = level;
+            path = path.slice(0, level);
+        };
+        const complete = async (summary) => {
+            await finishLeaf();
+            if (!includeGrandTotal && summary.rows !== 0)
+                return;
+            const completeLayout = summary.rows === 0 ? layout : summaryLayout(true);
+            const completeHeadings = summary.rows === 0 ? headings : await completeLayout.headers();
+            rowIndex = -1;
+            let total;
+            if (includeGrandTotal) {
+                context.acceptRow(false);
+                total = await completeLayout.data(summaryValues(synchronousText(grandTotalLabel(summary), "grandTotalLabel"), summary.totals, summary.rows === 0 ? undefined : aggregatePositions), 0, true);
+            }
+            if (!completeHeadings.length && !total)
+                return;
+            const minimum = total ? completeLayout.minimumRowHeight(total) : 0;
+            await context.flushParagraphs(await completeLayout.blockHeight(completeHeadings) + minimum);
+            await pages.beginTable(completeLayout, completeHeadings, minimum);
+            if (total) {
+                if (semantic)
+                    pages.summary(total);
+                await pages.row(total);
+            }
+            await pages.endTable();
+        };
+        await consumeRows(operation.events, operation.signal, async (event) => {
+            switch (event.kind) {
+                case "groupStart":
+                    await finishLeaf();
+                    if (semantic && groupHeadingLevel + event.level > 6)
+                        throw new RangeError("groupHeadingLevel and the opened group depth exceed heading level 6.");
+                    path = Object.freeze([...path.slice(0, event.level), event]);
+                    break;
+                case "row": {
+                    if (pending)
+                        await flushLastDetail();
+                    rowIndex = event.rowIndex;
+                    context.acceptRow(true);
+                    const row = await layout.data([new ExportCell("", { text: "" }), ...event.values], event.rowIndex);
+                    pending = row;
+                    break;
+                }
+                case "groupEnd": {
+                    rowIndex = -1;
+                    context.acceptRow(false);
+                    const separate = semantic && event.level !== report.groupBy.length - 1;
+                    const values = summaryValues(synchronousText(subtotalLabel(event), "subtotalLabel"), event.totals, separate ? aggregatePositions : undefined);
+                    const row = separate ? undefined : await layout.data(values, 0, true);
+                    if (semantic)
+                        await semanticSubtotal(row, event.level, values);
+                    else
+                        closing.push(row);
+                    break;
+                }
+                case "complete":
+                    await complete(event);
+                    break;
+            }
+        });
+    }
+    finally {
+        operation.signal?.removeEventListener("abort", abort);
+        operation.dispose();
+    }
+}
+const _exports = Object.freeze({ renderGroupedPdfTable: renderGroupedPdfTable });
+_modules.set("289fa3a052c7fbab2a3ca0fb91fb9974db709d24b7d850f1175810258f0409a0", _exports);
+return _exports;
+})();
+
+const _m84 = _modules.get("9051bf9fc3168e24b53b16c123a42816198456846003fb49191c03a18cdab904") ?? (() => {
 const { BlobByteSink, withDestination } = _m3;
+
+const { OfficeIMOError } = _m2;
 
 const { beginTask, checkAbort, consumeRows, pause, taskYieldDue } = _m4;
 
-const { notifyProgress } = _m8;
+const { notifyProgress } = _m14;
 
 const { copyColumns, createRowProjector } = _m11;
 
-const { settings, presentation, positive } = _m37;
+const { captureFields } = _m10;
 
-const { pdfNumber: n } = _m40;
+const { settings, captureWideTable } = _m56;
 
-const { PdfTableLayout } = _m48;
+const { pdfNumber: n } = _m60;
 
-const { PdfWriteSession } = _m39;
+const { PdfTableLayout } = _m69;
 
-const { PdfDocumentImages } = _m54;
+const { PdfWriteSession } = _m59;
 
-const { vectorCommands } = _m56;
+const { PdfDocumentImages } = _m85;
 
-const { graphicAlternative } = _m52;
+const { vectorCommands } = _m87;
 
-const { checkDrawingBlock, prepareDrawing } = _m57;
+const { graphicAlternative } = _m80;
 
+const { checkDrawingBlock, prepareDrawing } = _m88;
+
+const { captureParagraph, captureCaption, prepareParagraph, checkParagraphBuffer, paragraphStartHeight } = _m89;
+
+const { captureListOptions, prepareListItem } = _m90;
+
+const { captureSection } = _m78;
+
+const { renderGroupedPdfTable } = _m91;
+
+const tableOptionFields = ["columns", "includeHeader", "headerRows", "footer", "headerPresentation", "footerPresentation", "alternateRowColor", "columnWidths", "wideTable", "formatValue", "formatRuns"];
 /** Capture typed columns for a single-use table source in a composed document. */
 function pdfTable(rows, options) {
-    checkTableOptions(options);
-    return Object.freeze({ kind: "table", rows, options: Object.freeze({ ...options, columns: Object.freeze(copyColumns(options?.columns)) }) });
+    const captured = captureTableOptions(options);
+    return Object.freeze({ kind: "table", rows, options: Object.freeze({ ...captured, columns: Object.freeze(copyColumns(captured.columns)) }) });
 }
 /** Write sequential report blocks to a PDF Blob, retaining finished output proportional to file size. */
 async function writePdfDocument(blocks, options = {}) {
@@ -6372,104 +11276,227 @@ async function writePdfDocument(blocks, options = {}) {
         throw error;
     }
 }
-/** Stream composed pages with backpressure. Rows sum all tables; columns reports the widest table. */
+/** Stream composed pages with backpressure. Rows sum table source rows; columns reports the widest table.
+ * Analytical subtotals/grand totals also consume the cumulative maxRows output budget. */
 async function writePdfDocumentTo(blocks, destination, configuration = {}) {
-    const prepared = settings({ ...configuration, columns: [], includeHeader: false }, true), { options, budget } = prepared;
-    beginTask();
-    checkAbort(options.signal);
-    return withDestination(destination, async (sink) => {
-        const session = new PdfWriteSession(sink, prepared), { objects, pages, fonts } = session, images = new PdfDocumentImages(objects, prepared);
-        let rows = 0, columns = 0, commands = 0, drawingElements = 0;
-        await session.start();
-        await consumeRows(blocks, options.signal, async (block) => {
-            if (!block || typeof block !== "object")
-                throw new TypeError("PDF document blocks must be objects.");
-            switch (block.kind) {
-                case "paragraph": {
-                    const text = block.text, headingLevel = block.headingLevel, paragraphPresentation = block.presentation;
-                    if (typeof text !== "string")
-                        throw new TypeError("Paragraph text must be a string.");
-                    if (headingLevel !== undefined && (!Number.isInteger(headingLevel) || headingLevel < 1 || headingLevel > 6))
-                        throw new TypeError("Paragraph headingLevel must be an integer from 1 through 6.");
-                    if (paragraphPresentation && Object.keys(paragraphPresentation).some(key => !["bold", "italic", "color", "alignment"].includes(key)))
-                        throw new TypeError("PDF paragraph presentation supports bold, italic, color and alignment.");
-                    const style = presentation(paragraphPresentation), size = positive(block.fontSize ?? prepared.fontSize, "Paragraph font size", 144);
-                    if (text)
-                        await pages.paragraph(text, style, size, true, headingLevel);
-                    break;
-                }
-                case "pageBreak":
-                    await pages.pageBreak();
-                    break;
-                case "table": {
-                    checkTableOptions(block.options);
-                    const table = settings({ ...options, ...block.options, columns: block.options?.columns, includeHeader: block.options?.includeHeader ?? true }), layout = new PdfTableLayout({ ...table, budget }, fonts);
-                    const project = createRowProjector(table.options.columns, undefined, options.signal);
-                    let count = 0;
-                    columns = Math.max(columns, table.options.columns.length);
-                    await pages.beginTable(layout);
-                    await consumeRows(block.rows, options.signal, async (row) => {
-                        budget.row(rows + 1);
-                        await pages.row(await layout.data(project(row, count), count));
-                        count++;
-                        rows++;
-                        if (rows % 256 === 0)
-                            notifyProgress(options.onProgress, { phase: "rows", rows, bytes: objects.bytes });
-                        if (taskYieldDue())
-                            await pause();
-                        checkAbort(options.signal);
-                    });
-                    const footer = await layout.footer(count);
-                    if (footer) {
-                        if (table.options.footer?.rows)
-                            await pages.block(footer);
-                        else
-                            await pages.row(footer[0]);
-                    }
-                    pages.endTable();
-                    break;
-                }
-                case "image": {
-                    const displayWidth = block.width, displayHeight = block.height;
-                    const alternative = graphicAlternative(block, prepared), alignment = graphicAlignment(block.alignment), image = await images.prepare(block.image);
-                    const width = displayWidth ?? (displayHeight === undefined ? image.width * .75 : displayHeight * image.width / image.height);
-                    const height = displayHeight ?? width * image.height / image.width;
-                    if (!Number.isFinite(width) || width <= 0 || !Number.isFinite(height) || height <= 0)
-                        throw new RangeError("Image display dimensions must be finite and positive.");
-                    pages.registerXObject(image.name, image.id);
-                    await pages.graphic(width, height, alignment, (x, y, w, h) => "q " + [w, 0, 0, h, x, y].map(n).join(" ") + " cm /" + image.name + " Do Q\n", alternative);
-                    break;
-                }
-                case "vector": {
-                    const alternative = graphicAlternative(block, prepared), alignment = graphicAlignment(block.alignment), path = await vectorCommands(block, prepared, commands);
-                    commands += path.count;
-                    await pages.graphic(path.width, path.height, alignment, (x, y, w, h) => "q " + [w / path.width, 0, 0, -h / path.height, x, y + h].map(n).join(" ") +
-                        " cm 0 0 " + n(path.width) + " " + n(path.height) + " re W n\n" + path.content + "Q\n", alternative);
-                    break;
-                }
-                case "drawing": {
-                    checkDrawingBlock(block);
-                    const alternative = graphicAlternative(block, prepared), alignment = graphicAlignment(block.alignment);
-                    const drawing = await prepareDrawing(block.drawing, prepared, fonts, { commands, elements: drawingElements });
-                    commands += drawing.commands;
-                    drawingElements += drawing.elements;
-                    await pages.graphic(drawing.width, drawing.height, alignment, (x, y, w, h) => "q " + [w / drawing.width, 0, 0, -h / drawing.height, x, y + h].map(n).join(" ") +
-                        " cm 0 0 " + n(drawing.width) + " " + n(drawing.height) + " re W n\n" + drawing.content + "Q\n", alternative);
-                    break;
-                }
-                default: throw new TypeError("Unsupported PDF document block.");
-            }
-            if (taskYieldDue())
-                await pause();
-            checkAbort(options.signal);
-        });
-        if (options.messageBottom)
-            await pages.paragraph(options.messageBottom);
-        await session.finish();
-        notifyProgress(options.onProgress, { phase: "complete", rows, bytes: objects.bytes });
+    const captured = settings(configuration, true), controller = new AbortController();
+    const parentSignal = captured.options.signal, abort = () => controller.abort(parentSignal?.reason);
+    parentSignal?.addEventListener("abort", abort, { once: true });
+    if (parentSignal?.aborted)
+        abort();
+    const prepared = { ...captured, options: { ...captured.options, signal: controller.signal } }, { options, budget } = prepared;
+    try {
+        beginTask();
         checkAbort(options.signal);
-        return { rows, columns, bytes: objects.bytes };
-    });
+        return await withDestination(destination, async (sink) => {
+            const session = new PdfWriteSession(sink, prepared), { objects, pages, fonts } = session, images = new PdfDocumentImages(objects, prepared);
+            let rows = 0, budgetRows = 0, columns = 0, commands = 0, drawingElements = 0, listItems = 0;
+            let pending = [];
+            const flushParagraphs = async (nextHeight = 0) => {
+                const paragraphs = [];
+                for (const paragraph of pending)
+                    paragraphs.push(await prepareParagraph(paragraph, pages.settings, fonts));
+                pending = [];
+                await pages.paragraphs(paragraphs, nextHeight);
+            };
+            const enqueueParagraph = async (block) => {
+                const paragraph = captureParagraph(block, pages.settings, fonts);
+                if (!paragraph.text.text)
+                    return;
+                if (pending.length || paragraph.keepWithNext) {
+                    pending.push(paragraph);
+                    checkParagraphBuffer(pending, pages.settings);
+                    if (!paragraph.keepWithNext)
+                        await flushParagraphs();
+                }
+                else
+                    await pages.paragraphs([await prepareParagraph(paragraph, pages.settings, fonts)]);
+            };
+            const prepareCaption = async (captured) => captured === undefined ? undefined : prepareParagraph(captured, pages.settings, fonts);
+            const snapshotCaption = (caption) => caption === undefined ? undefined : captureCaption(caption, pages.settings, fonts);
+            await session.start();
+            await consumeRows(blocks, options.signal, async (block) => {
+                if (!block || typeof block !== "object")
+                    throw new TypeError("PDF document blocks must be objects.");
+                switch (block.kind) {
+                    case "section": {
+                        const capturedSection = captureSection(block, prepared);
+                        await flushParagraphs();
+                        const section = await pages.beginSection(capturedSection);
+                        if (section.includeHeading)
+                            await enqueueParagraph({ kind: "paragraph", text: section.title,
+                                headingLevel: section.level, ...(section.headingStyle === undefined ?
+                                    { fontSize: pages.settings.fontSize * 1.5, presentation: { bold: true } } : { style: section.headingStyle }),
+                                keepTogether: true, keepWithNext: true,
+                                ...(section.bookmark ? { bookmark: { title: section.title, level: section.level } } : {}) });
+                        else if (section.bookmark)
+                            pages.addBookmark({ title: section.title, level: section.level });
+                        break;
+                    }
+                    case "paragraph":
+                        await enqueueParagraph(block);
+                        break;
+                    case "list": {
+                        const captured = captureListOptions(block, pages.settings);
+                        let count = 0, owner;
+                        await consumeRows(captured.items, options.signal, async (item) => {
+                            if (++listItems > prepared.limits.maxListItems)
+                                throw new OfficeIMOError("RESOURCE_LIMIT", "maxListItems exceeded.");
+                            const laidOut = await prepareListItem(item, count++, captured, pages.settings, fonts);
+                            if (count === 1) {
+                                await flushParagraphs(laidOut.paragraph.keepTogether ? laidOut.paragraph.height : laidOut.paragraph.firstHeight);
+                                owner = session.structure?.element("L");
+                            }
+                            await pages.listItem(laidOut, owner);
+                            if (taskYieldDue())
+                                await pause();
+                            checkAbort(options.signal);
+                        });
+                        await session.structure?.complete(owner);
+                        break;
+                    }
+                    case "group": {
+                        const blocks = block.blocks, keepTogether = block.keepTogether;
+                        if (!Array.isArray(blocks))
+                            throw new TypeError("PDF paragraph group blocks must be an array.");
+                        if (keepTogether !== undefined && typeof keepTogether !== "boolean")
+                            throw new TypeError("PDF paragraph group keepTogether must be boolean.");
+                        if (blocks.length > prepared.limits.maxGroupBlocks)
+                            throw new OfficeIMOError("RESOURCE_LIMIT", "maxGroupBlocks exceeded.");
+                        const captured = [];
+                        for (const paragraph of blocks) {
+                            captured.push(captureParagraph(paragraph, pages.settings, fonts));
+                            checkParagraphBuffer(captured, prepared);
+                        }
+                        if (captured.filter(paragraph => paragraph.text.text).at(-1)?.keepWithNext)
+                            throw new TypeError("The last paragraph in a group cannot keepWithNext beyond the group's boundary.");
+                        const paragraphs = [];
+                        for (const paragraph of captured)
+                            paragraphs.push(await prepareParagraph(paragraph, pages.settings, fonts));
+                        if (!paragraphs.some(paragraph => paragraph.lines.length > 0))
+                            break;
+                        await flushParagraphs(keepTogether !== false ? paragraphs.reduce((height, paragraph) => height + paragraph.height, 0) : paragraphStartHeight(paragraphs));
+                        await pages.paragraphs(paragraphs, 0, keepTogether !== false);
+                        break;
+                    }
+                    case "pageBreak":
+                        await flushParagraphs();
+                        await pages.pageBreak();
+                        break;
+                    case "groupedTable":
+                        await renderGroupedPdfTable(block, { prepared, pages, fonts, controller, flushParagraphs,
+                            acceptColumns: count => { columns = Math.max(columns, count); },
+                            acceptRow: source => {
+                                budget.row(++budgetRows);
+                                if (source && ++rows % 256 === 0)
+                                    notifyProgress(options.onProgress, { phase: "rows", rows, bytes: objects.bytes });
+                            } });
+                        break;
+                    case "table": {
+                        const { options: inputTableOptions, rows: source, caption: inputCaption, continuationCaption: inputContinuationCaption } = block;
+                        const tableOptions = captureTableOptions(inputTableOptions);
+                        const capturedCaption = snapshotCaption(inputCaption);
+                        const capturedContinuationCaption = snapshotCaption(inputContinuationCaption);
+                        const table = settings({ ...pages.settings.options, ...tableOptions, columns: tableOptions?.columns, includeHeader: tableOptions?.includeHeader ?? true }), layout = new PdfTableLayout({ ...table, budget }, fonts);
+                        const caption = await prepareCaption(capturedCaption);
+                        const continuationCaption = await prepareCaption(capturedContinuationCaption);
+                        const project = createRowProjector(table.options.columns, undefined, options.signal);
+                        let count = 0, started = false;
+                        columns = Math.max(columns, table.options.columns.length);
+                        const headings = await layout.headers(), headingHeight = await layout.blockHeight(headings);
+                        await consumeRows(source, options.signal, async (row) => {
+                            budget.row(++budgetRows);
+                            const laidOut = await layout.data(project(row, count), count), keptHeading = !started && (pending.length > 0 || !!caption?.lines.length);
+                            if (!started) {
+                                const minimum = layout.minimumRowHeight(laidOut);
+                                await flushParagraphs((caption?.height ?? 0) + headingHeight + minimum);
+                                await pages.beginTable(layout, headings, minimum, caption, continuationCaption);
+                                started = true;
+                            }
+                            await pages.row(laidOut, keptHeading);
+                            count++;
+                            rows++;
+                            if (rows % 256 === 0)
+                                notifyProgress(options.onProgress, { phase: "rows", rows, bytes: objects.bytes });
+                            if (taskYieldDue())
+                                await pause();
+                            checkAbort(options.signal);
+                        });
+                        const footer = await layout.footer(count), keptFooterHeading = !started && (pending.length > 0 || !!caption?.lines.length);
+                        if (!started) {
+                            if (!headings.length && !footer?.length)
+                                break;
+                            const minimum = footer?.length ? table.options.footer?.rows ? await layout.blockHeight(footer) :
+                                layout.minimumRowHeight(footer[0]) : 0;
+                            await flushParagraphs((caption?.height ?? 0) + headingHeight + minimum);
+                            await pages.beginTable(layout, headings, minimum, caption, continuationCaption);
+                        }
+                        if (footer) {
+                            if (table.options.footer?.rows)
+                                await pages.block(footer);
+                            else
+                                await pages.row(footer[0], keptFooterHeading);
+                        }
+                        await pages.endTable();
+                        break;
+                    }
+                    case "image": {
+                        const { width: displayWidth, height: displayHeight, image: inputImage, caption: inputCaption } = block;
+                        const capturedCaption = snapshotCaption(inputCaption), alternative = graphicAlternative(block, pages.settings), alignment = graphicAlignment(block.alignment);
+                        if (capturedCaption && alternative === undefined)
+                            throw new TypeError("A captioned PDF graphic requires alternativeText and cannot be decorative.");
+                        const image = await images.prepare(inputImage), caption = await prepareCaption(capturedCaption);
+                        const width = displayWidth ?? (displayHeight === undefined ? image.width * .75 : displayHeight * image.width / image.height);
+                        const height = displayHeight ?? width * image.height / image.width;
+                        if (!Number.isFinite(width) || width <= 0 || !Number.isFinite(height) || height <= 0)
+                            throw new RangeError("Image display dimensions must be finite and positive.");
+                        await flushParagraphs((caption?.height ?? 0) + pages.graphicHeight(width, height));
+                        pages.registerXObject(image.name, image.id);
+                        await pages.graphic(width, height, alignment, (x, y, w, h) => "q " + [w, 0, 0, h, x, y].map(n).join(" ") + " cm /" + image.name + " Do Q\n", alternative, caption);
+                        break;
+                    }
+                    case "vector": {
+                        const capturedCaption = snapshotCaption(block.caption), alternative = graphicAlternative(block, pages.settings), alignment = graphicAlignment(block.alignment);
+                        if (capturedCaption && alternative === undefined)
+                            throw new TypeError("A captioned PDF graphic requires alternativeText and cannot be decorative.");
+                        const path = await vectorCommands(block, pages.settings, commands), caption = await prepareCaption(capturedCaption);
+                        commands += path.count;
+                        await flushParagraphs((caption?.height ?? 0) + pages.graphicHeight(path.width, path.height));
+                        await pages.graphic(path.width, path.height, alignment, (x, y, w, h) => "q " + [w / path.width, 0, 0, -h / path.height, x, y + h].map(n).join(" ") +
+                            " cm 0 0 " + n(path.width) + " " + n(path.height) + " re W n\n" + path.content + "Q\n", alternative, caption);
+                        break;
+                    }
+                    case "drawing": {
+                        checkDrawingBlock(block);
+                        const inputDrawing = block.drawing, capturedCaption = snapshotCaption(block.caption), alternative = graphicAlternative(block, pages.settings), alignment = graphicAlignment(block.alignment);
+                        if (capturedCaption && alternative === undefined)
+                            throw new TypeError("A captioned PDF graphic requires alternativeText and cannot be decorative.");
+                        const drawing = await prepareDrawing(inputDrawing, pages.settings, fonts, { commands, elements: drawingElements }), caption = await prepareCaption(capturedCaption);
+                        commands += drawing.commands;
+                        drawingElements += drawing.elements;
+                        await flushParagraphs((caption?.height ?? 0) + pages.graphicHeight(drawing.width, drawing.height));
+                        await pages.graphic(drawing.width, drawing.height, alignment, (x, y, w, h) => "q " + [w / drawing.width, 0, 0, -h / drawing.height, x, y + h].map(n).join(" ") +
+                            " cm 0 0 " + n(drawing.width) + " " + n(drawing.height) + " re W n\n" + drawing.content + "Q\n", alternative, caption);
+                        break;
+                    }
+                    default: throw new TypeError("Unsupported PDF document block.");
+                }
+                if (taskYieldDue())
+                    await pause();
+                checkAbort(options.signal);
+            });
+            await flushParagraphs();
+            if (options.messageBottom)
+                await pages.paragraph(options.messageBottom);
+            await session.finish();
+            notifyProgress(options.onProgress, { phase: "complete", rows, bytes: objects.bytes });
+            checkAbort(options.signal);
+            return { rows, columns, bytes: objects.bytes };
+        });
+    }
+    finally {
+        parentSignal?.removeEventListener("abort", abort);
+    }
 }
 function graphicAlignment(value) {
     if (value !== undefined && !["left", "center", "right"].includes(value))
@@ -6477,20 +11504,71 @@ function graphicAlignment(value) {
     return value ?? "left";
 }
 /** Per-table overrides cannot change the document's shared fonts, geometry or resource policy. */
-function checkTableOptions(options) {
-    const allowed = ["columns", "includeHeader", "headerRows", "footer", "headerPresentation", "footerPresentation", "alternateRowColor", "columnWidths", "wideTable", "formatValue"];
-    if (!options || typeof options !== "object" || Object.keys(options).some(key => !allowed.includes(key)))
+function captureTableOptions(options) {
+    if (!options || typeof options !== "object" || Object.keys(options).some(key => !tableOptionFields.includes(key)))
         throw new TypeError("Table options support columns, headings, footers, widths and presentation; document settings belong on writePdfDocument.");
+    const captured = captureFields(options, tableOptionFields);
+    return { ...captured, ...(captured.wideTable === undefined ? {} : { wideTable: captureWideTable(captured.wideTable) }) };
 }
 const _exports = Object.freeze({ pdfTable: pdfTable, writePdfDocument: writePdfDocument, writePdfDocumentTo: writePdfDocumentTo });
-_modules.set("2e94c07f933c8e8c042005e935e0b0a3a8bd782b815220f8863be728570e5981", _exports);
+_modules.set("9051bf9fc3168e24b53b16c123a42816198456846003fb49191c03a18cdab904", _exports);
 return _exports;
 })();
 
-const _m58 = _modules.get("ed8eb038bc649a3b76f0797059ab082ebadd1b9a205b8cea7bda1f0c42ffe47b") ?? (() => {
-const { fontProgram } = _m42;
+const _m83 = _modules.get("abe76e52ffeed11ab42477c83ddde1d1d7de28b803096436b5b23cb153af58ba") ?? (() => {
+const { assertGroupedReportSource } = _m8;
 
-const { resolveScalar, selectFont, validateFonts } = _m46;
+const { BlobByteSink } = _m3;
+
+const { writePdfDocumentTo } = _m84;
+
+const { pdfOptionFields } = _m56;
+
+const { captureFields } = _m10;
+
+const { pdfGroupedTable, groupedPdfLabelFields, groupedPdfTableFields } = _m92;
+
+
+
+const groupedOptionFields = [...pdfOptionFields, ...groupedPdfLabelFields];
+/** Stream analytical groups through the composed document owner. No group body is retained. */
+async function writeGroupedPdf(report, configuration) {
+    const sink = new BlobByteSink();
+    try {
+        await writeGroupedPdfTo(report, sink, configuration);
+        return sink.toBlob("application/pdf");
+    }
+    catch (error) {
+        sink.discard();
+        throw error;
+    }
+}
+/** Result/progress rows count source data. Generated subtotals and grand totals also consume maxRows.
+ * Tagged output uses nested group sections and separately headed summary tables. Untagged oversized
+ * detail/subtotal bundles use ordinary row pagination. */
+async function writeGroupedPdfTo(report, destination, configuration) {
+    assertGroupedReportSource(report);
+    if (!configuration || typeof configuration !== "object")
+        throw new TypeError("Grouped PDF options are required.");
+    const captured = captureFields(configuration, groupedOptionFields);
+    const tableOptions = Object.fromEntries(groupedPdfTableFields.filter(name => Object.hasOwn(captured, name)).map(name => [name, captured[name]]));
+    const documentOptions = { ...captured };
+    for (const name of groupedPdfTableFields)
+        delete documentOptions[name];
+    delete documentOptions.columns;
+    delete documentOptions.headerRows;
+    delete documentOptions.footer;
+    return writePdfDocumentTo([pdfGroupedTable(report, tableOptions)], destination, documentOptions);
+}
+const _exports = Object.freeze({ pdfGroupedTable: _m92.pdfGroupedTable, writeGroupedPdf: writeGroupedPdf, writeGroupedPdfTo: writeGroupedPdfTo });
+_modules.set("abe76e52ffeed11ab42477c83ddde1d1d7de28b803096436b5b23cb153af58ba", _exports);
+return _exports;
+})();
+
+const _m93 = _modules.get("3d777096288d1be55a05a80bc015d4674212e587703f25a7e7cf99a8065feb86") ?? (() => {
+const { fontProgram } = _m63;
+
+const { resolveScalar, selectFont, validateFonts } = _m67;
 
 /**
  * Check one text run against the writer's selected font and scalar-layout rules.
@@ -6523,18 +11601,18 @@ function preflightPdfText(text, options = {}) {
     return { supported: true };
 }
 const _exports = Object.freeze({ preflightPdfText: preflightPdfText });
-_modules.set("ed8eb038bc649a3b76f0797059ab082ebadd1b9a205b8cea7bda1f0c42ffe47b", _exports);
+_modules.set("3d777096288d1be55a05a80bc015d4674212e587703f25a7e7cf99a8065feb86", _exports);
 return _exports;
 })();
 
-const _m35 = _modules.get("388158d4403b323c761c5cdb26e27a7e538e9704bf1e1b0561fa49fac1a14279") ?? (() => {
+const _m54 = _modules.get("027aafa08408056b10d7d717d63d1f7c0ee20ecfc68213aa66feacc75ec525fe") ?? (() => {
 
-const _exports = Object.freeze({ writePdf: _m36.writePdf, writePdfTo: _m36.writePdfTo, writePdfDocument: _m53.writePdfDocument, writePdfDocumentTo: _m53.writePdfDocumentTo, pdfTable: _m53.pdfTable, PdfFont: _m42.PdfFont, preflightPdfText: _m58.preflightPdfText, ExportCell: _m5.ExportCell, saveBlob: _m1.saveBlob });
-_modules.set("388158d4403b323c761c5cdb26e27a7e538e9704bf1e1b0561fa49fac1a14279", _exports);
+const _exports = Object.freeze({ writePdf: _m55.writePdf, writePdfTo: _m55.writePdfTo, writeGroupedPdf: _m83.writeGroupedPdf, writeGroupedPdfTo: _m83.writeGroupedPdfTo, pdfGroupedTable: _m83.pdfGroupedTable, createGroupedReport: _m8.createGroupedReport, writePdfDocument: _m84.writePdfDocument, writePdfDocumentTo: _m84.writePdfDocumentTo, pdfTable: _m84.pdfTable, PdfFont: _m63.PdfFont, preflightPdfText: _m93.preflightPdfText, ExportCell: _m5.ExportCell, saveBlob: _m1.saveBlob });
+_modules.set("027aafa08408056b10d7d717d63d1f7c0ee20ecfc68213aa66feacc75ec525fe", _exports);
 return _exports;
 })();
 
-const _m59 = _modules.get("e37eb5f0298d8bc9492db790f163f4a1d6d8b4293981cfdacfcd9d9810ec9b7f") ?? (() => {
+const _m94 = _modules.get("e37eb5f0298d8bc9492db790f163f4a1d6d8b4293981cfdacfcd9d9810ec9b7f") ?? (() => {
 /** @internal Runtime-checked calls across the optional third-party API boundary. */
 function call(owner, name, ...args) {
     const fn = member(owner, name);
@@ -6567,12 +11645,12 @@ _modules.set("e37eb5f0298d8bc9492db790f163f4a1d6d8b4293981cfdacfcd9d9810ec9b7f",
 return _exports;
 })();
 
-const _m60 = _modules.get("892f06c1375b74a3bcbf2ecd661c9fd8afc510834aa92f354a52d6b11b6c22de") ?? (() => {
+const _m95 = _modules.get("0e5ede7759618ed3ec827d34fbd62b205f3a5241650504807c24e5323a2496a5") ?? (() => {
 const { ExportCell, assertExportValue } = _m5;
 
-const { tableSpans } = _m38;
+const { tableSpans } = _m17;
 
-const { member } = _m59;
+const { member } = _m94;
 
 /** @internal */
 function value(input) {
@@ -6637,21 +11715,26 @@ function headings(structure, leaf, mode) {
     return { rows, groups };
 }
 const _exports = Object.freeze({ value: value, text: text, headings: headings });
-_modules.set("892f06c1375b74a3bcbf2ecd661c9fd8afc510834aa92f354a52d6b11b6c22de", _exports);
+_modules.set("0e5ede7759618ed3ec827d34fbd62b205f3a5241650504807c24e5323a2496a5", _exports);
 return _exports;
 })();
 
-const _m61 = _modules.get("450f1c10bf139ee3ff4a738a059df38854791cdd0240014033a57497c1321370") ?? (() => {
+const _m96 = _modules.get("355177890a4e7a43de040650e9c2359a6ccf105705bc6231f51db5975a838d3d") ?? (() => {
 const { checkAbort, pause, rowsFromBatches, taskYieldDue } = _m4;
 
-const { ExportBudget } = _m10;
+const { ExportBudget } = _m9;
 
-const { array, call, indexes, member } = _m59;
+const { captureFields } = _m10;
 
-const { headings, text, value } = _m60;
+const { columnOptionFields, copyColumns } = _m11;
+
+const { array, call, indexes, member } = _m94;
+
+const { headings, text, value } = _m95;
 
 function safeOptions(options) {
-    const format = options.format ? { ...options.format } : undefined, customize = options.customizeData;
+    options = captureFields(options, ["rows", "columns", "modifier", "orthogonal", "stripHtml", "stripNewlines", "decodeEntities", "escapeExcelFormula", "trim", "format", "customizeData"]);
+    const format = options.format && captureFields(options.format, ["header", "footer", "body"]), customize = options.customizeData;
     return { ...options, ...(format ? { format: {
                 ...(format.header ? { header: (v, c, n) => value(format.header(v, c, n)) } : {}),
                 ...(format.footer ? { footer: (v, c, n) => value(format.footer(v, c, n)) } : {}),
@@ -6669,6 +11752,12 @@ function createDataTablesExport(host, table, options = {}) {
 }
 /** @internal Writers omit source structures only when their output explicitly suppresses or replaces them. */
 function captureDataTablesExport(host, table, options = {}, omitted) {
+    options = captureFields(options, ["mode", "exportOptions", "batchRows", "maxBatchCells", "headings", "includeFooter", "serverSide", "columnOptions", "project", "signal", "limits", "onProgress"]);
+    if (options.columnOptions !== undefined) {
+        const columnOptions = Object.fromEntries(Object.entries(options.columnOptions).map(([index, column]) => [index,
+            captureFields(column, columnOptionFields)]));
+        options = { ...options, columnOptions };
+    }
     for (const column of Object.values(options.columnOptions ?? {}))
         if (column.style !== undefined)
             throw new TypeError("Workbook-local column styles require the advanced Workbook API; use portable ExportCell presentation.");
@@ -6716,10 +11805,10 @@ function captureDataTablesExport(host, table, options = {}, omitted) {
     for (const index of columnIndexes)
         if (member(options.columnOptions?.[index], "value") !== undefined)
             throw new TypeError("DataTables columnOptions describes columns; resolve values with project.");
-    const columns = Object.freeze(leaf.map((label, index) => Object.freeze({
+    const columns = Object.freeze(copyColumns(leaf.map((label, index) => ({
         header: text(label), key: "dt:" + columnIndexes[index], ...options.columnOptions?.[columnIndexes[index]],
         ...(heading.groups[index].length ? { groups: Object.freeze(heading.groups[index]) } : {})
-    })));
+    }))).map(column => Object.freeze(column)));
     // Explicit heading overrides also apply to CSV's leaf heading.
     if (!heading.structure)
         heading.rows[heading.rows.length - 1] = columns.map(column => column.header);
@@ -6844,73 +11933,134 @@ function captureDataTablesExport(host, table, options = {}, omitted) {
         ...(footerHeading?.structure ? { footerStructure: footerHeading.structure } : {}), rowCount: count, rows });
 }
 const _exports = Object.freeze({ createDataTablesExport: createDataTablesExport, captureDataTablesExport: captureDataTablesExport });
-_modules.set("450f1c10bf139ee3ff4a738a059df38854791cdd0240014033a57497c1321370", _exports);
+_modules.set("355177890a4e7a43de040650e9c2359a6ccf105705bc6231f51db5975a838d3d", _exports);
 return _exports;
 })();
 
-const _m0 = _modules.get("2b734895bbb7b72e14762f464386c9f3bdbcc631387c6eda6b1d85d73df95cc9") ?? (() => {
+const _m97 = _modules.get("7b12a415e92cc9ef7212fb3a88007cb6dc37f9f30077165d4897cfa8052f9a3c") ?? (() => {
+const { captureFields } = _m10;
+
+const { ExportBudget } = _m9;
+
+const { captureCsvOptions: captureCsv } = _m19;
+
+const { capturePdfOptions: capturePdf, capturePdfLimits, pdfLimitFields } = _m56;
+
+const { captureWorkbookLimits, workbookLimitFields, workbookOptionFields, sheetOptionFields } = _m47;
+
+const limitFields = [...new Set([...workbookLimitFields, ...pdfLimitFields])];
+const portableWorkbookFields = workbookOptionFields.filter((key) => key !== "sink");
+/** Shared adapter budgets override only explicitly supplied numeric format ceilings. */
+function captureCommonLimits(input) {
+    return input === undefined ? undefined : new ExportBudget(captureFields(input, limitFields)).limits;
+}
+function mergeAdapterLimits(format, common) {
+    const result = { ...format };
+    for (const [key, value] of Object.entries(common ?? {}))
+        if (value !== undefined)
+            result[key] = value;
+    return result;
+}
+/** Snapshot the format owner's fields before an adapter adds captured columns and stream policy. */
+function captureXlsxOptions(input = {}) {
+    const options = captureFields(input, [...portableWorkbookFields, "sheet"]);
+    const sheet = options.sheet && captureFields(options.sheet, [...sheetOptionFields, "name"]);
+    const footer = sheet?.footer && captureFields(sheet.footer, ["rows", "values", "totals", "style"]);
+    return { ...options, ...(sheet === undefined ? {} : { sheet: { ...sheet, ...(footer === undefined ? {} : { footer }) } }),
+        ...(options.limits === undefined ? {} : { limits: captureWorkbookLimits(options.limits) }) };
+}
+function captureCsvOptions(input = {}) {
+    const options = captureCsv(input);
+    return { ...options, ...(options.limits === undefined ? {} : { limits: new ExportBudget(options.limits).limits }) };
+}
+function capturePdfOptions(input = {}) {
+    const options = capturePdf(input);
+    return { ...options, ...(options.limits === undefined ? {} : { limits: capturePdfLimits(options.limits) }) };
+}
+const _exports = Object.freeze({ captureCommonLimits: captureCommonLimits, mergeAdapterLimits: mergeAdapterLimits, captureXlsxOptions: captureXlsxOptions, captureCsvOptions: captureCsvOptions, capturePdfOptions: capturePdfOptions });
+_modules.set("7b12a415e92cc9ef7212fb3a88007cb6dc37f9f30077165d4897cfa8052f9a3c", _exports);
+return _exports;
+})();
+
+const _m0 = _modules.get("571a217eb75fbbfeb244bbc3a64f986028b15856b358e866f22bb100de13ba75") ?? (() => {
 const { BlobByteSink, checkAbort, saveBlob } = _m1;
 
-const { concatRows } = _m4;
+const { notifyProgress } = _m14;
 
-const { notifyProgress } = _m8;
+const { writeCsvTo } = _m15;
 
-const { writeCsvTo } = _m9;
+const { writeXlsxTo } = _m20;
 
-const { writeXlsxTo } = _m12;
+const { writePdfTo } = _m54;
 
-const { writePdfTo } = _m35;
+const { portableSheet, portableWorkbook } = _m51;
 
-const { portableSheet, portableWorkbook } = _m34;
+const { call, member } = _m94;
 
-const { call, member } = _m59;
+const { value } = _m95;
 
-const { value } = _m60;
+const { captureDataTablesExport } = _m96;
 
-const { captureDataTablesExport, createDataTablesExport } = _m61;
+const { captureFields } = _m10;
 
-
-
-
+const { captureCommonLimits, captureXlsxOptions, captureCsvOptions, capturePdfOptions, mergeAdapterLimits } = _m97;
 
 
 
+
+
+
+
+const writeOptionFields = ["mode", "exportOptions", "batchRows", "maxBatchCells", "headings", "includeFooter", "serverSide", "columnOptions", "project", "signal", "limits", "onProgress", "xlsx", "csv", "pdf"];
+const buttonOptionFields = [...writeOptionFields, "filename", "save", "onError"];
 /** Write directly to a caller-owned destination. Failed destinations own disposal of their partial bytes. */
 async function writeDataTableTo(host, table, format, destination, options = {}) {
     if (format !== "xlsx" && format !== "csv" && format !== "pdf")
         throw new TypeError("DataTables export format must be xlsx, csv or pdf.");
-    if (format !== "pdf" && options.headings === "structured")
-        throw new TypeError("Structured headings require PDF output; use grouped or leaf for Excel/CSV.");
-    portableSheet(options.sheet);
-    portableWorkbook(options.workbook);
-    const source = format === "pdf" ? captureDataTablesExport(host, table, { ...options, headings: options.headings ?? "structured" }, {
-        header: options.pdf?.includeHeader === false || options.pdf?.headerRows !== undefined,
-        footer: options.pdf?.footer !== undefined
-    }) : createDataTablesExport(host, table, options), signal = options.signal;
-    let result;
-    const stream = { ...(signal ? { signal } : {}), ...(options.limits ? { limits: options.limits } : {}) };
+    for (const key of ["workbook", "sheet", "sheetName"])
+        if (key in options)
+            throw new TypeError("DataTables writer settings belong in xlsx; use xlsx.sheet.name for the worksheet name.");
+    const captured = captureFields(options, writeOptionFields);
+    const { signal, onProgress } = captured, limits = captureCommonLimits(captured.limits);
+    const xlsx = captureXlsxOptions(format === "xlsx" ? captured.xlsx : undefined);
+    const csv = captureCsvOptions(format === "csv" ? captured.csv : undefined);
+    const pdf = capturePdfOptions(format === "pdf" ? captured.pdf : undefined);
+    const sheet = xlsx.sheet;
     if (format === "xlsx") {
-        const footer = source.footer || options.sheet?.footer ? { values: source.footer ?? [], ...options.sheet?.footer } : undefined;
-        result = await writeXlsxTo(source.rows, destination, { ...options.workbook, ...stream, columns: source.columns,
-            sheet: { ...options.sheet, name: options.sheetName ?? "Data", ...(footer ? { footer } : {}) },
-            ...(options.onProgress ? { onProgress: event => notifyProgress(options.onProgress, { ...event, totalRows: source.rowCount }) } : {}) });
+        portableSheet(sheet);
+        portableWorkbook(xlsx);
+    }
+    const replacementXlsxFooter = sheet?.footer && [sheet.footer.rows, sheet.footer.values, sheet.footer.totals].some(value => value !== undefined);
+    const source = captureDataTablesExport(host, table, { ...captured, ...(limits === undefined ? {} : { limits }), ...(format === "pdf" ? { headings: captured.headings ?? "structured" } : {}) }, {
+        header: format === "pdf" ? pdf.includeHeader === false || pdf.headerRows !== undefined
+            : format === "xlsx" ? sheet?.includeHeader === false || sheet?.headerRows !== undefined
+                : csv.includeHeader === false || csv.headerRows !== undefined,
+        footer: format === "pdf" ? pdf.footer !== undefined : format === "xlsx" ? Boolean(replacementXlsxFooter) : csv.footer !== undefined
+    });
+    let result;
+    const stream = { ...(signal ? { signal } : {}), ...(onProgress ? {
+            onProgress: (event) => notifyProgress(onProgress, { ...event, totalRows: source.rowCount })
+        } : {}) };
+    if (format === "xlsx") {
+        const sourceFooter = source.footerStructure ? { rows: source.footerStructure } : source.footer ? { values: source.footer } : undefined;
+        const footer = replacementXlsxFooter ? sheet?.footer : sourceFooter || sheet?.footer ? { ...sourceFooter, ...sheet?.footer } : undefined;
+        result = await writeXlsxTo(source.rows, destination, { ...xlsx, ...stream, columns: source.columns,
+            limits: mergeAdapterLimits(xlsx.limits, limits),
+            sheet: { ...sheet, ...(source.headerStructure && sheet?.includeHeader !== false && sheet?.headerRows === undefined ? { headerRows: source.headerStructure } : {}), ...(footer ? { footer } : {}) } });
     }
     else if (format === "pdf") {
-        const footer = options.pdf?.footer ?? (source.footerStructure ? { rows: source.footerStructure } : source.footer ? { values: source.footer } : undefined);
-        result = await writePdfTo(source.rows, destination, { ...options.pdf, ...stream, columns: source.columns,
-            ...(source.headerStructure && options.pdf?.includeHeader !== false && !options.pdf?.headerRows ? { headerRows: source.headerStructure } : {}),
-            ...(footer ? { footer } : {}),
-            ...(options.onProgress ? { onProgress: event => notifyProgress(options.onProgress, { ...event, totalRows: source.rowCount }) } : {}) });
+        const footer = pdf.footer ?? (source.footerStructure ? { rows: source.footerStructure } : source.footer ? { values: source.footer } : undefined);
+        result = await writePdfTo(source.rows, destination, { ...pdf, ...stream, columns: source.columns,
+            limits: mergeAdapterLimits(pdf.limits, limits),
+            ...(source.headerStructure && pdf.includeHeader !== false && !pdf.headerRows ? { headerRows: source.headerStructure } : {}),
+            ...(footer ? { footer } : {}) });
     }
     else {
-        const headingCount = source.headers.length, footerCount = source.footer ? 1 : 0;
-        const rows = concatRows(source.headers, source.rows, source.footer ? [source.footer] : []);
-        result = await writeCsvTo(rows, destination, { ...options.csv, ...stream, columns: source.columns, includeHeader: false,
-            ...(options.limits?.maxRows !== undefined ? { limits: { ...options.limits, maxRows: Math.min(Number.MAX_SAFE_INTEGER, options.limits.maxRows + headingCount + footerCount) } } : {}),
-            onProgress: event => {
-                const rowCount = Math.max(0, Math.min(source.rowCount, event.rows - headingCount));
-                notifyProgress(options.onProgress, { ...event, rows: rowCount, totalRows: source.rowCount });
-            } });
+        const footer = csv.footer ?? (source.footerStructure ? { rows: source.footerStructure }
+            : source.footer ? { rows: [source.footer.map(value => ({ value }))] } : undefined);
+        result = await writeCsvTo(source.rows, destination, { ...csv, ...stream, columns: source.columns,
+            limits: mergeAdapterLimits(csv.limits, limits),
+            ...(csv.includeHeader !== false && csv.headerRows === undefined ? { headerRows: source.headerStructure ?? source.headers.map(row => row.map(value => ({ value }))) } : {}), ...(footer ? { footer } : {}) });
     }
     checkAbort(signal);
     return { rows: source.rowCount, columns: source.columns.length, bytes: result.bytes };
@@ -6920,7 +12070,6 @@ async function exportDataTable(host, table, format, options = {}) {
     const sink = new BlobByteSink();
     try {
         await writeDataTableTo(host, table, format, sink, options);
-        checkAbort(options.signal);
         return sink.toBlob(format === "pdf" ? "application/pdf" : format === "csv" ? "text/csv;charset=utf-8" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     }
     catch (error) {
@@ -6943,15 +12092,25 @@ function registerDataTablesButtons(host, options = {}) {
                 void (async () => {
                     try {
                         const configured = member(configuration, "officeimo"), filename = member(configuration, "filename");
-                        current = { ...options, ...configured,
+                        if (configured !== undefined && (!configured || typeof configured !== "object"))
+                            throw new TypeError("Button officeimo settings must be an object.");
+                        const defaults = captureFields(options, buttonOptionFields), overrides = captureFields((configured ?? {}), buttonOptionFields);
+                        current = { ...defaults, ...overrides,
                             ...(filename !== undefined ? { filename: filename } : {}),
                             ...(member(configuration, "footer") === false ? { includeFooter: false } : {}),
                             ...(member(configuration, "exportOptions") ? { exportOptions: member(configuration, "exportOptions") } : {}) };
                         if (member(configuration, "customize") !== undefined)
-                            throw new TypeError("Native customize callbacks are unsupported; use OfficeIMO sheet/workbook/pdf options.");
+                            throw new TypeError("Native customize callbacks are unsupported; use OfficeIMO xlsx/pdf options.");
+                        if (format === "xlsx") {
+                            const base = captureXlsxOptions(defaults.xlsx), selected = captureXlsxOptions(overrides.xlsx);
+                            current = { ...current, xlsx: { ...base, ...selected,
+                                    ...(base.sheet || selected.sheet ? { sheet: { ...base.sheet, ...selected.sheet } } : {}) } };
+                        }
+                        else if (format === "csv")
+                            current = { ...current, csv: { ...captureCsvOptions(defaults.csv), ...captureCsvOptions(overrides.csv) } };
                         if (format === "pdf") {
                             const info = call(table.buttons, "exportInfo", configuration);
-                            const pdf = { ...options.pdf, ...current.pdf };
+                            const pdf = { ...capturePdfOptions(defaults.pdf), ...capturePdfOptions(overrides.pdf) };
                             for (const key of ["title", "messageTop", "messageBottom"])
                                 if (member(configuration, key) !== undefined) {
                                     if (member(configuration, key) === null) {
@@ -6979,7 +12138,7 @@ function registerDataTablesButtons(host, options = {}) {
                             current = { ...current, pdf };
                         }
                         else if (member(configuration, "header") === false || ["title", "messageTop", "messageBottom"].some(key => member(configuration, key) != null))
-                            throw new TypeError("Use OfficeIMO sheet title/footer options; native Buttons report layout options are unsupported.");
+                            throw new TypeError("Use OfficeIMO xlsx.sheet title/footer options; native Buttons report layout options are unsupported.");
                         const pattern = value(typeof current.filename === "function" ? current.filename(configuration, table) : current.filename ?? "Export");
                         if (typeof pattern !== "string" || !pattern.trim())
                             throw new TypeError("Export filename must be a non-empty string.");
@@ -7005,8 +12164,8 @@ function registerDataTablesButtons(host, options = {}) {
         };
     }
 }
-const _exports = Object.freeze({ createDataTablesExport: _m61.createDataTablesExport, ExportCell: _m5.ExportCell, PdfFont: _m42.PdfFont, writeDataTableTo: writeDataTableTo, exportDataTable: exportDataTable, registerDataTablesButtons: registerDataTablesButtons });
-_modules.set("2b734895bbb7b72e14762f464386c9f3bdbcc631387c6eda6b1d85d73df95cc9", _exports);
+const _exports = Object.freeze({ createDataTablesExport: _m96.createDataTablesExport, ExportCell: _m5.ExportCell, PdfFont: _m63.PdfFont, writeDataTableTo: writeDataTableTo, exportDataTable: exportDataTable, registerDataTablesButtons: registerDataTablesButtons });
+_modules.set("571a217eb75fbbfeb244bbc3a64f986028b15856b358e866f22bb100de13ba75", _exports);
 return _exports;
 })();
 Object.assign(officeimo, _m0);

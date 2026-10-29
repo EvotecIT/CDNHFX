@@ -63,6 +63,11 @@
   function select(root, key, updateAddress, focus) {
     var items = tabs(root), selected = items.filter(function (t) { return t.getAttribute('data-hfx-rv-tab') === key; })[0];
     if (!selected) return false;
+    // A direct chapter address can name a tab inside inactive ancestor chapters.
+    for (var ancestor = root.parentElement && root.parentElement.closest('[data-hfx-rv-panel]'); ancestor;
+        ancestor = ancestor.parentElement && ancestor.parentElement.closest('[data-hfx-rv-panel]')) {
+      if (ancestor.hidden) openChapter(ancestor);
+    }
     var page = root.closest('[data-hfx-shell-page]');
     if (page && window.hfxReport) window.hfxReport.showPageIn(root.closest('[data-hfx-shell]'), page.getAttribute('data-hfx-shell-page'), { updateHash: false, scroll: false });
     items.forEach(function (tab) {
@@ -109,7 +114,7 @@
     return true;
   }
   function reveal(address) {
-    var split = String(address || '').indexOf('/');
+    var split = String(address || '').lastIndexOf('/');
     if (split < 1) return false;
     var page = address.slice(0, split), key = address.slice(split + 1), found = false;
     all(document, '[data-hfx-rv-tabs]').some(function (root) {
@@ -294,6 +299,8 @@
     var requestedNavigation = window.hfxReport.navigationVersion();
     openChapter(panel).then(function () {
       if (window.hfxReport.navigationVersion() !== requestedNavigation) return;
+      // Decompression can expose the addressed tab itself, without exposing an element with that id.
+      if (reveal(id)) return;
       var again = {};
       for (var k in (opts || {})) if (Object.prototype.hasOwnProperty.call(opts, k)) again[k] = opts[k];
       again.instant = true;

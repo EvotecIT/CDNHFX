@@ -87,7 +87,7 @@
 
   Explorer.prototype.tryCaptureExport = function (scope, format) {
     try { return this.captureExport(scope); }
-    catch (error) { this.exportSay(fmt(this.labels.exportError, {format:format,reason:error.message})); return null; }
+    catch (error) { this.exportSay(this.labels.exportFailed); return null; }
   };
 
   Explorer.prototype.exportOfficeIMO = function (format, scope) {
@@ -109,7 +109,7 @@
       self.exportSay(fmt(labels.count, {shown:num(self.size()),total:num(self.totalRows())}));
       self.closeMenus();
     }).catch(function (failure) {
-      if (!self.destroyed && !abort.signal.aborted) self.exportSay(fmt(labels.exportError, {format:upper,reason:failure.message}));
+      if (!self.destroyed && !abort.signal.aborted) self.exportSay(labels.exportFailed);
     }).then(function () {
       if (self.exportAbort === abort) self.exportAbort = null;
       self.exporting = false;

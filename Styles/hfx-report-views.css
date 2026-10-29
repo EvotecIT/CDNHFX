@@ -187,8 +187,9 @@
 .hfx-as .hfx-rv-queue-meta { margin: 2px 0 0; display: block; font-size: var(--hfx-type-caption-size); line-height: 1.45; color: var(--hfx-color-text-muted); overflow-wrap: anywhere; }
 /* The parts flow as one line of text. The separator ends the part before it (no break before it) and the next part
    continues on the same line, so a wrapped line never starts with "·" and a long part never leaves one dangling. */
-.hfx-rv-queue-meta > span:not(:last-child)::after { content: "\00a0\00b7\0020"; }
+.hfx-rv-queue-meta > span:not(:last-child)::after { content: "\00a0\00b7\0020"; white-space: pre; }
 .hfx-rv-queue-scope { color: var(--hfx-color-text-secondary); }
+.hfx-rv-queue-meta > span { display: inline-block; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: bottom; overflow-wrap: normal; }
 .hfx-as .hfx-rv-queue-metric { margin: 0; text-align: right; line-height: 1.2; white-space: nowrap; }
 .hfx-rv-queue-metric b { display: block; font: 600 14px/1.2 var(--hfx-font-display); color: var(--hfx-color-text); font-variant-numeric: tabular-nums; }
 .hfx-rv-queue-metric span { font-size: 11.5px; color: var(--hfx-color-text-muted); }
