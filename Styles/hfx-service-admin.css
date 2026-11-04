@@ -25,15 +25,18 @@
     --hfx-space-1-5: 6px;
     --hfx-radius-sm: 4px;
     --hfx-radius-md: 6px;
+    --hfx-radius-pill: 999px;
     --hfx-border-width: 1px;
     --hfx-focus-width: 2px;
     --hfx-focus-offset: 2px;
     --hfx-z-popover: 1000;
     --hfx-z-drawer: 1100;
     --hfx-z-dialog: 1200;
+    --hfx-control-height-sm: 28px;
   }
   :where(:root, [data-bs-theme="light"], [data-hfx-theme="light"], [data-hfx-tokens="light"]):where(:not([data-hfx-design-system], [data-hfx-design-system] *)) {
     --hfx-color-surface-page: #f2f3f4;
+    --hfx-color-text-secondary: #4d525b;
     --hfx-color-text-muted: #626770;
     --hfx-color-accent-soft: #e7f1f1;
     --hfx-elevation-2: 0 1px 2px rgba(22, 24, 28, .05), 0 6px 18px -10px rgba(22, 24, 28, .18);
@@ -55,12 +58,14 @@
     --hfx-color-status-warn-border: #e9ce9b;
     --hfx-color-status-bad-fg: #b8292a;
     --hfx-color-status-bad-bg: #f9e4e4;
+    --hfx-color-status-bad-border: #eeacac;
     --hfx-color-status-info-fg: #2b5fc0;
     --hfx-color-status-info-bg: #e4ecfa;
     --hfx-color-accent-rgb: 17, 119, 111;
   }
   :where([data-bs-theme="dark"], [data-hfx-theme^="dark"], [data-hfx-tokens="dark"]):where(:not([data-hfx-design-system], [data-hfx-design-system] *)) {
     --hfx-color-surface-page: #0c0d10;
+    --hfx-color-text-secondary: #b0b4bc;
     --hfx-color-text-muted: #8f949d;
     --hfx-color-accent-soft: #1b3435;
     --hfx-elevation-2: 0 1px 2px rgba(0, 0, 0, .40), 0 10px 26px -14px rgba(0, 0, 0, .70);
@@ -82,6 +87,7 @@
     --hfx-color-status-warn-border: #7e642d;
     --hfx-color-status-bad-fg: #f47171;
     --hfx-color-status-bad-bg: #3c272a;
+    --hfx-color-status-bad-border: #814345;
     --hfx-color-status-info-fg: #74a2f7;
     --hfx-color-status-info-bg: #262f41;
     --hfx-color-accent-rgb: 55, 201, 184;
@@ -228,10 +234,131 @@
 [data-hfx-snapshot-worker][data-status="degraded"] { background:var(--hfx-color-status-warn-bg); color:var(--hfx-color-status-warn-fg); }
 [data-hfx-snapshot-worker][data-status="failed"] { background:var(--hfx-color-status-bad-bg); color:var(--hfx-color-status-bad-fg); }
 [data-hfx-snapshot-summary] { display:flex; flex-wrap:wrap; align-items:center; gap:var(--hfx-space-2) var(--hfx-space-4); margin:0; padding:var(--hfx-space-3) var(--hfx-space-4); border-radius:var(--hfx-radius-md); background:var(--hfx-color-surface-sunken); color:var(--hfx-color-text); font-size:var(--hfx-type-body-size); }
-[data-hfx-snapshot-summary] > a,[data-hfx-snapshot-summary] > .btn { margin-inline-start:auto; }
+[data-hfx-snapshot-summary] > a,[data-hfx-snapshot-summary] > [data-hfx-part="button"] { margin-inline-start:auto; }
 [data-hfx-snapshot-summary] strong { font-weight:var(--hfx-type-subtitle-weight); }
 @media(max-width:900px){.hfx-service-admin .hfx-admin-snapshot-stages{grid-template-columns:repeat(3,minmax(0,1fr))}.hfx-admin-snapshot-stages [data-hfx-snapshot-stage="attention"]{order:-1;grid-column:1 / -1;margin-inline-start:0}.hfx-admin-snapshot-stages [data-hfx-snapshot-stage="attention"]::before{content:none}}
-@media(max-width:640px){.hfx-service-admin .hfx-admin-snapshot-stages{grid-template-columns:repeat(2,minmax(0,1fr))}[data-hfx-snapshot-summary] > a,[data-hfx-snapshot-summary] > .btn{margin-inline-start:0}}
+@media(max-width:640px){.hfx-service-admin .hfx-admin-snapshot-stages{grid-template-columns:repeat(2,minmax(0,1fr))}[data-hfx-snapshot-summary] > a,[data-hfx-snapshot-summary] > [data-hfx-part="button"]{margin-inline-start:0}}
+/* Stage counters read as one line of chips: stages with records first, Needs attention toned when it has any, and stages at
+   zero folded into one quiet toggle. The counts stay filters for the grid below. */
+.hfx-service-admin .hfx-admin-snapshot-stages { display:flex; flex-wrap:wrap; align-items:center; gap:var(--hfx-space-2); }
+.hfx-admin-snapshot-stages [data-hfx-snapshot-stage] { display:inline-flex; flex-direction:row-reverse; align-items:baseline; justify-content:flex-start; gap:var(--hfx-space-1-5); min-block-size:var(--hfx-control-height-sm); padding:var(--hfx-space-1) var(--hfx-space-3); border-radius:var(--hfx-radius-pill); }
+.hfx-admin-snapshot-stages [data-hfx-snapshot-value] { font-size:var(--hfx-type-body-size); line-height:var(--hfx-type-body-line-height); }
+.hfx-admin-snapshot-stages [data-hfx-snapshot-label] { font-size:var(--hfx-type-small-size); color:var(--hfx-color-text-secondary); }
+.hfx-admin-snapshot-stages [data-hfx-snapshot-stage="attention"] { order:-1; margin-inline-start:0; }
+.hfx-admin-snapshot-stages [data-hfx-snapshot-stage="attention"]::before { content:none; }
+.hfx-admin-snapshot-stages [data-hfx-snapshot-stage="attention"]:not([data-hfx-snapshot-count="0"]):not(:disabled) { border-color:var(--hfx-color-status-bad-border, var(--hfx-color-status-bad-fg)); background:var(--hfx-color-status-bad-bg); }
+.hfx-admin-snapshot-stages [data-hfx-snapshot-stage="attention"]:not([data-hfx-snapshot-count="0"]):not(:disabled) > * { color:var(--hfx-color-status-bad-fg); font-weight:var(--hfx-type-subtitle-weight); }
+.hfx-admin-snapshot-zero { display:contents; }
+.hfx-admin-snapshot-zero[hidden] { display:none!important; }
+/* A header-only panel (a title with actions) ends at its header, without a second rule under it. */
+.hfx-service-admin .hfx-service-config-panel > .hfx-service-config-panel__header:last-child { border-block-end:0; }
+.hfx-admin-snapshot-zero > button { min-block-size:var(--hfx-control-height-sm); padding:var(--hfx-space-1) var(--hfx-space-3); border:var(--hfx-border-width) dashed var(--hfx-color-border-strong); border-radius:var(--hfx-radius-pill); background:transparent; color:var(--hfx-color-text-muted); font-size:var(--hfx-type-small-size); text-decoration:none; }
+.hfx-admin-snapshot-zero > button[aria-expanded="true"] { border-style:solid; color:var(--hfx-color-text); }
+.hfx-admin-snapshot-zero__items { display:contents; }
+.hfx-admin-snapshot-zero__items[hidden] { display:none!important; }
+.hfx-admin-snapshot-zero__items [data-hfx-snapshot-stage] { color:var(--hfx-color-text-muted); }
+[data-hfx-snapshot-state="loading"] .cx-grid-notice { visibility:hidden; }
+@media(max-width:900px){.hfx-service-admin .hfx-admin-snapshot-stages{display:flex}}
+
+/* Status lists: one line per record (name and status), then only the facts that have a value. */
+.hfx-admin-status-list { display:grid; gap:var(--hfx-space-2); }
+.hfx-admin-status-list__message { margin:0; color:var(--hfx-color-text-muted); }
+.hfx-admin-status-list__items { display:grid; margin:0; padding:0; list-style:none; border:var(--hfx-border-width) solid var(--hfx-color-border); border-radius:var(--hfx-radius-sm); }
+.hfx-admin-status-item { display:grid; gap:var(--hfx-space-1-5); padding:var(--hfx-space-3) var(--hfx-space-4); border-block-start:var(--hfx-border-width) solid var(--hfx-color-border); min-inline-size:0; }
+.hfx-admin-status-item:first-child { border-block-start:0; }
+.hfx-admin-status-item[data-tone="danger"] { box-shadow:inset calc(var(--hfx-border-width) * 3) 0 0 var(--hfx-color-status-bad-fg); }
+.hfx-admin-status-item[data-tone="warning"] { box-shadow:inset calc(var(--hfx-border-width) * 3) 0 0 var(--hfx-color-status-warn-fg); }
+.hfx-admin-status-item__head { display:flex; flex-wrap:wrap; align-items:center; gap:var(--hfx-space-2) var(--hfx-space-3); }
+.hfx-admin-status-item__head strong { font-weight:var(--hfx-type-subtitle-weight); overflow-wrap:anywhere; }
+.hfx-admin-status-item__action { margin-inline-start:auto; }
+.hfx-admin-status-chip { display:inline-flex; align-items:center; gap:var(--hfx-space-1-5); font-size:var(--hfx-type-small-size); color:var(--hfx-color-text-secondary); }
+.hfx-admin-status-chip::before { content:""; inline-size:var(--hfx-space-2); block-size:var(--hfx-space-2); border-radius:50%; background:var(--hfx-color-text-muted); flex:none; }
+.hfx-admin-status-chip[data-tone="good"]::before { background:var(--hfx-color-status-good-fg); }
+.hfx-admin-status-chip[data-tone="info"]::before { background:var(--hfx-color-status-info-fg); }
+.hfx-admin-status-chip[data-tone="warning"] { color:var(--hfx-color-status-warn-fg); }
+.hfx-admin-status-chip[data-tone="warning"]::before { background:var(--hfx-color-status-warn-fg); }
+.hfx-admin-status-chip[data-tone="danger"] { color:var(--hfx-color-status-bad-fg); font-weight:var(--hfx-type-subtitle-weight); }
+.hfx-admin-status-chip[data-tone="danger"]::before { background:var(--hfx-color-status-bad-fg); }
+.hfx-admin-status-item__facts { display:flex; flex-wrap:wrap; gap:var(--hfx-space-1) var(--hfx-space-5); margin:0; font-size:var(--hfx-type-small-size); }
+.hfx-admin-status-item__facts > div { display:flex; gap:var(--hfx-space-1-5); min-inline-size:0; }
+.hfx-admin-status-item__facts > .is-wide { flex-basis:100%; }
+.hfx-admin-status-item__facts dt { color:var(--hfx-color-text-muted); font-weight:var(--hfx-type-body-weight); white-space:nowrap; }
+.hfx-admin-status-item__facts dd { margin:0; color:var(--hfx-color-text); overflow-wrap:anywhere; min-inline-size:0; }
+.hfx-admin-status-item__facts dd.is-path { font-family:var(--hfx-font-mono); font-size:var(--hfx-type-caption-size); }
+.hfx-admin-status-list__footer { display:flex; align-items:center; justify-content:flex-end; gap:var(--hfx-space-3); font-size:var(--hfx-type-small-size); color:var(--hfx-color-text-muted); }
+.hfx-admin-status-action { display:inline-flex; align-items:center; justify-content:center; padding:var(--hfx-space-1) var(--hfx-space-2); border:var(--hfx-border-width) solid var(--hfx-color-border-strong); border-radius:var(--hfx-radius-sm); background:var(--hfx-color-surface); color:var(--hfx-color-text); font:inherit; font-size:var(--hfx-type-small-size); text-decoration:none; cursor:pointer; }
+.hfx-admin-status-action:hover { background:var(--hfx-color-hover); color:var(--hfx-color-text); text-decoration:none; }
+.hfx-admin-status-action:focus-visible { outline:var(--hfx-focus-width) solid var(--hfx-color-focus-ring); outline-offset:var(--hfx-focus-offset); }
+.hfx-admin-status-action:disabled { opacity:.65; cursor:default; }
+@media(max-width:640px){.hfx-admin-status-item__facts{display:grid}.hfx-admin-status-item__facts > div{display:grid;gap:0}}
+
+/* Setting rows use the panel's full width: description on the left, control on the right. Defaults and activation are quiet
+   metadata; a change from the default is a calm chip beside the label, with Reset as a link under the control. */
+.hfx-service-admin .hfx-admin-setting { max-inline-size:none; grid-template-columns:minmax(0,1fr) minmax(240px,340px); }
+@media(max-width:900px){.hfx-service-admin .hfx-admin-setting{grid-template-columns:minmax(0,1fr)}}
+.hfx-admin-setting__copy>p:empty { display:none; }
+.hfx-admin-setting__copy>p { max-width:68ch; color:var(--hfx-color-text-secondary); }
+.hfx-admin-setting__heading strong { color:var(--hfx-color-text); }
+.hfx-admin-setting__default-change { justify-self:start; display:inline-flex; align-items:center; padding:0 var(--hfx-space-2); border-radius:var(--hfx-radius-pill); background:var(--hfx-color-accent-soft); color:var(--hfx-color-accent-text, var(--hfx-color-accent)); font-size:var(--hfx-type-caption-size); font-weight:var(--hfx-type-subtitle-weight); }
+.hfx-admin-setting.is-changed { border-inline-start-color:var(--hfx-color-accent); }
+.hfx-admin-setting[data-hfx-admin-filter-hidden] { display:none; }
+.hfx-admin-setting__meta { color:var(--hfx-color-text-muted); }
+
+/* Dependency checks: label, status and a compact Run action on one line, not a stretched button beside a chip. */
+.hfx-service-admin .hfx-service-config-setting-grid__item:has([data-hfx-admin-health]) { display:flex; flex-wrap:wrap; align-items:baseline; gap:var(--hfx-space-1) var(--hfx-space-3); }
+.hfx-service-admin .hfx-service-config-setting-grid__item:has([data-hfx-admin-health]) [data-hfx-admin-test] { margin-inline-start:auto; }
+/* A read-only grid's status line holds only exceptions (unavailable, partial); while empty it takes no room. */
+.hfx-service-admin [data-hfx-admin-read-status]:empty { display:none; }
+.hfx-service-admin .hfx-service-config-setting-grid__item [data-hfx-admin-test] { inline-size:auto; flex:none; padding:0 var(--hfx-space-1); border:0; background:transparent; color:var(--hfx-color-accent-text, var(--hfx-color-accent)); box-shadow:none; font-size:var(--hfx-type-small-size); min-block-size:0; }
+.hfx-service-admin .hfx-service-config-setting-grid__item [data-hfx-admin-test]:hover { text-decoration:underline; background:transparent; }
+[data-hfx-admin-health]:not([data-status="pass"]):not([data-status="fail"]) { background:transparent; padding-inline:0; }
+
+/* Status list cards variant: the same records as separate cards in a responsive grid. */
+.hfx-admin-status-list--cards .hfx-admin-status-list__items { grid-template-columns:repeat(auto-fill,minmax(min(100%,18rem),1fr)); gap:var(--hfx-space-3); border:0; } /* lint-allow layout: readable card width */
+.hfx-admin-status-list--cards .hfx-admin-status-item { border:var(--hfx-border-width) solid var(--hfx-color-border); border-radius:var(--hfx-radius-md); }
+.hfx-admin-status-list--cards .hfx-admin-status-item:first-child { border-block-start:var(--hfx-border-width) solid var(--hfx-color-border); }
+
+/* Collection cards: one card per configured item, with an optional from -> to route as its centre. */
+.hfx-admin-cards { display:grid; gap:var(--hfx-space-3); }
+.hfx-admin-cards__items { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,26rem),1fr)); gap:var(--hfx-space-3); margin:0; padding:0; list-style:none; } /* lint-allow layout: readable card width */
+.hfx-admin-card { display:grid; gap:var(--hfx-space-3); align-content:start; min-inline-size:0; padding:var(--hfx-space-4); border:var(--hfx-border-width) solid var(--hfx-color-border); border-radius:var(--hfx-radius-md); background:var(--hfx-color-surface); }
+.hfx-admin-card[data-tone="danger"] { border-color:var(--hfx-color-status-bad-fg); }
+.hfx-admin-card[data-tone="warning"] { border-color:var(--hfx-color-status-warn-fg); }
+.hfx-admin-card__head { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:var(--hfx-space-2) var(--hfx-space-3); }
+.hfx-admin-card__title { font-size:var(--hfx-type-subtitle-size); font-weight:var(--hfx-type-subtitle-weight); overflow-wrap:anywhere; }
+.hfx-admin-card__route { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:center; gap:var(--hfx-space-3); padding:var(--hfx-space-3); border-radius:var(--hfx-radius-sm); background:var(--hfx-color-surface-sunken); }
+.hfx-admin-card__end { display:grid; gap:var(--hfx-space-0-5); min-inline-size:0; }
+.hfx-admin-card__end small { font-size:var(--hfx-type-caption-size); color:var(--hfx-color-text-muted); text-transform:uppercase; letter-spacing:.04em; }
+.hfx-admin-card__arrow { color:var(--hfx-color-accent); font-size:var(--hfx-type-title-size); line-height:1; }
+/* Paths break only after a separator: the script keeps each folder segment whole (an inline block, so its hyphens don't break)
+   and adds <wbr> between them. A segment wider than the card is the only thing overflow-wrap splits. */
+.hfx-admin-card__path { font-family:var(--hfx-font-mono); font-size:var(--hfx-type-small-size); overflow-wrap:anywhere; color:var(--hfx-color-text); }
+.hfx-admin-card__segment { display:inline-block; max-inline-size:100%; }
+.hfx-admin-card__facts { display:flex; flex-wrap:wrap; gap:var(--hfx-space-1) var(--hfx-space-5); margin:0; font-size:var(--hfx-type-small-size); }
+.hfx-admin-card__facts > div { display:flex; gap:var(--hfx-space-1-5); min-inline-size:0; }
+.hfx-admin-card__facts dt { color:var(--hfx-color-text-muted); font-weight:var(--hfx-type-body-weight); }
+.hfx-admin-card__facts dd { margin:0; overflow-wrap:anywhere; }
+.hfx-admin-card__detail { margin:0; font-size:var(--hfx-type-small-size); color:var(--hfx-color-text-secondary); }
+.hfx-admin-card__actions { display:flex; gap:var(--hfx-space-2); align-items:center; }
+.hfx-admin-card__remove { color:var(--hfx-color-status-bad-fg); padding-inline:var(--hfx-space-1); }
+.hfx-admin-cards__empty { display:grid; gap:var(--hfx-space-1); padding:var(--hfx-space-4); border:var(--hfx-border-width) dashed var(--hfx-color-border-strong); border-radius:var(--hfx-radius-md); }
+.hfx-admin-cards__empty p { margin:0; color:var(--hfx-color-text-muted); }
+.hfx-admin-cards[data-hfx-admin-invalid] .hfx-admin-card { border-color:var(--hfx-color-status-bad-fg); }
+@media(max-width:640px){.hfx-admin-card__route{grid-template-columns:minmax(0,1fr)}.hfx-admin-card__arrow{transform:rotate(90deg);justify-self:start}}
+
+/* Inline validation: the problem sits under the control it belongs to; the change bar lists what blocks review. */
+.hfx-admin-setting.is-invalid { border-inline-start:calc(var(--hfx-border-width) * 3) solid var(--hfx-color-status-bad-fg); }
+.hfx-admin-setting.is-invalid :is(input,select,textarea) { border-color:var(--hfx-color-status-bad-fg); }
+.hfx-admin-setting__error { margin:0; font-size:var(--hfx-type-small-size); color:var(--hfx-color-status-bad-fg); }
+.hfx-admin-unsaved__problems { display:flex; flex-wrap:wrap; align-items:baseline; gap:var(--hfx-space-1) var(--hfx-space-3); flex-basis:100%; order:3; font-size:var(--hfx-type-small-size); color:var(--hfx-color-status-bad-fg); }
+.hfx-admin-unsaved__problem { padding:0; min-block-size:0; color:var(--hfx-color-status-bad-fg); text-decoration:underline; font-size:inherit; }
+.hfx-admin-unsaved:has(.hfx-admin-unsaved__problems:not([hidden])) { flex-wrap:wrap; }
+/* Settings filter: narrows the settings on the current page by label and description. */
+.hfx-admin-setting-filter { display:flex; flex-wrap:wrap; align-items:center; gap:var(--hfx-space-2) var(--hfx-space-3); margin-block-end:var(--hfx-space-3); }
+.hfx-admin-setting-filter input { flex:1 1 18rem; min-inline-size:0; max-inline-size:32rem; } /* lint-allow layout: search field readable width */
+.hfx-admin-setting-filter__result { font-size:var(--hfx-type-small-size); color:var(--hfx-color-text-muted); }
+.hfx-service-admin [data-hfx-admin-filter-empty] { display:none; }
+.hfx-service-admin .accordion-item[data-hfx-admin-filter-hidden],.hfx-service-admin .hfx-service-config-panel[data-hfx-admin-filter-hidden] { display:none; }
 
 /* People sign-in: Windows, account and password, and an API key behind a disclosure, with one inline alert. */
 .hfx-admin-sign-in { display:grid; gap:var(--hfx-space-4); }
@@ -254,10 +381,10 @@
 [data-hfx-sign-in-method="key"] [data-hfx-admin-sign-in-submit] { justify-content:center; }
 [data-hfx-sign-in-part="rules"] { margin:0; padding-inline-start:var(--hfx-space-4); font-size:var(--hfx-type-small-size); color:var(--hfx-color-text-muted); }
 .hfx-admin-sign-in input[aria-invalid="true"] { border-color:var(--hfx-color-status-bad-fg); }
-.hfx-admin-sign-in[data-hfx-sign-in-state="working"] :is(input,button,a.btn) { pointer-events:none; }
-.hfx-admin-sign-in .btn-secondary,.hfx-service-admin .btn-secondary { background:var(--hfx-color-surface); color:var(--hfx-color-text); border-color:var(--hfx-color-border-strong); box-shadow:none; }
-.hfx-admin-sign-in .btn-secondary:hover,.hfx-service-admin .btn-secondary:hover { background:var(--hfx-color-hover); color:var(--hfx-color-text); border-color:var(--hfx-color-border-strong); }
-.hfx-admin-sign-in .btn:focus-visible { outline:var(--hfx-focus-width) solid var(--hfx-color-focus-ring); outline-offset:var(--hfx-focus-offset); }
+.hfx-admin-sign-in[data-hfx-sign-in-state="working"] :is(input,button,a[data-hfx-part="button"]) { pointer-events:none; }
+.hfx-admin-sign-in [data-hfx-button="secondary"],.hfx-service-admin [data-hfx-button="secondary"] { background:var(--hfx-color-surface); color:var(--hfx-color-text); border-color:var(--hfx-color-border-strong); box-shadow:none; }
+.hfx-admin-sign-in [data-hfx-button="secondary"]:hover,.hfx-service-admin [data-hfx-button="secondary"]:hover { background:var(--hfx-color-hover); color:var(--hfx-color-text); border-color:var(--hfx-color-border-strong); }
+.hfx-admin-sign-in [data-hfx-part="button"]:focus-visible { outline:var(--hfx-focus-width) solid var(--hfx-color-focus-ring); outline-offset:var(--hfx-focus-offset); }
 /* Panel headers keep their actions whole: the description wraps beside them, and on a phone the actions move under the title. */
 .hfx-service-admin .hfx-service-config-panel__title-group { flex:1 1 auto; }
 .hfx-service-admin .hfx-service-config-panel__title-group small { overflow-wrap:anywhere; }

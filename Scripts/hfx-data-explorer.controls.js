@@ -260,7 +260,7 @@
   };
   // The reader's own equality and list filters, by column: what this explorer tells the components it drives.
   Explorer.prototype.linkValues = function () {
-    var out = dict(), spec = this.querySpec(undefined, true, forSavedView);
+    var out = dict(), spec = this.querySpec(undefined, true);
     spec.filters.forEach(function (f) {
       var op = normOp(f.op);
       if (op !== 'eq' && op !== 'in') return;

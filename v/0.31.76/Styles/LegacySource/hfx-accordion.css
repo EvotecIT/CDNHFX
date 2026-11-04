@@ -1,0 +1,10 @@
+/* Compatibility for HtmlForgeX/Resources/Styles/hfx-accordion.css. Native components read HFX roles. */
+.accordion.hfx-accordion-section .accordion-body.px-0 {
+  padding-left: var(--hfx-acc-section-padding) !important;
+  padding-right: var(--hfx-acc-section-padding) !important;
+}.accordion .dataTables_wrapper, .accordion .dt-container { position: relative; z-index: var(--hfx-acc-dt-wrapper-z); }.accordion .dataTables_wrapper .dataTables_processing, .accordion .dt-container .dt-processing { z-index: var(--hfx-acc-dt-processing-z); }.accordion .accordion-body table:not(.dataTable):not(.dt-table) th,
+.accordion .accordion-body table:not(.dataTable):not(.dt-table) td {
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}.accordion .accordion-body table:not(.dataTable):not(.dt-table) { table-layout: fixed; }.accordion .accordion-body .row { margin-left: 0; margin-right: 0; }.hfx-list-trailing .btn-link { padding: 0; line-height: 1; }

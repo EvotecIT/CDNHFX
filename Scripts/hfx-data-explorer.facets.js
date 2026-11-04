@@ -4,6 +4,7 @@
     var Explorer = c.Explorer, el = c.el, attr = c.attr, closest = c.closest, qsa = c.qsa, dict = c.dict;
     var num = c.num, booleanWord = c.booleanWord, toneAttrs = c.toneAttrs, runQuery = c.runQuery;
     var describeFilter = c.describeFilter, removeFilterLabel = c.removeFilterLabel, QUICK_VALUES = c.quickValues;
+    var fold = window.HfxData.internals.fold;
   Explorer.prototype.renderQuick = function () {
     var self = this, bar = this.quickBar, ds = this.ds;
     var active = document.activeElement, previous = closest(active, '.hfx-dx-quick-group');
@@ -42,16 +43,16 @@
       var selected = self.state.quick[col.id] || dict();
       var values = self.quickValues(col), shown = self.quickShown[col.id] || QUICK_VALUES;
       values.slice(0, shown).forEach(function (d) {
-        var on = !!selected[d.value];
+        var value = col.kind === 'a' ? fold(d.value) : d.value, on = !!selected[value];
         var b = el('button', 'hfx-dx-qchip');
         attr(b, 'type', 'button'); attr(b, 'aria-pressed', on ? 'true' : 'false');
-        attr(b, 'data-hfx-facet-value', d.value);
-        var tone = col.tone(col.parse(d.value)); if (tone) toneAttrs(b, tone);
-        b.appendChild(el('span', 'hfx-dx-qchip-label', col.kind === 'b' ? booleanWord(self.labels, d.value) : col.textOf(col.parse(d.value), 'display')));
+        attr(b, 'data-hfx-facet-value', value);
+        var tone = col.kind === 'a' ? null : col.tone(col.parse(d.value)); if (tone) toneAttrs(b, tone);
+        b.appendChild(el('span', 'hfx-dx-qchip-label', col.kind === 'a' ? d.label === undefined ? d.value : d.label : col.kind === 'b' ? booleanWord(self.labels, d.value) : col.textOf(col.parse(d.value), 'display')));
         b.appendChild(el('span', 'hfx-dx-qchip-count', num(d.count)));
         b.addEventListener('click', function () {
           var set = self.state.quick[col.id] || (self.state.quick[col.id] = dict());
-          set[d.value] = !set[d.value];
+          set[value] = !set[value];
           self.openQuick = null;
           self.quickFocus = { id: col.id, control: 'summary', origin: document.activeElement };
           self.refresh(true);
@@ -128,9 +129,11 @@
     Object.keys(this.state.quick).forEach(function (id) {
       var col = ds.column(id), set = self.state.quick[id];
       if (!col) return;
+      var tags = col.kind === 'a' ? self.quickValues(col) : [];
       Object.keys(set).filter(function (value) { return set[value]; }).forEach(function (value) {
         any = true; removable = true;
-        var text = col.label + ': ' + (col.kind === 'b' ? booleanWord(self.labels, value) : col.textOf(col.parse(value), 'display'));
+        var tag = tags.filter(function (item) { return fold(item.value) === value; })[0];
+        var text = col.label + ': ' + (col.kind === 'a' ? tag && tag.label !== undefined ? tag.label : value : col.kind === 'b' ? booleanWord(self.labels, value) : col.textOf(col.parse(value), 'display'));
         var chip = el('span', 'hfx-dx-fchip'); chip.appendChild(el('span', null, text));
         var remove = el('button', 'hfx-dx-fchip-remove', '×'); attr(remove, 'type', 'button'); attr(remove, 'aria-label', removeFilterLabel(self.labels, text));
         remove.addEventListener('click', function () { delete set[value]; self.refresh(true); });

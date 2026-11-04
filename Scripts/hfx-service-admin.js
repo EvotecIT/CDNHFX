@@ -41,6 +41,8 @@
     });
     window.HfxServiceAdmin = Object.freeze({
         bindSnapshot: window.HfxServiceAdmin?.bindSnapshot,
+        bindStatusLists: window.HfxServiceAdmin?.bindStatusLists,
+        bindCards: window.HfxServiceAdmin?.bindCards,
         recordOptions: window.HfxServiceAdmin?.recordOptions,
         openReview: function (id) {
             var root = document.querySelector('[data-hfx-admin-review-root="' + CSS.escape(id) + '"]'); if (!root) return;
@@ -86,19 +88,19 @@
     function adminRequest(base, csrf) {
         return async function (route, payload, signal) {
             var response = await fetch(base + '/' + route, { method: payload ? 'POST' : 'GET', headers: payload ? { 'Content-Type': 'application/json', 'X-Admin-CSRF': csrf() } : {}, body: payload ? JSON.stringify(payload) : undefined, signal:signal });
-            var result = await response.json().catch(function () { return {}; });
+            var result = await response.json().catch(function (error) { if (signal?.aborted) throw error; return {}; });
             if (!response.ok) { var failure = new Error(result.error || result.message || result.detail || (response.status === 401 ? 'Your sign-in session has expired. Reload to sign in again, then retry.' : 'The request failed. Reload the document and check your session, account scope and input.')); failure.status = response.status; throw failure; }
             return result;
         };
     }
     async function readGrids(studio, request) {
-        for (var wrapper of studio.querySelectorAll('[data-hfx-admin-read-grid]')) {
+        await Promise.all([window.HfxServiceAdmin.bindStatusLists ? window.HfxServiceAdmin.bindStatusLists(studio, request) : Promise.resolve(), ...Array.from(studio.querySelectorAll('[data-hfx-admin-read-grid]')).map(async function (wrapper) {
             if (wrapper.hasAttribute('data-hfx-admin-snapshot-grid')) {
                 await window.HfxServiceAdmin.bindSnapshot(wrapper, request);
-                continue;
+                return;
             }
             await readGrid(wrapper, request);
-        }
+        })]);
     }
     async function readGrid(wrapper, request) {
         (wrapper._hfxAdminReadPollers || []).forEach(function (poller) { poller.stop(); });
@@ -125,6 +127,10 @@
                 window.CanopyX.configure(wrapper.getAttribute('data-hfx-canopyx'), window.HfxServiceAdmin.recordOptions(wrapper, request, reload));
                 mounted=window.CanopyX.mount(wrapper); await Promise.all(mounted.map(function(grid){return grid.ready;}));
                 await Promise.all(mounted.map(function(grid){return grid.setRows(snapshot.rows);}));
+                // A page that shows this list's count in its navigation follows the rows loaded, so the two never disagree.
+                var countPage = wrapper.getAttribute('data-hfx-admin-read-count-page');
+                var showCount = function (rows) { if (countPage) window.HfxOperationalList?.setNavBadge(document, countPage, rows && rows.length ? String(rows.length) : ''); };
+                showCount(snapshot.rows);
                 var refreshSeconds = Number(wrapper.getAttribute('data-hfx-admin-read-refresh'));
                 if (refreshSeconds >= 15 && refreshSeconds <= 3600) {
                     wrapper._hfxAdminReadPollers = await Promise.all(mounted.map(function (grid) {
@@ -135,6 +141,7 @@
                                 if (context.signal.aborted || !wrapper.isConnected) return null;
                                 var alert = wrapper.querySelector('[data-hfx-cx-failure]'); if (alert) alert.hidden = true;
                                 status.textContent = current.message || ''; status.hidden = false; host.hidden = !current.available;
+                                if (current.available) showCount(current.rows);
                                 return current.available ? current.rows || [] : null;
                             } catch (error) {
                                 if (context.signal.aborted || !wrapper.isConnected) return null;
@@ -204,7 +211,11 @@
         function mark() {
             var changed = model.schema.filter(function (field) { return field.type !== 'section' && !field.path.includes('/[]') && (!equals(read(draft, field.path), read(model.snapshot.document, field.path)) || secrets[field.path]); });
             bar.hidden = !model.canWrite || changed.length === 0;
-            bar.querySelector('[data-hfx-admin-change-summary]').textContent = changed.length + (changed.length === 1 ? ' unsaved change · ' : ' unsaved changes · ') + Array.from(new Set(changed.map(function (c) { return c.group; }))).join(', ');
+            var restart = changed.filter(function (c) { return String(c.activation || '').toLowerCase() === 'restart'; }).length;
+            var summary = bar.querySelector('[data-hfx-admin-change-summary]'), strong = document.createElement('strong');
+            strong.textContent = changed.length + (changed.length === 1 ? ' unsaved change' : ' unsaved changes');
+            summary.replaceChildren(strong, document.createTextNode(' · ' + Array.from(new Set(changed.map(function (c) { return c.group; }))).join(', ') +
+                (restart === 0 ? '' : restart === changed.length ? (changed.length === 1 ? ' · needs a service restart' : ' · all need a service restart') : ' · ' + restart + ' need a service restart')));
             studio.querySelectorAll('[data-hfx-admin-group]').forEach(function(item){
                 var dirty=changed.some(function(field){return field.group===item.getAttribute('data-hfx-admin-group');});
                 item.setAttribute('data-hfx-admin-changed',String(dirty));
@@ -220,6 +231,122 @@
                 var reset=row.querySelector('[data-hfx-admin-reset]'), effective=read(draft,path); if(reset)reset.hidden=!model.canWrite||!field||field.secret||equals(effective===undefined?field?.default:effective,field?.default);
                 var defaultChange=row.querySelector('[data-hfx-admin-default-change]'); if(defaultChange)defaultChange.hidden=!reset||reset.hidden;
             });
+            scheduleValidation(changed.length);
+        }
+        // Inline validation. Range checks from the schema run as the reader types; the host's own validation runs through
+        // preview shortly after. Host errors that start with a JSON pointer ("/Service/Port: Use 1 to 65535.") appear next to that
+        // setting, or next to the collection that contains it; the rest are listed in the change bar. While any remain, Review is
+        // unavailable and the bar says what to fix.
+        var validationTimer = 0, validationTicket = 0, serverProblems = [];
+        function clientProblems() {
+            var problems = [];
+            rows.forEach(function (row) {
+                var path = row.getAttribute('data-hfx-admin-setting'), field = model.schema.find(function (f) { return f.path === path; });
+                if (!field || field.type !== 'number') return;
+                var value = read(draft, path);
+                if (value === undefined || value === null) return;
+                if (typeof value !== 'number' || !Number.isFinite(value)) { problems.push({ path: path, message: 'Enter a number.' }); return; }
+                var low = typeof field.minimum === 'number' ? field.minimum : null, high = typeof field.maximum === 'number' ? field.maximum : null;
+                if ((low !== null && value < low) || (high !== null && value > high))
+                    problems.push({ path: path, message: low !== null && high !== null ? 'Use a value from ' + low + ' to ' + high + '.' : low !== null ? 'Use ' + low + ' or more.' : 'Use ' + high + ' or less.' });
+            });
+            return problems;
+        }
+        function parseProblem(text) {
+            var match = /^(\/[^\s:]+):\s+(.+)$/.exec(String(text));
+            return match ? { path: match[1], message: match[2] } : { path: null, message: String(text) };
+        }
+        function targetFor(path) {
+            if (!path) return null;
+            var exact = rows.find(function (row) { return row.getAttribute('data-hfx-admin-setting').toLowerCase() === path.toLowerCase(); });
+            if (exact) return exact;
+            // An item inside a collection (/Service/Items/0/Path) belongs to the collection's editor.
+            var owner = Array.from(studio.querySelectorAll('[data-hfx-admin-collection]')).find(function (flow) {
+                var pointer = flow.getAttribute('data-hfx-admin-collection').toLowerCase(); return path.toLowerCase().startsWith(pointer + '/');
+            });
+            var id = owner?.getAttribute('data-hfx-admin-collection-grid');
+            return id ? studio.querySelector('[data-hfx-admin-collection-cards="' + CSS.escape(id) + '"],[data-hfx-canopyx="' + CSS.escape(id) + '"]') : null;
+        }
+        async function revealProblem(target) {
+            if (!target) return;
+            var page = target.closest('[data-hfx-operational-page]');
+            if (page) window.HfxOperationalList.showPage(studio, page.getAttribute('data-hfx-operational-page'));
+            (page || studio).querySelectorAll('[data-hfx-admin-setting-filter-input]').forEach(function (input) {
+                if (!input.value) return;
+                input.value = ''; input.dispatchEvent(new Event('input', { bubbles: true }));
+            });
+            var groups = [];
+            for (var parent = target.parentElement; parent && parent !== studio; parent = parent.parentElement)
+                if (parent.matches('.accordion-collapse')) groups.unshift(parent);
+            for (var group of groups) {
+                if (group.classList.contains('show')) continue;
+                await new Promise(function (resolve) {
+                    var show = function (event) {
+                        if (event && event.target !== group) return;
+                        // The document's hidden handler clears the accordion's closing guard first.
+                        queueMicrotask(function () { window.bootstrap.Collapse.getOrCreateInstance(group, { toggle: false }).show(); });
+                    };
+                    var shown = function (event) {
+                        if (event.target !== group) return;
+                        group.removeEventListener('shown.bs.collapse', shown);
+                        group.removeEventListener('hidden.bs.collapse', show);
+                        resolve();
+                    };
+                    group.addEventListener('shown.bs.collapse', shown);
+                    if (group.classList.contains('collapsing')) group.addEventListener('hidden.bs.collapse', show);
+                    else show();
+                });
+            }
+            target.scrollIntoView({ block: 'center' });
+            (target.querySelector('input,select,textarea,button') || target).focus({ preventScroll: true });
+        }
+        function paintProblems() {
+            var all = clientProblems().concat(serverProblems), seen = new Set(), listed = [];
+            studio.querySelectorAll('[data-hfx-admin-error]').forEach(function (node) { node.remove(); });
+            studio.querySelectorAll('.is-invalid[data-hfx-admin-setting],[data-hfx-admin-invalid]').forEach(function (node) { node.classList.remove('is-invalid'); node.removeAttribute('data-hfx-admin-invalid'); });
+            studio.querySelectorAll('[data-hfx-service-config-field-input][aria-invalid]').forEach(function (input) { input.removeAttribute('aria-invalid'); input.removeAttribute('aria-describedby'); });
+            all.forEach(function (problem) {
+                var key = (problem.path || '') + '|' + problem.message; if (seen.has(key)) return; seen.add(key);
+                var target = targetFor(problem.path), note = document.createElement('p');
+                note.className = 'hfx-admin-setting__error'; note.setAttribute('data-hfx-admin-error', ''); note.textContent = problem.message;
+                note.id = 'hfx-admin-error-' + seen.size;
+                if (target && target.matches('[data-hfx-admin-setting]')) {
+                    // The problem sits right under the input, before the default, previous value and reset controls.
+                    var control = target.querySelector('.hfx-admin-setting__control') || target;
+                    target.classList.add('is-invalid'); control.insertBefore(note, control.children[1] || null);
+                    var input = target.querySelector('[data-hfx-service-config-field-input]'); if (input) { input.setAttribute('aria-invalid', 'true'); input.setAttribute('aria-describedby', note.id); }
+                } else if (target) { target.setAttribute('data-hfx-admin-invalid', ''); target.before(note); }
+                listed.push({ problem: problem, target: target });
+            });
+            var holder = bar.querySelector('[data-hfx-admin-problems]'), review = bar.querySelector('[data-hfx-admin-review]');
+            if (review) review.disabled = listed.length > 0;
+            if (!holder) return;
+            holder.replaceChildren(); holder.hidden = !listed.length;
+            if (!listed.length) return;
+            var title = document.createElement('strong'); title.textContent = listed.length === 1 ? 'Fix 1 problem before review:' : 'Fix ' + listed.length + ' problems before review:';
+            holder.append(title);
+            listed.slice(0, 3).forEach(function (entry) {
+                var link = document.createElement('button'); link.type = 'button'; link.className = 'btn btn-link hfx-admin-unsaved__problem';
+                var field = entry.problem.path && model.schema.find(function (f) { return f.path.toLowerCase() === entry.problem.path.replace(/\/\d+(?=\/|$)/g, '/[]').toLowerCase(); });
+                link.textContent = (field ? field.label + ': ' : '') + entry.problem.message;
+                link.addEventListener('click', function () { revealProblem(entry.target).catch(error); });
+                holder.append(link);
+            });
+            if (listed.length > 3) { var more = document.createElement('span'); more.textContent = '+' + (listed.length - 3) + ' more'; holder.append(more); }
+        }
+        function scheduleValidation(count) {
+            clearTimeout(validationTimer);
+            var ticket = ++validationTicket;
+            if (!count) { serverProblems = []; paintProblems(); return; }
+            paintProblems();
+            validationTimer = setTimeout(async function () {
+                try {
+                    var preview = await request('preview', proposal());
+                    if (ticket !== validationTicket) return;
+                    serverProblems = (preview.errors || []).filter(function (text) { return !/configuration changed\. Reload/i.test(text); }).map(parseProblem);
+                } catch (e) { if (ticket === validationTicket) serverProblems = []; }
+                if (ticket === validationTicket) paintProblems();
+            }, 450);
         }
         function jsonPanel() { return studio.querySelector('[data-hfx-service-config-json]'); }
         function sync() {
@@ -388,6 +515,7 @@
         async function refreshHistory() {
             if (!historyGrids.length) return;
             var entries=await request('history'), rows = historyRows(entries);
+            historyGrids.forEach(function (binding) { if (binding.panel) binding.panel.hidden = !rows.length; });
             studio.querySelectorAll('[data-hfx-admin-state="last-change"]').forEach(function(element){element.textContent=entries.length?new Date(entries[0].when).toLocaleString()+' · '+entries[0].actor:'No retained changes';});
             await Promise.all(historyGrids.map(function (binding) {var grid=binding.api;return grid.setRows(rows.slice(0,binding.limit).map(function(row){var cells={};grid.view.columns.forEach(function(column){cells[column.id]=row.cells[column.id];});return{id:row.id,cells:cells,fields:grid.view.record?row.fields:undefined};}));}));
         }
@@ -408,7 +536,8 @@
                 }}] : []});
                 var mounted = window.CanopyX.mount(wrapper); await Promise.all(mounted.map(function (api) {return api.ready;}));
                 var limit=wrapper.hasAttribute('data-hfx-admin-history-limit')?Number(wrapper.getAttribute('data-hfx-admin-history-limit')):undefined;
-                mounted.forEach(function(api){historyGrids.push({api:api,limit:limit});});
+                var panel = wrapper.hasAttribute('data-hfx-admin-history-hide-empty') ? wrapper.closest('.hfx-service-config-panel') : null;
+                mounted.forEach(function(api){historyGrids.push({api:api,limit:limit,panel:panel});});
             }
             await refreshHistory();
         }
@@ -483,7 +612,9 @@
         }
         async function bindCollection(wrapper, flow, binding) {
             var gridId=wrapper.getAttribute('data-hfx-admin-collection-grid'); if (!gridId) return;
-            var gridElement=studio.querySelector('[data-hfx-canopyx="'+CSS.escape(gridId)+'"]'); if (!gridElement) return;
+            // The same collection can be edited from cards (TablerServiceConfigCollectionCards) instead of a grid.
+            var cardsElement=studio.querySelector('[data-hfx-admin-collection-cards="'+CSS.escape(gridId)+'"]');
+            var gridElement=cardsElement?null:studio.querySelector('[data-hfx-canopyx="'+CSS.escape(gridId)+'"]'); if (!gridElement&&!cardsElement) return;
             var pointer=wrapper.getAttribute('data-hfx-admin-collection'), properties=JSON.parse(wrapper.getAttribute('data-hfx-admin-flow-properties'));
             var spans=new Set(JSON.parse(wrapper.getAttribute('data-hfx-admin-time-spans')||'[]'));
             var recordFields=JSON.parse(wrapper.getAttribute('data-hfx-admin-record-fields')||'{}');
@@ -502,14 +633,31 @@
                 var preview=await request('preview',payload,context.signal);if(!current(context.signal))return;if(preview.errors.length)throw new Error(preview.errors.join(' '));
                 changed();draft=candidate;invalidateChecks([pointer]);sync();document.querySelector('dialog[data-cx-view="'+CSS.escape(context.view)+'"]')?.close();
             }
+            if (cardsElement) {
+                binding.refresh=window.HfxServiceAdmin.bindCards(cardsElement,{items:function(){return read(draft,pointer)||[];},canWrite:function(){return !!model?.canWrite;},
+                    edit:function(index){return edit({record:{id:String(index)},view:''});},remove:function(index){return remove({record:{id:String(index)},view:''});},
+                    request:request,duration:durationDisplay,error:error});
+                wrapper.addEventListener('click',function(event){if(event.target.closest('.cx-flow-launch')){binding.editIndex=null;flow.reset();}},true);
+                collections.push(binding);binding.refresh();return;
+            }
             window.CanopyX.configure(gridId,{recordActions:[{label:'Edit item',run:edit},{label:'Remove item',run:remove}]});
             var grids=window.CanopyX.mount(gridElement); await Promise.all(grids.map(function(grid){return grid.ready;}));
                 binding.refresh=function(){var items=read(draft,pointer)||[];grids.forEach(function(grid){var rows=items.map(function(item,index){var cells={};grid.view.columns.forEach(function(column){var value=read(item,'/'+escapePointer(column.id)), descriptor=model.schema.find(function(field){return field.path===pointer+'/[]/'+escapePointer(column.id);});assign(cells,column.id,value==null?null:descriptor?.type==='duration'?durationDisplay(value):value);});return{id:String(index),cells:cells};});grid.setRows(rows).catch(error);});};
             wrapper.addEventListener('click',function(event){if(event.target.closest('.cx-flow-launch')){binding.editIndex=null;flow.reset();}},true);
             collections.push(binding);binding.refresh();
         }
+        // Cards whose collection has no editing Flow (an account without settings permission) still show, read-only.
+        function bindReadOnlyCards() {
+            studio.querySelectorAll('[data-hfx-admin-cards-collection]').forEach(function (element) {
+                if (element._hfxCards || !window.HfxServiceAdmin.bindCards) return;
+                var pointer = element.getAttribute('data-hfx-admin-cards-collection');
+                var refresh = window.HfxServiceAdmin.bindCards(element, { items: function () { return read(draft, pointer) || []; }, canWrite: function () { return false; },
+                    edit: function () {}, remove: function () {}, request: request, duration: durationDisplay, error: error });
+                collections.push({ refresh: refresh }); refresh();
+            });
+        }
         function bindReadGrids() { return readGrids(studio, request); }
-        try { model = await request('settings'); draft = copy(model.snapshot.document); sync(); await bindHistory(); await bindFlows(); await bindReadGrids(); client.setAttribute('data-hfx-admin-ready','true'); }
+        try { model = await request('settings'); draft = copy(model.snapshot.document); sync(); await bindHistory(); await bindFlows(); bindReadOnlyCards(); await bindReadGrids(); client.setAttribute('data-hfx-admin-ready','true'); }
         catch (e) { error(e); }
         finally { client.setAttribute('aria-busy','false'); }
     }

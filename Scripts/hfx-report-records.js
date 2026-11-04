@@ -19,7 +19,7 @@
         .find(function (node) { return node.getAttribute('data-hfx-canopyx') === record.component; });
       var explorer = root && root.hfxDataExplorer;
       if (explorer && explorer.openRecordKey && explorer.openRecordKey(record.key)) return;
-      var host = root && root.querySelector('[data-canopyx-host]'), grid = host && host.canopyx;
+      var host = root && (root.matches('[data-canopyx-host]') ? root : root.querySelector('[data-canopyx-host]')), grid = host && host.canopyx;
       if (!explorer && grid && grid.getQuery && grid.getQuery()) {
         Promise.resolve(grid.ready).then(function () { if (current(request, address)) return grid.openRecord(record.key); }).catch(function () { });
         return;

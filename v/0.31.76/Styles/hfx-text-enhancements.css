@@ -1,0 +1,14 @@
+.hfx-dot {
+    display: inline-block;
+    width: .5rem;
+    height: .5rem;
+    border-radius: 50%;
+    vertical-align: middle;
+}
+
+.hfx-sep {
+    display: inline-block;
+    margin: 0 .35rem;
+    line-height: 1;
+    opacity: .8;
+}

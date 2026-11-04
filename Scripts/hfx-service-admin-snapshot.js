@@ -2,6 +2,50 @@
 (function () {
     'use strict';
     var api = window.HfxServiceAdmin = window.HfxServiceAdmin || {};
+    // Nested tabs and accordions can change visibility without navigating the admin page.
+    api.observeVisibility = function (root, changed) {
+        var studio = root.closest('.hfx-service-admin') || document, disposed = false;
+        function visible() { return !document.hidden && root.isConnected && !!root.getClientRects().length; }
+        var wasVisible = visible();
+        function notify(force) {
+            if (disposed) return;
+            var now = visible();
+            if (!root.isConnected) { dispose(); changed(false); }
+            else if (force || now !== wasVisible) { wasVisible = now; changed(now); }
+        }
+        function event() { notify(true); }
+        var observer = new ResizeObserver(function () { notify(false); }); observer.observe(root);
+        studio.addEventListener('hfx:operational-workspace-page-change', event);
+        document.addEventListener('visibilitychange', event); window.addEventListener('pageshow', event);
+        function dispose() {
+            disposed = true; observer.disconnect();
+            studio.removeEventListener('hfx:operational-workspace-page-change', event);
+            document.removeEventListener('visibilitychange', event); window.removeEventListener('pageshow', event);
+        }
+        return dispose;
+    };
+    function foldStages(container) {
+        if (!container._hfxZeroStages) {
+            var buttons = Array.from(container.querySelectorAll('[data-hfx-snapshot-stage]'));
+            var group = document.createElement('div'), toggle = document.createElement('button'), items = document.createElement('div');
+            group.className = 'hfx-admin-snapshot-zero'; toggle.className = 'btn btn-link'; toggle.type = 'button';
+            toggle.setAttribute('aria-expanded', 'false'); items.hidden = true; items.className = 'hfx-admin-snapshot-zero__items';
+            group.append(toggle, items); container.append(group);
+            // Stages at zero fold into one quiet toggle at every width, so the stages with records and Needs attention lead.
+            // Needs attention and an active filter always stay in view.
+            function update() {
+                var count = 0;
+                buttons.forEach(function (button) {
+                    if (button.dataset.hfxSnapshotCount === '0' && button.dataset.hfxSnapshotStage !== 'attention' && button.getAttribute('aria-pressed') !== 'true') { items.append(button); count++; }
+                    else container.insertBefore(button, group);
+                });
+                group.hidden = !count; toggle.textContent = count === 1 ? '1 stage at 0' : count + ' stages at 0';
+            }
+            toggle.addEventListener('click', function () { items.hidden = !items.hidden; toggle.setAttribute('aria-expanded', String(!items.hidden)); });
+            container._hfxZeroStages = update;
+        }
+        container._hfxZeroStages();
+    }
     api.bindSnapshot = async function (wrapper, request) {
         var root = wrapper.closest('[data-hfx-admin-snapshot]');
         if (!root || root.dataset.hfxSnapshotBound) return;
@@ -10,7 +54,8 @@
         var host = wrapper.querySelector('.cx-host'), status = wrapper.querySelector('[data-hfx-admin-read-status]');
         var refresh = get('refresh'), notice = get('notice'), freshness = get('freshness'), data = get('data');
         var snapshot, pending, poller, stage = '', state = 'loading';
-        host.hidden = true;
+        host.hidden = false;
+        root.setAttribute('aria-busy', 'true');
         var text = function (element, value) { element.textContent = value || ''; };
         function message(element, title, body) {
             element.replaceChildren();
@@ -35,6 +80,7 @@
                     text(stage.querySelector('[data-hfx-snapshot-value]'), part ? String(part.count) : '—');
                     stage.dataset.hfxSnapshotCount=part ? String(part.count) : ''; stage.setAttribute('aria-disabled',String(!part));
                 });
+                item.querySelectorAll('.hfx-admin-snapshot-stages').forEach(foldStages);
             });
             window.HfxOperationalList?.setNavBadge(document, root.dataset.hfxAdminSnapshot, value.available && count > 0 ? String(count) : '');
         }
@@ -74,6 +120,7 @@
                 text(button.querySelector('[data-hfx-snapshot-value]'), item ? String(item.count) : '—');
                 button.dataset.hfxSnapshotCount = item ? String(item.count) : ''; button.disabled = !item;
             });
+            root.querySelectorAll('.hfx-admin-snapshot-stages').forEach(foldStages);
             text(get('unknown'), value.unknownCount > 0 ? '+' + value.unknownCount + ' unknown' : '');
             var workers = get('workers'); workers.replaceChildren();
             (value.workers || []).forEach(function (worker) {
