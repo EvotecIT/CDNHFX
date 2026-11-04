@@ -42,7 +42,8 @@
             group.dataset.hfxAdminStatusFact = fact.key;
             if (/\bwide\b/.test(fact.format)) group.className = 'is-wide';
             if (/\bpath\b/.test(fact.format)) detail.className = 'is-path';
-            term.textContent = fact.label; detail.textContent = value; group.append(term, detail); facts.append(group);
+            var explanation = fact.explanation && format(cells[fact.explanation], { format: '' });
+            term.textContent = fact.label; detail.textContent = value + (explanation ? ' — ' + explanation : ''); group.append(term, detail); facts.append(group);
         });
         if (facts.childElementCount) li.append(facts);
         return li;

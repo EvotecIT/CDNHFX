@@ -613,6 +613,9 @@
      properties ignore forced-color-adjust, so the status properties a chart writes are reset here and each status mark
      falls back to its literal token colour. */
   .hfx-rv-chart-pinned .hfx-rv-chart-themed {
+    --hfx-color-chart-series-1: initial; --hfx-color-chart-series-2: initial; --hfx-color-chart-series-3: initial; --hfx-color-chart-series-4: initial;
+    --hfx-color-chart-series-5: initial; --hfx-color-chart-series-6: initial; --hfx-color-chart-series-7: initial; --hfx-color-chart-series-8: initial;
+    --hfx-color-chart-series-9: initial; --hfx-color-chart-series-10: initial; --hfx-color-chart-other: initial;
     --hfx-color-status-positive: initial; --hfx-color-status-warning: initial; --hfx-color-status-negative: initial; --hfx-color-status-disabled: initial;
     --hfx-color-severity-critical-fill: initial; --hfx-color-severity-critical-ink: initial; --hfx-color-severity-high-fill: initial; --hfx-color-severity-high-ink: initial;
     --hfx-color-severity-medium-fill: initial; --hfx-color-severity-medium-ink: initial; --hfx-color-severity-low-fill: initial; --hfx-color-severity-low-ink: initial;
@@ -642,6 +645,9 @@
      the report switches to the light tokens while it prints, and where it cannot (no script, no shell, a dark scope in
      the page) these resets make every chart property invalid, so each colour falls back to its light value. */
   .hfx-rv-chart-themed {
+    --hfx-color-chart-series-1: initial; --hfx-color-chart-series-2: initial; --hfx-color-chart-series-3: initial; --hfx-color-chart-series-4: initial;
+    --hfx-color-chart-series-5: initial; --hfx-color-chart-series-6: initial; --hfx-color-chart-series-7: initial; --hfx-color-chart-series-8: initial;
+    --hfx-color-chart-series-9: initial; --hfx-color-chart-series-10: initial; --hfx-color-chart-other: initial;
     --hfx-color-status-positive: initial; --hfx-color-status-warning: initial; --hfx-color-status-negative: initial; --hfx-color-status-disabled: initial;
     --hfx-color-surface-page: initial; --hfx-color-surface-card: initial; --hfx-color-surface-card-alt: initial; --hfx-color-surface-line: initial;
     --hfx-color-text-primary: initial; --hfx-color-text-secondary: initial; --hfx-color-series-1: initial; --hfx-color-series-2: initial;

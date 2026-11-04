@@ -577,7 +577,34 @@
       if (drawings.length && scope.dispatchEvent) scope.dispatchEvent(new CustomEvent('hfx:report-drawings-ready', { bubbles: true }));
     });
   }
+  // ------------------------------------------------------------------ object rows
+  // A long group of a ReportObjectList shows its first rows and "Show N more". A drawer panel is a fresh copy of its
+  // markup each time it opens, so the reader's choice is kept by the group's key while the page is open.
+  var expandedObjects = {};
+  function setObjectsExpanded(group, expanded) {
+    var button = group.querySelector('[data-hfx-rv-objects-more]');
+    group.classList.toggle('is-expanded', expanded);
+    if (!button) return;
+    button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    button.textContent = button.getAttribute(expanded ? 'data-less' : 'data-more') || button.textContent;
+  }
+  document.addEventListener('click', function (e) {
+    var button = closest(e.target, '[data-hfx-rv-objects-more]');
+    var group = button && closest(button, '[data-hfx-rv-objects-group]');
+    if (!group) return;
+    var expanded = !group.classList.contains('is-expanded');
+    setObjectsExpanded(group, expanded);
+    var key = group.getAttribute('data-hfx-rv-objects-group');
+    if (expanded) expandedObjects[key] = true; else delete expandedObjects[key];
+  });
+  function restoreObjects(scope) {
+    qsa(scope, '[data-hfx-rv-objects-group].is-folded').forEach(function (group) {
+      if (expandedObjects[group.getAttribute('data-hfx-rv-objects-group')]) setObjectsExpanded(group, true);
+    });
+  }
+
   function initViews(scope) {
+    restoreObjects(scope);
     window.hfxReportViews.ready = prepareDrawings(scope);
     qsa(scope, '[data-hfx-rv-grid]').forEach(prepareGrid);
     qsa(scope, '[data-hfx-rv-matrix]').forEach(function (root) {

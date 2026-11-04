@@ -699,6 +699,9 @@
     row.appendChild(copyTitle);
     row.appendChild(el('span', '', { 'data-hfx-shell-drawer-status': '1' }));
     titles.appendChild(row);
+    var fullName = el('p', 'hfx-shell-drawer-fullname', { 'data-hfx-shell-drawer-fullname': '1', hidden: 'hidden' });
+    fullName.appendChild(el('span', 'hfx-shell-drawer-fullname-text'));
+    titles.appendChild(fullName);
     head.appendChild(titles);
     var actions = el('div', 'hfx-shell-drawer-actions');
     var nav = el('div', 'hfx-shell-drawer-nav', { 'data-hfx-shell-drawer-nav': '1', hidden: 'hidden' });
@@ -762,6 +765,7 @@
     var title = wrap.querySelector('[data-hfx-shell-drawer-title]');
     title.textContent = options.title || '';
     title.title = options.title || '';
+    title.setAttribute('data-hfx-shell-drawer-name', options.title || '');
     var copy = wrap.querySelector('[data-hfx-shell-drawer-copy]');
     if (copy) { copy.setAttribute('data-hfx-copy-text', options.title || ''); copy.hidden = !options.title; }
     var status = wrap.querySelector('[data-hfx-shell-drawer-status]');
@@ -782,10 +786,55 @@
     var context = wrap.querySelector('[data-hfx-shell-drawer-context]');
     if (context) { if (typeof options.onContext === 'function') context.removeAttribute('hidden'); else context.setAttribute('hidden', 'hidden'); }
     body.scrollTop = 0;
+    fitDrawerTitle(wrap);
     // Commit the address after content is applied, for both initial opens and guarded asynchronous steps.
     if (options.entityId) setHash(options.entityId, true);
     setTimeout(function () { refreshVisible(body); }, 0);
   }
+
+  // A long name wraps to two lines, then shortens in the middle so both its start and its end stay readable (host
+  // names and object names differ at either end). The complete name then appears under the title, selectable, with
+  // Copy beside it. Measured against the drawer as laid out, so it runs again when the drawer changes width.
+  function middleName(chars, keep) {
+    var head = Math.ceil(keep * 0.6), tail = keep - head;
+    return chars.slice(0, head).join('') + '\u2026' + (tail > 0 ? chars.slice(chars.length - tail).join('') : '');
+  }
+  function fitDrawerTitle(wrap) {
+    var title = wrap && wrap.querySelector('[data-hfx-shell-drawer-title]');
+    if (!title) return;
+    var name = title.getAttribute('data-hfx-shell-drawer-name') || '';
+    var full = wrap.querySelector('[data-hfx-shell-drawer-fullname]');
+    var row = wrap.querySelector('.hfx-shell-drawer-title-row');
+    var copy = wrap.querySelector('[data-hfx-shell-drawer-copy]');
+    var text = full && full.querySelector('.hfx-shell-drawer-fullname-text');
+    // Measure in the layout the result will have: Copy beside the title while the name fits, under it once it does not.
+    if (copy && row && copy.parentNode !== row) row.insertBefore(copy, row.querySelector('[data-hfx-shell-drawer-status]'));
+    if (full) full.hidden = true;
+    title.textContent = name;
+    title.removeAttribute('aria-label');
+    var fits = function () { return title.scrollHeight <= title.clientHeight + 1; };
+    if (!name || title.clientHeight <= 0 || fits()) return;
+    if (full) {
+      if (text) text.textContent = name;
+      full.hidden = false;
+      if (copy) full.appendChild(copy);
+    }
+    var chars = Array.from ? Array.from(name) : name.split('');
+    var low = 2, high = chars.length - 1, best = 2;
+    while (low <= high) {
+      var mid = (low + high) >> 1;
+      title.textContent = middleName(chars, mid);
+      if (fits()) { best = mid; low = mid + 1; } else high = mid - 1;
+    }
+    title.textContent = middleName(chars, best);
+    // The dialog is named by this heading: it keeps the complete name for assistive technology.
+    title.setAttribute('aria-label', name);
+  }
+  var titleFitPending = 0;
+  window.addEventListener('resize', function () {
+    if (titleFitPending || !drawer || drawer.wrap.hidden) return;
+    titleFitPending = window.requestAnimationFrame(function () { titleFitPending = 0; if (drawer && !drawer.wrap.hidden) fitDrawerTitle(drawer.wrap); });
+  });
 
   function localeNumber(n) { try { return Number(n).toLocaleString(); } catch (_) { return String(n); } }
 
@@ -916,6 +965,9 @@
     if (wasHidden) {
       guardDrawerScroll(wrap, wrap.querySelector('[data-hfx-shell-drawer-body]'));
       wrap.removeAttribute('hidden');
+      fitDrawerTitle(wrap);
+      // A web font that arrives later changes the title's width.
+      if (document.fonts && document.fonts.status !== 'loaded') document.fonts.ready.then(function () { if (!wrap.hidden) fitDrawerTitle(wrap); });
       try { wrap.querySelector('[data-hfx-shell-drawer]').focus({ preventScroll: true }); } catch (_) { }
     }
     return true;
@@ -1446,7 +1498,9 @@
     if (!drawerIsOpen() || printingRecord) return;
     var wrap = drawer.wrap;
     var host = closest(wrap, '[data-hfx-shell]') || document.body;
-    var title = (wrap.querySelector('[data-hfx-shell-drawer-title]') || {}).textContent || '';
+    // The complete name, not the middle-shortened heading.
+    var titleNode = wrap.querySelector('[data-hfx-shell-drawer-title]');
+    var title = (titleNode && (titleNode.getAttribute('data-hfx-shell-drawer-name') || titleNode.textContent)) || '';
     var eyebrow = (wrap.querySelector('[data-hfx-shell-drawer-eyebrow]') || {}).textContent || '';
     var button = wrap.querySelector('[data-hfx-shell-drawer-print]');
     var word = (button && button.getAttribute('data-hfx-shell-record-label')) || drawerLabels.record;

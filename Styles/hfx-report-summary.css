@@ -41,7 +41,8 @@
 .hfx-as.hfx-rv-chips { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 0; padding: 10px 12px; }
 .hfx-rv-chip { display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--hfx-color-border); border-radius: var(--hfx-radius-container); padding: 1px 8px; font: 400 12px/1.4 var(--hfx-font-sans); color: var(--sev, var(--hfx-color-text-secondary)); text-decoration: none; background: var(--hfx-color-surface); }
 .hfx-as .hfx-rv-chip { color: var(--sev, var(--hfx-color-text-secondary)); }
-.hfx-rv-chip::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+/* flex: none keeps the dot round beside a long label instead of squeezing it to a stray sliver. */
+.hfx-rv-chip::before { content: ""; flex: none; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 .hfx-rv-chip[data-state=up], .hfx-rv-chip[data-outcome=pass] { color: var(--hfx-color-text-muted); }
 .hfx-rv-picker-marks { display: flex; gap: 3px; margin-inline-start: auto; }
 .hfx-rv-picker-mark { width: 8px; height: 8px; border-radius: var(--hfx-radius-control); background: var(--sev, var(--hfx-color-border-strong)); }
