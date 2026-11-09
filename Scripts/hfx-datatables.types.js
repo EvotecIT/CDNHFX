@@ -231,6 +231,12 @@
   }
 
   function registerCoreTypes() {
+    if ($ && $.fn && $.fn.dataTable && global.Intl && global.Intl.Collator) {
+      var order = $.fn.dataTable.ext.type.order;
+      var collator = new global.Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+      if (!order['natural-asc']) order['natural-asc'] = function (a, b) { return collator.compare(stripHtml(a), stripHtml(b)); };
+      if (!order['natural-desc']) order['natural-desc'] = function (a, b) { return collator.compare(stripHtml(b), stripHtml(a)); };
+    }
     addType('hfx-number', function (d) { return !isNaN(parseNumber(d)); }, function (d) {
       var v = parseNumber(d);
       return isNaN(v) ? -Infinity : v;

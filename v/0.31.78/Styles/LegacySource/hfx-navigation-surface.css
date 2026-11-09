@@ -1,0 +1,5 @@
+/* Compatibility for HtmlForgeX/Resources/Styles/hfx-navigation-surface.css. Native components read HFX roles. */
+.page.layout-vertical-right .navbar-vertical {
+    right: 0;
+    left: auto;
+}

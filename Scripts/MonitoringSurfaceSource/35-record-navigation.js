@@ -19,12 +19,34 @@
     });
   }
 
+  function setCorrelationSelection(workspace, cell) {
+    workspace.querySelectorAll('[data-hfx-monitoring-correlation-cell]').forEach(function (candidate) {
+      candidate.classList.toggle('is-selected', candidate === cell);
+      if (candidate.hasAttribute('aria-expanded')) candidate.setAttribute('aria-expanded', candidate === cell ? 'true' : 'false');
+    });
+    var targetId = cell ? cell.getAttribute('data-hfx-monitoring-correlation-detail-target') || '' : '';
+    var matched = false;
+    workspace.querySelectorAll('[data-hfx-monitoring-correlation-detail]').forEach(function (detail) {
+      var active = !!targetId && detail.id === targetId;
+      detail.hidden = !active;
+      if (active) matched = true;
+    });
+    var empty = workspace.querySelector('[data-hfx-monitoring-correlation-detail-empty]');
+    if (empty) empty.hidden = matched;
+  }
+
+  function syncCorrelationSelection(surface) {
+    var workspace = surface.closest('[data-hfx-monitoring-correlation-workspace]');
+    if (!workspace) return;
+    var selected = workspace.querySelector('[data-hfx-monitoring-correlation-cell].is-selected');
+    var row = selected && selected.closest('[data-hfx-monitoring-search-row]');
+    if (row && row.hidden) setCorrelationSelection(workspace, null);
+  }
+
   function activateCorrelationCell(cell, options) {
     var workspace = cell && cell.closest ? cell.closest('[data-hfx-monitoring-correlation-workspace]') : null;
     if (!workspace) return;
-    workspace.querySelectorAll('[data-hfx-monitoring-correlation-cell]').forEach(function (candidate) {
-      candidate.classList.toggle('is-selected', candidate === cell);
-    });
+    setCorrelationSelection(workspace, cell);
     var recordKey = cell.getAttribute('data-hfx-monitoring-related-record-key');
     if (!recordKey) return;
     var scope = workspace.closest('[data-hfx-monitoring-page]') ||

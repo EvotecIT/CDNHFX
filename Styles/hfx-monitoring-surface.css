@@ -3,7 +3,17 @@
    They sit in a cascade layer, so hfx-tokens.css and every unlayered override win; they apply only without hfx-tokens.css. </auto-generated> */
 @layer hfx.tokens.fallbacks {
   :where(:root):where(:not([data-hfx-design-system], [data-hfx-design-system] *)) {
+    --hfx-type-caption-size: 0.75rem;
+    --hfx-space-1: 0.25rem;
+    --hfx-space-2: 0.5rem;
+    --hfx-space-3: 0.75rem;
+    --hfx-space-4: 1rem;
     --hfx-pattern-hatched: repeating-linear-gradient(135deg, color-mix(in srgb, currentColor 45%, transparent) 0 2px, transparent 2px calc(2px + 4px));
+    --hfx-border-width: 1px;
+    --hfx-indicator-width: 2px;
+    --hfx-radius-control: 6px;
+    --hfx-radius-container: 10px;
+    --hfx-type-body-line: 1.5;
   }
   :where(:root, [data-bs-theme="light"], [data-hfx-theme="light"], [data-hfx-tokens="light"]):where(:not([data-hfx-design-system], [data-hfx-design-system] *)) {
     --hfx-color-surface-page: #f2f3f4;
@@ -1690,6 +1700,117 @@ details.hfx-monitoring-record-story-section.is-accordion > .hfx-monitoring-recor
   font-size: .7rem;
 }
 
+.hfx-monitoring-correlation-cell.hfx-monitoring-evidence--incomplete {
+  border-style: dashed;
+  background: repeating-linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--hfx-monitoring-orange) 10%, var(--hfx-monitoring-card)) 0,
+    color-mix(in srgb, var(--hfx-monitoring-orange) 10%, var(--hfx-monitoring-card)) var(--hfx-space-2),
+    var(--hfx-monitoring-card) var(--hfx-space-2),
+    var(--hfx-monitoring-card) var(--hfx-space-4));
+}
+
+.hfx-monitoring-correlation-cell.hfx-monitoring-evidence--unavailable {
+  border-color: color-mix(in srgb, var(--hfx-monitoring-red) 48%, var(--hfx-monitoring-border));
+  background: color-mix(in srgb, var(--hfx-monitoring-red) 11%, var(--hfx-monitoring-card));
+}
+
+.hfx-monitoring-correlation-cell.hfx-monitoring-evidence--not-collected,
+.hfx-monitoring-correlation-cell.hfx-monitoring-evidence--not-applicable {
+  color: var(--hfx-monitoring-muted);
+  background: var(--hfx-monitoring-soft-bg);
+}
+
+.hfx-monitoring-correlation-cell.hfx-monitoring-evidence--not-applicable {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--hfx-monitoring-soft-bg) 0,
+    var(--hfx-monitoring-soft-bg) var(--hfx-space-2),
+    color-mix(in srgb, var(--hfx-monitoring-border) 34%, var(--hfx-monitoring-card)) var(--hfx-space-2),
+    color-mix(in srgb, var(--hfx-monitoring-border) 34%, var(--hfx-monitoring-card)) var(--hfx-space-3));
+}
+
+.hfx-monitoring-correlation-details {
+  min-width: 0;
+  min-height: calc(var(--hfx-space-4) * 10);
+  max-height: var(--hfx-monitoring-matrix-max-height, var(--hfx-monitoring-panel-data-max-height));
+  overflow: auto;
+  border: var(--hfx-border-width) solid var(--hfx-monitoring-border);
+  border-radius: var(--hfx-radius-container);
+  background: var(--hfx-monitoring-card);
+  padding: var(--hfx-space-3);
+  scrollbar-gutter: stable;
+}
+
+.hfx-monitoring-correlation-detail-empty {
+  min-height: calc(var(--hfx-space-4) * 8);
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: var(--hfx-space-1);
+  color: var(--hfx-monitoring-muted);
+  text-align: center;
+}
+
+.hfx-monitoring-correlation-detail[hidden],
+.hfx-monitoring-correlation-detail-empty[hidden] { display: none; }
+
+.hfx-monitoring-correlation-detail {
+  display: grid;
+  gap: var(--hfx-space-3);
+}
+
+.hfx-monitoring-correlation-detail-head,
+.hfx-monitoring-correlation-detail-state {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--hfx-space-2);
+  align-items: center;
+}
+
+.hfx-monitoring-correlation-detail-head span,
+.hfx-monitoring-correlation-detail-state span,
+.hfx-monitoring-correlation-detail > p {
+  color: var(--hfx-monitoring-muted);
+}
+
+.hfx-monitoring-correlation-detail-state {
+  border-left: var(--hfx-indicator-width) solid var(--hfx-monitoring-accent, var(--hfx-monitoring-blue));
+  border-radius: var(--hfx-radius-control);
+  background: var(--hfx-monitoring-soft-bg);
+  padding: var(--hfx-space-2) var(--hfx-space-3);
+}
+
+.hfx-monitoring-correlation-detail > p {
+  margin: 0;
+  line-height: var(--hfx-type-body-line);
+}
+
+.hfx-monitoring-correlation-detail-facts {
+  display: grid;
+  gap: var(--hfx-space-2);
+  margin: 0;
+}
+
+.hfx-monitoring-correlation-detail-facts > div {
+  display: grid;
+  grid-template-columns: minmax(calc(var(--hfx-space-4) * 7), .8fr) minmax(0, 1.2fr);
+  gap: var(--hfx-space-2);
+  border-top: var(--hfx-border-width) solid var(--hfx-monitoring-border);
+  padding-top: var(--hfx-space-2);
+}
+
+.hfx-monitoring-correlation-detail-facts dt {
+  color: var(--hfx-monitoring-muted);
+  font-size: var(--hfx-type-caption-size);
+}
+
+.hfx-monitoring-correlation-detail-facts dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
 .hfx-monitoring-export-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -2261,6 +2382,18 @@ details.hfx-monitoring-record-story-section.is-accordion > .hfx-monitoring-recor
 
   .hfx-monitoring-correlation-workspace > .hfx-monitoring-collection-frame {
     max-height: var(--hfx-monitoring-panel-data-max-height, 30rem);
+  }
+}
+
+/* On narrow screens the desktop minimum would push the source columns off-screen behind a
+   viewport-wide entity column; the table still grows past 100% when its cells need the room. */
+@container (max-width: 48rem) {
+  .hfx-monitoring-correlation-matrix {
+    min-width: 100%;
+  }
+
+  .hfx-monitoring-correlation-matrix th:first-child {
+    width: 45%;
   }
 }
 

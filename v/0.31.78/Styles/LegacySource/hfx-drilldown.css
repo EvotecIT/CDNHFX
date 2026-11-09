@@ -1,0 +1,65 @@
+/* Compatibility for HtmlForgeX/Resources/Styles/hfx-drilldown.css. Native components read HFX roles. */
+.hfx-drilldown-workspace,
+.hfx-drilldown-workspace .card,
+.hfx-drilldown-workspace .card-body,
+.hfx-drilldown-workspace .table,
+.hfx-drilldown-workspace .table td,
+.hfx-drilldown-workspace .table th {
+    min-width: 0;
+}.hfx-drilldown-workspace [data-hfx-drilldown-select],
+.hfx-drilldown-workspace [data-hfx-drilldown-clear]:not(.btn-close) {
+    min-width: 7rem;
+    white-space: nowrap;
+}@media (max-width: 991.98px) {.hfx-drilldown-workspace [data-hfx-drilldown-select],
+    .hfx-drilldown-workspace [data-hfx-drilldown-clear]:not(.btn-close) {
+        min-width: 0;
+    }}@media (max-width: 767.98px) {.hfx-drilldown-workspace .table-responsive,
+    .hfx-drilldown-workspace [data-hfx-collection-table-wrapper] {
+        overflow: visible;
+    }.hfx-drilldown-workspace table.table-mobile-md {
+        border-collapse: separate;
+        border-spacing: 0 .75rem;
+    }.hfx-drilldown-workspace table.table-mobile-md thead {
+        display: none;
+    }.hfx-drilldown-workspace table.table-mobile-md tbody,
+    .hfx-drilldown-workspace table.table-mobile-md tr,
+    .hfx-drilldown-workspace table.table-mobile-md td {
+        display: block;
+        width: 100% !important;
+        min-width: 0;
+    }.hfx-drilldown-workspace table.table-mobile-md tr {
+        border: 1px solid var(--hfx-color-border);
+        border-radius: .75rem;
+        overflow: hidden;
+        background:
+            linear-gradient(180deg, rgba(var(--hfx-color-accent-rgb), .035) 0%, var(--hfx-card-panel-surface, var(--hfx-color-surface)) 100%);
+    }.hfx-drilldown-workspace table.table-mobile-md td {
+        border: 0 !important;
+        padding: .7rem 1rem;
+        text-align: left !important;
+        white-space: normal;
+    }.hfx-drilldown-workspace table.table-mobile-md td::before {
+        display: block;
+        float: none;
+        width: auto;
+        margin: 0 0 .3rem;
+        color: var(--hfx-color-status-neutral-solid);
+        font-size: .7rem;
+        font-weight: 700;
+        letter-spacing: .04em;
+        line-height: 1.2;
+        text-transform: uppercase;
+        writing-mode: horizontal-tb;
+    }.hfx-drilldown-workspace table.table-mobile-md td[data-hfx-col-key="domain"]::before {
+        display: none;
+    }.hfx-drilldown-workspace table.table-mobile-md td[data-hfx-col-key="open"] {
+        padding-top: .5rem;
+    }.hfx-drilldown-workspace table.table-mobile-md td[data-hfx-col-key="open"]::before {
+        content: none;
+    }.hfx-drilldown-workspace table.table-mobile-md td[data-hfx-col-key="open"] [data-hfx-drilldown-select] {
+        width: 100%;
+        justify-content: center;
+    }.hfx-drilldown-workspace table.table-mobile-md .hfx-collection-actions,
+    .hfx-drilldown-workspace table.table-mobile-md .hfx-collection-metric {
+        align-items: flex-start;
+    }}

@@ -609,6 +609,7 @@
       if (treeVisible !== null) visible = treeVisible;
       updateSearchGroups(surface);
       syncRecordDetails(surface);
+      syncCorrelationSelection(surface);
 
       surface.querySelectorAll('[data-hfx-monitoring-search-empty]').forEach(function (empty) {
         empty.hidden = visible !== 0;

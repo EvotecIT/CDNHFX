@@ -1,0 +1,41 @@
+/* HtmlForgeX Tabler base layout and tab pill helpers. */
+:root {
+    --hfx-bool-stacked-offset: 1.35rem;
+    --hfx-bool-inline-offset: 0rem;
+    --hfx-bool-label-gap: 1rem;
+    --hfx-input-min-height: 2.625rem;
+    --hfx-controlbar-gap: .85rem;
+    --hfx-controlbar-fields-gap: .8rem;
+    --hfx-controlbar-actions-gap: .55rem;
+    --hfx-controlbar-field-min: 11rem;
+    --hfx-controlbar-control-height: var(--hfx-input-min-height);
+    --hfx-controlbar-label-slot-height: 1.32rem;
+    --hfx-action-row-control-height: 2rem;
+}
+
+.page-body .vstack {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.page-body p {
+    margin: 0.35rem 0;
+}
+
+.page-body li {
+    margin: 0.2rem 0;
+}
+
+/* ---------- Bootstrap variable bridge ----------
+   Tabler compiles Bootstrap with the tblr- prefix, and HtmlForgeX does not load bootstrap.min.css next to Tabler
+   (R-14). Bootstrap 5 integrations (DataTables extensions, Tom Select) read --bs-* variables, so the ones they use
+   map onto Tabler's here: body-bg, body-color, border-width, border-color, border-color-translucent, border-radius,
+   box-shadow, table-bg, table-color and the dropdown link/item variables (listed in MIGRATION.md).
+   Each mapping sits where Tabler defines its own variable, so themes and dark mode flow
+   through. */
+
+/* Cards paint their own surface; floating headers and button menus attach elsewhere, so they take the card surface
+   explicitly. Everything else inherits the --bs-body-bg of its context (page, card, workspace panel). */
+
+/* Fixed columns stay opaque so scrolled cells do not show through: they paint their context's background because
+   Tabler's own table background is transparent. */
