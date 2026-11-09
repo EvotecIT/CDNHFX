@@ -1,10 +1,9 @@
 (function () {
   'use strict';
 
-  function getCssVar(name) {
+  function getCssVar(name, element) {
     try {
-      // Prefer :root but fall back to <body> because some themes apply tokens there.
-      var root = document && document.documentElement ? document.documentElement : null;
+      var root = element || (document && document.documentElement ? document.documentElement : null);
       var v = root ? getComputedStyle(root).getPropertyValue(name) : '';
       v = (v == null) ? '' : String(v).trim();
       if (!v) {
@@ -18,7 +17,11 @@
     }
   }
 
-  function getRootAttr(name) {
+  function getRootAttr(name, element) {
+    if (element && element.closest) {
+      var scope = element.closest('[' + name + ']');
+      if (scope) return scope.getAttribute(name);
+    }
     try {
       var root = document && document.documentElement && document.documentElement.getAttribute
         ? document.documentElement.getAttribute(name)
@@ -34,8 +37,8 @@
     return null;
   }
 
-  function getA11yFlags() {
-    var v = getRootAttr('data-hfx-a11y');
+  function getA11yFlags(element) {
+    var v = getRootAttr('data-hfx-a11y', element);
     if (!v) return { colorBlind: false, highContrast: false };
     var tokens = String(v).toLowerCase().split(/\s+/);
     return {
@@ -44,10 +47,10 @@
     };
   }
 
-  function getPalette() {
+  function getPalette(element) {
     var colors = [];
-    for (var index = 1; index <= 6; index++) {
-      var color = getCssVar('--hfx-color-series-' + index);
+    for (var index = 1; index <= 10; index++) {
+      var color = getCssVar('--hfx-color-chart-series-' + index, element) || getCssVar('--hfx-color-series-' + index, element);
       if (color) colors.push(color);
     }
     return colors;
@@ -76,20 +79,34 @@
     ds.pointBackgroundColor = o.pointBackgroundColor;
     ds.pointBorderColor = o.pointBorderColor;
     delete ds.__hfxA11yOrig;
-    delete ds.__hfxA11yApplied;
   }
 
   function applyPaletteToChart(chart) {
     try {
       if (!chart || !chart.data || !chart.data.datasets) return;
-      var a11y = getA11yFlags();
+      var a11y = getA11yFlags(chart.canvas);
       var datasets = chart.data.datasets;
+      var palette = getPalette(chart.canvas);
       if (!a11y.colorBlind) {
-        for (var r = 0; r < datasets.length; r++) restoreOrig(datasets[r]);
+        for (var r = 0; r < datasets.length; r++) {
+          var managed = datasets[r];
+          restoreOrig(managed);
+          var auto = managed && managed.__hfxThemeAutoPalette;
+          if (!auto || !palette.length) continue;
+          var kind = managed.type || (chart.config && chart.config.type);
+          if (isPieLike(kind)) {
+            if (auto.background) managed.backgroundColor = (managed.data || []).map(function (_value, index) { return palette[index % palette.length]; });
+          } else {
+            var tone = palette[r % palette.length];
+            if (auto.border) managed.borderColor = tone;
+            if (auto.background) managed.backgroundColor = withAlpha(tone, 0.35);
+            if (auto.pointBackground) managed.pointBackgroundColor = managed.borderColor;
+            if (auto.pointBorder) managed.pointBorderColor = managed.borderColor;
+          }
+        }
         return;
       }
 
-      var palette = getPalette();
       if (!palette || palette.length === 0) return;
       var baseType = chart.config && chart.config.type ? chart.config.type : null;
 
@@ -97,9 +114,14 @@
         var ds = datasets[i] || {};
         var type = ds.type || baseType;
         storeOrig(ds);
+        var original = ds.__hfxA11yOrig;
+        var automatic = ds.__hfxThemeAutoPalette || {
+          background: !original.backgroundColor, border: !original.borderColor,
+          pointBackground: !original.pointBackgroundColor, pointBorder: !original.pointBorderColor
+        };
 
         if (isPieLike(type)) {
-          if (!ds.backgroundColor || ds.__hfxA11yApplied) {
+          if (automatic.background) {
             var colors = [];
             var count = (ds.data && ds.data.length != null) ? ds.data.length : palette.length;
             for (var j = 0; j < count; j++) {
@@ -109,13 +131,12 @@
           }
         } else {
           var color = palette[i % palette.length];
-          if (!ds.borderColor || ds.__hfxA11yApplied) ds.borderColor = color;
-          if (!ds.backgroundColor || ds.__hfxA11yApplied) ds.backgroundColor = withAlpha(color, 0.35);
-          if (!ds.pointBackgroundColor || ds.__hfxA11yApplied) ds.pointBackgroundColor = ds.borderColor;
-          if (!ds.pointBorderColor || ds.__hfxA11yApplied) ds.pointBorderColor = ds.borderColor;
+          if (automatic.border) ds.borderColor = color;
+          if (automatic.background) ds.backgroundColor = withAlpha(color, 0.35);
+          if (automatic.pointBackground) ds.pointBackgroundColor = ds.borderColor;
+          if (automatic.pointBorder) ds.pointBorderColor = ds.borderColor;
         }
 
-        ds.__hfxA11yApplied = true;
       }
     } catch (_e) { }
   }
@@ -167,10 +188,10 @@
     return c;
   }
 
-  function resolveThemeColors() {
-    var text = getCssVar('--hfx-color-text');
-    var muted = getCssVar('--hfx-color-text-muted') || getCssVar('--hfx-color-text-muted') || text;
-    var border = getCssVar('--hfx-color-border');
+  function resolveThemeColors(element) {
+    var text = getCssVar('--hfx-color-text', element);
+    var muted = getCssVar('--hfx-color-text-muted', element) || text;
+    var border = getCssVar('--hfx-color-border', element);
     var grid = withAlpha(border, 0.35);
     return { text: text, muted: muted, border: border, grid: grid };
   }
@@ -180,6 +201,8 @@
       if (!window || !window.Chart || !Chart.defaults) return;
 
       Chart.defaults.color = colors.text;
+      Chart.defaults.font = Chart.defaults.font || {};
+      Chart.defaults.font.family = getCssVar('--hfx-font-sans');
       Chart.defaults.borderColor = colors.grid || colors.border;
 
       try {
@@ -244,6 +267,11 @@
       return;
     }
 
+    if (chart.__hfxThemeAutoFont === true) {
+      if (!chart.options.font) chart.options.font = {};
+      chart.options.font.family = getCssVar('--hfx-font-sans', chart.canvas);
+    }
+
     try {
       var plugins = chart.options.plugins;
       if (plugins) {
@@ -283,7 +311,7 @@
       if (!map) return;
       for (var id in map) {
         if (!Object.prototype.hasOwnProperty.call(map, id)) continue;
-        updateChartInstance(map[id], colors);
+        updateChartInstance(map[id], resolveThemeColors(map[id].canvas));
       }
     } catch (e) {
       /* ignore */
@@ -295,6 +323,8 @@
     try {
       window.addEventListener('hfx:themechange', function () { updateAllCharts(); });
       window.addEventListener('hfx:a11ychange', function () { updateAllCharts(); });
+      // Canvas text needs a redraw when an offline or web font finishes loading.
+      if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', updateAllCharts);
     } catch (e) {
       /* ignore */
     }

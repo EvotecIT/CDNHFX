@@ -1,0 +1,32 @@
+/* Compatibility for HtmlForgeX/Resources/Styles/hfx-portal-surface-dark-components.css. Native components read HFX roles. */
+aside.navbar-vertical[data-bs-theme="dark"] .nav-link {
+    margin-bottom: 0.35rem;
+
+    position: relative;
+    transition:
+        background-color 0.18s ease,
+        box-shadow 0.18s ease,
+        transform 0.18s ease;
+}aside.navbar-vertical[data-bs-theme="dark"] .nav-link:hover,
+aside.navbar-vertical[data-bs-theme="dark"] .nav-link:focus-visible {
+
+    transform: translateX(1px);
+}aside.navbar-vertical[data-bs-theme="dark"] .nav-link.active::before,
+aside.navbar-vertical[data-bs-theme="dark"] .nav-link[aria-current="page"]::before {
+    content: "";
+    position: absolute;
+    left: 0.55rem;
+    top: 0.55rem;
+    bottom: 0.55rem;
+    width: 0.18rem;
+
+}aside.navbar-vertical[data-bs-theme="dark"] .dropdown-menu {
+    margin: 0.15rem 0 0.5rem 0.45rem;
+    padding: 0.35rem;
+
+}
+
+/* Palette-independent border geometry. */
+aside.navbar-vertical .nav-link { border-radius: var(--hfx-sidebar-link-radius, 0.95rem); }
+aside.navbar-vertical .nav-link.active::before, aside.navbar-vertical .nav-link[aria-current="page"]::before { border-radius: 999px; }
+aside.navbar-vertical .dropdown-menu { border-radius: calc(var(--hfx-sidebar-link-radius, 0.95rem) - 0.06rem); }

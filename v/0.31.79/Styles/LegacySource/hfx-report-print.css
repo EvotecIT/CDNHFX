@@ -1,0 +1,2 @@
+/* Compatibility for HtmlForgeX/Resources/Styles/hfx-report-print.css. Native components read HFX roles. */
+@media print {.hfx-shell :is(.dt-length, .dt-search, .dt-paging, .dt-buttons, .dt-info, .dataTables_length, .dataTables_filter, .dataTables_paginate, .dataTables_info) { display: none !important; }.hfx-as-panel, .hfx-as-panel.is-muted, .hfx-shell .card { background: none; border: 0; border-radius: 0; box-shadow: none; }.hfx-shell .hfx-code-block :is(.card-subtitle, .text-secondary) { color: var(--p-muted) !important; }}

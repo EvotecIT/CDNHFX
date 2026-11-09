@@ -99,7 +99,7 @@
   var OP_LABELS = { eq: 'is', ne: 'is not', 'in': 'is any of', nin: 'is none of', contains: 'contains', ncontains: 'does not contain', token: 'contains', tag: 'has tag', startsWith: 'starts with', lt: '<', le: '≤', gt: '>', ge: '≥', empty: 'is empty', nempty: 'is not empty', next: 'in the next {days} days', last: 'in the last {days} days', past: 'is in the past', future: 'is in the future', older: 'older than {days} days' };
   function opWord(labels, op) {
     var words = labels && labels.operators, word = words && typeof words[op] === 'string' ? words[op] : OP_LABELS[op];
-    return word == null ? op === 'tag' ? 'has tag' : op : word;
+    return word == null ? op : word;
   }
 
   function opsFor(col) {

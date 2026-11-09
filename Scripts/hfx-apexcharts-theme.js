@@ -59,8 +59,8 @@
 
   function getPalette(scope) {
     var colors = [];
-    for (var index = 1; index <= 6; index++) {
-      var color = getCssVar('--hfx-color-series-' + index, scope);
+    for (var index = 1; index <= 10; index++) {
+      var color = getCssVar('--hfx-color-chart-series-' + index, scope) || getCssVar('--hfx-color-series-' + index, scope);
       if (color) colors.push(color);
     }
     return colors;
@@ -140,6 +140,7 @@
     };
 
     opts.chart.background = 'transparent';
+    if (chart.__hfxThemeAutoFont === true) opts.chart.fontFamily = getCssVar('--hfx-font-sans', scope);
 
     var bc = resolveBorderColor(scope);
     if (bc) opts.grid = { borderColor: bc };
@@ -201,6 +202,7 @@
         }
       });
       window.addEventListener('hfx:a11ychange', function () { updateAllApexCharts(); });
+      if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', updateAllApexCharts);
       window.addEventListener('hfx:operational-workspace-theme-change', function () {
         try {
           if (window.requestAnimationFrame) {

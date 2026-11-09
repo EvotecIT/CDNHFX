@@ -33,12 +33,22 @@
   }
 
   function markThemeManaged(chart) {
-    try { if (chart) chart.__hfxThemeManaged = true; } catch (_e) { }
+    try {
+      if (!chart) return;
+      chart.__hfxThemeManaged = true;
+      var font = chart.config && chart.config.options && chart.config.options.font;
+      chart.__hfxThemeAutoFont = !(font && font.family);
+      if (chart.__hfxThemeAutoFont) {
+        if (!chart.options.font) chart.options.font = {};
+        chart.options.font.family = getCssVar('--hfx-font-sans', chart.canvas);
+        chart.update('none');
+      }
+    } catch (_e) { }
   }
 
-  function getCssVar(name) {
+  function getCssVar(name, element) {
     try {
-      var root = document && document.documentElement ? document.documentElement : null;
+      var root = element || (document && document.documentElement ? document.documentElement : null);
       var v = root ? getComputedStyle(root).getPropertyValue(name) : '';
       v = (v == null) ? '' : String(v).trim();
       if (!v) {
@@ -52,43 +62,13 @@
     }
   }
 
-  function getRootAttr(name) {
-    try {
-      var root = document && document.documentElement && document.documentElement.getAttribute
-        ? document.documentElement.getAttribute(name)
-        : null;
-      if (root) return root;
-    } catch (_e1) { }
-    try {
-      var body = document && document.body && document.body.getAttribute
-        ? document.body.getAttribute(name)
-        : null;
-      if (body) return body;
-    } catch (_e2) { }
-    return null;
-  }
-
-  function getA11yFlags() {
-    var v = getRootAttr('data-hfx-a11y');
-    if (!v) return { colorBlind: false, highContrast: false };
-    var tokens = String(v).toLowerCase().split(/\s+/);
-    return {
-      colorBlind: tokens.indexOf('color-blind') >= 0,
-      highContrast: tokens.indexOf('high-contrast') >= 0
-    };
-  }
-
-  function getPalette() {
-    var p1 = getCssVar('--hfx-palette-1');
-    var p2 = getCssVar('--hfx-palette-2');
-    var p3 = getCssVar('--hfx-palette-3');
-    var p4 = getCssVar('--hfx-palette-4');
-    var p5 = getCssVar('--hfx-palette-5');
-    var p6 = getCssVar('--hfx-palette-6');
-    var p7 = getCssVar('--hfx-palette-7');
-    var list = [p1, p2, p3, p4, p5, p6, p7].filter(function (c) { return !!c; });
-    if (list.length > 0) return list;
-    return ['#0072b2', '#e69f00', '#009e73', '#d55e00', '#cc79a7', '#f0e442', '#56b4e9'];
+  function getPalette(element) {
+    var colors = [];
+    for (var index = 1; index <= 10; index++) {
+      var color = getCssVar('--hfx-color-chart-series-' + index, element) || getCssVar('--hfx-color-series-' + index, element);
+      if (color) colors.push(color);
+    }
+    return colors;
   }
 
   function parseHexColor(hex) {
@@ -140,19 +120,20 @@
     return t === 'pie' || t === 'doughnut' || t === 'polararea';
   }
 
-  function applyPaletteToConfig(cfg) {
+  function applyPaletteToConfig(cfg, canvas) {
     try {
       if (!cfg || !cfg.data || !cfg.data.datasets) return;
-      var a11y = getA11yFlags();
-      if (!a11y.colorBlind) return;
-
-      var palette = getPalette();
+      var palette = getPalette(canvas);
       if (!palette || palette.length === 0) return;
 
       var datasets = cfg.data.datasets;
       var baseType = cfg.type;
       for (var i = 0; i < datasets.length; i++) {
         var ds = datasets[i] || {};
+        ds.__hfxThemeAutoPalette = ds.__hfxThemeAutoPalette || {
+          background: !ds.backgroundColor, border: !ds.borderColor,
+          pointBackground: !ds.pointBackgroundColor, pointBorder: !ds.pointBorderColor
+        };
         var type = ds.type || baseType;
         if (isPieLike(type)) {
           if (!ds.backgroundColor && ds.data && ds.data.length != null) {
@@ -289,7 +270,7 @@
       applyCanvasDefaults(canvas);
 
       var cfg = opts.config || opts.cfg;
-      applyPaletteToConfig(cfg);
+      applyPaletteToConfig(cfg, canvas);
       var chart = createChart(canvas, cfg);
       if (!chart) return;
       markThemeManaged(chart);

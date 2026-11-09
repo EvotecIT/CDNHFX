@@ -3,7 +3,7 @@
    They sit in a cascade layer, so hfx-tokens.css and every unlayered override win; they apply only without hfx-tokens.css. </auto-generated> */
 @layer hfx.tokens.fallbacks {
   :where(:root):where(:not([data-hfx-design-system], [data-hfx-design-system] *)) {
-    --hfx-font-mono: "Cascadia Mono", "Cascadia Code", Consolas, "SFMono-Regular", Menlo, monospace;
+    --hfx-font-mono: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
   }
   :where(:root, [data-bs-theme="light"], [data-hfx-theme="light"], [data-hfx-tokens="light"]):where(:not([data-hfx-design-system], [data-hfx-design-system] *)) {
     --hfx-color-text-muted: #626770;

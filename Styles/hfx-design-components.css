@@ -1,7 +1,10 @@
 /* Public component anatomy. Legacy pages keep their existing presentation. */
 @layer hfx.components {
-  /* Widget theme metadata does not create an HFX page canvas; components own their surfaces. */
-  :where([data-hfx-design-system], [data-hfx-design-system] :is([data-hfx-style], [data-hfx-mode], [data-bs-theme], [data-hfx-theme], [data-hfx-tokens], [data-theme])) {
+  /* The page body and each theme island paint the canvas and carry their own text. The root element keeps the
+     browser's rem reference, and a component part that carries theme metadata (a CanopyX overlay copies the page's
+     style and mode) owns its surface instead of repainting the page canvas. */
+  :where(html[data-hfx-design-system]) > body,
+  :where([data-hfx-design-system]:not(html), [data-hfx-design-system] :is([data-hfx-style], [data-hfx-mode], [data-bs-theme], [data-hfx-theme], [data-hfx-tokens], [data-theme]):not([data-hfx-part])) {
     background: var(--hfx-color-surface-page);
     color: var(--hfx-color-text);
     font-family: var(--hfx-font-sans);
@@ -204,6 +207,9 @@
     border: var(--hfx-border-width) solid var(--hfx-color-border); border-radius: var(--hfx-radius-badge);
     background: var(--hfx-color-surface-sunken); color: var(--hfx-color-text-secondary);
     font-size: var(--hfx-type-caption-size); font-weight: var(--hfx-weight-semibold); line-height: var(--hfx-type-caption-line-height);
+  }
+  :where([data-hfx-design-system]) :where([data-hfx-part="badge"].bg-primary) {
+    color: var(--hfx-color-accent-contrast);
   }
   :where([data-hfx-design-system]) :where([data-hfx-part="pill"]) {
     height: var(--hfx-pill-height); padding-inline: var(--hfx-space-2); border-radius: var(--hfx-radius-pill);

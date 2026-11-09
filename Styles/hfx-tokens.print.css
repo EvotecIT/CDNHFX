@@ -2,9 +2,9 @@
 @layer hfx.reset, hfx.tokens, hfx.base, hfx.components, product, page;
 @layer hfx.tokens {
 :where(:root) {
-  --hfx-font-sans: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
-  --hfx-font-display: "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
-  --hfx-font-mono: "Cascadia Mono", "Cascadia Code", Consolas, "SFMono-Regular", Menlo, monospace;
+  --hfx-font-sans: Archivo, "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --hfx-font-display: Archivo, "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --hfx-font-mono: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
   --hfx-font-numeric: tabular-nums;
   --hfx-type-caption-size: 0.75rem;
   --hfx-type-caption-line-height: 1.35;
@@ -27,6 +27,36 @@
   --hfx-type-heading-size: 0.9375rem;
   --hfx-type-heading-line-height: 1.4;
   --hfx-type-heading-weight: 600;
+  --hfx-chart-type-minimum-size: 10px;
+  --hfx-chart-type-compact-breakpoint: 480px;
+  --hfx-chart-type-title-size: 17px;
+  --hfx-chart-type-title-compact-size: 15px;
+  --hfx-chart-type-title-weight: 600;
+  --hfx-chart-type-subtitle-size: 13px;
+  --hfx-chart-type-subtitle-compact-size: 12px;
+  --hfx-chart-type-subtitle-weight: 400;
+  --hfx-chart-type-panel-title-size: 15px;
+  --hfx-chart-type-panel-title-compact-size: 14px;
+  --hfx-chart-type-panel-title-weight: 600;
+  --hfx-chart-type-axis-title-size: 12px;
+  --hfx-chart-type-axis-title-compact-size: 11px;
+  --hfx-chart-type-axis-title-weight: 500;
+  --hfx-chart-type-tick-size: 12px;
+  --hfx-chart-type-tick-compact-size: 11px;
+  --hfx-chart-type-tick-weight: 400;
+  --hfx-chart-type-legend-size: 12.5px;
+  --hfx-chart-type-legend-compact-size: 12px;
+  --hfx-chart-type-legend-weight: 400;
+  --hfx-chart-type-legend-value-weight: 500;
+  --hfx-chart-type-data-label-size: 12px;
+  --hfx-chart-type-data-label-compact-size: 11px;
+  --hfx-chart-type-data-label-weight: 500;
+  --hfx-chart-type-center-value-minimum-size: 20px;
+  --hfx-chart-type-center-value-maximum-size: 40px;
+  --hfx-chart-type-center-value-radius-factor: 0.16;
+  --hfx-chart-type-center-value-weight: 700;
+  --hfx-chart-type-center-value-caption-size: 12px;
+  --hfx-chart-type-center-value-caption-gap: 4px;
   --hfx-space-0: 0;
   --hfx-space-1: 0.25rem;
   --hfx-space-2: 0.5rem;
@@ -110,6 +140,7 @@
   --hfx-layout-detail-width: 330px;
   --hfx-layout-max-width: 1376px;
   --hfx-layout-service-max-width: 1180px;
+  --hfx-report-summary-measure: 48em;
   --hfx-illustration-stroke: 1.4;
   --hfx-illustration-stroke-isometric: 1.2;
   --hfx-illustration-stroke-monoline: 1.5;
@@ -226,9 +257,9 @@
   --hfx-ramp-sequential-3: #2171ce;
   --hfx-ramp-sequential-4: #1c5cab;
   --hfx-ramp-sequential-5: #104281;
-  --hfx-ramp-diverging-negative-1: #f0a39d;
-  --hfx-ramp-diverging-negative-2: #e0645b;
-  --hfx-ramp-diverging-negative-3: #b8292a;
+  --hfx-ramp-diverging-negative-1: #d7ad87;
+  --hfx-ramp-diverging-negative-2: #eaa363;
+  --hfx-ramp-diverging-negative-3: #d9711f;
   --hfx-ramp-diverging-neutral: #eceef0;
   --hfx-ramp-diverging-positive-1: #9ab8dc;
   --hfx-ramp-diverging-positive-2: #2171ce;
@@ -237,6 +268,17 @@
   --hfx-elevation-1: 0 1px 2px rgba(22, 24, 28, .06);
   --hfx-elevation-2: 0 1px 2px rgba(22, 24, 28, .05), 0 6px 18px -10px rgba(22, 24, 28, .18);
   --hfx-elevation-3: 0 2px 4px rgba(22, 24, 28, .06), 0 16px 36px -16px rgba(22, 24, 28, .28);
+  --hfx-color-chart-series-1: #2a78d6;
+  --hfx-color-chart-series-2: #0f9f8c;
+  --hfx-color-chart-series-3: #d9711f;
+  --hfx-color-chart-series-4: #8055c4;
+  --hfx-color-chart-series-5: #c24fa8;
+  --hfx-color-chart-series-6: #cc4048;
+  --hfx-color-chart-series-7: #a97800;
+  --hfx-color-chart-series-8: #37813e;
+  --hfx-color-chart-series-9: #00739b;
+  --hfx-color-chart-series-10: #5f5f5f;
+  --hfx-color-chart-other: #737373;
 }
 :where(:root, [data-hfx-style], [data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-hfx-tokens], [data-hfx-product]) {
   color-scheme: light;

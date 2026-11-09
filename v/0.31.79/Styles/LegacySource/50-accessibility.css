@@ -1,0 +1,38 @@
+/* Compatibility for HtmlForgeX/Resources/Styles/ThemeSource/50-accessibility.css. Native components read HFX roles. */
+:root[data-hfx-a11y~="high-contrast"] [data-hfx-business-surface] .card-header,
+body[data-hfx-a11y~="high-contrast"] [data-hfx-business-surface] .card-header,
+:root[data-hfx-a11y~="high-contrast"] [data-hfx-business-surface] .rounded-3,
+body[data-hfx-a11y~="high-contrast"] [data-hfx-business-surface] .rounded-3,
+:root[data-hfx-a11y~="high-contrast"] [data-hfx-business-surface] .rounded-4,
+body[data-hfx-a11y~="high-contrast"] [data-hfx-business-surface] .rounded-4,
+:root[data-hfx-a11y~="high-contrast"] [data-hfx-business-surface] .badge,
+body[data-hfx-a11y~="high-contrast"] [data-hfx-business-surface] .badge,
+:root[data-hfx-a11y~="high-contrast"] [data-hfx-business-surface] .avatar,
+body[data-hfx-a11y~="high-contrast"] [data-hfx-business-surface] .avatar,
+:root[data-hfx-a11y~="high-contrast"] [data-hfx-dashboard-card-surface] .card-header,
+body[data-hfx-a11y~="high-contrast"] [data-hfx-dashboard-card-surface] .card-header,
+:root[data-hfx-a11y~="high-contrast"] [data-hfx-dashboard-card-surface] .card-footer,
+body[data-hfx-a11y~="high-contrast"] [data-hfx-dashboard-card-surface] .card-footer,
+:root[data-hfx-a11y~="high-contrast"] [data-hfx-dashboard-card-surface] .rounded-3,
+body[data-hfx-a11y~="high-contrast"] [data-hfx-dashboard-card-surface] .rounded-3,
+:root[data-hfx-a11y~="high-contrast"] [data-hfx-dashboard-card-surface] .rounded-4,
+body[data-hfx-a11y~="high-contrast"] [data-hfx-dashboard-card-surface] .rounded-4,
+:root[data-hfx-a11y~="high-contrast"] [data-hfx-dashboard-card-surface] .badge,
+body[data-hfx-a11y~="high-contrast"] [data-hfx-dashboard-card-surface] .badge,
+:root[data-hfx-a11y~="high-contrast"] [data-hfx-dashboard-card-surface] .avatar,
+body[data-hfx-a11y~="high-contrast"] [data-hfx-dashboard-card-surface] .avatar,
+:root[data-hfx-a11y~="high-contrast"] [data-hfx-dashboard-card-surface] .fc-view-harness,
+body[data-hfx-a11y~="high-contrast"] [data-hfx-dashboard-card-surface] .fc-view-harness,
+:root[data-hfx-a11y~="high-contrast"] [data-hfx-dashboard-card-surface] .fc-scrollgrid,
+body[data-hfx-a11y~="high-contrast"] [data-hfx-dashboard-card-surface] .fc-scrollgrid,
+:root[data-hfx-a11y~="high-contrast"] [data-hfx-dashboard-card-surface] .fc-list,
+body[data-hfx-a11y~="high-contrast"] [data-hfx-dashboard-card-surface] .fc-list {
+  background: var(--hfx-contrast-surface-2) !important;
+  border-color: var(--hfx-contrast-border) !important;
+  color: var(--hfx-contrast-text) !important;
+}:root[data-hfx-a11y~="high-contrast"] .card::before,
+body[data-hfx-a11y~="high-contrast"] .card::before,
+:root[data-hfx-a11y~="high-contrast"] [data-hfx-surface]::before,
+body[data-hfx-a11y~="high-contrast"] [data-hfx-surface]::before {
+  display: none !important;
+}

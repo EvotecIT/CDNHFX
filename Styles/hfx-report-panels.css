@@ -3,12 +3,13 @@
    They sit in a cascade layer, so hfx-tokens.css and every unlayered override win; they apply only without hfx-tokens.css. </auto-generated> */
 @layer hfx.tokens.fallbacks {
   :where(:root):where(:not([data-hfx-design-system], [data-hfx-design-system] *)) {
-    --hfx-font-sans: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
-    --hfx-font-display: "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
-    --hfx-font-mono: "Cascadia Mono", "Cascadia Code", Consolas, "SFMono-Regular", Menlo, monospace;
+    --hfx-font-sans: Archivo, "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --hfx-font-display: Archivo, "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --hfx-font-mono: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
     --hfx-focus-offset: 2px;
     --hfx-radius-control: 6px;
     --hfx-radius-container: 10px;
+    --hfx-report-summary-measure: 48em;
   }
   :where(:root, [data-bs-theme="light"], [data-hfx-theme="light"], [data-hfx-tokens="light"]):where(:not([data-hfx-design-system], [data-hfx-design-system] *)) {
     --hfx-color-text-secondary: #4d525b;
@@ -143,7 +144,8 @@
 .hfx-as-scopehead-title { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .hfx-as .hfx-as-scopehead-title h1 { margin: 0; font: 600 26px/1.2 var(--hfx-font-display); letter-spacing: -.02em; color: var(--hfx-color-text); overflow-wrap: anywhere; }
 .hfx-as .hfx-as-scopehead-detail { margin: 4px 0 0; font-family: var(--hfx-font-mono); font-size: 12px; color: var(--hfx-color-text-muted); overflow-wrap: anywhere; }
-.hfx-as .hfx-as-scopehead-desc { margin: 8px 0 0; font-size: 13.5px; color: var(--hfx-color-text-secondary); max-width: 90ch; text-wrap: pretty; }
+/* The measure is set in em: ch follows the face's digit width, which is wider in Archivo than its prose. */
+.hfx-as .hfx-as-scopehead-desc { margin: 8px 0 0; font-size: 13.5px; color: var(--hfx-color-text-secondary); max-width: var(--hfx-report-summary-measure); text-wrap: pretty; }
 .hfx-as-scopehead > .hfx-as-metrics { flex: 0 1 460px; min-width: min(100%, 300px); }
 
 /* ---------- picker (drop-down with filter) ---------- */

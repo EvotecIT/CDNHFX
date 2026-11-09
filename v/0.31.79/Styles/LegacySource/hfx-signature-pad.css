@@ -1,0 +1,4 @@
+/* Compatibility for HtmlForgeX/Resources/Styles/hfx-signature-pad.css. Native components read HFX roles. */
+.signature .btn.btn-icon {
+  background: color-mix(in srgb, var(--hfx-color-surface) 5.0%, transparent);
+}

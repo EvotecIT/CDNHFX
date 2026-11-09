@@ -59,8 +59,8 @@
 
   function getPalette(scope) {
     var colors = [];
-    for (var index = 1; index <= 6; index++) {
-      var color = getCssVar('--hfx-color-series-' + index, scope);
+    for (var index = 1; index <= 10; index++) {
+      var color = getCssVar('--hfx-color-chart-series-' + index, scope) || getCssVar('--hfx-color-series-' + index, scope);
       if (color) colors.push(color);
     }
     return colors;
@@ -140,6 +140,7 @@
       tooltip: { theme: theme }
     };
 
+    if (chart.__hfxThemeAutoFont === true) opts.chart.fontFamily = getCssVar('--hfx-font-sans', scope);
     var borderColor = resolveBorderColor(scope);
     if (borderColor) {
       opts.grid = { borderColor: borderColor };
@@ -200,6 +201,7 @@
     options.theme.mode = theme;
 
     if (!options.chart || typeof options.chart !== 'object') options.chart = {};
+    if (!options.chart.fontFamily) options.chart.fontFamily = getCssVar('--hfx-font-sans', scope);
     if (!options.chart.foreColor) {
       var fc = resolveForeColor(scope);
       if (fc) options.chart.foreColor = fc;
@@ -264,6 +266,7 @@
       var autoColors = !!(cfg && cfg.autoColors);
       var id = (cfg && cfg.id) ? String(cfg.id) : (el.id ? String(el.id) : '');
       var hadExplicitColors = !!(options && options.colors);
+      var hadExplicitFont = !!(options && options.chart && options.chart.fontFamily);
 
       if (followTheme) applyThemeDefaults(options, autoColors, el);
 
@@ -276,6 +279,7 @@
       if (followTheme) {
         try { chart.__hfxThemeManaged = true; } catch (_m) { /* ignore */ }
         try { chart.__hfxThemeAutoColors = autoColors && !hadExplicitColors; } catch (_ac) { /* ignore */ }
+        chart.__hfxThemeAutoFont = !hadExplicitFont;
         try { chart.__hfxElement = el; } catch (_el) { /* ignore */ }
       }
 

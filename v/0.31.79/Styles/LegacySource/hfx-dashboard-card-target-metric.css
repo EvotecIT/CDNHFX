@@ -1,0 +1,5 @@
+/* Compatibility for HtmlForgeX/Resources/Styles/hfx-dashboard-card-target-metric.css. Native components read HFX roles. */
+.hfx-target-metric-card .card-body{
+  padding:var(--hfx-target-metric-padding);
+  min-width:0;
+}

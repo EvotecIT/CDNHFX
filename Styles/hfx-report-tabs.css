@@ -3,9 +3,9 @@
    They sit in a cascade layer, so hfx-tokens.css and every unlayered override win; they apply only without hfx-tokens.css. </auto-generated> */
 @layer hfx.tokens.fallbacks {
   :where(:root):where(:not([data-hfx-design-system], [data-hfx-design-system] *)) {
-    --hfx-font-sans: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
-    --hfx-font-display: "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
-    --hfx-font-mono: "Cascadia Mono", "Cascadia Code", Consolas, "SFMono-Regular", Menlo, monospace;
+    --hfx-font-sans: Archivo, "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --hfx-font-display: Archivo, "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --hfx-font-mono: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
     --hfx-type-title-size: 1.25rem;
     --hfx-space-2: 0.5rem;
     --hfx-space-0-5: 2px;
