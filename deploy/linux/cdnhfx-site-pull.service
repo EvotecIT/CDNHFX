@@ -1,0 +1,12 @@
+[Unit]
+Description=Refresh the HtmlForgeX CDN through the shared PowerForge publisher
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=powerforge-cdnhfx
+Group=powerforge-cdnhfx
+UMask=0077
+ExecStart=/usr/local/sbin/powerforge-site-pull-deploy cdnhfx.evotec.xyz
+TimeoutStartSec=30min

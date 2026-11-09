@@ -1,0 +1,10 @@
+{
+  "steps": [
+    {
+      "task": "exec",
+      "command": "pwsh",
+      "argsList": ["-NoProfile", "-File", "./Build/Stage-CdnSite.ps1"],
+      "workingDirectory": "."
+    }
+  ]
+}

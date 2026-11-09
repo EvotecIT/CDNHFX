@@ -1,0 +1,3 @@
+powerforge-cdnhfx ALL=(root) NOPASSWD: /usr/local/sbin/powerforge-site-deploy ^--site cdnhfx\.evotec\.xyz --archive /tmp/powerforge-[0-9]+-[0-9]+-cdnhfx\.evotec\.xyz/artifact\.tar --metadata /tmp/powerforge-[0-9]+-[0-9]+-cdnhfx\.evotec\.xyz/deployment\.json --defer-public-verification$
+powerforge-cdnhfx ALL=(root) NOPASSWD: /usr/local/sbin/powerforge-site-deploy ^--site cdnhfx\.evotec\.xyz --finalize --release-id [A-Za-z0-9][A-Za-z0-9._-]*$
+powerforge-cdnhfx ALL=(root) NOPASSWD: /usr/local/sbin/powerforge-site-deploy ^--site cdnhfx\.evotec\.xyz --rollback --release-id [A-Za-z0-9][A-Za-z0-9._-]*$
