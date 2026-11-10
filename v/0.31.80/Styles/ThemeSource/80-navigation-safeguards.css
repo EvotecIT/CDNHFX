@@ -1,0 +1,26 @@
+/* ---------- Navigation sidebar layout safeguards ---------- */
+
+/* Root viewport reset: some Chromium/Tabler combinations compensate the
+   document element when DevTools or overlay scrollbars are active. Keep the
+   app shell flush and reserve gutter space only inside explicit scroll panes. */
+html,
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  margin-inline-start: 0 !important;
+  padding-inline-start: 0 !important;
+  inset-inline-start: auto !important;
+  scrollbar-gutter: auto !important;
+}
+
+html[data-hfx-surface],
+body[data-hfx-surface] {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  max-width: none !important;
+  width: 100% !important;
+}
+
+html[data-hfx-surface] > body {
+  min-width: 100% !important;
+}

@@ -1,0 +1,3 @@
+/* Palette-independent border geometry. */
+html body .hfx-monitoring-panel, .hfx-monitoring-panel, html body .hfx-monitoring-kpi, .hfx-monitoring-kpi { border-radius: .62rem; }
+html body .hfx-monitoring-kpi-icon::before, .hfx-monitoring-kpi-icon::before { border-radius: .45rem; }

@@ -286,7 +286,8 @@
   .hfx-shell-provenance { gap: 2px 14px; margin-bottom: 14px; }
   .hfx-shell-stale { order: -1; }
   .hfx-shell-drawer-head { flex-wrap: wrap; padding: 12px 14px; }
-  .hfx-shell-drawer-actions { width: 100%; justify-content: space-between; }
+  .hfx-shell-drawer-actions { width: 100%; flex-wrap: wrap; gap: var(--hfx-space-2) var(--hfx-space-3); justify-content: space-between; }
+  .hfx-shell-drawer-actions .hfx-shell-drawer-close { margin-left: auto; }
   .hfx-shell-drawer-body { padding: 14px 12px 32px; }
   .hfx-as .hfx-as-group-trigger .hfx-as-picker-caret { margin-left: auto; }
 }
