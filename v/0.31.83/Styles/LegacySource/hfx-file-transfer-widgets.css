@@ -1,0 +1,40 @@
+/* Compatibility for HtmlForgeX/Resources/Styles/hfx-file-transfer-widgets.css. Native components read HFX roles. */
+.hfx-file-transfer-summary--compact .card-body,
+.hfx-file-transfer-summary--compact .hfx-file-transfer-summary__body {
+  padding: .65rem;
+}.hfx-file-bulk-actions .card-body,
+.hfx-file-bulk-actions__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .75rem;
+  padding: .8rem;
+}.hfx-file-bulk-actions--compact .card-body,
+.hfx-file-bulk-actions--compact .hfx-file-bulk-actions__body {
+  padding: .65rem;
+}.hfx-file-transfer-details .card-body {
+  display: grid;
+  gap: 1rem;
+}.hfx-file-transfer-details__file .badge {
+  justify-self: end;
+  max-width: 100%;
+  white-space: normal;
+}.hfx-file-transfer-details--compact .card-body,
+.hfx-file-transfer-details--compact .hfx-file-transfer-details__body {
+  gap: .75rem;
+}.hfx-file-storage-quota .card-body,
+.hfx-file-storage-quota__body {
+  display: grid;
+  gap: .7rem;
+  padding: .8rem;
+}.hfx-file-storage-quota--compact .card-body,
+.hfx-file-storage-quota--compact .hfx-file-storage-quota__body {
+  gap: .55rem;
+  padding: .7rem;
+}@media (max-width: 575.98px) {.hfx-file-transfer-details__file > .badge {
+    grid-column: 2;
+    justify-self: start;
+  }.hfx-file-bulk-actions .card-body,
+  .hfx-file-bulk-actions__body {
+    grid-template-columns: minmax(0, 1fr);
+  }}

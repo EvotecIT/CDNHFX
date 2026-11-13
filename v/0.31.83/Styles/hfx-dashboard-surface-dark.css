@@ -1,0 +1,183 @@
+/* Dashboard surface dark chrome. */
+
+html .hfx-header-dropdown-menu,
+html .hfx-theme-menu {
+
+    padding: 0.5rem;
+
+}
+
+html .hfx-theme-menu {
+    min-width: 11rem;
+}
+
+html .hfx-header-dropdown-menu {
+    margin-top: 0.45rem;
+}
+
+html .hfx-header-notifications__menu {
+    width: min(24rem, calc(100vw - 2rem));
+}
+
+html .hfx-header-user__menu {
+    min-width: 12rem;
+}
+
+html .hfx-theme-menu__item:hover,
+html .hfx-theme-menu__item:focus,
+html .hfx-header-user__menu-item:hover,
+html .hfx-header-user__menu-item:focus {
+
+    transform: translateY(-1px);
+}
+
+html .hfx-metric-card,
+html .hfx-gauge-card,
+html .hfx-stat-tile-card,
+html .hfx-social-tile-card,
+html .hfx-tracking-summary-card,
+html .hfx-analytics-summary-card,
+html .hfx-activity-feed-card,
+html .hfx-geo-summary-card,
+html .hfx-table-summary-card {
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+html .hfx-metric-card:hover,
+html .hfx-gauge-card:hover,
+html .hfx-stat-tile-card:hover,
+html .hfx-social-tile-card:hover,
+html .hfx-tracking-summary-card:hover,
+html .hfx-analytics-summary-card:hover,
+html .hfx-activity-feed-card:hover,
+html .hfx-geo-summary-card:hover,
+html .hfx-table-summary-card:hover {
+    transform: translateY(-2px);
+
+}
+
+html .hfx-tracking-summary-card__metric,
+html .hfx-tracking-summary-card__stage,
+html .hfx-tracking-summary-card__signal,
+html .hfx-analytics-summary-card__metric,
+html .hfx-analytics-summary-card__highlight,
+html .hfx-activity-feed-card__event,
+html .hfx-geo-summary-card__metric,
+html .hfx-geo-summary-card__region,
+html .hfx-table-summary-card__highlight,
+html .hfx-summary-strip__item {
+
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        border-color 0.18s ease;
+}
+
+html .hfx-tracking-summary-card__metric:hover,
+html .hfx-tracking-summary-card__stage:hover,
+html .hfx-tracking-summary-card__signal:hover,
+html .hfx-geo-summary-card__metric:hover,
+html .hfx-geo-summary-card__region:hover,
+html .hfx-table-summary-card__highlight:hover {
+    transform: translateY(-1px);
+
+}
+
+html .hfx-tracking-summary-card__tracking .tracking {
+
+    padding: 0.3rem;
+}
+
+html .hfx-table-summary-card table.dataTable tbody tr {
+    transition: background-color 0.18s ease, transform 0.18s ease;
+}
+
+html footer.footer.footer-transparent {
+    margin-top: 2rem;
+    padding-top: 1.15rem;
+    padding-bottom: 1.35rem;
+
+}
+
+html .hfx-metric-card .text-uppercase,
+html .hfx-gauge-card .text-uppercase,
+html .hfx-stat-tile-card .text-uppercase,
+html .hfx-social-tile-card .text-uppercase {
+    letter-spacing: 0.08em;
+}
+
+html .page-header {
+    margin-bottom: 1.35rem;
+}
+
+html .page-header .page-pretitle {
+    letter-spacing: 0.08em;
+}
+
+html .page-title {
+    letter-spacing: -0.038em;
+    line-height: 1.04;
+}
+
+html .hfx-spotlight-card h2,
+html .hfx-analytics-summary-card h3,
+html .hfx-activity-feed-card h3,
+html .hfx-geo-summary-card h3,
+html .hfx-table-summary-card h3 {
+    letter-spacing: -0.032em;
+}
+
+html .hfx-spotlight-card p,
+html .hfx-analytics-summary-card p,
+html .hfx-activity-feed-card p,
+html .hfx-geo-summary-card p,
+html .hfx-table-summary-card p {
+    max-width: 62ch;
+    line-height: 1.58;
+}
+
+html .hfx-spotlight-card p {
+    max-width: 34rem;
+}
+
+html .hfx-analytics-summary-card__highlight,
+html .hfx-activity-feed-card__event,
+html .hfx-geo-summary-card__region,
+html .hfx-table-summary-card__highlight {
+    font-size: 0.92rem;
+    line-height: 1.46;
+}
+
+html .hfx-stat-tile-card .text-uppercase,
+html .hfx-social-tile-card .text-uppercase,
+html .hfx-summary-strip__item .text-uppercase,
+html .hfx-tracking-summary-card__metric .text-uppercase,
+html .hfx-geo-summary-card__region .text-uppercase,
+html .hfx-table-summary-card__highlight .text-uppercase {
+    font-size: 0.68rem;
+    letter-spacing: 0.085em;
+}
+
+html .hfx-stat-tile-card .display-6,
+html .hfx-social-tile-card .display-6,
+html .hfx-summary-strip__item .fw-semibold,
+html .hfx-tracking-summary-card__metric .fw-semibold,
+html .hfx-geo-summary-card__region .fw-semibold,
+html .hfx-table-summary-card__highlight .fw-semibold {
+    line-height: 1.14;
+}
+
+html .hfx-spotlight-card__callout {
+    max-width: 11.5rem;
+}
+
+/* Palette-independent border geometry. */
+.hfx-header-dropdown-menu, .hfx-theme-menu { border-radius: 1.15rem; }
+.hfx-header-dropdown-card__header, .hfx-header-dropdown-card__footer { border-radius: 0.95rem; }
+.hfx-header-dropdown-card__body, .hfx-header-dropdown-card__list { border-radius: 0.95rem; }
+.hfx-theme-menu__item, .hfx-header-user__menu-item { border-radius: 0.9rem; }
+.hfx-tracking-summary-card__tracking .tracking { border-radius: 0.9rem; }
