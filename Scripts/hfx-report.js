@@ -624,14 +624,18 @@
   // previous and next buttons step through the others that have a panel, in the given order. An entity without a panel
   // goes to its page, or to the address a hosted report names for it. Returns false when the report knows nothing
   // that shows the entity, so the caller can show it another way.
-  function openEntities(ids, index, returnFocus) {
+  // completion.onOpened runs after a panel opens or an accepted fallback navigates, never for pending loads alone.
+  // completion.isCurrent can discard a superseded origin before deferred content opens or navigation runs.
+  function openEntities(ids, index, returnFocus, completion) {
     var list = (ids || []).map(function (id) { return id == null ? '' : String(id); });
     var id = list[index];
-    return !!id && openEntityAmong(id, list, returnFocus || null);
+    return !!id && openEntityAmong(id, list, returnFocus || null, completion);
   }
 
-  function openEntityAmong(id, ids, returnFocus) {
-    if (!id) return false;
+  function openEntityAmong(id, ids, returnFocus, completion) {
+    var onOpened = completion && completion.onOpened;
+    var current = function () { return !completion || typeof completion.isCurrent !== 'function' || completion.isCurrent(); };
+    if (!id || !current()) return false;
     entityTicket++;
     if (hasPanel(id)) {
       var lower = id.toLowerCase();
@@ -641,7 +645,9 @@
       if (index < 0) { ids = [id]; index = 0; }
       var open = function () {
         var options = entityDrawerOptions(id, ids, index, returnFocus);
-        return !!options && openDrawer(options);
+        if (!options || !openDrawer(options)) return false;
+        if (typeof onOpened === 'function') onOpened();
+        return true;
       };
       var loading = loadPanel(id);
       if (!loading) {
@@ -650,13 +656,18 @@
         // A panel in a panel file of a bundle opens once its file has arrived, unless the reader has opened, closed or
         // followed something else meanwhile; without the panel the entity's page opens, or the element it names.
         var ticket = ++entityTicket;
-        var elsewhere = function () { if (!goToEntity(id, entityEntry(id))) reveal(id, {}); };
+        var elsewhere = function () {
+          var navigated = goToEntity(id, entityEntry(id)) || reveal(id, {});
+          if (navigated && typeof onOpened === 'function') onOpened();
+        };
         // The ticket is checked once, before anything is tried: opening the drawer counts as an action itself.
-        loading.then(function () { if (ticket === entityTicket && !open()) elsewhere(); }, function () { if (ticket === entityTicket) elsewhere(); });
+        loading.then(function () { if (ticket === entityTicket && current() && !open()) elsewhere(); }, function () { if (ticket === entityTicket && current()) elsewhere(); });
         return true;
       }
     }
-    return goToEntity(id, entityEntry(id));
+    var navigated = goToEntity(id, entityEntry(id));
+    if (navigated && typeof onOpened === 'function') onOpened();
+    return navigated;
   }
 
   // ----------------------------------------------------------------- drawer
