@@ -1,0 +1,46 @@
+/* Compatibility for HtmlForgeX/Resources/Styles/hfx-operational-workspace-skins.css. Native components read HFX roles. */
+.hfx-operational-workspace--mixed .hfx-metric-card .card-body::before{
+  content:none !important;
+}.hfx-operational-workspace--mixed .card-body,
+.hfx-operational-workspace--mixed .card-header,
+.hfx-operational-workspace--mixed .tab-content,
+.hfx-operational-workspace--mixed .dataTables_wrapper,
+.hfx-operational-workspace--mixed .datagrid{
+  background:transparent !important;
+  color:var(--hfx-color-text) !important;
+}.hfx-operational-workspace--mixed .text-secondary,
+.hfx-operational-workspace--mixed .hfx-analytics-summary-card p,
+.hfx-operational-workspace--mixed .hfx-record-inspector-card p,
+.hfx-operational-workspace--mixed .hfx-timeline-summary-card p,
+.hfx-operational-workspace--mixed .hfx-review-feed-card p,
+.hfx-operational-workspace--mixed .hfx-presence-list-card p,
+.hfx-operational-workspace--mixed .hfx-progress-list-card__note,
+.hfx-operational-workspace--mixed .dataTables_info{
+  color:var(--hfx-color-text-muted) !important;
+}.hfx-operational-workspace--mixed .display-6,
+.hfx-operational-workspace--mixed .card-title,
+.hfx-operational-workspace--mixed h3,
+.hfx-operational-workspace--mixed table.dataTable tbody td{
+  color:var(--hfx-color-text) !important;
+}.hfx-operational-workspace--mixed .hfx-analytics-summary-card__metric,
+.hfx-operational-workspace--mixed .hfx-analytics-summary-card__highlight,
+.hfx-operational-workspace--mixed .hfx-analytics-summary-card__chart,
+.hfx-operational-workspace--mixed .hfx-summary-strip__item,
+.hfx-operational-workspace--mixed .hfx-status-matrix__item,
+.hfx-operational-workspace--mixed .hfx-table-summary-card__highlight,
+.hfx-operational-workspace--mixed .hfx-table-summary-card__surface,
+.hfx-operational-workspace--mixed .hfx-record-inspector-card__surface,
+.hfx-operational-workspace--mixed .hfx-record-inspector-card .rounded-4,
+.hfx-operational-workspace--mixed .hfx-timeline-summary-card .rounded-4,
+.hfx-operational-workspace--mixed .hfx-review-feed-card .rounded-4,
+.hfx-operational-workspace--mixed .hfx-presence-list-card__metric,
+.hfx-operational-workspace--mixed .hfx-presence-list-card__highlight,
+.hfx-operational-workspace--mixed .hfx-presence-list-card__surface,
+.hfx-operational-workspace--mixed .hfx-presence-list-card__person,
+.hfx-operational-workspace--mixed .hfx-workspace-tabs-card .card-body>.rounded-4,
+.hfx-operational-workspace--mixed .hfx-data-grid-card .rounded-4,
+.hfx-operational-workspace--mixed .hfx-progress-list-card__item{
+  border-color:var(--hfx-color-border) !important;
+  background:var(--hfx-color-surface-sunken) !important;
+  box-shadow:none !important;
+}

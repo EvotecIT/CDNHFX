@@ -161,6 +161,10 @@
           try { return new Intl.NumberFormat(locale, {minimumFractionDigits:1,maximumFractionDigits:1,useGrouping:false}).format(rounded) + '%'; }
           catch (_) { return rounded.toFixed(1) + '%'; }
         }
+        if (this.format === 'groupedNumber' && mode !== 'export') {
+          try { return new Intl.NumberFormat(document.documentElement.lang || undefined, {maximumFractionDigits:20}).format(value); }
+          catch (_) { return formatNumber(value); }
+        }
         return this.format === 'durationMs' && mode !== 'export'
           ? (Math.abs(value) < 1000 ? (Math.sign(value) * Math.round(Math.abs(value) * 10) / 10).toFixed(1).replace(/\.0$/, '') + ' ms' : (Math.sign(value) * Math.round(Math.abs(value) / 100) / 10).toFixed(1) + ' s') : formatNumber(value);
       case 't': return formatDate(value, this.type, mode, mode === 'export' ? this.local : this.showsLocal(), this.seconds);
@@ -176,7 +180,12 @@
     if (!this._lower) {
       var self = this;
       if (this.kind === 'd') this._lower = this.dict.map(fold);
-      else { this._lower = new Array(this.values.length); for (var i = 0; i < this.values.length; i++) this._lower[i] = fold(self.text(i, self.type === 'category' ? 'key' : 'display')); }
+      else {
+        // A grouped number is also found by its plain digits ("10381" finds "10 381").
+        var plain = this.format === 'groupedNumber';
+        this._lower = new Array(this.values.length);
+        for (var i = 0; i < this.values.length; i++) this._lower[i] = fold(self.text(i, self.type === 'category' ? 'key' : 'display') + (plain && self.values[i] !== null ? ' ' + formatNumber(self.values[i]) : ''));
+      }
     }
     if (this.kind === 'd') { var i2 = this.idx[r]; return i2 < 0 ? '' : this._lower[i2]; }
     return this._lower[r];
