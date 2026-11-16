@@ -80,7 +80,9 @@
 .hfx-rv-queue.is-compact .hfx-rv-queue-main { min-width: 0; }
 .hfx-rv-queue.is-compact .hfx-rv-queue-meta { display: block; margin: 0; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11.5px; }
 .hfx-rv-queue.is-compact .hfx-rv-queue-meta .hfx-as-time { white-space: nowrap; }
-.hfx-rv-queue.is-compact .hfx-rv-queue-meta > span:not(:last-child)::after { content: " · ​"; }
+/* One clipped line: the parts flow as text, so the ellipsis cuts inside the last visible words. As inline blocks a part
+   that did not fit was replaced whole by "...", leaving a separator and an ellipsis with no text. */
+.hfx-rv-queue.is-compact .hfx-rv-queue-meta > span:not(.hfx-rv-queue-sep) { display: inline; max-width: none; }
 .hfx-rv-queue.is-compact .hfx-rv-queue-title { display: block; white-space: nowrap; text-overflow: ellipsis; font-size: 13px; line-height: 1.4; margin: 0; }
 .hfx-rv-queue.is-compact .hfx-rv-queue-item > .hfx-rv-queue-status { grid-column: 4; margin-top: 0; font-size: 11px; }
 .hfx-rv-queue.is-compact .hfx-rv-queue-metric b { font-size: 14px; }

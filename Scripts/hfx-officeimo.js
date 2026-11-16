@@ -22,6 +22,104 @@
             italic: face('Roboto-Italic.ttf'), boldItalic: face('Roboto-MediumItalic.ttf') };
         return cachedFonts;
     }
+    // The PDF font (Roboto) has no glyph for some symbols report text uses ("Linked → Unlinked"). Such a character becomes
+    // a plain equivalent, or "?" when it has none, so one arrow never fails a whole PDF; the other formats keep the text.
+    // Where OfficeIMO's text preflight is loaded it finds every such character; otherwise the known symbols are replaced.
+    var PDF_SUBSTITUTES = {'→':'->','←':'<-','↔':'<->','⇒':'=>','↑':'^','↓':'v','✓':'yes','✔':'yes','✗':'no','✕':'x'};
+    var PDF_SYMBOLS = new RegExp('[' + Object.keys(PDF_SUBSTITUTES).join('') + ']', 'g');
+    function pdfText(text) {
+        if (typeof text !== 'string' || !text) return text;
+        if (!global.OfficeIMO.preflightPdfText) return text.replace(PDF_SYMBOLS, function (symbol) {return PDF_SUBSTITUTES[symbol];});
+        var font = fonts(), out = text, result;
+        for (var guard = 0; guard < 256; guard++) {
+            result = global.OfficeIMO.preflightPdfText(out, {fonts:font});
+            if (result.supported || result.scalar === undefined) break;
+            var symbol = String.fromCodePoint(result.scalar);
+            out = out.slice(0, result.index) + (PDF_SUBSTITUTES[symbol] || '?') + out.slice(result.index + symbol.length);
+        }
+        return out;
+    }
+    // A raw capture keeps its values exact: grouping checks detail values against the captured group values, so only the
+    // text the PDF paints is substituted there.
+    function pdfCapture(capture) {
+        var request = capture.request, columns = request.columns.map(function (column) {
+            return typeof column.title === 'string' ? Object.freeze(Object.assign({}, column, {title:pdfText(column.title)})) : column;
+        });
+        return Object.freeze({request:Object.freeze(Object.assign({}, request, {columns:Object.freeze(columns)})), rows:async function* (options) {
+            for await (var row of capture.rows(options)) {
+                var cells = {};
+                Object.keys(row.cells || {}).forEach(function (id) {
+                    var cell = row.cells[id];
+                    cells[id] = cell && typeof cell === 'object' ? Object.freeze(Object.assign({}, cell, typeof cell.text === 'string' ? {text:pdfText(cell.text)} : {},
+                        request.values !== 'raw' && typeof cell.value === 'string' ? {value:pdfText(cell.value)} : {})) : cell;
+                });
+                yield Object.freeze(Object.assign({}, row, {cells:Object.freeze(cells)}));
+            }
+        }});
+    }
+    // OfficeIMO groups a workbook by raw values only, so a display export of a grouped grid would lose its groups. A grouped
+    // display capture becomes a raw capture of the displayed text: every cell exports what the grid shows, and each group is
+    // identified by the text its rows show in the grouping column, so a value shown as a label ('ok' as 'Healthy') exports
+    // its label in the detail rows and stays in step with its group. Typed values remain the explicit raw export.
+    // The group ranges must be known before the rows are written, so the captured rows are read first; a grid's grouped
+    // records are already in memory. A grouping the shown text cannot identify (rows of one group showing different text,
+    // two sibling groups showing the same text) or one with aggregates, which need raw numbers, exports flat as before.
+    // So does a sheet with an autofilter (grouped summary rows can't carry one) or with formatting rules, which compare
+    // raw values that this capture replaces with text.
+    async function groupedDisplayCapture(capture, signal, options) {
+        var request = capture.request, grouping = request.grouping, sheet = options && options.xlsx && options.xlsx.sheet;
+        if (request.values !== 'display' || !grouping || !Array.isArray(grouping.levels) || !Array.isArray(grouping.groups) ||
+            Array.isArray(grouping.aggregates) && grouping.aggregates.length || sheet && sheet.autoFilter ||
+            Array.isArray(request.formatRules) && request.formatRules.length) return capture;
+        var rows = [];
+        for await (var row of capture.rows(signal ? {signal:signal} : {})) rows.push(row);
+        function replay() { return async function* () { for (var i = 0; i < rows.length; i++) yield rows[i]; }; }
+        var levels = grouping.levels.map(function (level) { return level.column; }), headers = levels.map(function () { return new Map(); });
+        var exported = new Set(request.columns.map(function (column) { return column.id; }));
+        function shown(offset, count, column) {
+            if (!Number.isSafeInteger(offset) || !Number.isSafeInteger(count) || offset < 0 || count <= 0 || offset + count > rows.length) throw new RangeError('range');
+            // A grouping column the export leaves out has no detail cells to agree with; its group keeps its own label.
+            if (!exported.has(column)) return undefined;
+            var text;
+            for (var i = offset; i < offset + count; i++) {
+                var cell = rows[i] && rows[i].cells && rows[i].cells[column];
+                if (!cell || typeof cell.text !== 'string' || text !== undefined && cell.text !== text) throw new RangeError('mixed');
+                text = cell.text;
+            }
+            return text;
+        }
+        function relabel(groups, depth) {
+            var siblings = new Set();
+            return groups.map(function (group) {
+                // A captured group text that only repeats the raw value is no label; the group row shows its rows' text then.
+                var raw = group.value === null || group.value === undefined ? '' : String(group.value), text = shown(group.offset, group.count, levels[depth]);
+                if (text === undefined) text = typeof group.text === 'string' ? group.text : raw;
+                var header = typeof group.text === 'string' && (group.text !== raw || !text) ? group.text : text;
+                if (siblings.has(text) || headers[depth].has(text) && headers[depth].get(text) !== header) throw new RangeError('ambiguous');
+                siblings.add(text);
+                headers[depth].set(text, header);
+                var nested = Array.isArray(group.groups) && depth + 1 < levels.length ? {groups:Object.freeze(relabel(group.groups, depth + 1))} : {};
+                return Object.freeze(Object.assign({}, group, {value:text, text:header}, nested));
+            });
+        }
+        var groups;
+        try { groups = relabel(grouping.groups, 0); }
+        catch (error) { if (error instanceof RangeError) return Object.freeze({request:request, rows:replay()}); throw error; }
+        rows = rows.map(function (row) {
+            var cells = {};
+            Object.keys(row.cells || {}).forEach(function (id) {
+                var cell = row.cells[id];
+                cells[id] = cell && typeof cell === 'object' && typeof cell.text === 'string' ? Object.freeze(Object.assign({}, cell, {value:cell.text})) : cell;
+            });
+            return Object.freeze(Object.assign({}, row, {cells:Object.freeze(cells)}));
+        });
+        var columns = request.columns.map(function (column) { return column.kind === 'text' ? column : Object.freeze(Object.assign({}, column, {kind:'text'})); });
+        return Object.freeze({request:Object.freeze(Object.assign({}, request, {values:'raw', columns:Object.freeze(columns),
+            grouping:Object.freeze(Object.assign({}, grouping, {groups:Object.freeze(groups)}))})), rows:replay()});
+    }
+    async function documentCapture(capture, format, signal, options) {
+        return format === 'pdf' ? pdfCapture(capture) : format === 'xlsx' ? groupedDisplayCapture(capture, signal, options) : capture;
+    }
     function bindValues(conf, element, host) {
         var bindings = {}, metadata = conf.hfxOfficeIMOValues || {};
         Object.keys(metadata).forEach(function (row) {
@@ -148,6 +246,10 @@
             };
         });
     }
+    // A view the writer could only export as its visible text says so in the console, so a degraded file is never silent.
+    function degraded(diagnostic) {
+        console.warn('HtmlForgeX OfficeIMO export degraded to visible text: ' + diagnostic.code + (diagnostic.columnId ? ' (' + diagnostic.columnId + ')' : ''));
+    }
     function canopy(root, buttons) {
         var tones = {success:{background:'#d1e7dd',color:'#0f5132'}, warning:{background:'#fff3cd',color:'#664d03'},
             danger:{background:'#f8d7da',color:'#842029'}, info:{background:'#cff4fc',color:'#055160'},
@@ -167,7 +269,9 @@
                     try {
                         await load('canopyx', format === 'pdf');
                         if (context.signal.aborted) throw new DOMException('Export cancelled.', 'AbortError');
-                        var options = {signal:context.signal, tones:tones, onProgress:function (event) {context.progress(event.rows);}};
+                        // A presentation the writer cannot reproduce natively (a rich presenter, a custom renderer) exports
+                        // as its visible text rather than failing; OfficeIMO stays the only writer.
+                        var options = {signal:context.signal, tones:tones, unsupportedPresentation:'text', onDiagnostic:degraded, onProgress:function (event) {context.progress(event.rows);}};
                         var configuredTitle = button.title === undefined ? '*' : button.title;
                         var title = configuredTitle === '*' ? document.title : configuredTitle;
                         if (format === 'pdf') {
@@ -185,7 +289,7 @@
                                 if (width || fmt) options.columnOptions[column.id] = Object.assign({}, width ? {width:width} : {}, fmt ? {format:fmt} : {});
                             });
                         }
-                        var blob = await global.OfficeIMO.exportCanopy(capture, format, options);
+                        var blob = await global.OfficeIMO.exportCanopy(await documentCapture(capture, format, context.signal, options), format, options);
                         if (context.signal.aborted) throw new DOMException('Export cancelled.', 'AbortError');
                         var name = button.filename && button.filename !== '*' ? button.filename : context.fileName;
                         return new File([blob], name + '.' + format, {type:blob.type});
@@ -226,10 +330,10 @@
         if (signal && signal.aborted) throw new DOMException('Export cancelled.', 'AbortError');
         // The report's projected cells carry resolved text. Rich presenters degrade explicitly to that text;
         // OfficeIMO remains the only writer and owns CSV escaping and formula safety.
-        var options = {signal:signal, unsupportedPresentation:'text'};
+        var options = {signal:signal, unsupportedPresentation:'text', onDiagnostic:degraded};
         if (format === 'pdf') options.pdf = {fonts:fonts(),fontSize:10,wideTable:'fit'};
         if (format === 'xlsx') options.xlsx = {oversizedText:'preserve',dateMode:'utc',sheet:{name:'Sheet1',freezeHeader:true,autoFilter:true,boldHeader:true}};
-        return global.OfficeIMO.exportCanopy(capture, format, options);
+        return global.OfficeIMO.exportCanopy(await documentCapture(capture, format, signal, options), format, options);
     }
     global.hfxOfficeIMO = {dataTables:dataTables, canopy:canopy, explorer:explorer, fonts:fonts};
 })(typeof window === 'undefined' ? globalThis : window);

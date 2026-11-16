@@ -1,0 +1,84 @@
+/* Compatibility for HtmlForgeX/Resources/Styles/ThemeSource/30-surface-components.css. Native components read HFX roles. */
+ul.timeline > .timeline-event > .timeline-event-card.hfx-timeline-event-card > .card-body {
+  padding: .95rem 1rem;
+}ul.timeline > .timeline-event > .timeline-event-card.hfx-timeline-event-card .text-muted.mb-1 {
+  margin-bottom: .35rem !important;
+}ul.timeline > .timeline-event > .timeline-event-card.hfx-timeline-event-card .card-title {
+  line-height: 1.28;
+}[data-hfx-surface="soft"] .dt-container,
+[data-hfx-surface="frosted"] .dt-container {
+  color: var(--hfx-card-body-color, var(--hfx-color-text));
+}[data-hfx-surface="soft"] .dt-container .dt-layout-row,
+[data-hfx-surface="frosted"] .dt-container .dt-layout-row {
+  gap: .85rem;
+  align-items: center;
+}[data-hfx-surface="soft"] .dt-container .dt-search input,
+[data-hfx-surface="frosted"] .dt-container .dt-search input,
+[data-hfx-surface="soft"] .dt-container .dt-length select,
+[data-hfx-surface="frosted"] .dt-container .dt-length select {
+  border: 1px solid color-mix(in srgb, var(--hfx-surface-border) 92%, transparent);
+  border-radius: calc(var(--hfx-surface-radius-sm) - .1rem);
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--hfx-color-surface) 78.0%, transparent),
+      color-mix(in srgb, var(--hfx-color-surface) 64.0%, transparent));
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--hfx-color-text) 56.0%, transparent),
+    0 .45rem 1rem color-mix(in srgb, var(--hfx-color-text) 8.0%, transparent);
+  color: inherit;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}[data-hfx-surface="soft"] .dt-container .dt-search input:focus,
+[data-hfx-surface="frosted"] .dt-container .dt-search input:focus,
+[data-hfx-surface="soft"] .dt-container .dt-length select:focus,
+[data-hfx-surface="frosted"] .dt-container .dt-length select:focus {
+  border-color: rgba(var(--hfx-surface-accent-rgb), .28);
+  box-shadow:
+    0 0 0 .18rem rgba(var(--hfx-surface-accent-rgb), .12),
+    inset 0 1px 0 color-mix(in srgb, var(--hfx-color-text) 62.0%, transparent);
+}[data-hfx-surface="soft"] .dt-container .dt-scroll-head,
+[data-hfx-surface="frosted"] .dt-container .dt-scroll-head,
+[data-hfx-surface="soft"] .dt-container .dt-scroll-body,
+[data-hfx-surface="frosted"] .dt-container .dt-scroll-body {
+  border-color: color-mix(in srgb, var(--hfx-surface-border) 88%, transparent);
+}[data-hfx-surface="soft"] .dt-container .dt-column-order:before,
+[data-hfx-surface="frosted"] .dt-container .dt-column-order:before,
+[data-hfx-surface="soft"] .dt-container .dt-column-order:after,
+[data-hfx-surface="frosted"] .dt-container .dt-column-order:after {
+  color: rgba(var(--hfx-surface-accent-rgb), .34);
+}[data-hfx-surface="soft"] .dt-container .dt-ordering-asc .dt-column-order:before,
+[data-hfx-surface="frosted"] .dt-container .dt-ordering-asc .dt-column-order:before,
+[data-hfx-surface="soft"] .dt-container .dt-ordering-desc .dt-column-order:after,
+[data-hfx-surface="frosted"] .dt-container .dt-ordering-desc .dt-column-order:after {
+  color: rgba(var(--hfx-surface-accent-rgb), .84);
+}[data-hfx-surface="soft"] .dt-container .dt-info,
+[data-hfx-surface="frosted"] .dt-container .dt-info {
+  color: color-mix(in srgb, var(--hfx-card-body-color, var(--hfx-color-text)) 86%, rgba(var(--hfx-surface-accent-rgb), .44));
+}[data-hfx-surface="soft"] .dt-container .pagination,
+[data-hfx-surface="frosted"] .dt-container .pagination {
+  gap: .35rem;
+}[data-hfx-surface="soft"] .dt-container .page-link,
+[data-hfx-surface="frosted"] .dt-container .page-link {
+  border-color: transparent;
+  border-radius: calc(var(--hfx-surface-radius-sm) - .15rem);
+  background: transparent;
+  color: color-mix(in srgb, var(--hfx-card-body-color, var(--hfx-color-text)) 82%, rgba(var(--hfx-surface-accent-rgb), .54));
+  box-shadow: none;
+}[data-hfx-surface="soft"] .dt-container .page-link:hover,
+[data-hfx-surface="frosted"] .dt-container .page-link:hover,
+[data-hfx-surface="soft"] .dt-container .page-link:focus,
+[data-hfx-surface="frosted"] .dt-container .page-link:focus {
+  background: rgba(var(--hfx-surface-accent-rgb), .10);
+  color: rgb(var(--hfx-surface-accent-rgb));
+  box-shadow: 0 0 0 .16rem rgba(var(--hfx-surface-accent-rgb), .10);
+}[data-hfx-surface="soft"] .dt-container .page-item.active .page-link,
+[data-hfx-surface="frosted"] .dt-container .page-item.active .page-link {
+  background:
+    linear-gradient(180deg,
+      rgba(var(--hfx-surface-accent-rgb), .96),
+      rgba(var(--hfx-surface-accent-rgb), .82));
+  color: var(--hfx-color-text);
+  box-shadow:
+    0 .65rem 1.5rem rgba(var(--hfx-surface-accent-rgb), .22),
+    inset 0 1px 0 color-mix(in srgb, var(--hfx-color-text) 24.0%, transparent);
+}

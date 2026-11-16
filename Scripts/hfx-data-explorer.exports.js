@@ -87,7 +87,7 @@
 
   Explorer.prototype.tryCaptureExport = function (scope, format) {
     try { return this.captureExport(scope); }
-    catch (error) { this.exportSay(this.labels.exportFailed); return null; }
+    catch (error) { if (window.console) console.error('HtmlForgeX explorer export failed.', error); this.exportSay(this.labels.exportFailed); return null; }
   };
 
   Explorer.prototype.exportOfficeIMO = function (format, scope) {
@@ -109,7 +109,11 @@
       self.exportSay(fmt(labels.count, {shown:num(self.size()),total:num(self.totalRows())}));
       self.closeMenus();
     }).catch(function (failure) {
-      if (!self.destroyed && !abort.signal.aborted) self.exportSay(labels.exportFailed);
+      if (!self.destroyed && !abort.signal.aborted) {
+        // The reader sees one short notice; the cause goes to the console for whoever investigates it.
+        if (window.console) console.error('HtmlForgeX explorer export failed.', failure);
+        self.exportSay(labels.exportFailed);
+      }
     }).then(function () {
       if (self.exportAbort === abort) self.exportAbort = null;
       self.exporting = false;

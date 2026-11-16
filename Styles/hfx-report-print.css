@@ -153,7 +153,6 @@
   .hfx-as .hfx-rv-queue-rank { font-size: 8pt; color: var(--p-muted); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
   .hfx-as .hfx-rv-queue-title { margin: 0; font: 700 10pt/1.3 var(--p-font); color: var(--p-ink); white-space: normal; }
   .hfx-as .hfx-rv-queue-meta { display: block; margin: 0; font-size: 8.5pt; color: var(--p-ink-2); }
-  .hfx-as .hfx-rv-queue-meta > :not(:last-child)::after { content: " · ​"; }
   .hfx-as .hfx-rv-queue-metric, .hfx-as .hfx-rv-queue-metric b { margin: 0; font: 400 8.5pt/1.3 var(--p-font); color: var(--p-ink-2); }
   .hfx-as .hfx-rv-queue-foot, .hfx-as .hfx-rv-list-footer a { display: none; }
   .hfx-as :is(.hfx-rv-list-footer, .hfx-rv-queue-print) { display: block; margin: 0; padding: 4px 0 0; border: 0; background: none; font-size: 8.5pt; color: var(--p-ink-2); }
