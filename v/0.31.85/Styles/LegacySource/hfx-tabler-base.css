@@ -1,0 +1,99 @@
+/* Compatibility for HtmlForgeX/Resources/Styles/hfx-tabler-base.css. Native components read HFX roles. */
+.page-body .card,
+.page-body .card-body,
+.hfx-as-panel,
+.hfx-service-config-panel {
+    --hfx-legacy-table-surface: var(--hfx-color-surface);
+    min-width: 0;
+    max-width: 100%;
+}.page-body .hfx-stack > .row,
+.page-body .hfx-stack > .row-cards,
+.page-body .hfx-stack > .row-deck {
+    margin-bottom: 0 !important;
+}.card-header .nav.nav-pills {
+    margin-left: .5rem;
+    gap: .375rem;
+}.nav.nav-pills.hfx-nav-pills-boxed {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: var(--hfx-tabs-pills-gap-y, .35rem) var(--hfx-tabs-pills-gap-x, .45rem);
+}.nav.nav-pills.hfx-nav-pills-boxed.nav-fill,
+.nav.nav-pills.hfx-nav-pills-boxed.nav-justified {
+    /* Default only; can be overridden per-tabs via inline style (typed API). */
+    --hfx-tabs-pills-fill-min: 10.0rem;
+}.nav.nav-pills.hfx-nav-pills-boxed .nav-item {
+    flex: 0 0 auto;
+    min-width: 0;
+}.nav.nav-pills.hfx-nav-pills-boxed.nav-fill .nav-item,
+.nav.nav-pills.hfx-nav-pills-boxed.nav-justified .nav-item {
+    /* Do not allow shrinking below the min: wrap instead of truncating. */
+    flex: 1 0 var(--hfx-tabs-pills-fill-min);
+    min-width: var(--hfx-tabs-pills-fill-min);
+}.nav.nav-pills.hfx-nav-pills-boxed .nav-link {
+    border: 1px solid transparent;
+    border-radius: var(--hfx-tabs-pills-radius, .55rem);
+    padding: var(--hfx-tabs-pills-pad-y, .42rem) var(--hfx-tabs-pills-pad-x, .82rem);
+    line-height: 1.2;
+    color: var(--hfx-color-text-muted);
+    min-width: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--hfx-tabs-pills-icon-gap, .375rem);
+    max-width: 100%;
+    overflow: hidden;
+}.nav.nav-pills.hfx-nav-pills-boxed.nav-fill .nav-link,
+.nav.nav-pills.hfx-nav-pills-boxed.nav-justified .nav-link {
+    width: 100%;
+    justify-content: center;
+}.nav.nav-pills.hfx-nav-pills-boxed .nav-link .tab-title {
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}.nav.nav-pills.hfx-nav-pills-boxed[data-hfx-tabs-pills-title-lines="2"] .nav-link .tab-title {
+    white-space: normal;
+    text-overflow: clip;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}.nav.nav-pills.hfx-nav-pills-boxed[data-hfx-tabs-pills-title-lines="3"] .nav-link .tab-title {
+    white-space: normal;
+    text-overflow: clip;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+}.nav.nav-pills.hfx-nav-pills-boxed .nav-link .badge {
+    flex: 0 0 auto;
+    margin-left: 0;
+}.nav.nav-pills.hfx-nav-pills-boxed .nav-link:hover,
+.nav.nav-pills.hfx-nav-pills-boxed .nav-link:focus {
+    color: var(--hfx-color-text);
+}.nav.nav-pills.hfx-nav-pills-boxed .nav-link.active,
+.nav.nav-pills.hfx-nav-pills-boxed .nav-link.active:focus {
+    background-color: var(--hfx-color-surface);
+    border-color: var(--hfx-color-border);
+    color: var(--hfx-color-text);
+    font-weight: 600;
+    box-shadow: 0 1px 2px color-mix(in srgb, var(--hfx-color-text) 8.0%, transparent), 0 2px 6px color-mix(in srgb, var(--hfx-color-text) 4.0%, transparent);
+}.card-header .nav .nav-link .badge {
+    margin-left: .375rem;
+}.card-header .card-actions {
+    margin: 0 0 0 auto;
+    padding-left: .5rem;
+}.page-header .btn-list,
+.page-header .hfx-action-row {
+    align-items: center;
+}.page-header .btn-list .dropdown,
+.page-header .hfx-action-row .dropdown {
+    align-self: center;
+}.form-check.form-switch.hfx-bool-stacked,
+.form-check.hfx-bool-stacked {
+    margin-top: var(--hfx-bool-stacked-offset);
+}.row.align-items-center .form-check.form-switch.hfx-bool-inline,
+.row.align-items-center .form-check.hfx-bool-inline {
+    margin-top: var(--hfx-bool-inline-offset);
+}

@@ -224,10 +224,10 @@
       var option = el('option', null, title + (count !== undefined ? ' · ' + num(count) : ''));
       option.value = v.id; option.selected = on;
       self.viewSelect.appendChild(option);
-      if (count !== undefined) { b.textContent += ' · ' + num(count); attr(b, 'aria-label', title); attr(b, 'aria-description', num(count) + ' ' + (self.labels.rows || 'rows')); }
+      if (count !== undefined) { b.textContent += ' · ' + num(count); attr(b, 'aria-label', b.textContent); attr(b, 'aria-description', num(count) + ' ' + (self.labels.rows || 'rows')); }
       if (on && modified) {
         var dot = el('span', 'hfx-dx-view-edited'); attr(dot, 'aria-hidden', 'true'); b.appendChild(dot);
-        attr(b, 'aria-label', title + ', ' + (self.labels.modified || 'changed'));
+        attr(b, 'aria-label', b.textContent + ', ' + (self.labels.modified || 'changed'));
         option.textContent += ' · ' + (self.labels.modified || 'changed');
       }
       if (v.description) attr(b, 'title', v.description);
