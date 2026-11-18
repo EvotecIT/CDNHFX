@@ -253,9 +253,9 @@
   --hfx-color-series-5: #5a7c0d;
   --hfx-color-series-6: #1d4f9e;
   --hfx-ramp-sequential-1: #9ab8dc;
-  --hfx-ramp-sequential-2: #5598e7;
-  --hfx-ramp-sequential-3: #2171ce;
-  --hfx-ramp-sequential-4: #1c5cab;
+  --hfx-ramp-sequential-2: #6099e1;
+  --hfx-ramp-sequential-3: #2d7ad4;
+  --hfx-ramp-sequential-4: #0c5db1;
   --hfx-ramp-sequential-5: #104281;
   --hfx-ramp-diverging-negative-1: #d7ad87;
   --hfx-ramp-diverging-negative-2: #eaa363;
@@ -355,9 +355,9 @@
   --hfx-color-series-5: #5a7c0d !important;
   --hfx-color-series-6: #1d4f9e !important;
   --hfx-color-sequential-1: #9ab8dc !important;
-  --hfx-color-sequential-2: #5598e7 !important;
-  --hfx-color-sequential-3: #2171ce !important;
-  --hfx-color-sequential-4: #1c5cab !important;
+  --hfx-color-sequential-2: #6099e1 !important;
+  --hfx-color-sequential-3: #2d7ad4 !important;
+  --hfx-color-sequential-4: #0c5db1 !important;
   --hfx-color-sequential-5: #104281 !important;
   --hfx-color-surface-page-rgb: 242, 243, 244 !important;
   --hfx-color-surface-rgb: 255, 255, 255 !important;
@@ -430,9 +430,9 @@
   --hfx-color-series-5-rgb: 90, 124, 13 !important;
   --hfx-color-series-6-rgb: 29, 79, 158 !important;
   --hfx-color-sequential-1-rgb: 154, 184, 220 !important;
-  --hfx-color-sequential-2-rgb: 85, 152, 231 !important;
-  --hfx-color-sequential-3-rgb: 33, 113, 206 !important;
-  --hfx-color-sequential-4-rgb: 28, 92, 171 !important;
+  --hfx-color-sequential-2-rgb: 96, 153, 225 !important;
+  --hfx-color-sequential-3-rgb: 45, 122, 212 !important;
+  --hfx-color-sequential-4-rgb: 12, 93, 177 !important;
   --hfx-color-sequential-5-rgb: 16, 66, 129 !important;
   --hfx-color-accent2: var(--hfx-color-accent) !important;
   --hfx-color-accent2-rgb: var(--hfx-color-accent-rgb) !important;

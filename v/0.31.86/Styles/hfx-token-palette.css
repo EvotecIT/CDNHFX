@@ -1,0 +1,5 @@
+/* The retained palette option uses the shared role pipeline. Legacy controls are styled by hfx-legacy-adapter.css. */
+html:is([data-hfx-palette="tokens"], [data-hfx-design-system]) body {
+  background-color: var(--hfx-color-surface-page);
+  color: var(--hfx-color-text);
+}

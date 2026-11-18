@@ -1,0 +1,8 @@
+/* HtmlForgeX Tabler collection loading state helpers. */
+.hfx-collection-table-wrapper--loading {
+    cursor: progress;
+}
+
+.hfx-collection-table-wrapper--loading table {
+    opacity: .72;
+}

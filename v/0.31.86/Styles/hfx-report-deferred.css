@@ -1,0 +1,15 @@
+/* HtmlForgeX deferred report regions. While a region's content loads it shows the shell's empty-state form
+   (.hfx-rv-empty in hfx-report-views.css); once the content is in, the status gives way to it. */
+.hfx-rv-deferred {
+  display: block;
+  min-width: 0;
+}
+
+.hfx-rv-deferred > template,
+.hfx-rv-deferred[data-hfx-deferred-state="loaded"] > [data-hfx-deferred-status] {
+  display: none;
+}
+
+.hfx-rv-deferred[aria-busy="true"] > [data-hfx-deferred-status] {
+  cursor: progress;
+}
