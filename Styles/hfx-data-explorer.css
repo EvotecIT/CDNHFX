@@ -13,6 +13,7 @@
     --hfx-space-2: 0.5rem;
     --hfx-space-3: 0.75rem;
     --hfx-space-4: 1rem;
+    --hfx-space-7: 3rem;
     --hfx-space-1-5: 6px;
     --hfx-radius-pill: 999px;
     --hfx-border-width: 1px;
@@ -25,6 +26,7 @@
     --hfx-weight-semibold: 600;
     --hfx-z-popover: 1000;
     --hfx-z-tooltip: 1300;
+    --hfx-layout-max-width: 1376px;
   }
   :where(:root, [data-bs-theme="light"], [data-hfx-theme="light"], [data-hfx-tokens="light"]):where(:not([data-hfx-design-system], [data-hfx-design-system] *)) {
     --hfx-color-text-secondary: #4d525b;
@@ -331,6 +333,12 @@
   box-shadow: -18px 0 40px -18px color-mix(in srgb, var(--hfx-color-text) 45.0%, transparent);
   outline: none;
 }
+/* A wide drawer (DataExplorerSettings.DrawerWidth) and the reader's Expand, which leaves a strip of the page that
+   still closes it. A phone's drawer already takes the whole screen. */
+.hfx-dx-drawer[data-size="wide"] { width: calc(var(--hfx-layout-max-width) * 3 / 4); max-width: 100%; }
+@media (min-width: 768px) { .hfx-dx-drawer[data-expanded] { left: var(--hfx-space-7); width: auto; max-width: none; } }
+@media (max-width: 767.98px) { .hfx-dx-drawer-expand { display: none; } }
+.hfx-dx-drawer-expand[aria-pressed="true"] { background: var(--hfx-color-accent-subtle); color: var(--hfx-color-accent); border-color: var(--hfx-color-accent); }
 .hfx-dx-drawer-head {
   display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
   padding: 16px 18px 12px; border-bottom: 1px solid var(--hfx-color-border); background: var(--hfx-color-surface-sunken);

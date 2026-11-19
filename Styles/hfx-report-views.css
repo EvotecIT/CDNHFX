@@ -518,6 +518,15 @@
    such entries, wait off screen; filtering shows every rendered match; print shows them all. */
 @media screen { .hfx-as.hfx-rv-changes:not(.is-filtering) :is(.hfx-rv-change, .hfx-rv-changes-day).is-fit-extra { display: none; } }
 .hfx-rv-changes > .hfx-rv-list-footer { margin-top: 6px; padding: 9px 0 0; }
+/* An entry that opens something: the title is its link, and the whole row answers the pointer. */
+.hfx-rv-change.is-linked { cursor: pointer; }
+.hfx-as a.hfx-rv-change-open { color: inherit; text-decoration: none; }
+.hfx-as .hfx-rv-change.is-linked:hover a.hfx-rv-change-open, .hfx-as a.hfx-rv-change-open:is(:hover, :focus-visible) { color: var(--hfx-color-accent); text-decoration: underline; }
+/* A tag that narrows the feed (a filterable feed's category and source) reads as the tag it is, and acts on a click. */
+.hfx-rv-change-pick { margin: 0; padding: 0; border: 0; background: none; font-family: inherit; line-height: inherit; color: inherit; cursor: pointer; text-align: start; }
+.hfx-rv-change-pick:not(.hfx-rv-change-category) { font-size: inherit; font-weight: inherit; }
+.hfx-rv-change-pick:hover { color: var(--hfx-color-accent); text-decoration: underline; }
+.hfx-rv-change-pick:focus-visible { outline: var(--hfx-focus-width) solid var(--hfx-color-focus-ring); outline-offset: var(--hfx-focus-offset); }
 .hfx-rv-change-category { font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--hfx-color-text-muted); }
 .hfx-as .hfx-rv-change-values { margin: 4px 0 0; display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; line-height: 1.5; }
 .hfx-rv-change-value { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: var(--hfx-space-1-5); min-width: 0; }

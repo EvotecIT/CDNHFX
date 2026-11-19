@@ -10,6 +10,8 @@
     --hfx-type-caption-line-height: 1.35;
     --hfx-space-1: 0.25rem;
     --hfx-space-2: 0.5rem;
+    --hfx-space-4: 1rem;
+    --hfx-space-7: 3rem;
     --hfx-space-0-5: 2px;
     --hfx-space-1-5: 6px;
     --hfx-border-width: 1px;
@@ -19,6 +21,7 @@
     --hfx-radius-container: 10px;
     --hfx-shell-height: 56px;
     --hfx-weight-regular: 400;
+    --hfx-weight-semibold: 600;
   }
   :where(:root, [data-bs-theme="light"], [data-hfx-theme="light"], [data-hfx-tokens="light"]):where(:not([data-hfx-design-system], [data-hfx-design-system] *)) {
     --hfx-color-surface-page: #f2f3f4;
@@ -123,6 +126,7 @@ body:has(.hfx-shell) { background: var(--hfx-color-surface-page); }
 .hfx-shell-nav-item:is([aria-selected="true"], [aria-current="page"], .is-current) .hfx-shell-nav-icon { color: var(--hfx-color-chrome-accent); }
 /* A count is neutral text; only a count of items that need action is a pill in the attention colour. */
 .hfx-shell-nav-count { font-size: var(--hfx-type-caption-size); line-height: 1.3; font-weight: var(--hfx-weight-regular); color: var(--hfx-color-chrome-text-muted); font-variant-numeric: tabular-nums; }
+.hfx-shell-nav-count-short { display: none; }
 .hfx-shell-nav-count.is-attention {
   font-size: 11.5px; font-weight: 700; padding: 1px 7px; border-radius: var(--hfx-radius-container);
   background: color-mix(in srgb, var(--hfx-color-status-bad-solid) 32%, transparent); color: var(--hfx-color-chrome-text);
@@ -216,14 +220,23 @@ body:has(.hfx-shell) { background: var(--hfx-color-surface-page); }
 }
 .hfx-shell-side-collapse:hover { color: var(--hfx-color-text); background: var(--hfx-color-surface-sunken); }
 .hfx-shell-side-backdrop { display: none; }
-/* Icon rail: labels hide, counts become corner badges, headings become separators. */
+/* Icon rail: labels hide, headings become separators and a count sits under its icon in its short form (6.2k), so it
+   never covers the icon; the full number stays in the tooltip and for screen readers. */
 .hfx-shell.is-side-collapsed .hfx-shell-side-text,
 .hfx-shell.is-side-collapsed .hfx-shell-side-heading-label,
 .hfx-shell.is-side-collapsed .hfx-shell-side-heading .hfx-shell-nav-count,
 .hfx-shell.is-side-collapsed .hfx-shell-side-filter { display: none; }
 .hfx-shell.is-side-collapsed .hfx-shell-side-scroll { padding: 10px 6px; }
-.hfx-shell.is-side-collapsed .hfx-shell-side-item { position: relative; display: flex; justify-content: center; padding: 8px 0; }
-.hfx-shell.is-side-collapsed .hfx-shell-side-item .hfx-shell-nav-count { position: absolute; top: 1px; right: 2px; padding: 0 4px; font-size: 9.5px; }
+@media (min-width: 992px) {
+  .hfx-shell.is-side-collapsed .hfx-shell-side-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--hfx-space-0-5); padding: var(--hfx-space-1-5) 0; }
+  .hfx-shell.is-side-collapsed .hfx-shell-side-item .hfx-shell-nav-count,
+  .hfx-shell.is-side-collapsed .hfx-shell-side-item .hfx-shell-nav-count.is-attention {
+    max-width: 100%; padding: 0 var(--hfx-space-1); font-size: var(--hfx-type-caption-size); line-height: var(--hfx-type-caption-line-height);
+    font-weight: var(--hfx-weight-semibold); white-space: nowrap; overflow: hidden;
+  }
+  .hfx-shell.is-side-collapsed .hfx-shell-side-item .hfx-shell-nav-count-short { display: inline; }
+  .hfx-shell.is-side-collapsed .hfx-shell-side-item .hfx-shell-nav-count-full { position: absolute; clip-path: inset(50%); white-space: nowrap; }
+}
 .hfx-shell.is-side-collapsed .hfx-shell-side-heading { padding: 0; margin: 0 8px 8px; border-top: 1px solid var(--hfx-color-border); }
 .hfx-shell.is-side-collapsed .hfx-shell-side-collapse { justify-content: center; padding: 10px 0; }
 .hfx-shell.is-side-collapsed .hfx-shell-side-collapse svg { transform: scaleX(-1); }
@@ -241,15 +254,15 @@ body:has(.hfx-shell) { background: var(--hfx-color-surface-page); }
   .hfx-shell-side-collapse { display: none; }
   .hfx-shell.is-side-collapsed .hfx-shell-side-text { display: flex; }
   .hfx-shell.is-side-collapsed .hfx-shell-side-heading-label, .hfx-shell.is-side-collapsed .hfx-shell-side-filter { display: block; }
-  .hfx-shell.is-side-collapsed .hfx-shell-side-item { display: grid; justify-content: stretch; padding: 6px 10px; }
-  .hfx-shell.is-side-collapsed .hfx-shell-side-item .hfx-shell-nav-count { position: static; font-size: var(--hfx-type-caption-size); padding: 0; }
-  .hfx-shell.is-side-collapsed .hfx-shell-side-item .hfx-shell-nav-count.is-attention { font-size: 11.5px; padding: 1px 7px; }
   .hfx-shell.is-side-collapsed .hfx-shell-side-heading { margin: 0; padding: 2px 10px 6px; border-top: 0; }
   .hfx-shell.is-side-collapsed .hfx-shell-side-scroll { padding: 14px 10px; }
 }
 @media (prefers-reduced-motion: reduce) { .hfx-shell-side { transition: none; } }
 .hfx-shell-page[hidden] { display: none !important; }
-.hfx-shell-page > * + * { margin-top: 20px; }
+/* Stacked blocks keep one rhythm: each stacking container (a page, a panel body, a drawer, a tab) names its gap in
+   --hfx-stack-gap, and wrappers that only deliver content (a deferred region) pass it on to their own blocks. */
+.hfx-shell-page { --hfx-stack-gap: calc(var(--hfx-space-4) + var(--hfx-space-1)); }
+.hfx-shell-page > * + * { margin-top: var(--hfx-stack-gap); }
 .hfx-shell-print-title { display: none; }
 
 /* ---------- result drawer ---------- */
@@ -280,16 +293,24 @@ body:has(.hfx-shell) { background: var(--hfx-color-surface-page); }
 .hfx-shell-drawer-actions { flex: none; display: flex; align-items: center; gap: 14px; }
 .hfx-shell-drawer-nav { display: inline-flex; align-items: center; gap: var(--hfx-space-1); border: var(--hfx-border-width) solid var(--hfx-color-border-strong); border-radius: var(--hfx-radius-control); padding: 2px; }
 .hfx-shell-drawer-nav[hidden] { display: none; }
-.hfx-shell-drawer-step, .hfx-shell-drawer-close {
+.hfx-shell-drawer-step, .hfx-shell-drawer-close, .hfx-shell-drawer-expand {
   display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border: 0; border-radius: var(--hfx-radius-control);
   background: none; color: var(--hfx-color-text-secondary); cursor: pointer;
 }
-.hfx-shell-drawer-step:hover:not(:disabled), .hfx-shell-drawer-close:hover { background: var(--hfx-color-hover); color: var(--hfx-color-text); }
+.hfx-shell-drawer-step:hover:not(:disabled), .hfx-shell-drawer-close:hover, .hfx-shell-drawer-expand:hover { background: var(--hfx-color-hover); color: var(--hfx-color-text); }
 .hfx-shell-drawer-step:disabled { opacity: .35; cursor: default; }
-.hfx-shell-drawer-close { width: 34px; height: 34px; border: var(--hfx-border-width) solid var(--hfx-color-border-strong); border-radius: var(--hfx-radius-control); }
+.hfx-shell-drawer-close, .hfx-shell-drawer-expand { width: 34px; height: 34px; border: var(--hfx-border-width) solid var(--hfx-color-border-strong); border-radius: var(--hfx-radius-control); }
+/* Expand: the reader's choice to give a record (wide nested tables, long values) the width of the window, short of a
+   strip of the page that still closes it. A phone's drawer already takes the whole screen. */
+.hfx-shell-drawer-expand[aria-pressed="true"] { background: var(--hfx-color-accent-subtle); color: var(--hfx-color-accent); border-color: var(--hfx-color-accent); }
+@media (min-width: 768px) {
+  .hfx-shell-drawer[data-expanded], .hfx-shell-drawer[data-expanded][data-size] { left: var(--hfx-space-7); width: auto; }
+}
+@media (max-width: 767.98px) { .hfx-shell-drawer-expand { display: none; } }
 .hfx-shell-drawer-pos { font: 500 12px/1 var(--hfx-font-mono); color: var(--hfx-color-text-secondary); padding: 0 6px; white-space: nowrap; }
 .hfx-shell-drawer-body { flex: 1; overflow: auto; overscroll-behavior: contain; padding: 20px 22px 40px; }
-.hfx-shell-drawer-body > * + * { margin-top: 16px; }
+.hfx-shell-drawer-body { --hfx-stack-gap: var(--hfx-space-4); }
+.hfx-shell-drawer-body > * + * { margin-top: var(--hfx-stack-gap); }
 @keyframes hfx-as-slide { from { transform: translateX(40px); opacity: .4; } to { transform: none; opacity: 1; } }
 @keyframes hfx-as-fade { from { opacity: 0; } to { opacity: 1; } }
 

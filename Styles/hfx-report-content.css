@@ -170,7 +170,8 @@
 .hfx-shell .alert .alert-icon { color: var(--sev); }
 .hfx-shell .alert .alert-title, .hfx-shell .alert .alert-heading { font: 600 13.5px/1.4 var(--hfx-font-sans); color: var(--hfx-color-text); margin: 0; }
 
-.hfx-shell .tab-pane > * + * { margin-top: 16px; }
+.hfx-shell .tab-pane { --hfx-stack-gap: var(--hfx-space-4); }
+.hfx-shell .tab-pane > * + * { margin-top: var(--hfx-stack-gap); }
 /* Run logs: bounded, monospace and scrollable instead of a page-long list. */
 .hfx-shell .hfx-logs-container { border: 1px solid var(--hfx-color-border); border-radius: var(--hfx-radius-control); background: var(--hfx-color-surface-sunken); }
 .hfx-shell pre.hfx-logs {

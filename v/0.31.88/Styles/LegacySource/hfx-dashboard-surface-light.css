@@ -1,0 +1,96 @@
+/* Compatibility for HtmlForgeX/Resources/Styles/hfx-dashboard-surface-light.css. Native components read HFX roles. */
+html[data-bs-theme="light"] header.navbar .hfx-header-utilities {
+    align-items: center;
+    gap: 0.35rem;
+}html[data-bs-theme="light"] header.navbar .hfx-header-utility-link,
+html[data-bs-theme="light"] header.navbar .hfx-theme-action__toggle,
+html[data-bs-theme="light"] header.navbar .hfx-header-user-link,
+html[data-bs-theme="light"] header.navbar .hfx-header-action .btn {
+
+    transition:
+        background-color 0.18s ease,
+        box-shadow 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease,
+        transform 0.18s ease;
+}html[data-bs-theme="light"] header.navbar .hfx-header-utility-link,
+html[data-bs-theme="light"] header.navbar .hfx-theme-action__toggle {
+    min-width: 2.9rem;
+    min-height: 2.9rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}html[data-bs-theme="light"] header.navbar .hfx-header-user-link {
+    padding: 0.45rem 0.65rem 0.45rem 0.45rem !important;
+    gap: 0.2rem;
+}html[data-bs-theme="light"] header.navbar .hfx-header-user-name {
+    font-weight: 600;
+
+}html[data-bs-theme="light"] header.navbar .hfx-header-utility-link:hover,
+html[data-bs-theme="light"] header.navbar .hfx-header-utility-link.show,
+html[data-bs-theme="light"] header.navbar .hfx-theme-action__toggle:hover,
+html[data-bs-theme="light"] header.navbar .hfx-theme-action__toggle.show,
+html[data-bs-theme="light"] header.navbar .hfx-header-user-link:hover,
+html[data-bs-theme="light"] header.navbar .hfx-header-user-link.show,
+html[data-bs-theme="light"] header.navbar .hfx-header-action .btn:hover {
+
+    transform: translateY(-1px);
+}html[data-bs-theme="light"] .page-header .page-pretitle,
+html[data-bs-theme="light"] .card .text-uppercase.fw-semibold {
+    letter-spacing: 0.08em;
+}html[data-bs-theme="light"] .hfx-header-dropdown-card .list-group-item,
+html[data-bs-theme="light"] .hfx-theme-menu__item,
+html[data-bs-theme="light"] .hfx-header-user__menu-item {
+    transition:
+        background-color 0.18s ease,
+        border-color 0.18s ease,
+        transform 0.18s ease;
+}html[data-bs-theme="light"] .hfx-header-dropdown-card .list-group-item:hover {
+
+    transform: translateY(-1px);
+}html[data-bs-theme="light"] .hfx-metric-card .card-body,
+html[data-bs-theme="light"] .hfx-gauge-card .card-body,
+html[data-bs-theme="light"] .hfx-stat-tile-card .card-body,
+html[data-bs-theme="light"] .hfx-social-tile-card .card-body,
+html[data-bs-theme="light"] .hfx-tracking-summary-card .card-body,
+html[data-bs-theme="light"] .hfx-analytics-summary-card .card-body,
+html[data-bs-theme="light"] .hfx-activity-feed-card .card-body,
+html[data-bs-theme="light"] .hfx-geo-summary-card .card-body,
+html[data-bs-theme="light"] .hfx-table-summary-card .card-body {
+    position: relative;
+}html[data-bs-theme="light"] .hfx-metric-card .card-body::before,
+html[data-bs-theme="light"] .hfx-gauge-card .card-body::before,
+html[data-bs-theme="light"] .hfx-stat-tile-card .card-body::before,
+html[data-bs-theme="light"] .hfx-social-tile-card .card-body::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    pointer-events: none;
+
+}html[data-bs-theme="light"] .hfx-metric-card .card-title,
+html[data-bs-theme="light"] .hfx-gauge-card .card-title,
+html[data-bs-theme="light"] .hfx-stat-tile-card .card-title,
+html[data-bs-theme="light"] .hfx-social-tile-card .card-title,
+html[data-bs-theme="light"] .hfx-analytics-summary-card .card-title,
+html[data-bs-theme="light"] .hfx-activity-feed-card .card-title,
+html[data-bs-theme="light"] .hfx-geo-summary-card .card-title,
+html[data-bs-theme="light"] .hfx-table-summary-card .card-title {
+
+    font-size: 1rem;
+    line-height: 1.2;
+}html[data-bs-theme="light"] .card .card-title {
+    line-height: 1.2;
+}html[data-bs-theme="light"] .hfx-stat-tile-card .text-secondary,
+html[data-bs-theme="light"] .hfx-social-tile-card .text-secondary,
+html[data-bs-theme="light"] .hfx-summary-strip__item .text-secondary,
+html[data-bs-theme="light"] .hfx-tracking-summary-card__metric .text-secondary,
+html[data-bs-theme="light"] .hfx-geo-summary-card__region .text-secondary,
+html[data-bs-theme="light"] .hfx-table-summary-card__highlight .text-secondary {
+    font-size: 0.82rem;
+    line-height: 1.42;
+}
+
+/* Palette-independent border geometry. */
+header.navbar .hfx-header-utility-link, header.navbar .hfx-theme-action__toggle, header.navbar .hfx-header-user-link, header.navbar .hfx-header-action .btn { border-radius: 1rem; }
+.hfx-metric-card .card-body::before, .hfx-gauge-card .card-body::before, .hfx-stat-tile-card .card-body::before, .hfx-social-tile-card .card-body::before { border-radius: inherit; }

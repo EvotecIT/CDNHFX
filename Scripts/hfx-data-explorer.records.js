@@ -13,6 +13,25 @@
     var viewportRenderers = context.viewportRenderers, MAX_ROW_TARGETS = context.MAX_ROW_TARGETS, PAGE_CACHE = context.PAGE_CACHE, PAGE_REQUESTS = context.PAGE_REQUESTS, QUICK_VALUES = context.QUICK_VALUES;
     var EXPORT_PAGE = context.EXPORT_PAGE;
   var drawerHost = null;
+  // Expand gives a record the width of the window. The reader's choice is shared with the report shell's drawer: it
+  // lives in memory (window.__hfxDrawerExpanded) and storage only carries it to the next visit, so the toggle works
+  // where a viewer blocks storage.
+  var EXPANDED_KEY = 'hfx-drawer-expanded';
+  function drawerExpanded() {
+    if (typeof window.__hfxDrawerExpanded !== 'boolean') window.__hfxDrawerExpanded = storageGet(EXPANDED_KEY) === 1;
+    return window.__hfxDrawerExpanded;
+  }
+  function showExpanded() {
+    var on = drawerExpanded();
+    if (on) drawerHost.aside.setAttribute('data-expanded', '1'); else drawerHost.aside.removeAttribute('data-expanded');
+    drawerHost.expand.setAttribute('aria-pressed', on ? 'true' : 'false');
+  }
+  // A record belongs to the shell page it was opened on: switching pages closes the explorer's own drawer, as it
+  // closes the shell's.
+  document.addEventListener('hfx:shell-page', function (e) {
+    var owner = drawerHost && !drawerHost.wrap.hidden ? drawerHost.owner : null, panel = e.detail && e.detail.panel;
+    if (owner && !owner.inShellDrawer && !(panel && panel.contains(owner.root))) owner.closeDrawer();
+  });
   function ensureDrawer() {
     if (drawerHost) return drawerHost;
     var wrap = el('div', 'hfx-as hfx-dx-drawer-wrap'); wrap.hidden = true;
@@ -30,17 +49,23 @@
     var prev = el('button', 'hfx-dx-iconbtn', '‹'); attr(prev, 'type', 'button');
     var pos = el('span', 'hfx-dx-drawer-pos'); attr(pos, 'aria-live', 'polite');
     var next = el('button', 'hfx-dx-iconbtn', '›'); attr(next, 'type', 'button');
+    var expand = el('button', 'hfx-dx-iconbtn hfx-dx-drawer-expand', '⤢'); attr(expand, 'type', 'button'); attr(expand, 'aria-pressed', 'false');
     var close = el('button', 'hfx-dx-iconbtn', '×'); attr(close, 'type', 'button');
-    actions.appendChild(prev); actions.appendChild(pos); actions.appendChild(next); actions.appendChild(close);
+    actions.appendChild(prev); actions.appendChild(pos); actions.appendChild(next); actions.appendChild(expand); actions.appendChild(close);
     head.appendChild(titles); head.appendChild(actions);
     var body = el('div', 'hfx-dx-drawer-body');
     aside.appendChild(head); aside.appendChild(body);
     wrap.appendChild(backdrop); wrap.appendChild(aside);
     document.body.appendChild(wrap);
-    drawerHost = { wrap: wrap, aside: aside, eyebrow: eyebrow, title: title, sub: sub, prev: prev, next: next, pos: pos, close: close, body: body, owner: null, contentOwner: null, returnFocus: null };
+    drawerHost = { wrap: wrap, aside: aside, eyebrow: eyebrow, title: title, sub: sub, prev: prev, next: next, pos: pos, expand: expand, close: close, body: body, owner: null, contentOwner: null, returnFocus: null };
     function shut() { if (drawerHost.owner) drawerHost.owner.closeDrawer(); }
     backdrop.addEventListener('click', shut);
     close.addEventListener('click', shut);
+    expand.addEventListener('click', function () {
+      window.__hfxDrawerExpanded = !drawerExpanded();
+      storageSet(EXPANDED_KEY, window.__hfxDrawerExpanded ? 1 : 0);
+      showExpanded();
+    });
     prev.addEventListener('click', function () { if (drawerHost.owner) drawerHost.owner.stepDrawer(-1); });
     next.addEventListener('click', function () { if (drawerHost.owner) drawerHost.owner.stepDrawer(1); });
     aside.addEventListener('keydown', function (e) {
@@ -151,6 +176,9 @@
     d.close.setAttribute('aria-label', labels.close); d.close.title = labels.close;
     d.prev.setAttribute('aria-label', labels.previous); d.prev.title = labels.previous;
     d.next.setAttribute('aria-label', labels.next); d.next.title = labels.next;
+    d.expand.setAttribute('aria-label', labels.expand || 'Expand'); d.expand.title = labels.expand || 'Expand';
+    if (this.cfg.drawerWidth === 'wide') d.aside.setAttribute('data-size', 'wide'); else d.aside.removeAttribute('data-size');
+    showExpanded();
     this.showRecord(index, record);
     this.fillDrawer(this.drawerRow);
     d.pos.textContent = detached ? '1 / 1' : num(index + 1) + ' / ' + num(this.size());
@@ -181,7 +209,7 @@
     // The record is found again by its row, which survives a new order while the drawer is open.
     this.renderRecord(body, r, function () { if (self.inShellDrawer) self.openDrawer(self.indexOfRow(self.drawerRow), self.drawerRow); });
     return {
-      shell: this.root, owner: this, eyebrow: head.eyebrow, title: head.title, content: body, size: 'regular',
+      shell: this.root, owner: this, eyebrow: head.eyebrow, title: head.title, content: body, size: this.cfg.drawerWidth === 'wide' ? 'wide' : 'regular',
       index: index < 0 ? 0 : index, count: index < 0 ? 1 : this.size(), returnFocus: returnFocus || null,
       // openDrawer handles the ends, a remote row that is still on its way (it scrolls there and opens it when it
       // arrives) and filling the open drawer; the runtime has nothing more to do.

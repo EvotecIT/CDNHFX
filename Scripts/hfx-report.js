@@ -61,9 +61,16 @@
     if (!panel) return false;
     // A page or chapter choice supersedes a pending entity load, including navigation through pushState.
     closeDrawer(false);
+    var left = [];
     qsa(shell, '[data-hfx-shell-page]').forEach(function (p) {
-      if (p === panel) p.removeAttribute('hidden'); else p.setAttribute('hidden', 'hidden');
+      if (p === panel) { p.removeAttribute('hidden'); return; }
+      if (!p.hasAttribute('hidden')) left.push(p);
+      p.setAttribute('hidden', 'hidden');
     });
+    // A record opened on the page the reader leaves belongs to that page: a grid's own record dialog closes with it,
+    // and components with a drawer of their own (an explorer outside the shell drawer) close theirs on this event.
+    left.forEach(function (p) { qsa(p, 'dialog[open]').forEach(function (d) { try { d.close(); } catch (_) { } }); });
+    try { shell.dispatchEvent(new CustomEvent('hfx:shell-page', { bubbles: true, detail: { page: key, panel: panel } })); } catch (_) { }
     // The top navigation is a tab list when every item is a page of this document, otherwise a list of links.
     qsa(shell, '.hfx-shell-nav-list > [data-hfx-shell-target]').forEach(function (t) {
       var on = t.getAttribute('data-hfx-shell-target') === key;
@@ -674,7 +681,7 @@
   // One drawer per page. Content is either moved in from a source element and moved back when the drawer closes or
   // steps (so nothing is duplicated and widgets keep their state), or supplied as a fragment.
   var drawer = null; // { wrap, options, source, returnFocus }
-  var drawerLabels = { close: 'Close', previous: 'Previous', next: 'Next', context: 'Show in page', print: 'Print this record', record: 'Record', copyTitle: 'Copy name' };
+  var drawerLabels = { close: 'Close', previous: 'Previous', next: 'Next', context: 'Show in page', print: 'Print this record', record: 'Record', copyTitle: 'Copy name', expand: 'Expand' };
 
   function drawerWrap(options) {
     var shell = options.shell ? shellOf(options.shell) : document.querySelector('[data-hfx-shell]');
@@ -730,6 +737,9 @@
     var context = el('button', 'hfx-as-linkbtn', { type: 'button', 'data-hfx-shell-drawer-context': '1', hidden: 'hidden' });
     context.textContent = labels.context;
     actions.appendChild(context);
+    var expand = el('button', 'hfx-shell-drawer-expand', { type: 'button', 'data-hfx-shell-drawer-expand': '1', 'aria-pressed': 'false', 'aria-label': labels.expand, title: labels.expand });
+    expand.textContent = '⤢';
+    actions.appendChild(expand);
     var close = el('button', 'hfx-shell-drawer-close', { type: 'button', 'data-hfx-shell-drawer-close': '1', 'aria-label': labels.close, title: labels.close });
     close.textContent = '×';
     actions.appendChild(close);
@@ -963,6 +973,30 @@
     }, { passive: false });
   }
 
+  // Expand gives a record the width of the window. The choice is the reader's, kept per browser for every drawer of
+  // every report (the explorer's own drawer reads the same key).
+  // The choice lives in memory (window.__hfxDrawerExpanded, read by both drawers); storage only carries it to the next
+  // visit, so the toggle works where a viewer blocks storage.
+  var EXPANDED_KEY = 'hfx-drawer-expanded';
+  function drawerExpanded() {
+    if (typeof window.__hfxDrawerExpanded !== 'boolean') window.__hfxDrawerExpanded = storeGet(EXPANDED_KEY) === '1';
+    return window.__hfxDrawerExpanded;
+  }
+  function showExpanded(wrap, on) {
+    var dialog = wrap && wrap.querySelector('[data-hfx-shell-drawer]');
+    if (!dialog) return;
+    if (on) dialog.setAttribute('data-expanded', '1'); else dialog.removeAttribute('data-expanded');
+    qsa(wrap, '[data-hfx-shell-drawer-expand]').forEach(function (b) { b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+  }
+  function toggleExpanded() {
+    if (!drawerIsOpen()) return;
+    var on = !drawerExpanded();
+    window.__hfxDrawerExpanded = on;
+    storeSet(EXPANDED_KEY, on ? '1' : '0');
+    showExpanded(drawer.wrap, on);
+    fitDrawerTitle(drawer.wrap);
+  }
+
   function openDrawer(options) {
     if (!options) return false;
     entityTicket++;
@@ -974,6 +1008,7 @@
     else if (wasHidden) drawer.returnFocus = options.returnFocus || null;
     fillDrawer(options);
     if (wasHidden) {
+      showExpanded(wrap, drawerExpanded());
       guardDrawerScroll(wrap, wrap.querySelector('[data-hfx-shell-drawer-body]'));
       wrap.removeAttribute('hidden');
       fitDrawerTitle(wrap);
@@ -1230,6 +1265,7 @@
       setPickerOpen(openPicker, false);
     }
     if (closest(t, '[data-hfx-shell-drawer-close]')) { closeDrawer(); return; }
+    if (closest(t, '[data-hfx-shell-drawer-expand]')) { toggleExpanded(); return; }
     var stepBtn = closest(t, '[data-hfx-shell-drawer-step]');
     if (stepBtn) { stepDrawer(parseInt(stepBtn.getAttribute('data-hfx-shell-drawer-step'), 10)); return; }
     if (closest(t, '[data-hfx-shell-drawer-context]')) {
@@ -1616,6 +1652,7 @@
     pageKeyOf: pageKeyOf,
     showPage: function (key, opts) { return showPage(document.querySelector('[data-hfx-shell]'), key, opts); },
     showPageIn: showPage,
+    pageFile: pageLinkFile,
     reveal: reveal,
     revealElement: revealElement,
     addRevealer: function (fn) { if (typeof fn === 'function') revealers.push(fn); },

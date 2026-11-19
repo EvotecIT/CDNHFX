@@ -89,6 +89,64 @@
     var target = e.target;
     if (target && target.matches && target.matches('[data-hfx-rv-filter-input]')) applyFilter(closest(target, '[data-hfx-rv-filter]'));
   });
+
+  // ------------------------------------------------------------------ change feed
+  // A tag of an entry narrows its feed: a category presses its chip (pressed already: back to every kind), a source
+  // searches for itself (searched already: clears the search).
+  document.addEventListener('click', function (e) {
+    var pick = closest(e.target, '[data-hfx-rv-pick-chip], [data-hfx-rv-pick-search]');
+    var root = pick && closest(pick, '[data-hfx-rv-filter]');
+    if (!root) return;
+    if (pick.hasAttribute('data-hfx-rv-pick-chip')) {
+      var key = pick.getAttribute('data-hfx-rv-pick-chip');
+      var chips = qsa(root, '[data-hfx-rv-chips] [data-hfx-rv-chip]');
+      var chip = chips.filter(function (c) { return c.getAttribute('data-hfx-rv-chip') === key; })[0];
+      var all = chips.filter(function (c) { return c.getAttribute('data-hfx-rv-chip') === ''; })[0];
+      var press = chip && chip.getAttribute('aria-pressed') === 'true' ? all : chip;
+      if (press) press.click();
+      return;
+    }
+    var input = root.querySelector('[data-hfx-rv-filter-input]');
+    if (!input) return;
+    var value = pick.getAttribute('data-hfx-rv-pick-search') || '';
+    input.value = input.value === value ? '' : value;
+    applyFilter(root);
+  });
+
+  // An entry that opens something (ReportChange.Opens) opens it from anywhere on its row. Its own links, buttons and
+  // open disclosures keep their actions, and a reader selecting text opens nothing.
+  document.addEventListener('click', function (e) {
+    if (e.defaultPrevented || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+    var row = closest(e.target, '.hfx-rv-change[data-hfx-rv-change-opens]');
+    if (!row || closest(e.target, 'a[href], button, summary, details[open] > :not(summary), input, select, textarea, label')) return;
+    try { var selection = window.getSelection(); if (selection && !selection.isCollapsed && row.contains(selection.anchorNode)) return; } catch (_) { }
+    var link = row.querySelector('.hfx-rv-change-open');
+    if (link) link.click();
+  });
+
+  // An entry that opens an explorer's row (ReportChange.OpensRecord): the report shows the row's page, reveals the
+  // explorer (a chapter not opened yet or a region not loaded yet is materialized first) and opens the row in its
+  // drawer. A page kept in another file of a bundle is opened in its file, which is asked for the row in its address
+  // (hfx-record, read by hfx-report-records.js). Without the report runtime the link goes to the page.
+  document.addEventListener('click', function (e) {
+    var link = closest(e.target, 'a[data-hfx-rv-record-component]');
+    if (!link || e.defaultPrevented || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+    var report = window.hfxReport, records = window.hfxReportRecords;
+    if (!report || !records || typeof records.open !== 'function') return;
+    var page = link.getAttribute('data-hfx-rv-record-page');
+    var component = link.getAttribute('data-hfx-rv-record-component'), key = link.getAttribute('data-hfx-rv-record-key');
+    if (page && !report.showPage(page)) {
+      var file = typeof report.pageFile === 'function' ? report.pageFile(page) : null;
+      if (!file || typeof records.address !== 'function') return;
+      e.preventDefault();
+      try { window.location.assign(records.address(file, page, component, key)); } catch (_) { }
+      return;
+    }
+    e.preventDefault();
+    var address = page || (report.pageKeyOf && report.pageKeyOf(link)) || '';
+    if (typeof report.reveal === 'function') report.reveal(component, { page: address || undefined, hash: address, instant: true });
+    records.open({ component: component, key: key }, address);
+  });
   document.addEventListener('change', function (e) {
     var target = e.target;
     if (target && target.matches && target.matches('[data-hfx-rv-facet]')) applyFilter(closest(target, '[data-hfx-rv-filter]'));

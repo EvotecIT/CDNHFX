@@ -6,6 +6,8 @@
     --hfx-font-sans: Archivo, "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
     --hfx-font-display: Archivo, "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
     --hfx-font-mono: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+    --hfx-space-1: 0.25rem;
+    --hfx-space-4: 1rem;
     --hfx-pattern-hatched: repeating-linear-gradient(135deg, color-mix(in srgb, currentColor 45%, transparent) 0 2px, transparent 2px calc(2px + 4px));
     --hfx-pattern-outline-width: 1.5px;
     --hfx-pattern-outline-style: dashed;
@@ -54,11 +56,13 @@
    They live inside the report surface: hfx-report.css provides the .hfx-as scope, atoms, panels and controls. */
 
 /* ---------- views (one of several views of a scope) ---------- */
-.hfx-as-views > * + * { margin-top: 16px; }
+.hfx-as-views { --hfx-stack-gap: var(--hfx-space-4); }
+.hfx-as-views > * + * { margin-top: var(--hfx-stack-gap); }
 .hfx-as-views-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .hfx-as-views-bar .hfx-as-seg .hfx-as-count[data-sev] { color: var(--sev-ink, var(--sev)); font-weight: 600; }
 .hfx-as-view-pane[hidden] { display: none !important; }
-.hfx-as-view-pane > * + * { margin-top: 20px; }
+.hfx-as-view-pane { --hfx-stack-gap: calc(var(--hfx-space-4) + var(--hfx-space-1)); }
+.hfx-as-view-pane > * + * { margin-top: var(--hfx-stack-gap); }
 
 /* ---------- posture ---------- */
 .hfx-as-posture {
@@ -315,7 +319,8 @@
 .hfx-as-check.is-open > .hfx-as-check-row .hfx-as-chevron { transform: rotate(90deg); }
 .hfx-as-check-body { padding: 18px 18px 22px 38px; background: var(--hfx-color-surface-sunken); border-top: 1px solid var(--hfx-color-border); min-width: 0; }
 .hfx-as-check-body[hidden] { display: none; }
-.hfx-as-check-body > * + * { margin-top: 16px; }
+.hfx-as-check-body { --hfx-stack-gap: var(--hfx-space-4); }
+.hfx-as-check-body > * + * { margin-top: var(--hfx-stack-gap); }
 .hfx-as-check.is-flash > .hfx-as-check-row { animation: hfx-as-flash 1.6s ease; }
 @keyframes hfx-as-flash { 0%, 30% { background: color-mix(in srgb, var(--hfx-color-accent) 16%, transparent); } 100% { background: var(--hfx-color-surface-sunken); } }
 

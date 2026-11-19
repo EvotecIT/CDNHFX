@@ -6,6 +6,9 @@
     --hfx-font-sans: Archivo, "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
     --hfx-type-caption-size: 0.75rem;
     --hfx-space-1: 0.25rem;
+    --hfx-space-2: 0.5rem;
+    --hfx-space-3: 0.75rem;
+    --hfx-space-0-5: 2px;
     --hfx-space-1-5: 6px;
     --hfx-focus-width: 2px;
     --hfx-focus-offset: 2px;
@@ -88,11 +91,11 @@
 .hfx-rv-queue.is-compact .hfx-rv-queue-metric b { font-size: 14px; }
 .hfx-shell.is-compact-pages .hfx-shell-main { padding-top: 16px; padding-bottom: 24px; }
 .hfx-shell.is-compact-pages .hfx-shell-provenance { margin-bottom: 10px; font-size: 11px; }
-.hfx-shell.is-compact-pages .hfx-shell-page > * + * { margin-top: 14px; }
+.hfx-shell.is-compact-pages .hfx-shell-page { --hfx-stack-gap: calc(var(--hfx-space-3) + var(--hfx-space-0-5)); }
 .hfx-rv-state-legend { display: flex; flex-wrap: wrap; gap: 6px 10px; margin: 8px 0; }
 .hfx-as-panel.is-compact > .hfx-as-panel-head { padding: 8px 14px; }
 .hfx-as-panel.is-compact > .hfx-as-panel-body:not(.is-flush) { padding: 12px; }
-@media screen { .hfx-as-panel.is-compact > .hfx-as-panel-body:not(.is-flush) > * + * { margin-top: 8px; } }
+@media screen { .hfx-as-panel.is-compact > .hfx-as-panel-body:not(.is-flush) { --hfx-stack-gap: var(--hfx-space-2); } }
 @container (max-width: 360px) {
   .hfx-rv-queue.is-compact .hfx-rv-queue-list { grid-template-columns: var(--rv-rank-track) minmax(0,1fr) auto; }
   .hfx-rv-queue.is-compact .hfx-rv-queue-item > .hfx-rv-queue-status { grid-column: 2 / -1; }
