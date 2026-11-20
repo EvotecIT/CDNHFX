@@ -511,6 +511,7 @@
   --hfx-menu-item-height: 28px;
   --hfx-gap: 12px;
 }
+/*! hfx-token-segment design-system */
 :where(:root[data-hfx-design-system]:not([data-hfx-style]),[data-hfx-style="auto"]) {--hfx-radius-sm:4px;--hfx-radius-md:6px;--hfx-radius-lg:10px;--hfx-font-sans:Archivo, "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;--hfx-font-display:Archivo, "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;--hfx-font-mono:"JetBrains Mono", "Cascadia Mono", Consolas, monospace;}
 :where(:root[data-hfx-design-system]:not([data-hfx-style]),[data-hfx-style="auto"]) {
   color-scheme: light;
@@ -1654,6 +1655,8 @@
   --hfx-elevation-3: 0 2px 6px rgba(0, 0, 0, .45), 0 20px 44px -16px rgba(0, 0, 0, .80);
 }
 }
+/*! hfx-token-segment-end */
+/*! hfx-token-segment style-evotec */
 :where([data-hfx-style="evotec"]) {--hfx-radius-sm:4px;--hfx-radius-md:6px;--hfx-radius-lg:10px;--hfx-font-sans:Archivo, "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;--hfx-font-display:Archivo, "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;--hfx-font-mono:"JetBrains Mono", "Cascadia Mono", Consolas, monospace;}
 :where([data-hfx-style="evotec"]) {
   color-scheme: light;
@@ -2797,6 +2800,8 @@
   --hfx-elevation-3: 0 2px 6px rgba(0, 0, 0, .45), 0 20px 44px -16px rgba(0, 0, 0, .80);
 }
 }
+/*! hfx-token-segment-end */
+/*! hfx-token-segment style-neutral */
 :where([data-hfx-style="neutral"]) {--hfx-radius-sm:3px;--hfx-radius-md:4px;--hfx-radius-lg:7px;--hfx-font-sans:Archivo, "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;--hfx-font-display:Archivo, "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;--hfx-font-mono:"JetBrains Mono", "Cascadia Mono", Consolas, monospace;}
 :where([data-hfx-style="neutral"]) {
   color-scheme: light;
@@ -3940,6 +3945,8 @@
   --hfx-elevation-3: 0 2px 6px rgba(0, 0, 0, .45), 0 20px 44px -16px rgba(0, 0, 0, .80);
 }
 }
+/*! hfx-token-segment-end */
+/*! hfx-token-segment style-slate */
 :where([data-hfx-style="slate"]) {--hfx-radius-sm:4px;--hfx-radius-md:6px;--hfx-radius-lg:10px;--hfx-font-sans:Archivo, "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;--hfx-font-display:Archivo, "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;--hfx-font-mono:"JetBrains Mono", "Cascadia Mono", Consolas, monospace;}
 :where([data-hfx-style="slate"]) {
   color-scheme: light;
@@ -5083,6 +5090,8 @@
   --hfx-elevation-3: 0 2px 6px rgba(0, 0, 0, .45), 0 20px 44px -16px rgba(0, 0, 0, .80);
 }
 }
+/*! hfx-token-segment-end */
+/*! hfx-token-segment style-warm */
 :where([data-hfx-style="warm"]) {--hfx-radius-sm:5px;--hfx-radius-md:8px;--hfx-radius-lg:13px;--hfx-font-sans:Archivo, "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;--hfx-font-display:Archivo, "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;--hfx-font-mono:"JetBrains Mono", "Cascadia Mono", Consolas, monospace;}
 :where([data-hfx-style="warm"]) {
   color-scheme: light;
@@ -6226,6 +6235,8 @@
   --hfx-elevation-3: 0 2px 6px rgba(0, 0, 0, .45), 0 20px 44px -16px rgba(0, 0, 0, .80);
 }
 }
+/*! hfx-token-segment-end */
+/*! hfx-token-segment style-contrast */
 :where([data-hfx-style="contrast"]) {--hfx-radius-sm:2px;--hfx-radius-md:3px;--hfx-radius-lg:5px;--hfx-font-sans:Archivo, "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;--hfx-font-display:Archivo, "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;--hfx-font-mono:"JetBrains Mono", "Cascadia Mono", Consolas, monospace;}
 :where([data-hfx-style="contrast"]) {
   color-scheme: light;
@@ -7369,6 +7380,7 @@
   --hfx-elevation-3: 0 0 0 1px #ffffff;
 }
 }
+/*! hfx-token-segment-end */
 @media (forced-colors: active) {
 :where(:root, [data-hfx-style], [data-hfx-mode], [data-hfx-product], [data-bs-theme], [data-hfx-theme], [data-hfx-tokens], [data-theme]) {
   --hfx-color-surface-page: Canvas;
@@ -8345,6 +8357,7 @@
   --hfx-page-glow: none;
 }
 }
+/*! hfx-token-segment style-neutral */
 :where([data-hfx-style="neutral"]):is([data-hfx-theme="light"], [data-hfx-tokens="light"], [data-bs-theme="light"]:not([data-hfx-theme]), [data-hfx-mode="light"]:not([data-hfx-theme]), [data-theme="light"]:not([data-hfx-mode]):not([data-hfx-theme])), :where([data-hfx-style="neutral"]) :is([data-hfx-theme="light"], [data-hfx-tokens="light"], [data-bs-theme="light"]:not([data-hfx-theme]), [data-hfx-mode="light"]:not([data-hfx-theme]), [data-theme="light"]:not([data-hfx-mode]):not([data-hfx-theme])):not([data-hfx-style]):not(:where([data-hfx-style="neutral"]) [data-hfx-style] *), :is([data-hfx-theme="light"], [data-hfx-tokens="light"], [data-bs-theme="light"]:not([data-hfx-theme]), [data-hfx-mode="light"]:not([data-hfx-theme]), [data-theme="light"]:not([data-hfx-mode]):not([data-hfx-theme])) :where([data-hfx-style="neutral"]):not([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="light"], [data-hfx-tokens="light"], [data-bs-theme="light"]:not([data-hfx-theme]), [data-hfx-mode="light"]:not([data-hfx-theme]), [data-theme="light"]:not([data-hfx-mode]):not([data-hfx-theme])) :is([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="light"], [data-hfx-tokens="light"], [data-bs-theme="light"]:not([data-hfx-theme]), [data-hfx-mode="light"]:not([data-hfx-theme]), [data-theme="light"]:not([data-hfx-mode]):not([data-hfx-theme]))) *) {
   --hfx-display-light: block;
   --hfx-display-dark: none;
@@ -8740,6 +8753,8 @@
   --hfx-page-glow: none;
 }
 }
+/*! hfx-token-segment-end */
+/*! hfx-token-segment style-slate */
 :where([data-hfx-style="slate"]):is([data-hfx-theme="light"], [data-hfx-tokens="light"], [data-bs-theme="light"]:not([data-hfx-theme]), [data-hfx-mode="light"]:not([data-hfx-theme]), [data-theme="light"]:not([data-hfx-mode]):not([data-hfx-theme])), :where([data-hfx-style="slate"]) :is([data-hfx-theme="light"], [data-hfx-tokens="light"], [data-bs-theme="light"]:not([data-hfx-theme]), [data-hfx-mode="light"]:not([data-hfx-theme]), [data-theme="light"]:not([data-hfx-mode]):not([data-hfx-theme])):not([data-hfx-style]):not(:where([data-hfx-style="slate"]) [data-hfx-style] *), :is([data-hfx-theme="light"], [data-hfx-tokens="light"], [data-bs-theme="light"]:not([data-hfx-theme]), [data-hfx-mode="light"]:not([data-hfx-theme]), [data-theme="light"]:not([data-hfx-mode]):not([data-hfx-theme])) :where([data-hfx-style="slate"]):not([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="light"], [data-hfx-tokens="light"], [data-bs-theme="light"]:not([data-hfx-theme]), [data-hfx-mode="light"]:not([data-hfx-theme]), [data-theme="light"]:not([data-hfx-mode]):not([data-hfx-theme])) :is([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="light"], [data-hfx-tokens="light"], [data-bs-theme="light"]:not([data-hfx-theme]), [data-hfx-mode="light"]:not([data-hfx-theme]), [data-theme="light"]:not([data-hfx-mode]):not([data-hfx-theme]))) *) {
   --hfx-display-light: block;
   --hfx-display-dark: none;
@@ -9135,6 +9150,8 @@
   --hfx-page-glow: none;
 }
 }
+/*! hfx-token-segment-end */
+/*! hfx-token-segment style-warm */
 :where([data-hfx-style="warm"]):is([data-hfx-theme="light"], [data-hfx-tokens="light"], [data-bs-theme="light"]:not([data-hfx-theme]), [data-hfx-mode="light"]:not([data-hfx-theme]), [data-theme="light"]:not([data-hfx-mode]):not([data-hfx-theme])), :where([data-hfx-style="warm"]) :is([data-hfx-theme="light"], [data-hfx-tokens="light"], [data-bs-theme="light"]:not([data-hfx-theme]), [data-hfx-mode="light"]:not([data-hfx-theme]), [data-theme="light"]:not([data-hfx-mode]):not([data-hfx-theme])):not([data-hfx-style]):not(:where([data-hfx-style="warm"]) [data-hfx-style] *), :is([data-hfx-theme="light"], [data-hfx-tokens="light"], [data-bs-theme="light"]:not([data-hfx-theme]), [data-hfx-mode="light"]:not([data-hfx-theme]), [data-theme="light"]:not([data-hfx-mode]):not([data-hfx-theme])) :where([data-hfx-style="warm"]):not([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="light"], [data-hfx-tokens="light"], [data-bs-theme="light"]:not([data-hfx-theme]), [data-hfx-mode="light"]:not([data-hfx-theme]), [data-theme="light"]:not([data-hfx-mode]):not([data-hfx-theme])) :is([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="light"], [data-hfx-tokens="light"], [data-bs-theme="light"]:not([data-hfx-theme]), [data-hfx-mode="light"]:not([data-hfx-theme]), [data-theme="light"]:not([data-hfx-mode]):not([data-hfx-theme]))) *) {
   --hfx-display-light: block;
   --hfx-display-dark: none;
@@ -9530,6 +9547,8 @@
   --hfx-page-glow: none;
 }
 }
+/*! hfx-token-segment-end */
+/*! hfx-token-segment style-contrast */
 :where([data-hfx-style="contrast"]):is([data-hfx-theme="light"], [data-hfx-tokens="light"], [data-bs-theme="light"]:not([data-hfx-theme]), [data-hfx-mode="light"]:not([data-hfx-theme]), [data-theme="light"]:not([data-hfx-mode]):not([data-hfx-theme])), :where([data-hfx-style="contrast"]) :is([data-hfx-theme="light"], [data-hfx-tokens="light"], [data-bs-theme="light"]:not([data-hfx-theme]), [data-hfx-mode="light"]:not([data-hfx-theme]), [data-theme="light"]:not([data-hfx-mode]):not([data-hfx-theme])):not([data-hfx-style]):not(:where([data-hfx-style="contrast"]) [data-hfx-style] *), :is([data-hfx-theme="light"], [data-hfx-tokens="light"], [data-bs-theme="light"]:not([data-hfx-theme]), [data-hfx-mode="light"]:not([data-hfx-theme]), [data-theme="light"]:not([data-hfx-mode]):not([data-hfx-theme])) :where([data-hfx-style="contrast"]):not([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="light"], [data-hfx-tokens="light"], [data-bs-theme="light"]:not([data-hfx-theme]), [data-hfx-mode="light"]:not([data-hfx-theme]), [data-theme="light"]:not([data-hfx-mode]):not([data-hfx-theme])) :is([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="light"], [data-hfx-tokens="light"], [data-bs-theme="light"]:not([data-hfx-theme]), [data-hfx-mode="light"]:not([data-hfx-theme]), [data-theme="light"]:not([data-hfx-mode]):not([data-hfx-theme]))) *) {
   --hfx-display-light: block;
   --hfx-display-dark: none;
@@ -9843,6 +9862,7 @@
   --hfx-page-glow: none;
 }
 }
+/*! hfx-token-segment-end */
 :where(:root:not([data-hfx-design-system]):not([data-hfx-style])):is([data-hfx-theme="dark"], [data-hfx-tokens="dark"], [data-bs-theme="dark"]:not([data-hfx-theme]), [data-hfx-mode="dark"]:not([data-hfx-theme]), [data-theme="dark"]:not([data-hfx-mode]):not([data-hfx-theme])), :where(:root:not([data-hfx-design-system]):not([data-hfx-style])) :is([data-hfx-theme="dark"], [data-hfx-tokens="dark"], [data-bs-theme="dark"]:not([data-hfx-theme]), [data-hfx-mode="dark"]:not([data-hfx-theme]), [data-theme="dark"]:not([data-hfx-mode]):not([data-hfx-theme])):not([data-hfx-style]):not([data-hfx-style] *) {
   --hfx-color-surface-page: #0c0d10;
   --hfx-color-surface: #16181c;
@@ -10392,6 +10412,7 @@
   --hfx-page-glow: none;
 }
 }
+/*! hfx-token-segment style-neutral */
 :where([data-hfx-style="neutral"]):is([data-hfx-theme="dark"], [data-hfx-tokens="dark"], [data-bs-theme="dark"]:not([data-hfx-theme]), [data-hfx-mode="dark"]:not([data-hfx-theme]), [data-theme="dark"]:not([data-hfx-mode]):not([data-hfx-theme])), :where([data-hfx-style="neutral"]) :is([data-hfx-theme="dark"], [data-hfx-tokens="dark"], [data-bs-theme="dark"]:not([data-hfx-theme]), [data-hfx-mode="dark"]:not([data-hfx-theme]), [data-theme="dark"]:not([data-hfx-mode]):not([data-hfx-theme])):not([data-hfx-style]):not(:where([data-hfx-style="neutral"]) [data-hfx-style] *), :is([data-hfx-theme="dark"], [data-hfx-tokens="dark"], [data-bs-theme="dark"]:not([data-hfx-theme]), [data-hfx-mode="dark"]:not([data-hfx-theme]), [data-theme="dark"]:not([data-hfx-mode]):not([data-hfx-theme])) :where([data-hfx-style="neutral"]):not([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="dark"], [data-hfx-tokens="dark"], [data-bs-theme="dark"]:not([data-hfx-theme]), [data-hfx-mode="dark"]:not([data-hfx-theme]), [data-theme="dark"]:not([data-hfx-mode]):not([data-hfx-theme])) :is([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="dark"], [data-hfx-tokens="dark"], [data-bs-theme="dark"]:not([data-hfx-theme]), [data-hfx-mode="dark"]:not([data-hfx-theme]), [data-theme="dark"]:not([data-hfx-mode]):not([data-hfx-theme]))) *) {
   --hfx-display-light: none;
   --hfx-display-dark: block;
@@ -10775,6 +10796,8 @@
   --hfx-page-glow: none;
 }
 }
+/*! hfx-token-segment-end */
+/*! hfx-token-segment style-slate */
 :where([data-hfx-style="slate"]):is([data-hfx-theme="dark"], [data-hfx-tokens="dark"], [data-bs-theme="dark"]:not([data-hfx-theme]), [data-hfx-mode="dark"]:not([data-hfx-theme]), [data-theme="dark"]:not([data-hfx-mode]):not([data-hfx-theme])), :where([data-hfx-style="slate"]) :is([data-hfx-theme="dark"], [data-hfx-tokens="dark"], [data-bs-theme="dark"]:not([data-hfx-theme]), [data-hfx-mode="dark"]:not([data-hfx-theme]), [data-theme="dark"]:not([data-hfx-mode]):not([data-hfx-theme])):not([data-hfx-style]):not(:where([data-hfx-style="slate"]) [data-hfx-style] *), :is([data-hfx-theme="dark"], [data-hfx-tokens="dark"], [data-bs-theme="dark"]:not([data-hfx-theme]), [data-hfx-mode="dark"]:not([data-hfx-theme]), [data-theme="dark"]:not([data-hfx-mode]):not([data-hfx-theme])) :where([data-hfx-style="slate"]):not([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="dark"], [data-hfx-tokens="dark"], [data-bs-theme="dark"]:not([data-hfx-theme]), [data-hfx-mode="dark"]:not([data-hfx-theme]), [data-theme="dark"]:not([data-hfx-mode]):not([data-hfx-theme])) :is([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="dark"], [data-hfx-tokens="dark"], [data-bs-theme="dark"]:not([data-hfx-theme]), [data-hfx-mode="dark"]:not([data-hfx-theme]), [data-theme="dark"]:not([data-hfx-mode]):not([data-hfx-theme]))) *) {
   --hfx-display-light: none;
   --hfx-display-dark: block;
@@ -11158,6 +11181,8 @@
   --hfx-page-glow: none;
 }
 }
+/*! hfx-token-segment-end */
+/*! hfx-token-segment style-warm */
 :where([data-hfx-style="warm"]):is([data-hfx-theme="dark"], [data-hfx-tokens="dark"], [data-bs-theme="dark"]:not([data-hfx-theme]), [data-hfx-mode="dark"]:not([data-hfx-theme]), [data-theme="dark"]:not([data-hfx-mode]):not([data-hfx-theme])), :where([data-hfx-style="warm"]) :is([data-hfx-theme="dark"], [data-hfx-tokens="dark"], [data-bs-theme="dark"]:not([data-hfx-theme]), [data-hfx-mode="dark"]:not([data-hfx-theme]), [data-theme="dark"]:not([data-hfx-mode]):not([data-hfx-theme])):not([data-hfx-style]):not(:where([data-hfx-style="warm"]) [data-hfx-style] *), :is([data-hfx-theme="dark"], [data-hfx-tokens="dark"], [data-bs-theme="dark"]:not([data-hfx-theme]), [data-hfx-mode="dark"]:not([data-hfx-theme]), [data-theme="dark"]:not([data-hfx-mode]):not([data-hfx-theme])) :where([data-hfx-style="warm"]):not([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="dark"], [data-hfx-tokens="dark"], [data-bs-theme="dark"]:not([data-hfx-theme]), [data-hfx-mode="dark"]:not([data-hfx-theme]), [data-theme="dark"]:not([data-hfx-mode]):not([data-hfx-theme])) :is([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="dark"], [data-hfx-tokens="dark"], [data-bs-theme="dark"]:not([data-hfx-theme]), [data-hfx-mode="dark"]:not([data-hfx-theme]), [data-theme="dark"]:not([data-hfx-mode]):not([data-hfx-theme]))) *) {
   --hfx-display-light: none;
   --hfx-display-dark: block;
@@ -11541,6 +11566,8 @@
   --hfx-page-glow: none;
 }
 }
+/*! hfx-token-segment-end */
+/*! hfx-token-segment style-contrast */
 :where([data-hfx-style="contrast"]):is([data-hfx-theme="dark"], [data-hfx-tokens="dark"], [data-bs-theme="dark"]:not([data-hfx-theme]), [data-hfx-mode="dark"]:not([data-hfx-theme]), [data-theme="dark"]:not([data-hfx-mode]):not([data-hfx-theme])), :where([data-hfx-style="contrast"]) :is([data-hfx-theme="dark"], [data-hfx-tokens="dark"], [data-bs-theme="dark"]:not([data-hfx-theme]), [data-hfx-mode="dark"]:not([data-hfx-theme]), [data-theme="dark"]:not([data-hfx-mode]):not([data-hfx-theme])):not([data-hfx-style]):not(:where([data-hfx-style="contrast"]) [data-hfx-style] *), :is([data-hfx-theme="dark"], [data-hfx-tokens="dark"], [data-bs-theme="dark"]:not([data-hfx-theme]), [data-hfx-mode="dark"]:not([data-hfx-theme]), [data-theme="dark"]:not([data-hfx-mode]):not([data-hfx-theme])) :where([data-hfx-style="contrast"]):not([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="dark"], [data-hfx-tokens="dark"], [data-bs-theme="dark"]:not([data-hfx-theme]), [data-hfx-mode="dark"]:not([data-hfx-theme]), [data-theme="dark"]:not([data-hfx-mode]):not([data-hfx-theme])) :is([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="dark"], [data-hfx-tokens="dark"], [data-bs-theme="dark"]:not([data-hfx-theme]), [data-hfx-mode="dark"]:not([data-hfx-theme]), [data-theme="dark"]:not([data-hfx-mode]):not([data-hfx-theme]))) *) {
   --hfx-display-light: none;
   --hfx-display-dark: block;
@@ -11842,6 +11869,7 @@
   --hfx-page-glow: none;
 }
 }
+/*! hfx-token-segment-end */
 :where(:root:not([data-hfx-design-system]):not([data-hfx-style])):is([data-hfx-theme="dark-black"], [data-hfx-tokens="dark-black"], [data-hfx-theme="black"], [data-hfx-theme="darkblack"]), :where(:root:not([data-hfx-design-system]):not([data-hfx-style])) :is([data-hfx-theme="dark-black"], [data-hfx-tokens="dark-black"], [data-hfx-theme="black"], [data-hfx-theme="darkblack"]):not([data-hfx-style]):not([data-hfx-style] *) {
   --hfx-color-surface-page: #000000;
   --hfx-color-surface: #0e0f12;
@@ -12571,6 +12599,7 @@
   --hfx-page-glow: none;
 }
 }
+/*! hfx-token-segment style-neutral */
 :where([data-hfx-style="neutral"]):is([data-hfx-theme="dark-black"], [data-hfx-tokens="dark-black"], [data-hfx-theme="black"], [data-hfx-theme="darkblack"]), :where([data-hfx-style="neutral"]) :is([data-hfx-theme="dark-black"], [data-hfx-tokens="dark-black"], [data-hfx-theme="black"], [data-hfx-theme="darkblack"]):not([data-hfx-style]):not(:where([data-hfx-style="neutral"]) [data-hfx-style] *), :is([data-hfx-theme="dark-black"], [data-hfx-tokens="dark-black"], [data-hfx-theme="black"], [data-hfx-theme="darkblack"]) :where([data-hfx-style="neutral"]):not([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="dark-black"], [data-hfx-tokens="dark-black"], [data-hfx-theme="black"], [data-hfx-theme="darkblack"]) :is([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="dark-black"], [data-hfx-tokens="dark-black"], [data-hfx-theme="black"], [data-hfx-theme="darkblack"])) *) {
   --hfx-color-surface-page: #000000;
   --hfx-color-surface: #0e0f12;
@@ -13142,6 +13171,8 @@
   --hfx-page-glow: none;
 }
 }
+/*! hfx-token-segment-end */
+/*! hfx-token-segment style-slate */
 :where([data-hfx-style="slate"]):is([data-hfx-theme="dark-black"], [data-hfx-tokens="dark-black"], [data-hfx-theme="black"], [data-hfx-theme="darkblack"]), :where([data-hfx-style="slate"]) :is([data-hfx-theme="dark-black"], [data-hfx-tokens="dark-black"], [data-hfx-theme="black"], [data-hfx-theme="darkblack"]):not([data-hfx-style]):not(:where([data-hfx-style="slate"]) [data-hfx-style] *), :is([data-hfx-theme="dark-black"], [data-hfx-tokens="dark-black"], [data-hfx-theme="black"], [data-hfx-theme="darkblack"]) :where([data-hfx-style="slate"]):not([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="dark-black"], [data-hfx-tokens="dark-black"], [data-hfx-theme="black"], [data-hfx-theme="darkblack"]) :is([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="dark-black"], [data-hfx-tokens="dark-black"], [data-hfx-theme="black"], [data-hfx-theme="darkblack"])) *) {
   --hfx-color-surface-page: #000000;
   --hfx-color-surface: #0e0f12;
@@ -13713,6 +13744,8 @@
   --hfx-page-glow: none;
 }
 }
+/*! hfx-token-segment-end */
+/*! hfx-token-segment style-warm */
 :where([data-hfx-style="warm"]):is([data-hfx-theme="dark-black"], [data-hfx-tokens="dark-black"], [data-hfx-theme="black"], [data-hfx-theme="darkblack"]), :where([data-hfx-style="warm"]) :is([data-hfx-theme="dark-black"], [data-hfx-tokens="dark-black"], [data-hfx-theme="black"], [data-hfx-theme="darkblack"]):not([data-hfx-style]):not(:where([data-hfx-style="warm"]) [data-hfx-style] *), :is([data-hfx-theme="dark-black"], [data-hfx-tokens="dark-black"], [data-hfx-theme="black"], [data-hfx-theme="darkblack"]) :where([data-hfx-style="warm"]):not([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="dark-black"], [data-hfx-tokens="dark-black"], [data-hfx-theme="black"], [data-hfx-theme="darkblack"]) :is([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="dark-black"], [data-hfx-tokens="dark-black"], [data-hfx-theme="black"], [data-hfx-theme="darkblack"])) *) {
   --hfx-color-surface-page: #000000;
   --hfx-color-surface: #0e0f12;
@@ -14284,6 +14317,8 @@
   --hfx-page-glow: none;
 }
 }
+/*! hfx-token-segment-end */
+/*! hfx-token-segment style-contrast */
 :where([data-hfx-style="contrast"]):is([data-hfx-theme="dark-black"], [data-hfx-tokens="dark-black"], [data-hfx-theme="black"], [data-hfx-theme="darkblack"]), :where([data-hfx-style="contrast"]) :is([data-hfx-theme="dark-black"], [data-hfx-tokens="dark-black"], [data-hfx-theme="black"], [data-hfx-theme="darkblack"]):not([data-hfx-style]):not(:where([data-hfx-style="contrast"]) [data-hfx-style] *), :is([data-hfx-theme="dark-black"], [data-hfx-tokens="dark-black"], [data-hfx-theme="black"], [data-hfx-theme="darkblack"]) :where([data-hfx-style="contrast"]):not([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="dark-black"], [data-hfx-tokens="dark-black"], [data-hfx-theme="black"], [data-hfx-theme="darkblack"]) :is([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="dark-black"], [data-hfx-tokens="dark-black"], [data-hfx-theme="black"], [data-hfx-theme="darkblack"])) *) {
   --hfx-color-surface: #0e0f12;
   --hfx-color-surface-sunken: #08090b;
@@ -14729,6 +14764,7 @@
   --hfx-page-glow: none;
 }
 }
+/*! hfx-token-segment-end */
 :where(:root:not([data-hfx-design-system]):not([data-hfx-style])):is([data-hfx-theme="dark-carbon"], [data-hfx-tokens="dark-carbon"], [data-hfx-theme="carbon"]), :where(:root:not([data-hfx-design-system]):not([data-hfx-style])) :is([data-hfx-theme="dark-carbon"], [data-hfx-tokens="dark-carbon"], [data-hfx-theme="carbon"]):not([data-hfx-style]):not([data-hfx-style] *) {
   --hfx-color-surface-page: #131210;
   --hfx-color-surface: #1d1b19;
@@ -15658,6 +15694,7 @@
   --hfx-page-glow: none;
 }
 }
+/*! hfx-token-segment style-neutral */
 :where([data-hfx-style="neutral"]):is([data-hfx-theme="dark-carbon"], [data-hfx-tokens="dark-carbon"], [data-hfx-theme="carbon"]), :where([data-hfx-style="neutral"]) :is([data-hfx-theme="dark-carbon"], [data-hfx-tokens="dark-carbon"], [data-hfx-theme="carbon"]):not([data-hfx-style]):not(:where([data-hfx-style="neutral"]) [data-hfx-style] *), :is([data-hfx-theme="dark-carbon"], [data-hfx-tokens="dark-carbon"], [data-hfx-theme="carbon"]) :where([data-hfx-style="neutral"]):not([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="dark-carbon"], [data-hfx-tokens="dark-carbon"], [data-hfx-theme="carbon"]) :is([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="dark-carbon"], [data-hfx-tokens="dark-carbon"], [data-hfx-theme="carbon"])) *) {
   --hfx-color-surface-page: #131210;
   --hfx-color-surface: #1d1b19;
@@ -16421,6 +16458,8 @@
   --hfx-page-glow: none;
 }
 }
+/*! hfx-token-segment-end */
+/*! hfx-token-segment style-slate */
 :where([data-hfx-style="slate"]):is([data-hfx-theme="dark-carbon"], [data-hfx-tokens="dark-carbon"], [data-hfx-theme="carbon"]), :where([data-hfx-style="slate"]) :is([data-hfx-theme="dark-carbon"], [data-hfx-tokens="dark-carbon"], [data-hfx-theme="carbon"]):not([data-hfx-style]):not(:where([data-hfx-style="slate"]) [data-hfx-style] *), :is([data-hfx-theme="dark-carbon"], [data-hfx-tokens="dark-carbon"], [data-hfx-theme="carbon"]) :where([data-hfx-style="slate"]):not([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="dark-carbon"], [data-hfx-tokens="dark-carbon"], [data-hfx-theme="carbon"]) :is([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="dark-carbon"], [data-hfx-tokens="dark-carbon"], [data-hfx-theme="carbon"])) *) {
   --hfx-color-surface-page: #131210;
   --hfx-color-surface: #1d1b19;
@@ -17192,6 +17231,8 @@
   --hfx-page-glow: none;
 }
 }
+/*! hfx-token-segment-end */
+/*! hfx-token-segment style-warm */
 :where([data-hfx-style="warm"]):is([data-hfx-theme="dark-carbon"], [data-hfx-tokens="dark-carbon"], [data-hfx-theme="carbon"]), :where([data-hfx-style="warm"]) :is([data-hfx-theme="dark-carbon"], [data-hfx-tokens="dark-carbon"], [data-hfx-theme="carbon"]):not([data-hfx-style]):not(:where([data-hfx-style="warm"]) [data-hfx-style] *), :is([data-hfx-theme="dark-carbon"], [data-hfx-tokens="dark-carbon"], [data-hfx-theme="carbon"]) :where([data-hfx-style="warm"]):not([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="dark-carbon"], [data-hfx-tokens="dark-carbon"], [data-hfx-theme="carbon"]) :is([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="dark-carbon"], [data-hfx-tokens="dark-carbon"], [data-hfx-theme="carbon"])) *) {
   --hfx-color-surface-page: #131210;
   --hfx-color-surface: #1d1b19;
@@ -17963,6 +18004,8 @@
   --hfx-page-glow: none;
 }
 }
+/*! hfx-token-segment-end */
+/*! hfx-token-segment style-contrast */
 :where([data-hfx-style="contrast"]):is([data-hfx-theme="dark-carbon"], [data-hfx-tokens="dark-carbon"], [data-hfx-theme="carbon"]), :where([data-hfx-style="contrast"]) :is([data-hfx-theme="dark-carbon"], [data-hfx-tokens="dark-carbon"], [data-hfx-theme="carbon"]):not([data-hfx-style]):not(:where([data-hfx-style="contrast"]) [data-hfx-style] *), :is([data-hfx-theme="dark-carbon"], [data-hfx-tokens="dark-carbon"], [data-hfx-theme="carbon"]) :where([data-hfx-style="contrast"]):not([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="dark-carbon"], [data-hfx-tokens="dark-carbon"], [data-hfx-theme="carbon"]) :is([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="dark-carbon"], [data-hfx-tokens="dark-carbon"], [data-hfx-theme="carbon"])) *) {
   --hfx-color-surface-page: #131210;
   --hfx-color-surface: #1d1b19;
@@ -18688,6 +18731,7 @@
   --hfx-page-glow: none;
 }
 }
+/*! hfx-token-segment-end */
 :where(:root:not([data-hfx-design-system]):not([data-hfx-style])):is([data-hfx-theme="dark-matrix"], [data-hfx-tokens="dark-matrix"], [data-hfx-theme="matrix"]), :where(:root:not([data-hfx-design-system]):not([data-hfx-style])) :is([data-hfx-theme="dark-matrix"], [data-hfx-tokens="dark-matrix"], [data-hfx-theme="matrix"]):not([data-hfx-style]):not([data-hfx-style] *) {
   --hfx-color-surface-page: #020504;
   --hfx-color-surface: #0a1610;
@@ -19617,6 +19661,7 @@
   --hfx-page-glow: none;
 }
 }
+/*! hfx-token-segment style-neutral */
 :where([data-hfx-style="neutral"]):is([data-hfx-theme="dark-matrix"], [data-hfx-tokens="dark-matrix"], [data-hfx-theme="matrix"]), :where([data-hfx-style="neutral"]) :is([data-hfx-theme="dark-matrix"], [data-hfx-tokens="dark-matrix"], [data-hfx-theme="matrix"]):not([data-hfx-style]):not(:where([data-hfx-style="neutral"]) [data-hfx-style] *), :is([data-hfx-theme="dark-matrix"], [data-hfx-tokens="dark-matrix"], [data-hfx-theme="matrix"]) :where([data-hfx-style="neutral"]):not([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="dark-matrix"], [data-hfx-tokens="dark-matrix"], [data-hfx-theme="matrix"]) :is([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="dark-matrix"], [data-hfx-tokens="dark-matrix"], [data-hfx-theme="matrix"])) *) {
   --hfx-color-surface-page: #020504;
   --hfx-color-surface: #0a1610;
@@ -20388,6 +20433,8 @@
   --hfx-page-glow: none;
 }
 }
+/*! hfx-token-segment-end */
+/*! hfx-token-segment style-slate */
 :where([data-hfx-style="slate"]):is([data-hfx-theme="dark-matrix"], [data-hfx-tokens="dark-matrix"], [data-hfx-theme="matrix"]), :where([data-hfx-style="slate"]) :is([data-hfx-theme="dark-matrix"], [data-hfx-tokens="dark-matrix"], [data-hfx-theme="matrix"]):not([data-hfx-style]):not(:where([data-hfx-style="slate"]) [data-hfx-style] *), :is([data-hfx-theme="dark-matrix"], [data-hfx-tokens="dark-matrix"], [data-hfx-theme="matrix"]) :where([data-hfx-style="slate"]):not([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="dark-matrix"], [data-hfx-tokens="dark-matrix"], [data-hfx-theme="matrix"]) :is([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="dark-matrix"], [data-hfx-tokens="dark-matrix"], [data-hfx-theme="matrix"])) *) {
   --hfx-color-surface-page: #020504;
   --hfx-color-surface: #0a1610;
@@ -21159,6 +21206,8 @@
   --hfx-page-glow: none;
 }
 }
+/*! hfx-token-segment-end */
+/*! hfx-token-segment style-warm */
 :where([data-hfx-style="warm"]):is([data-hfx-theme="dark-matrix"], [data-hfx-tokens="dark-matrix"], [data-hfx-theme="matrix"]), :where([data-hfx-style="warm"]) :is([data-hfx-theme="dark-matrix"], [data-hfx-tokens="dark-matrix"], [data-hfx-theme="matrix"]):not([data-hfx-style]):not(:where([data-hfx-style="warm"]) [data-hfx-style] *), :is([data-hfx-theme="dark-matrix"], [data-hfx-tokens="dark-matrix"], [data-hfx-theme="matrix"]) :where([data-hfx-style="warm"]):not([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="dark-matrix"], [data-hfx-tokens="dark-matrix"], [data-hfx-theme="matrix"]) :is([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="dark-matrix"], [data-hfx-tokens="dark-matrix"], [data-hfx-theme="matrix"])) *) {
   --hfx-color-surface-page: #020504;
   --hfx-color-surface: #0a1610;
@@ -21930,6 +21979,8 @@
   --hfx-page-glow: none;
 }
 }
+/*! hfx-token-segment-end */
+/*! hfx-token-segment style-contrast */
 :where([data-hfx-style="contrast"]):is([data-hfx-theme="dark-matrix"], [data-hfx-tokens="dark-matrix"], [data-hfx-theme="matrix"]), :where([data-hfx-style="contrast"]) :is([data-hfx-theme="dark-matrix"], [data-hfx-tokens="dark-matrix"], [data-hfx-theme="matrix"]):not([data-hfx-style]):not(:where([data-hfx-style="contrast"]) [data-hfx-style] *), :is([data-hfx-theme="dark-matrix"], [data-hfx-tokens="dark-matrix"], [data-hfx-theme="matrix"]) :where([data-hfx-style="contrast"]):not([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="dark-matrix"], [data-hfx-tokens="dark-matrix"], [data-hfx-theme="matrix"]) :is([data-hfx-theme], [data-hfx-mode], [data-bs-theme], [data-theme], [data-hfx-tokens]):not(:is([data-hfx-theme="dark-matrix"], [data-hfx-tokens="dark-matrix"], [data-hfx-theme="matrix"])) *) {
   --hfx-color-surface-page: #020504;
   --hfx-color-surface: #0a1610;
@@ -22645,6 +22696,7 @@
   --hfx-page-glow: none;
 }
 }
+/*! hfx-token-segment-end */
 :root[data-hfx-theme="light"] .hfx-hide-when-light, body[data-hfx-theme="light"] .hfx-hide-when-light { display: none !important; }
 :root[data-hfx-theme="dark"] .hfx-hide-when-dark, body[data-hfx-theme="dark"] .hfx-hide-when-dark { display: none !important; }
 :root[data-hfx-theme="dark-black"] .hfx-hide-when-dark-black, body[data-hfx-theme="dark-black"] .hfx-hide-when-dark-black { display: none !important; }

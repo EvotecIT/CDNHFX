@@ -82,8 +82,12 @@
       if (on) scrollNavItemIntoView(t);
     });
     qsa(shell, '.hfx-shell-side-item[data-hfx-shell-target]').forEach(function (t) {
-      if (t.getAttribute('data-hfx-shell-target') === key) { t.setAttribute('aria-current', 'page'); sideItemIntoView(t); }
-      else t.removeAttribute('aria-current');
+      if (t.getAttribute('data-hfx-shell-target') === key) {
+        t.setAttribute('aria-current', 'page');
+        // The group holding the current page always opens; the reader's stored choice is left as it was.
+        setSideGroupOpen(closest(t, '[data-hfx-shell-side-collapsible]'), true, false);
+        sideItemIntoView(t);
+      } else t.removeAttribute('aria-current');
     });
     setSideOpen(shell, false);
     // Collapsed navigation groups: mark the group item current and show which entry is open.
@@ -205,6 +209,23 @@
     if (!collapseOnly && isNarrow()) setSideOpen(shell, !shell.classList.contains('is-side-open'));
     else setSideCollapsed(shell, !shell.classList.contains('is-side-collapsed'));
   }
+  // Collapsible sidebar groups (ReportManifestGroup.Collapsible): the heading opens and closes the entries, and the
+  // reader's choice for each group is remembered in this browser.
+  var SIDE_GROUP_STORE = 'hfx-shell-side-group:';
+  function setSideGroupOpen(group, open, remember) {
+    if (!group) return;
+    group.setAttribute('data-hfx-shell-side-open', open ? '1' : '0');
+    var toggle = group.querySelector('[data-hfx-shell-side-group-toggle]');
+    if (toggle) toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (remember) storeSet(SIDE_GROUP_STORE + group.getAttribute('data-hfx-shell-side-group'), open ? '1' : '0');
+  }
+  function restoreSideGroups(shell) {
+    qsa(shell, '[data-hfx-shell-side-collapsible]').forEach(function (group) {
+      if (group.querySelector('.hfx-shell-side-item[aria-current="page"]')) { setSideGroupOpen(group, true, false); return; }
+      var stored = storeGet(SIDE_GROUP_STORE + group.getAttribute('data-hfx-shell-side-group'));
+      if (stored === '1' || stored === '0') setSideGroupOpen(group, stored === '1', false);
+    });
+  }
   function sideItemIntoView(item) {
     var scroll = closest(item, '.hfx-shell-side-scroll');
     if (!scroll) return;
@@ -215,6 +236,9 @@
   function filterSide(input) {
     var shell = shellOf(input);
     var terms = norm(input.value).split(/\s+/).filter(Boolean);
+    // While a filter is typed, closed groups show their matching entries too.
+    var list = shell && shell.querySelector('.hfx-shell-side-list');
+    if (list) list.toggleAttribute('data-hfx-shell-side-filtering', terms.length > 0);
     function matches(text) { var hay = norm(text); return terms.every(function (t) { return hay.indexOf(t) >= 0; }); }
     qsa(shell, '.hfx-shell-side-list > li:not(.hfx-shell-side-group)').forEach(function (li) { li.hidden = !matches(li.textContent); });
     qsa(shell, '.hfx-shell-side-group').forEach(function (group) {
@@ -1276,6 +1300,12 @@
     if (closest(t, '[data-hfx-shell-side-toggle]')) { toggleSide(shellOf(t), false); return; }
     if (closest(t, '[data-hfx-shell-side-collapse]')) { toggleSide(shellOf(t), true); return; }
     if (closest(t, '[data-hfx-shell-side-close]')) { setSideOpen(shellOf(t), false); return; }
+    var groupToggle = closest(t, '[data-hfx-shell-side-group-toggle]');
+    if (groupToggle) {
+      var sideGroup = closest(groupToggle, '[data-hfx-shell-side-collapsible]');
+      setSideGroupOpen(sideGroup, sideGroup && sideGroup.getAttribute('data-hfx-shell-side-open') !== '1', true);
+      return;
+    }
     var zoneBtn = closest(t, '[data-hfx-shell-time-set]');
     if (zoneBtn) { setTimeZone(zoneBtn.getAttribute('data-hfx-shell-time-set')); return; }
     var skip = closest(t, '[data-hfx-shell-skip]');
@@ -1454,6 +1484,7 @@
     qsa(document, '[data-hfx-as-link]').forEach(pointToFile);
     qsa(document, '.hfx-shell.has-sidebar').forEach(function (s) {
       if (storeGet(SIDE_STORE) === '1') s.classList.add('is-side-collapsed');
+      restoreSideGroups(s);
       syncBarHeight(s);
       var current = s.querySelector('.hfx-shell-side-item[aria-current="page"]');
       if (current) sideItemIntoView(current);

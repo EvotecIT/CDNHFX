@@ -1,0 +1,8 @@
+/* Compatibility for HtmlForgeX/Resources/Styles/hfx-token-palette.css. Native components read HFX roles. */
+html:is([data-hfx-palette="tokens"], [data-hfx-design-system]):root :is(.form-control, .form-select, .form-check-input):focus {
+  border-color: color-mix(in srgb, var(--hfx-color-accent) 55%, var(--hfx-color-surface));
+}
+
+:root .text-bg-primary {
+  color: var(--hfx-color-accent-contrast) !important;
+}
