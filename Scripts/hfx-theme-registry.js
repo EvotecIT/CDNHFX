@@ -628,6 +628,7 @@ window.HfxThemeRegistry = {
         "--hfx-radius-badge",
         "--hfx-radius-container",
         "--hfx-radius-control",
+        "--hfx-radius-md",
         "--hfx-radius-none",
         "--hfx-radius-overlay",
         "--hfx-radius-pill",
