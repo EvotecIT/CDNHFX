@@ -1,0 +1,32 @@
+/* Compatibility for HtmlForgeX/Resources/Styles/hfx-service-studio.css. Native components read HFX roles. */
+.hfx-service-config-map__heading--controls,
+.hfx-service-config-map.card > .card-header.hfx-service-config-map__heading--controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .85rem;
+}.hfx-service-config-map--compact .card-body,
+.hfx-service-config-map--compact .hfx-service-config-map__body {
+  padding: .8rem;
+}.hfx-service-pipeline--compact .card-body,
+.hfx-service-pipeline--compact .hfx-service-pipeline__body {
+  padding: .75rem;
+}.hfx-service-impact-panel__title-row .badge {
+  flex: 0 1 auto;
+  max-width: 100%;
+  white-space: normal;
+  text-align: right;
+}.hfx-service-impact-panel--compact .card-body,
+.hfx-service-impact-panel--compact .hfx-service-impact-panel__body,
+.hfx-service-diff-summary--compact .card-body,
+.hfx-service-diff-summary--compact .hfx-service-diff-summary__body {
+  padding: .8rem;
+}@media (max-width: 991.98px) {.hfx-service-config-map__heading--controls,
+  .hfx-service-config-map.card > .card-header.hfx-service-config-map__heading--controls {
+    align-items: flex-start;
+    flex-direction: column;
+  }}@media (max-width: 575.98px) {.hfx-service-impact-panel__title-row .badge {
+    justify-self: start;
+    text-align: left;
+  }}

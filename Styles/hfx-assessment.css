@@ -417,6 +417,8 @@
   .hfx-as .hfx-as-expand-all { margin-left: 0; }
   .hfx-as-bar { grid-template-columns: minmax(0, 1fr) 70px; padding: 8px 16px; }
   .hfx-as-bar .hfx-as-track { grid-column: 1 / -1; grid-row: 2; }
+  .hfx-as .hfx-as-bar-name { flex-wrap: wrap; }
+  .hfx-as .hfx-as-bar-name > span { white-space: normal; overflow-wrap: anywhere; }
   .hfx-as-assert { grid-template-columns: 10px minmax(0, 1fr); }
   .hfx-as-assert-side { grid-column: 2; justify-items: start; grid-auto-flow: column; justify-content: start; gap: 10px; }
   .hfx-as .hfx-as-matrix-table th.is-row-head { min-width: 160px; }

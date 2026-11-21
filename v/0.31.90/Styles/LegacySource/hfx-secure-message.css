@@ -1,0 +1,15 @@
+/* Compatibility for HtmlForgeX/Resources/Styles/hfx-secure-message.css. Native components read HFX roles. */
+.hfx-file-secure-message .card-body {
+  gap: var(--hfx-file-gap) !important;
+}.hfx-file-secure-message__switch .form-check-input {
+  margin-top: 0;
+}.hfx-file-secure-message__submit .btn {
+  width: 100%;
+  min-height: 2.7rem;
+}.hfx-file-secure-message__copy-link .form-control {
+  min-width: 0;
+}.hfx-file-secure-message .form-control,
+.hfx-file-secure-message .form-select,
+.hfx-file-secure-message .ts-wrapper {
+  min-width: 0;
+}
